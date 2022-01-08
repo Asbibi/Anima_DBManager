@@ -9,11 +9,39 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    adbstructure.cpp \
+    aenumerator.cpp \
+    afloat.cpp \
+    aint.cpp \
+    astring.cpp \
+    astructure.cpp \
+    attribute.cpp \
+    attributeparam.cpp \
+    enumerator.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    qattribute.cpp \
+    qdatatable.cpp \
+    qstructure.cpp \
+    structure.cpp \
+    structuretemplate.cpp
 
 HEADERS += \
-    mainwindow.h
+    adbstructure.h \
+    aenumerator.h \
+    afloat.h \
+    aint.h \
+    astring.h \
+    astructure.h \
+    attribute.h \
+    attributeparam.h \
+    enumerator.h \
+    mainwindow.h \
+    qattribute.h \
+    qdatatable.h \
+    qstructure.h \
+    structure.h \
+    structuretemplate.h
 
 TRANSLATIONS += \
     Anima_DBManager_en_GB.ts

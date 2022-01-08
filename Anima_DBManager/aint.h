@@ -1,0 +1,23 @@
+#ifndef AINT_H
+#define AINT_H
+
+#include "attribute.h"
+
+class AInt : public Attribute
+{
+public:
+    int value;
+
+    AInt(const AttributeParam* _sharedParam);
+    AInt(const AttributeParam* _sharedParam, int _value);
+
+    virtual Attribute* CreateDuplica()              const override;
+    virtual QString GetDisplayedText()              const override;
+    virtual void WriteValue_CSV(std::ofstream& file) const override;
+
+    bool FitsMinParam() const;
+    bool FitsMaxParam() const;
+    int GetValidValue() const;
+};
+
+#endif // AINT_H
