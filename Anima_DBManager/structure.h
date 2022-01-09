@@ -11,13 +11,20 @@ class Structure
 {
 private:
     std::vector<Attribute*> attributes;
+    const StructureTemplate& templ;
 
 public:
-    Structure(const StructureTemplate& structureTemplate);
+    Structure(const Structure& _structure);
+    Structure(const StructureTemplate& _structureTemplate);
     ~Structure();
 
-    const Attribute* GetAttribute(const int& att_Index) const;
-    void ChangeAttribute(const int& att_Index, Attribute* newAttribute);
+    int GetAttributeCount() const;
+    const Attribute* GetAttribute(int _attIndex) const;
+    const Attribute* GetAttribute(const QString& _attName) const;
+    void ChangeAttribute(int _attIndex, Attribute* _newAttribute);
+
+    void WriteValue_CSV(std::ofstream& file) const;         // Used for structure as attribute of other structures
+    void WriteValue_CSV_AsRow(std::ofstream& file, int index) const;   // Used to directly save a row structure of a DataTable
 };
 
 #endif // STRUCTURE_H

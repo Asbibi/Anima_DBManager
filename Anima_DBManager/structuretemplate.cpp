@@ -45,12 +45,19 @@ void StructureTemplate::RemoveAttribute(const QString& att_Name)
 {
     RemoveAttribute(GetAttributeIndex(att_Name));
 }
-const Attribute* StructureTemplate::GetAttribute(const int& att_Index) const
+
+
+
+const QString& StructureTemplate::GetAttributeName(int _attIndex) const
 {
-    if (att_Index < 0 || att_Index >= attributeTemplates.size())
+    return attributesNames[_attIndex];
+}
+const Attribute* StructureTemplate::GetAttribute(int _attIndex) const
+{
+    if (_attIndex < 0 || _attIndex >= attributeTemplates.size())
         return nullptr;
 
-    return attributeTemplates[att_Index];
+    return attributeTemplates[_attIndex];
 }
 const Attribute* StructureTemplate::GetAttribute(const QString& att_Name) const
 {
@@ -59,4 +66,8 @@ const Attribute* StructureTemplate::GetAttribute(const QString& att_Name) const
 const std::vector<const Attribute*>& StructureTemplate::GetAttributes() const
 {
     return attributeTemplates;
+}
+const QString& StructureTemplate::GetStructName() const
+{
+    return structName;
 }

@@ -12,6 +12,7 @@ protected:
 
 public:
     Attribute(const AttributeParam* _sharedParam);
+    virtual ~Attribute() {};
 
     virtual Attribute* CreateDuplica()              const = 0;
     virtual QString GetDisplayedText()              const = 0;

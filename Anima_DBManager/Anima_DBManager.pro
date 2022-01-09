@@ -9,6 +9,7 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aarray.cpp \
     adbstructure.cpp \
     aenumerator.cpp \
     afloat.cpp \
@@ -17,6 +18,7 @@ SOURCES += \
     astructure.cpp \
     attribute.cpp \
     attributeparam.cpp \
+    db_manager.cpp \
     enumerator.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -27,6 +29,7 @@ SOURCES += \
     structuretemplate.cpp
 
 HEADERS += \
+    aarray.h \
     adbstructure.h \
     aenumerator.h \
     afloat.h \
@@ -35,6 +38,7 @@ HEADERS += \
     astructure.h \
     attribute.h \
     attributeparam.h \
+    db_manager.h \
     enumerator.h \
     mainwindow.h \
     qattribute.h \

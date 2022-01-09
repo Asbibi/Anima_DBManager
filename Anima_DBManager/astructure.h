@@ -2,11 +2,21 @@
 #define ASTRUCTURE_H
 
 #include "attribute.h"
+#include "structure.h"
 
 class AStructure : public Attribute
 {
 public:
-    AStructure();
+    Structure value;
+
+    AStructure(const StructureTemplate& structureTemplate);
+    AStructure(const Structure& _value);
+
+    virtual Attribute* CreateDuplica()              const override;
+    virtual QString GetDisplayedText()              const override;
+    virtual void WriteValue_CSV(std::ofstream& file) const override;
+
+    std::vector<QString> GetDisplayedTexts() const;
 };
 
 #endif // ASTRUCTURE_H

@@ -35,7 +35,7 @@ bool AFloat::FitsMaxParam() const
 }
 float AFloat::GetValidValue() const
 {
-    int v = value;
+    float v = value;
     if (!FitsMinParam())
         v = sharedParam->min_f;
     else if (!FitsMaxParam())

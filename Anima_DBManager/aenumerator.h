@@ -10,7 +10,7 @@ public:
     const Enumerator* enumerator;
     int value_index;
 
-    AEnumerator(const Enumerator* _enumerator, int _valueIndex);
+    AEnumerator(const Enumerator* _enumerator, int _valueIndex = 0);
 
     virtual Attribute* CreateDuplica()              const override;
     virtual QString GetDisplayedText()              const override;
