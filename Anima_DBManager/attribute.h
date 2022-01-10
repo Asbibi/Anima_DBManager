@@ -14,9 +14,10 @@ public:
     Attribute(const AttributeParam* _sharedParam);
     virtual ~Attribute() {};
 
-    virtual Attribute* CreateDuplica()              const = 0;
-    virtual QString GetDisplayedText()              const = 0;
-    virtual void WriteValue_CSV(std::ofstream& file) const = 0;
+    virtual Attribute* CreateDuplica()                      const = 0;
+    virtual QString GetDisplayedText(bool complete = false) const = 0;
+    virtual void WriteValue_CSV(std::ofstream& file)        const = 0;
+    virtual void SetValueFromText(const QString& text)            = 0;
 };
 
 #endif // ATTRIBUTE_H

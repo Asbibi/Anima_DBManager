@@ -10,6 +10,7 @@ CONFIG += c++11
 
 SOURCES += \
     aarray.cpp \
+    abool.cpp \
     adbstructure.cpp \
     aenumerator.cpp \
     afloat.cpp \
@@ -30,6 +31,7 @@ SOURCES += \
 
 HEADERS += \
     aarray.h \
+    abool.h \
     adbstructure.h \
     aenumerator.h \
     afloat.h \

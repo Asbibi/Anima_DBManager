@@ -15,13 +15,20 @@ Attribute* AInt::CreateDuplica() const
 {
     return new AInt(sharedParam, value);
 }
-QString AInt::GetDisplayedText() const
+QString AInt::GetDisplayedText(bool complete) const
 {
-    return QString::number(GetValidValue());
+    return QString::number(complete ? value : GetValidValue());
 }
 void AInt::WriteValue_CSV(std::ofstream& file) const
 {
     file << GetValidValue();
+}
+void AInt::SetValueFromText(const QString& text)
+{
+    if (text.contains('.'))
+        value = text.toFloat();
+    else
+        value = text.toInt();
 }
 
 

@@ -16,13 +16,17 @@ Attribute* AString::CreateDuplica() const
 {
     return new AString(sharedParam, value);
 }
-QString AString::GetDisplayedText() const
+QString AString::GetDisplayedText(bool complete) const
 {
-    return value.left(sharedParam->max_i);
+    return complete ? value : value.left(sharedParam->max_i);
 }
 void AString::WriteValue_CSV(std::ofstream& file) const
 {
     file << GetDisplayedText().toStdString();
+}
+void AString::SetValueFromText(const QString& text)
+{
+    value = text;
 }
 
 

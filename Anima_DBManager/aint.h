@@ -5,15 +5,17 @@
 
 class AInt : public Attribute
 {
-public:
+private:
     int value;
 
+public:
     AInt(const AttributeParam* _sharedParam);
     AInt(const AttributeParam* _sharedParam, int _value);
 
-    virtual Attribute* CreateDuplica()              const override;
-    virtual QString GetDisplayedText()              const override;
-    virtual void WriteValue_CSV(std::ofstream& file) const override;
+    virtual Attribute* CreateDuplica()                          const override;
+    virtual QString GetDisplayedText(bool complete = false)     const override;
+    virtual void WriteValue_CSV(std::ofstream& file)            const override;
+    virtual void SetValueFromText(const QString& text)                override;
 
     bool FitsMinParam() const;
     bool FitsMaxParam() const;

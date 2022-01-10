@@ -1,25 +1,21 @@
-#ifndef AFLOAT_H
-#define AFLOAT_H
+#ifndef ABOOL_H
+#define ABOOL_H
 
 #include "attribute.h"
 
-class AFloat : public Attribute
+class ABool : public Attribute
 {
 private:
-    float value;
+    bool value;
 
 public:
-    AFloat(const AttributeParam* _sharedParam);
-    AFloat(const AttributeParam* _sharedParam, float _value);
+    ABool();
+    ABool(bool _value);
 
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;
     virtual void SetValueFromText(const QString& text)                override;
-
-    bool FitsMinParam() const;
-    bool FitsMaxParam() const;
-    float GetValidValue() const;
 };
 
-#endif // AFLOAT_H
+#endif // ABOOL_H

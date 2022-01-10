@@ -5,15 +5,17 @@
 
 class AString : public Attribute
 {
-public:
+private:
     QString value;
 
+public:
     AString(const AttributeParam* _sharedParam);
     AString(const AttributeParam* _sharedParam, QString _value);
 
-    virtual Attribute* CreateDuplica()              const override;
-    virtual QString GetDisplayedText()              const override;
-    virtual void WriteValue_CSV(std::ofstream& file) const override;
+    virtual Attribute* CreateDuplica()                          const override;
+    virtual QString GetDisplayedText(bool complete = false)     const override;
+    virtual void WriteValue_CSV(std::ofstream& file)            const override;
+    virtual void SetValueFromText(const QString& text)                override;
 
     bool HasValidSize() const;
     QString GetFullText() const;

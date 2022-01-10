@@ -15,13 +15,17 @@ Attribute* AFloat::CreateDuplica() const
 {
     return new AFloat(sharedParam, value);
 }
-QString AFloat::GetDisplayedText() const
+QString AFloat::GetDisplayedText(bool complete) const
 {
-    return QString::number(GetValidValue());
+    return QString::number(complete ? value : GetValidValue());
 }
 void AFloat::WriteValue_CSV(std::ofstream& file) const
 {
     file << GetValidValue();
+}
+void AFloat::SetValueFromText(const QString& text)
+{
+    value = text.toFloat();
 }
 
 
