@@ -4,6 +4,16 @@ StructureTemplate::StructureTemplate(QString _structName, QColor _structColor) :
     structName(_structName),
     structColor(_structColor)
 {}
+StructureTemplate::StructureTemplate(const StructureTemplate& other) :
+    structName(other.structName),
+    structColor(other.structColor)
+{
+    for(const auto& str : other.attributesNames)
+        attributesNames.push_back(str);
+
+    for(const auto& attr : other.attributeTemplates)
+        attributeTemplates.push_back(attr->CreateDuplica());
+}
 StructureTemplate::~StructureTemplate()
 {
     for(auto const& att : attributeTemplates)

@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 
+#include <QTabWidget>
+
+#include "db_manager.h"
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -10,5 +14,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+private:
+    DB_Manager& myManager;
+
+    QTabWidget* myTabPanel;
 };
 #endif // MAINWINDOW_H

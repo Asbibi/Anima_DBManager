@@ -1,7 +1,6 @@
 #include "aarray.h"
 #include <QDebug>
 
-
 AArray::AArray(const AttributeParam* _sharedParam) :
     AArray(_sharedParam, nullptr)
 {}
@@ -134,8 +133,6 @@ void AArray::SetValueFromText(const QString& text)
     for(int i =0; i < finalList.size(); i++)
         values[i]->SetValueFromText(finalList[i]);
 }
-
-
 
 std::vector<QString> AArray::GetDisplayedTexts() const
 {

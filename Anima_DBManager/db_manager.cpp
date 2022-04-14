@@ -18,59 +18,61 @@ DB_Manager::DB_Manager()
     AddEnum(Enumerator("MoveCategory", {"PHYSIC","SPECIAL","SUPPORT"}));
 
     // Setup template
-    StructureTemplate templ = StructureTemplate("Test", QColorConstants::Red);
+    StructureTemplate* templ = new StructureTemplate("Test", QColorConstants::Red);
 
-    templ.AddAttribute("Bool", new ABool());
-    templ.AddAttribute("Enum", new AEnumerator(&enumerators[0], 4));
+    templ->AddAttribute("Bool", new ABool());
+    templ->AddAttribute("Enum", new AEnumerator(&enumerators[0], 4));
     AttributeParam floatParam = AttributeParam();
     AFloat* floatAttTempl = new AFloat(&floatParam);
     floatAttTempl->SetValueFromText("0.253");
-    templ.AddAttribute("Float", floatAttTempl);
+    templ->AddAttribute("Float", floatAttTempl);
     AttributeParam intParam = AttributeParam();
-    templ.AddAttribute("Int", new AInt(&intParam));
+    templ->AddAttribute("Int", new AInt(&intParam));
     AttributeParam stringParam = AttributeParam();
     stringParam.max_i = 32;
-    templ.AddAttribute("String", new AString(&stringParam, "Hello There !!!"));
+    templ->AddAttribute("String", new AString(&stringParam, "Hello There !!!"));
 
-    StructureTemplate templ2 = StructureTemplate("Test_Strct", QColorConstants::Red);
-    AStructure* structAtt = new AStructure(templ);
-    templ2.AddAttribute("Struct", structAtt);
+    StructureTemplate* templ2 = new StructureTemplate("Test_Strct", QColorConstants::Red);
+    AStructure* structAtt = new AStructure(*templ);
+    templ2->AddAttribute("Struct", structAtt);
     AttributeParam arrayParam = AttributeParam();
     arrayParam.templateAtt = floatAttTempl->CreateDuplica();
     AArray* arrayAtt = new AArray(&arrayParam);
     arrayAtt->AddRow();
     arrayAtt->AddRow();
-    templ2.AddAttribute("Array", arrayAtt);
+    templ2->AddAttribute("Array", arrayAtt);
 
-    StructureTemplate templ3 = StructureTemplate("Test_Combine", QColorConstants::Red);
+    StructureTemplate* templ3 = new StructureTemplate("Test_Combine", QColorConstants::Red);
     AttributeParam arrayParam2 = AttributeParam();
     arrayParam2.templateAtt = structAtt->CreateDuplica();
     AArray* arrayAtt2 = new AArray(&arrayParam2);
     arrayAtt2->AddRow();
     arrayAtt2->AddRow();
-    templ3.AddAttribute("ArrayOfStruct", arrayAtt2);
+    templ3->AddAttribute("ArrayOfStruct", arrayAtt2);
 
-    StructureTemplate templ4 = StructureTemplate("Test_Combine", QColorConstants::Red);
-    AStructure* structAtt2 = new AStructure(templ2);
-    templ4.AddAttribute("StructOfStructAndArray", structAtt2);
+    StructureTemplate* templ4 = new StructureTemplate("Test_Combine", QColorConstants::Red);
+    AStructure* structAtt2 = new AStructure(*templ2);
+    templ4->AddAttribute("StructOfStructAndArray", structAtt2);
 
+//#define fileExportTest
+#ifdef fileExportTest
     // Create structure
-    Structure structure = Structure(templ);
-    Structure structure1 = Structure(templ);
+    Structure structure = Structure(*templ);
+    Structure structure1 = Structure(*templ);
     structure1.SetAttributeValueFromText("Bool", "tRuEe");
     structure1.SetAttributeValueFromText("Enum", "FIREe");
     structure1.SetAttributeValueFromText("Float", "15.623665l");
     structure1.SetAttributeValueFromText("Int", "10.1");
     structure1.SetAttributeValueFromText("String", "General Kenobi...");
-    Structure structure20 = Structure(templ2);
-    Structure structure2 = Structure(templ2);
+    Structure structure20 = Structure(*templ2);
+    Structure structure2 = Structure(*templ2);
     structure2.SetAttributeValueFromText("Struct", "{true,WATER,5.86,90,Meh}");
     structure2.SetAttributeValueFromText("Array", "[3.0,5.36]");
-    Structure structure30 = Structure(templ3);
-    Structure structure3 = Structure(templ3);
+    Structure structure30 = Structure(*templ3);
+    Structure structure3 = Structure(*templ3);
     structure3.SetAttributeValueFromText("ArrayOfStruct", "[{true,FIRE,5.8886,53,hé},{false,Wind,2.33333,3,oh}]");
-    Structure structure40 = Structure(templ4);
-    Structure structure4 = Structure(templ4);
+    Structure structure40 = Structure(*templ4);
+    Structure structure4 = Structure(*templ4);
     structure4.SetAttributeValueFromText("StructOfStructAndArray", "{{true,FIRE,5.8886,53,hé},[23.5,63.6]}");
 
     // File handling
@@ -90,6 +92,17 @@ DB_Manager::DB_Manager()
     file.close();
 
     //QString testStr = structure4.GetAttribute("StructOfStructAndArray")->GetDisplayedText(true);
+#else
+    AddStructures(*templ);
+    AddStructures(*templ2);
+    AddStructures(*templ3);
+    AddStructures(*templ4);
+#endif
+}
+DB_Manager::~DB_Manager()
+{
+    for(auto const& strct : myStructures)
+        delete(strct);
 }
 DB_Manager& DB_Manager::GetDB_Manager()
 {
@@ -118,4 +131,23 @@ void DB_Manager::RemoveEnum(int _index)
         return;
 
     enumerators.erase(enumerators.begin() + _index);
+}
+
+
+int DB_Manager::GetStructuresCount() const
+{
+    return myStructures.size();
+}
+const StructureDB* DB_Manager::GetStructures(int index) const
+{
+    if (index < 0)
+        index = 0;
+    else if (index >= GetStructuresCount())
+        index = GetStructuresCount() -1;
+
+    return myStructures[index];
+}
+void DB_Manager::AddStructures(const StructureTemplate& _structureTemplate)
+{
+    myStructures.push_back(new StructureDB(_structureTemplate));
 }

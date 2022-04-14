@@ -12,6 +12,7 @@ public:
     AString(const AttributeParam* _sharedParam);
     AString(const AttributeParam* _sharedParam, QString _value);
 
+    virtual Type GetType() const override { return Type::String; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

@@ -5,16 +5,19 @@
 #include <vector>
 
 /**
- * Data Object for a Structure Object. It is composed of several Attributes, each one being assigned to a specific and unique name, and their type can be varying.
+ * Data Object for a Structure Object.
+ * It is composed of several Attributes,
+ * each one being assigned to a specific and unique name,
+ * and their type can be various.
  */
 class Structure
 {
 private:
     std::vector<Attribute*> attributes;
-    const StructureTemplate& templ;
+    const StructureTemplate* templ;
 
 public:
-    Structure(const Structure& _structure);
+    Structure(const Structure& _other);
     Structure(const StructureTemplate& _structureTemplate);
     ~Structure();
 

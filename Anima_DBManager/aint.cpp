@@ -1,5 +1,6 @@
 #include "aint.h"
 
+
 AInt::AInt(const AttributeParam* _sharedParam) : AInt(_sharedParam, 0) {}
 AInt::AInt(const AttributeParam* _sharedParam, int _value) :
     Attribute(_sharedParam),

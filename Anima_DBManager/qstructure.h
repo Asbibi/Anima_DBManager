@@ -2,6 +2,9 @@
 #define QSTRUCTURE_H
 
 #include <QWidget>
+#include <QBoxLayout>
+
+#include "qattribute.h"
 #include "structure.h"
 
 class QStructure : public QWidget
@@ -9,16 +12,18 @@ class QStructure : public QWidget
     Q_OBJECT
 
 private:
-    Structure* structure;
-    QColor structureColor;
-    QColor backgroundColor = QColor(240,240,240);
-    bool displayAttributeNames = true;
+    QBoxLayout* myLayout;
+    std::vector<QAttribute*> myStructureWidgets;
 
 public:
     explicit QStructure(QWidget *parent = nullptr);
+    ~QStructure();
 
-signals:
 
+//signals:
+
+public slots:
+    void UpdateAttributes(const Structure& _structure);
 };
 
 #endif // QSTRUCTURE_H

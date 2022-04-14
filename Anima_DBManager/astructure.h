@@ -12,6 +12,7 @@ public:
     AStructure(const StructureTemplate& structureTemplate);
     AStructure(const Structure& _value);
 
+    virtual Type GetType() const override { return Type::Structure; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

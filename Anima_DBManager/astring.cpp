@@ -1,4 +1,5 @@
 #include "astring.h"
+
 #include<QDebug>
 
 

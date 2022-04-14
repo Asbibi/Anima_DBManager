@@ -1,4 +1,5 @@
 #include "astructure.h"
+
 #include<QDebug>
 
 AStructure::AStructure(const StructureTemplate& structureTemplate) :
@@ -104,7 +105,6 @@ void AStructure::SetValueFromText(const QString& text)
     for(int i =0; i < finalList.size(); i++)
         value.SetAttributeValueFromText(i, finalList[i]);
 }
-
 
 
 std::vector<QString> AStructure::GetDisplayedTexts() const

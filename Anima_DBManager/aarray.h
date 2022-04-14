@@ -13,6 +13,7 @@ public:
     AArray(const AttributeParam* _sharedParam, const std::vector<Attribute*>* _values);
     ~AArray();
 
+    virtual Type GetType() const override { return Type::Array; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

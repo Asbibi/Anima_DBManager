@@ -1,12 +1,12 @@
 #include "structure.h"
 
 
-Structure::Structure(const Structure& _structure) : templ(_structure.templ)
+Structure::Structure(const Structure& _other) : templ(_other.templ)
 {
-    for (const auto& _att : _structure.attributes)
+    for (const auto& _att : _other.attributes)
         attributes.push_back(_att->CreateDuplica());
 }
-Structure::Structure(const StructureTemplate& _structureTemplate) : templ(_structureTemplate)
+Structure::Structure(const StructureTemplate& _structureTemplate) : templ(&_structureTemplate)
 {
     const std::vector<const Attribute*>& _templates = _structureTemplate.GetAttributes();
     for (const auto& _templ : _templates)
@@ -33,7 +33,7 @@ const Attribute* Structure::GetAttribute(int _attIndex) const
 }
 const Attribute* Structure::GetAttribute(const QString& _attName) const
 {
-    return GetAttribute(templ.GetAttributeIndex(_attName));
+    return GetAttribute(templ->GetAttributeIndex(_attName));
 }
 void Structure::SetAttributeValueFromText(int _attIndex, QString _valueText)
 {
@@ -43,7 +43,7 @@ void Structure::SetAttributeValueFromText(int _attIndex, QString _valueText)
 }
 void Structure::SetAttributeValueFromText(const QString& _attName, QString _valueText)
 {
-    SetAttributeValueFromText(templ.GetAttributeIndex(_attName), _valueText);
+    SetAttributeValueFromText(templ->GetAttributeIndex(_attName), _valueText);
 }
 void Structure::ChangeAttribute(int _attIndex, Attribute* _newAttribute)
 {
@@ -70,7 +70,7 @@ void Structure::WriteValue_CSV(std::ofstream& file) const
     {
         if (0 < i)
             file << ",";
-        file << templ.GetAttributeName(i).toStdString();
+        file << templ->GetAttributeName(i).toStdString();
         file << "=";
         attributes[i]->WriteValue_CSV(file);
     }
@@ -81,7 +81,7 @@ void Structure::WriteValue_CSV(std::ofstream& file) const
 void Structure::WriteValue_CSV_AsRow(std::ofstream& file, int index) const
 {
     // Add row name
-    file << templ.GetStructName().toStdString() << "_" << index;
+    file << templ->GetStructName().toStdString() << "_" << index;
 
     // Add all attribute values in between ""
     for (const auto& att : attributes)

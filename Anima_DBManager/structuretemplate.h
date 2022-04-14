@@ -3,6 +3,7 @@
 
 
 #include "attribute.h"
+#include <QColor>
 #include <vector>
 
 class StructureTemplate
@@ -17,6 +18,7 @@ private:
 
 public:
     StructureTemplate(QString _structName, QColor _structColor);
+    StructureTemplate(const StructureTemplate& other);
     ~StructureTemplate();
 
     void AddAttribute(QString att_Name, Attribute* att);

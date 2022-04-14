@@ -12,6 +12,7 @@ public:
     AInt(const AttributeParam* _sharedParam);
     AInt(const AttributeParam* _sharedParam, int _value);
 
+    virtual Type GetType() const override { return Type::Int; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

@@ -11,7 +11,6 @@ CONFIG += c++11
 SOURCES += \
     aarray.cpp \
     abool.cpp \
-    adbstructure.cpp \
     aenumerator.cpp \
     afloat.cpp \
     aint.cpp \
@@ -26,13 +25,14 @@ SOURCES += \
     qattribute.cpp \
     qdatatable.cpp \
     qstructure.cpp \
+    qstructuredb.cpp \
     structure.cpp \
+    structuredb.cpp \
     structuretemplate.cpp
 
 HEADERS += \
     aarray.h \
     abool.h \
-    adbstructure.h \
     aenumerator.h \
     afloat.h \
     aint.h \
@@ -46,7 +46,9 @@ HEADERS += \
     qattribute.h \
     qdatatable.h \
     qstructure.h \
+    qstructuredb.h \
     structure.h \
+    structuredb.h \
     structuretemplate.h
 
 TRANSLATIONS += \
@@ -58,3 +60,6 @@ CONFIG += embed_translations
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+FORMS += \
+    qstructuredb.ui
