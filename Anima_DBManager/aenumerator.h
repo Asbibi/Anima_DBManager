@@ -18,6 +18,10 @@ public:
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;
     virtual void SetValueFromText(const QString& text)                override;
+
+    const Enumerator*   GetEnum()       const { return enumerator; };
+    int                 GetEnumValue()  const { return value_index; };
+    void                SetEnumValue(int _ind){ value_index = _ind; };
 };
 
 #endif // AENUMERATOR_H

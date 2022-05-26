@@ -21,8 +21,8 @@ void AEnumerator::WriteValue_CSV(std::ofstream& file) const
 }
 void AEnumerator::SetValueFromText(const QString& text)
 {
-    int v = enumerator->GetValueIndex(text);
-    if (v < 0 || v >= enumerator->GetValueCount())
-        v = 0;
-    value_index = v;
+    int indexValue = enumerator->GetValueIndex(text);
+    if (indexValue < 0 || indexValue >= enumerator->GetValueCount())
+        indexValue = 0;
+    value_index = indexValue;
 }

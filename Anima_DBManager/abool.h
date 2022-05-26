@@ -17,6 +17,10 @@ public:
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;
     virtual void SetValueFromText(const QString& text)                override;
+
+
+    bool GetValue() const {return value;};
+    void SetValue(bool _value) {value = _value;};
 };
 
 #endif // ABOOL_H

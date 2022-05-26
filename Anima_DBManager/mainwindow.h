@@ -7,6 +7,9 @@
 
 #include "db_manager.h"
 
+#include "attribute.h"
+#include "qattribute.h"
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -18,6 +21,9 @@ public:
 private:
     DB_Manager& myManager;
 
-    QTabWidget* myTabPanel;
+    QTabWidget* myTabPanel = nullptr;
+
+    std::vector<Attribute*> myDebugAttributes;
+    QAttribute* myAttr = nullptr;
 };
 #endif // MAINWINDOW_H

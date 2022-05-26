@@ -19,7 +19,10 @@ Attribute* AString::CreateDuplica() const
 }
 QString AString::GetDisplayedText(bool complete) const
 {
-    return complete ? value : value.left(sharedParam->max_i);
+    if (sharedParam->max_i < 0)
+        return value;
+    else
+        return complete ? value : value.left(sharedParam->max_i);
 }
 void AString::WriteValue_CSV(std::ofstream& file) const
 {
@@ -33,7 +36,10 @@ void AString::SetValueFromText(const QString& text)
 
 bool AString::HasValidSize() const
 {
-    return value.size() < sharedParam->max_i;
+    if (sharedParam->max_i < 0)
+        return true;
+    else
+        return value.size() < sharedParam->max_i;
 }
 QString AString::GetFullText() const
 {
