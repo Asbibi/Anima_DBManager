@@ -21,7 +21,7 @@ public:
 
     const Enumerator*   GetEnum()       const { return enumerator; };
     int                 GetEnumValue()  const { return value_index; };
-    void                SetEnumValue(int _ind){ value_index = _ind; };
+    void                SetEnumValue(int _valueIndex);
 };
 
 #endif // AENUMERATOR_H

@@ -25,7 +25,20 @@ void AFloat::WriteValue_CSV(std::ofstream& file) const
 }
 void AFloat::SetValueFromText(const QString& text)
 {
-    value = text.toFloat();
+    bool ok;
+    float _value = text.toFloat(&ok);
+    if (!ok)
+    {
+       EmitValueChanged();
+       return;
+    }
+
+    bool changed = value != _value;
+    value = _value;
+    if (changed)
+    {
+        EmitValueChanged();
+    }
 }
 
 

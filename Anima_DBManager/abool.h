@@ -20,7 +20,7 @@ public:
 
 
     bool GetValue() const {return value;};
-    void SetValue(bool _value) {value = _value;};
+    void SetValue(bool _value);
 };
 
 #endif // ABOOL_H

@@ -8,3 +8,8 @@ Attribute::Attribute(const AttributeParam* _sharedParam) :
 
 Attribute::~Attribute()
 {}
+
+void Attribute::EmitValueChanged()
+{
+    emit OnValueChanged(this);
+}

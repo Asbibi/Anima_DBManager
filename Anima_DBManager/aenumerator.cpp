@@ -24,5 +24,16 @@ void AEnumerator::SetValueFromText(const QString& text)
     int indexValue = enumerator->GetValueIndex(text);
     if (indexValue < 0 || indexValue >= enumerator->GetValueCount())
         indexValue = 0;
-    value_index = indexValue;
+    SetEnumValue(indexValue);
+}
+
+void AEnumerator::SetEnumValue(int _valueIndex)
+{
+    bool changed = value_index != _valueIndex;
+    value_index = _valueIndex;
+
+    if (changed)
+    {
+        EmitValueChanged();
+    }
 }

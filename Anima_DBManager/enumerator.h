@@ -5,6 +5,8 @@
 #include <QColor>
 #include <vector>
 
+class QWidget;
+
 class Enumerator
 {
 protected:
@@ -23,9 +25,10 @@ public:
     int GetValueCount() const;
     QString GetValue(int _index) const;
     int GetValueIndex(const QString& _value) const;
+    void SetColorToWidget(int _index, QWidget* _widget) const;
 
     void AddValue(const QString& _value);
-    void AddValue(const QString& _value, const QColor& _color);
+    void AddValue(const QString& _value, const QColor* _color);
     void RemoveValue(const QString& _value);
     void RemoveValue(int _index);
 };

@@ -16,6 +16,7 @@ protected:
     //QAttribute* myAttributeWidget = nullptr;
 
     //void ReplaceMyAttributeWidget(QAttribute* _newAttributeWidget);
+    void EmitValueChanged();
 
 public:
     enum class Type
@@ -33,13 +34,14 @@ public:
     Attribute(const AttributeParam* _sharedParam);
     virtual ~Attribute();
 
-    virtual Type GetType()                         const = 0;
+    virtual Type GetType()                                  const = 0;
+    //virtual int GetColumnWidth()                            const = 0;
     virtual Attribute* CreateDuplica()                      const = 0;
     virtual QString GetDisplayedText(bool complete = false) const = 0;
     virtual void WriteValue_CSV(std::ofstream& file)        const = 0;
 
 signals:
-    void OnValueChanged(const Attribute& _this);    // arg given during emit()
+    void OnValueChanged(const Attribute* _this);    // arg given during emit()
 
 public slots:
     virtual void SetValueFromText(const QString& text)            = 0;

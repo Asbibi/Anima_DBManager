@@ -9,6 +9,9 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QTableWidget>
+//#include <QHeaderView>
+#include <QStringList>
 
 #include "aarray.h"
 #include "abool.h"
@@ -17,6 +20,7 @@
 #include "afloat.h"
 #include "astring.h"
 #include "astructure.h"
+#include "qstructuretable.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -37,6 +41,32 @@ MainWindow::MainWindow(QWidget *parent)
     //resize(570,420);
     //QGroupBox for grouping things maybe for creating structures templates or enum
 
+    QTableWidget* tableWidget = new QTableWidget(myTabPanel);
+    tableWidget->setRowCount(10);
+    tableWidget->setColumnCount(5);
+    //tableWidget->setColumnWidth(0,50);
+    tableWidget->setRowHeight(0,50);
+    QStringList verticalHeaderNames = {"Item","Barbe","a","papa","hey"};
+    tableWidget->setHorizontalHeaderLabels(verticalHeaderNames);
+    //tableWidget->horizontalHeader();
+
+    /*auto* it = new QAttributeTableItem();
+    QString imgPath = "/home/haris/Pictures/face/3.png";
+    QPixmap pix1(imgPath);
+    it->setData(QVariant(imgPath), Qt::UserRole);
+    tableWidget->setItem(0,0, it);*/
+    //tableWidget->setCellWidget(0,0, myAttr );
+    myTabPanel->addTab(tableWidget, "Table");
+
+    StructureDB* db = myManager.GetStructures(0);
+    if (db != nullptr)
+    {
+        QStructureTable* testTable = new QStructureTable(*db);
+        myTabPanel->addTab(testTable, db->GetTemplateName());
+    }
+
+
+    //---------
 
     AttributeParam* someParam = new AttributeParam();
 
@@ -79,6 +109,13 @@ MainWindow::MainWindow(QWidget *parent)
     //vbox->addStretch(1);
     group->setLayout(vbox);
     layout->addWidget(group);
+
+    /*QPushButton* editBtn = new QPushButton("Edit Int");
+    QObject::connect(editBtn, &QPushButton::clicked, [intAttr_0](){
+        if (intAttr_0 != nullptr)
+            intAttr_0->SetValueFromText("99");
+    });
+    layout->addWidget(editBtn);*/
 }
 
 MainWindow::~MainWindow()

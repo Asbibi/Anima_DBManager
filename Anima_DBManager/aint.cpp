@@ -26,12 +26,26 @@ void AInt::WriteValue_CSV(std::ofstream& file) const
 }
 void AInt::SetValueFromText(const QString& text)
 {
+    bool ok;
+    int _value = 0;
     if (text.contains('.'))
-        value = text.toFloat();
+        _value = text.toFloat(&ok);
     else
-        value = text.toInt();
-}
+        _value = text.toInt(&ok);
 
+    if (!ok)
+    {
+       EmitValueChanged();
+       return;
+    }
+
+    bool changed = value != _value;
+    value = _value;
+    if (changed)
+    {
+        EmitValueChanged();
+    }
+}
 
 bool AInt::FitsMinParam() const
 {

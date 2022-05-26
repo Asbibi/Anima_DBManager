@@ -6,6 +6,7 @@
 #include "attribute.h"
 
 
+
 class QAttribute : public QWidget
 {
     Q_OBJECT

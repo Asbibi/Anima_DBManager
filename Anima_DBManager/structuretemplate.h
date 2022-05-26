@@ -26,6 +26,7 @@ public:
     void RemoveAttribute(const QString& att_Name);
 
     int GetAttributeIndex(const QString& att_Name) const;
+    Attribute::Type GetAttributeType(int _attIndex) const;
     const QString& GetAttributeName(int _attIndex) const;
     const Attribute* GetAttribute(int att_Index) const;
     const Attribute* GetAttribute(const QString& att_Name) const;

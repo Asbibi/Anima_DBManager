@@ -30,5 +30,16 @@ void ABool::WriteValue_CSV(std::ofstream& file) const
 }
 void ABool::SetValueFromText(const QString& text)
 {
-    value = QString::compare(text, "true", Qt::CaseInsensitive) == 0;
+    SetValue(QString::compare(text, "true", Qt::CaseInsensitive) == 0);
+}
+
+void ABool::SetValue(bool _value)
+{
+    bool changed = _value != value;
+    value = _value;
+
+    if (changed)
+    {
+        EmitValueChanged();
+    }
 }

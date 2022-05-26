@@ -14,11 +14,13 @@
 DB_Manager::DB_Manager()
 {
     // Enums (TODO : remove to instead add automatic creation from loading file)
-    AddEnum(Enumerator("Type", {"SOUL", "FIRE", "WATER", "GRASS", "GROUND","THUNDER","WIND"}));
+    AddEnum(Enumerator("Type", {"SOUL", "FIRE", "WATER", "GRASS", "GROUND","THUNDER","WIND"},
+                       {QColorConstants::Gray, QColorConstants::Red, QColorConstants::Blue,
+                       QColorConstants::DarkGreen, QColorConstants::DarkMagenta, QColorConstants::DarkYellow, QColorConstants::DarkCyan}));
     AddEnum(Enumerator("MoveCategory", {"PHYSIC","SPECIAL","SUPPORT"}));
 
     // Setup template
-    StructureTemplate* templ = new StructureTemplate("Test", QColorConstants::Red);
+    StructureTemplate* templ = new StructureTemplate("Test2StructDB", QColorConstants::Red);
 
     templ->AddAttribute("Bool", new ABool());
     templ->AddAttribute("Enum", new AEnumerator(&enumerators[0], 4));
@@ -97,6 +99,11 @@ DB_Manager::DB_Manager()
     AddStructures(*templ2);
     AddStructures(*templ3);
     AddStructures(*templ4);
+
+    StructureDB* db1 = GetStructures(0);
+    db1->AddStructureAt(0);
+    db1->AddStructureAt(0);
+    db1->AddStructureAt(0);
 #endif
 }
 DB_Manager::~DB_Manager()
@@ -136,9 +143,18 @@ void DB_Manager::RemoveEnum(int _index)
 
 int DB_Manager::GetStructuresCount() const
 {
-    return myStructures.size();
+    return (int)(myStructures.size());
 }
 const StructureDB* DB_Manager::GetStructures(int index) const
+{
+    if (index < 0)
+        index = 0;
+    else if (index >= GetStructuresCount())
+        index = GetStructuresCount() -1;
+
+    return myStructures[index];
+}
+StructureDB* DB_Manager::GetStructures(int index)
 {
     if (index < 0)
         index = 0;

@@ -1,5 +1,7 @@
 #include "enumerator.h"
 
+#include <QWidget>
+
 Enumerator::Enumerator(QString _name) : name(_name) {}
 Enumerator::Enumerator(QString _name, QString* _values, int _count) : Enumerator(_name, _values, nullptr, _count) {}
 Enumerator::Enumerator(QString _name, QString* _values, QColor* _colors, int _count) : Enumerator(_name)
@@ -14,15 +16,13 @@ Enumerator::Enumerator(QString _name, QString* _values, QColor* _colors, int _co
     for (int i = 0; i < _count; i++)
     {
         values.push_back(_values[i]);
-        colors.push_back(_colorsIsNull ? QColor(240,240,240) : _colors[i]);
+        if (!_colorsIsNull)
+        {
+            colors.push_back(_colors[i]);
+        }
     }
 }
-Enumerator::Enumerator(QString _name, std::vector<QString> _values) : name(_name), values(_values)
-{
-    colors.reserve(values.size());
-    for(const auto& val : values)
-        colors.push_back(QColor(204,240,240));
-}
+Enumerator::Enumerator(QString _name, std::vector<QString> _values) : name(_name), values(_values) {}
 Enumerator::Enumerator(QString _name, std::vector<QString> _values, std::vector<QColor> _colors) : name(_name), values(_values), colors(_colors) {}
 
 
@@ -53,21 +53,40 @@ int Enumerator::GetValueIndex(const QString& _value) const
     return -1;
 }
 
+void Enumerator::SetColorToWidget(int _index, QWidget* _widget) const
+{
+    if (_index < 0 || _index >= colors.size())
+        return ;
+
+    _widget->setStyleSheet("QComboBox { color: " + colors[_index].name(QColor::HexRgb) + "; }");
+    // Notabene: Background Color -> "background-color:..."
+}
+
 
 
 
 void Enumerator::AddValue(const QString& _value)
 {
-    AddValue(_value, QColor(240,240,240));
+    AddValue(_value, nullptr);
 }
-void Enumerator::AddValue(const QString& _value, const QColor& _color)
+void Enumerator::AddValue(const QString& _value, const QColor* _color)
 {
     for(const auto& val : values)
         if(_value == val)
             return;
 
     values.push_back(_value);
-    colors.push_back(_color);
+    // We add a color only if we already colors only
+    if (colors.size() > 0)
+    {
+        colors.push_back(_color ? *_color : QColorConstants::Black);
+    }
+    // Or if we have a color and it's our first value
+    else if (_color && values.size() == 1)
+    {
+        colors.push_back( *_color);
+    }
+
 }
 void Enumerator::RemoveValue(const QString& _value)
 {

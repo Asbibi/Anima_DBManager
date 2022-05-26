@@ -13,17 +13,17 @@
 #include <QLineEdit>
 #include <QVBoxLayout>
 
+
+
 QAttribute::QAttribute(QWidget* parent) :
     QWidget(parent)
 {
-    setLayout(new QVBoxLayout());
-    resize(100,100);
-//    resize(param.hSize, param.vSize);
+    auto* myLayout = new QVBoxLayout();
 
-//    QPalette pal = QPalette();
-//    pal.setColor(QPalette::Window, param.backColor);
-//    setAutoFillBackground(true);
-//    setPalette(pal);
+    myLayout->addWidget(myContent);
+    myLayout->setAlignment(Qt::AlignCenter);
+    myLayout->setContentsMargins(0,0,0,0);
+    setLayout(myLayout);
 }
 
 QAttribute::~QAttribute()
@@ -51,6 +51,7 @@ void QAttribute::RebuildAttributeWidget(const Attribute* _attribute)
 {
     // We assume that myAttributePtr != _attribute, so need to reconnect to the right attribute object
     QObject::disconnect(this, nullptr, nullptr, nullptr);
+    QObject::connect(_attribute, &Attribute::OnValueChanged, this, &QAttribute::UpdateAttribute);
     QObject::connect(this, &QAttribute::OnWidgetValueChanged, _attribute, &Attribute::SetValueFromText);
 
     const Attribute::Type _newType = _attribute ? _attribute->GetType() : Attribute::Type::Invalid;
@@ -71,7 +72,7 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
     {
         case Attribute::Type::Array :
         {
-            auto* content = new QLabel(this);
+            QLabel* content = new QLabel(this);
             myContent = content;
             break;
         }
@@ -82,20 +83,18 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
                                  this, &QAttribute::ContentStateChanged);
             myContent = content;
             layout()->addWidget(myContent);
-            //myContent->resize(20,20);
             break;
         }
         case Attribute::Type::Enum :
         {
-            auto* content = new QComboBox(this);
-            QObject::connect(content, &QComboBox::currentIndexChanged,
-                                 this, &QAttribute::ContentStateChanged);
+            QComboBox* content = new QComboBox(this);
+            // Connection Handled in Update since it needs to be temporary disabled
             myContent = content;
             break;
         }
         case Attribute::Type::Float :
         {
-            auto* content = new QLineEdit(this);
+            QLineEdit* content = new QLineEdit(this);
             QObject::connect(content, &QLineEdit::editingFinished,
                                  this, &QAttribute::ContentStateChanged);
             myContent = content;
@@ -103,7 +102,7 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
         }
         case Attribute::Type::Int :
         {
-            auto* content = new QLineEdit(this);
+            QLineEdit* content = new QLineEdit(this);
             QObject::connect(content, &QLineEdit::editingFinished,
                                  this, &QAttribute::ContentStateChanged);
             myContent = content;
@@ -111,13 +110,14 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
         }
         case Attribute::Type::String :
         {
-            auto* content = new QLabel(this);   // As there will be a table for string, need to think of how to set a string identifier, evnetually create an alternative attribute subclass for short untranslatable strings (names ?) that won't use the identifier ?
+            // As there will be a table for string, need to think of how to set a string identifier, evnetually create an alternative attribute subclass for short untranslatable strings (names ?) that won't use the identifier ?
+            QLabel* content = new QLabel(this);
             myContent = content;
             break;
         }
         case Attribute::Type::Structure :
         {
-            auto* content = new QLabel(this);
+            QLabel* content = new QLabel(this);
             myContent = content;
             break;
         }
@@ -173,6 +173,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
                 return;
             }
 
+            QObject::disconnect(comboBox, nullptr, nullptr, nullptr);
             while (comboBox->count() > 0)
             {
                 comboBox->removeItem(0);
@@ -185,7 +186,9 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
                 comboBox->addItem(attrEnum->GetValue(i));
             }
             comboBox->setCurrentIndex(currIndex);
-
+            attrEnum->SetColorToWidget(currIndex, comboBox);
+            QObject::connect(comboBox, &QComboBox::currentIndexChanged,
+                                 this, &QAttribute::ContentStateChanged);
             break;
         }
         case Attribute::Type::Float :
@@ -206,7 +209,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
     update();
 }
 
-void QAttribute::ContentStateChanged()//Attribute& _attribute)
+void QAttribute::ContentStateChanged()
 {
     qDebug() << "Attribute update with type " << (int)myType;
 
@@ -239,9 +242,7 @@ void QAttribute::ContentStateChanged()//Attribute& _attribute)
                 LogErrorCast();
                 return;
             }
-
             valueString = comboBox->currentText();
-            //enumeratorAttribute->SetEnumValue(comboBox->currentIndex());
             break;
         }
         case Attribute::Type::Float :
@@ -253,9 +254,7 @@ void QAttribute::ContentStateChanged()//Attribute& _attribute)
                 LogErrorCast();
                 return;
             }
-
             valueString = lineEdit->text();
-            //_attribute.SetValueFromText(lineEdit->text());
             break;
         }
     }

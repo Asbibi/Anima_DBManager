@@ -20,8 +20,10 @@ public:
     void RemoveStructureAt(int index);
     void ClearStructures();
 
+    const StructureTemplate& GetTemplate() const;
     const Structure& GetStructureAt(int index) const;
     int GetStructureCount() const;
+    const QString& GetTemplateName() const;
 };
 
 #endif // STRUCTUREDB_H

@@ -31,13 +31,21 @@ void StructureDB::ClearStructures()
 }
 
 
+
+const StructureTemplate& StructureDB::GetTemplate() const
+{
+    return templ;
+}
 const Structure& StructureDB::GetStructureAt(int index) const
 {
     BoundIndex(index);
     return myStructures[index];
 }
-
 int StructureDB::GetStructureCount() const
 {
     return (int)myStructures.size();
+}
+const QString& StructureDB::GetTemplateName() const
+{
+    return templ.GetStructName();
 }

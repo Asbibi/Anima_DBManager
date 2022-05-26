@@ -25,7 +25,7 @@ SOURCES += \
     qattribute.cpp \
     qdatatable.cpp \
     qstructure.cpp \
-    qstructuredb.cpp \
+    qstructuretable.cpp \
     structure.cpp \
     structuredb.cpp \
     structuretemplate.cpp
@@ -46,7 +46,7 @@ HEADERS += \
     qattribute.h \
     qdatatable.h \
     qstructure.h \
-    qstructuredb.h \
+    qstructuretable.h \
     structure.h \
     structuredb.h \
     structuretemplate.h
@@ -62,4 +62,4 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 FORMS += \
-    qstructuredb.ui
+    qstructuretable.ui

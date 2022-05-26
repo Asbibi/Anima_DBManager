@@ -26,6 +26,7 @@ public:
 
     int GetStructuresCount() const;
     const StructureDB* GetStructures(int index) const;
+    StructureDB* GetStructures(int index);
     void AddStructures(const StructureTemplate& _structureTemplate);
 };
 

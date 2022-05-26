@@ -58,6 +58,11 @@ void StructureTemplate::RemoveAttribute(const QString& att_Name)
 
 
 
+Attribute::Type StructureTemplate::GetAttributeType(int _attIndex) const
+{
+    const auto* attr = GetAttribute(_attIndex);
+    return attr ? attr->GetType() : Attribute::Type::Invalid;
+}
 const QString& StructureTemplate::GetAttributeName(int _attIndex) const
 {
     return attributesNames[_attIndex];
