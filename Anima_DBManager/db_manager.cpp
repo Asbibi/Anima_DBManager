@@ -5,8 +5,9 @@
 #include "aenumerator.h"
 #include "afloat.h"
 #include "aint.h"
-#include "astring.h"
+#include "ashortstring.h"
 #include "astructure.h"
+#include "atablestring.h"
 #include <fstream>
 
 #include <qdebug.h>
@@ -18,6 +19,24 @@ DB_Manager::DB_Manager()
                        {QColorConstants::Gray, QColorConstants::Red, QColorConstants::Blue,
                        QColorConstants::DarkGreen, QColorConstants::DarkMagenta, QColorConstants::DarkYellow, QColorConstants::DarkCyan}));
     AddEnum(Enumerator("MoveCategory", {"PHYSIC","SPECIAL","SUPPORT"}));
+
+    // String Tables;
+    AddStringTable("Ceribou");
+    AddStringTable("Shitty Stuff");
+    QString text1s[] = {"Ceribou (anglais : Cherubi ; japonais : チェリンボ Cherinbo) est un Pokémon de type Plante de la quatrième génération.",
+                        "Cherubi (Japanese: チェリンボ Cherinbo) is a Grass-type Pokémon introduced in Generation IV. It evolves into Cherrim starting at level 25."};
+    QString text2s[] = {"Palkia shiny de ses morts", "Fucka youuuuuu"};
+    QString text3s[] = {"Les grandes apparitions de ce Pokémon remontent à son utilisation par Flo dans les DP031 et 37.\nOn peut noter l'apparition d'un Ceribou dans le film Pokémon : L'ascension de Darkrai.\nOn reverra très peu (ou très rapidement) ce Pokémon par la suite (DP066 et 88), jusqu'à son utilisation par Maryline dans le DP125 : en effet, cette dernière juge Ceribou faisant partie des Pokémon mignons.",
+                        "Cherubi debuted in The Grass-type Is Always Greener!, under the ownership of Gardenia.\nIt was first used in a battle against Ash. It faced off against Turtwig, and during the battle, Gardenia was able to learn quite a bit about Turtwig.\nCherubi reappeared in The Grass Menagerie!, where it once again fought Turtwig during an official Gym battle.\nIts speed forced Ash to recall Turtwig for Staravia, after which Cherubi was defeated."};
+    QString id = "Palkia";
+    QString text4s[] = {"He ho hohohoh", "ah ahaha ahiiiii"};
+    QString id2 = "7 nains";
+    myStringTables[0].AddStringItemWithTexts(text1s);
+    myStringTables[0].AddStringItemWithTexts(text2s, &id);
+    myStringTables[0].AddStringItemWithTexts(text3s);
+    myStringTables[1].AddStringItem();
+    myStringTables[1].AddStringItem(&id);
+    myStringTables[1].AddStringItemWithTexts(text4s, &id2);
 
     // Setup template
     StructureTemplate* templ = new StructureTemplate("Test2StructDB", QColorConstants::Red);
@@ -32,7 +51,8 @@ DB_Manager::DB_Manager()
     templ->AddAttribute("Int", new AInt(&intParam));
     AttributeParam stringParam = AttributeParam();
     stringParam.max_i = 32;
-    templ->AddAttribute("String", new AString(&stringParam, "Hello There !!!"));
+    templ->AddAttribute("Short String", new AShortString(&stringParam, "Hello There !!!"));
+    templ->AddAttribute("Table String", new ATableString());
 
     StructureTemplate* templ2 = new StructureTemplate("Test_Strct", QColorConstants::Red);
     AStructure* structAtt = new AStructure(*templ);
@@ -55,6 +75,7 @@ DB_Manager::DB_Manager()
     StructureTemplate* templ4 = new StructureTemplate("Test_Combine", QColorConstants::Red);
     AStructure* structAtt2 = new AStructure(*templ2);
     templ4->AddAttribute("StructOfStructAndArray", structAtt2);
+
 
 //#define fileExportTest
 #ifdef fileExportTest
@@ -166,4 +187,70 @@ StructureDB* DB_Manager::GetStructures(int index)
 void DB_Manager::AddStructures(const StructureTemplate& _structureTemplate)
 {
     myStructures.push_back(new StructureDB(_structureTemplate));
+}
+
+
+
+int DB_Manager::GetIndexFromStringTableName(const QString& _tableName) const
+{
+    const int count = GetStringTableCount();
+    for (int i = 0; i < count; i++)
+        if (myStringTables[i].GetTableName() == _tableName)
+            return i;
+
+    return -1;
+}
+int DB_Manager::GetStringTableCount() const
+{
+    return (int)(myStringTables.size());
+}
+const SStringTable* DB_Manager::GetStringTable(int _index) const
+{
+    if (_index < 0 || _index >= GetStringTableCount())
+        return nullptr;
+
+    return &myStringTables[_index];
+}
+const SStringTable* DB_Manager::GetStringTable(const QString& _tableName) const
+{
+    return GetStringTable(GetIndexFromStringTableName(_tableName));
+}
+void DB_Manager::AddStringTable(const QString& _newTableName)
+{
+    if (GetIndexFromStringTableName(_newTableName) == -1)
+        myStringTables.push_back(SStringTable(_newTableName));
+}
+void DB_Manager::RemoveStringTable(int _index)
+{
+    if (_index < 0 || _index >= GetStringTableCount())
+        return;
+
+    myStringTables.erase(myStringTables.begin() + _index);
+}
+void DB_Manager::RemoveStringTable(const QString& _tableName)
+{
+    RemoveStringTable(GetIndexFromStringTableName(_tableName));
+}
+bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const
+{
+    const auto* stringTable = GetStringTable(_tableId);
+    if (!stringTable)
+        return false;
+
+    const auto* string = stringTable->GetStringItem(_stringId);
+    return string != nullptr;
+}
+QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete) const
+{
+    if (!AreValidIdentifiers(_tableId, _stringId))
+        return "<font color=\"darkred\">!!! ERROR !!!</font>";
+
+    const QString* myStr = GetStringTable(_tableId)->GetString(_stringId, SStringHelper::SStringLanguages::French);
+    if (!myStr)
+        return "<font color=\"darkyellow\">??? UNSET ??? </font>";
+
+    if (_complete)
+        return *myStr;
+
+    return (myStr->length() > 15) ? (myStr->left(15) + "<font color=\"blue\">[...]</font>") : *myStr;  //<font color=\"blue\">Hello</font> //"[...]"
 }

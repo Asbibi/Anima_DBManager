@@ -18,7 +18,7 @@
 #include "aenumerator.h"
 #include "aint.h"
 #include "afloat.h"
-#include "astring.h"
+#include "ashortstring.h"
 #include "astructure.h"
 #include "qstructuretable.h"
 
@@ -76,8 +76,8 @@ MainWindow::MainWindow(QWidget *parent)
     AInt* intAttr_10 = new AInt(someParam, 10);
     AFloat* floatAttr_0 = new AFloat(someParam, 0.5f);
     AFloat* floatAttr_1 = new AFloat(someParam, 0.6654845f);
-    AString* stringAttr_hey = new AString(someParam, "Hey");
-    AString* stringAttr_hw = new AString(someParam, "Hello world !!");
+    AShortString* stringAttr_hey = new AShortString(someParam, "Hey");
+    AShortString* stringAttr_hw = new AShortString(someParam, "Hello world !!");
     Enumerator* enumm = new Enumerator("Enum", {"Fire","Earth","Wind"});
     //AEnumerator* enumAttr_f = new AEnumerator(enumm, 0);
     AEnumerator* enumAttr_w = new AEnumerator(enumm, 2);

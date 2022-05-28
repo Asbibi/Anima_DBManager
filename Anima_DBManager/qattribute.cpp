@@ -2,25 +2,28 @@
 
 #include "abool.h"
 #include "aenumerator.h"
+#include "atablestring.h"
+#include "qsstring.h"
 
 #include <QDebug>
 #include <QtGlobal>
 
-#include <QLayout>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDoubleSpinBox>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QLayout>
 #include <QLineEdit>
-#include <QVBoxLayout>
+#include <QSpacerItem>
+#include <QSpinBox>
 
 
 
 QAttribute::QAttribute(QWidget* parent) :
     QWidget(parent)
 {
-    auto* myLayout = new QVBoxLayout();
-
-    myLayout->addWidget(myContent);
+    auto* myLayout = new QHBoxLayout();
     myLayout->setAlignment(Qt::AlignCenter);
     myLayout->setContentsMargins(0,0,0,0);
     setLayout(myLayout);
@@ -38,13 +41,17 @@ void QAttribute::LogErrorCast() const
 
 void QAttribute::DeleteContent()
 {
-    if (myContent == nullptr)
+    if (myEditButton != nullptr)
     {
-        return;
+        delete myEditButton;
+        myEditButton = nullptr;
     }
 
-    delete myContent;
-    myContent = nullptr;
+    if (myContent != nullptr)
+    {
+        delete myContent;
+        myContent = nullptr;
+    }
 }
 
 void QAttribute::RebuildAttributeWidget(const Attribute* _attribute)
@@ -108,11 +115,24 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
             myContent = content;
             break;
         }
-        case Attribute::Type::String :
+        case Attribute::Type::ShortString :
         {
-            // As there will be a table for string, need to think of how to set a string identifier, evnetually create an alternative attribute subclass for short untranslatable strings (names ?) that won't use the identifier ?
-            QLabel* content = new QLabel(this);
+            QLineEdit* content = new QLineEdit(this);
+            QObject::connect(content, &QLineEdit::editingFinished,
+                                 this, &QAttribute::ContentStateChanged);
             myContent = content;
+            break;
+        }
+        case Attribute::Type::TableString :
+        {
+            QSString* content = new QSString(this);
+            QObject::connect(content, &QSString::OnValueEdited,
+                                 this, &QAttribute::ContentStateChanged);
+            myContent = content;
+
+            BuildMoreButton();
+            QObject::connect(myEditButton, &QPushButton::clicked,
+                                 content, &QSString::EditValue);
             break;
         }
         case Attribute::Type::Structure :
@@ -127,6 +147,17 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
     {
         layout()->addWidget(myContent);
     }
+    if (myEditButton != nullptr)
+    {
+        layout()->addItem(new QSpacerItem(20,5));
+        layout()->addWidget(myEditButton);
+    }
+}
+
+void QAttribute::BuildMoreButton()
+{
+    myEditButton = new QPushButton("+", this);
+    myEditButton->setMaximumWidth(20);
 }
 
 void QAttribute::UpdateAttribute(const Attribute* _attribute)
@@ -138,7 +169,6 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
     {
         case Attribute::Type::Array :
         case Attribute::Type::Structure :
-        case Attribute::Type::String :
         {
             auto* label = dynamic_cast<QLabel*>(myContent);
             if(!label)
@@ -193,6 +223,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         }
         case Attribute::Type::Float :
         case Attribute::Type::Int :
+        case Attribute::Type::ShortString :
         {
             auto* lineEdit = dynamic_cast<QLineEdit*>(myContent);
             if(!lineEdit)
@@ -202,6 +233,19 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             }
 
             lineEdit->setText(_attribute->GetDisplayedText());
+            break;
+        }
+        case Attribute::Type::TableString :
+        {
+            auto* qsstring = dynamic_cast<QSString*>(myContent);
+            const ATableString* stringAttribute = dynamic_cast<const ATableString*>(_attribute);
+            if(!qsstring || !stringAttribute)
+            {
+                LogErrorCast();
+                return;
+            }
+
+            qsstring->SetValue(stringAttribute->GetTableName(), stringAttribute->GetStringIdentifier());
             break;
         }
     }
@@ -218,7 +262,6 @@ void QAttribute::ContentStateChanged()
     {
         case Attribute::Type::Array :
         case Attribute::Type::Structure :
-        case Attribute::Type::String :
         {
             break;
         }
@@ -247,6 +290,7 @@ void QAttribute::ContentStateChanged()
         }
         case Attribute::Type::Float :
         case Attribute::Type::Int :
+        case Attribute::Type::ShortString :
         {
             auto* lineEdit = dynamic_cast<QLineEdit*>(myContent);
             if(!lineEdit)
@@ -255,6 +299,17 @@ void QAttribute::ContentStateChanged()
                 return;
             }
             valueString = lineEdit->text();
+            break;
+        }
+        case Attribute::Type::TableString :
+        {
+            auto* qsstring = dynamic_cast<QSString*>(myContent);
+            if(!qsstring)
+            {
+                LogErrorCast();
+                return;
+            }
+            valueString = qsstring->GetFormattedValue();
             break;
         }
     }

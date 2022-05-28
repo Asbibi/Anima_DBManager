@@ -1,18 +1,18 @@
-#ifndef ASTRING_H
-#define ASTRING_H
+#ifndef ASHORTSTRING_H
+#define ASHORTSTRING_H
 
 #include "attribute.h"
 
-class AString : public Attribute
+class AShortString : public Attribute
 {
 private:
     QString value;
 
 public:
-    AString(const AttributeParam* _sharedParam);
-    AString(const AttributeParam* _sharedParam, QString _value);
+    AShortString(const AttributeParam* _sharedParam);
+    AShortString(const AttributeParam* _sharedParam, QString _value);
 
-    virtual Type GetType() const override { return Type::String; };
+    virtual Type GetType() const override { return Type::ShortString; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;
@@ -22,4 +22,4 @@ public:
     QString GetFullText() const;
 };
 
-#endif // ASTRING_H
+#endif // ASHORTSTRING_H

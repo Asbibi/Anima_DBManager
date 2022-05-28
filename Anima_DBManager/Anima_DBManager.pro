@@ -14,8 +14,9 @@ SOURCES += \
     aenumerator.cpp \
     afloat.cpp \
     aint.cpp \
-    astring.cpp \
+    ashortstring.cpp \
     astructure.cpp \
+    atablestring.cpp \
     attribute.cpp \
     attributeparam.cpp \
     db_manager.cpp \
@@ -24,8 +25,13 @@ SOURCES += \
     mainwindow.cpp \
     qattribute.cpp \
     qdatatable.cpp \
+    qsstring.cpp \
+    qsstringdialog.cpp \
     qstructure.cpp \
     qstructuretable.cpp \
+    sstringhelper.cpp \
+    sstringitem.cpp \
+    sstringtable.cpp \
     structure.cpp \
     structuredb.cpp \
     structuretemplate.cpp
@@ -36,8 +42,9 @@ HEADERS += \
     aenumerator.h \
     afloat.h \
     aint.h \
-    astring.h \
+    ashortstring.h \
     astructure.h \
+    atablestring.h \
     attribute.h \
     attributeparam.h \
     db_manager.h \
@@ -45,8 +52,13 @@ HEADERS += \
     mainwindow.h \
     qattribute.h \
     qdatatable.h \
+    qsstring.h \
+    qsstringdialog.h \
     qstructure.h \
     qstructuretable.h \
+    sstringhelper.h \
+    sstringitem.h \
+    sstringtable.h \
     structure.h \
     structuredb.h \
     structuretemplate.h

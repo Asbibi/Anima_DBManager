@@ -33,16 +33,16 @@ void AStructure::WriteValue_CSV(std::ofstream& file) const
 }
 void AStructure::SetValueFromText(const QString& text)
 {
-    // Manage to remove starting '[' and final ']' due to
+    // Manage to remove starting '[' and final ']'
     QString contentText = text;
     if (contentText[0] != '{')
     {
-        qFatal("\n\nMissing start '{' character while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
+        qFatal("\n\nMissing start '{' character while setting <STRUCTURE> attribute's value:\n\n\t===== Abort =====\n\n");
         return;
     }
     else if (contentText[contentText.count() - 1] != '}')
     {
-        qFatal("\n\nMissing end '}' character while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
+        qFatal("\n\nMissing end '}' character while setting <STRUCTURE> attribute's value:\n\n\t===== Abort =====\n\n");
         return;
     }
     contentText = contentText.mid(1, contentText.count() - 2);

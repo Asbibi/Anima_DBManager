@@ -26,7 +26,8 @@ public:
         Enum,
         Float,
         Int,
-        String,
+        ShortString,
+        TableString,
         Array,
         Structure
     };

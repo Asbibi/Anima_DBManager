@@ -5,6 +5,8 @@
 
 #include "attribute.h"
 
+#include <QPushButton>
+
 
 
 class QAttribute : public QWidget
@@ -16,11 +18,13 @@ private:
     const void* myAttributePtr = nullptr;   // Only use adress
 
     QWidget* myContent = nullptr;
+    QPushButton* myEditButton = nullptr;
 
     void LogErrorCast() const;
     void DeleteContent();
     void RebuildAttributeWidget(const Attribute* _attribute);
     void RebuildWidgetFromType(const Attribute::Type _type);
+    void BuildMoreButton();
 
 public:
     explicit QAttribute(QWidget* parent = nullptr);
