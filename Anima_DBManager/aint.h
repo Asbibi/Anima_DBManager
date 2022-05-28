@@ -20,7 +20,10 @@ public:
 
     bool FitsMinParam() const;
     bool FitsMaxParam() const;
-    int GetValidValue() const;
+    int GetValue(bool _validated = true) const;
+
+    int GetMax(bool& useIt) const;
+    int GetMin(bool& useIt) const;
 };
 
 #endif // AINT_H

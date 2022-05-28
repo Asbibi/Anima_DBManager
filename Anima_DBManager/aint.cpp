@@ -18,11 +18,11 @@ Attribute* AInt::CreateDuplica() const
 }
 QString AInt::GetDisplayedText(bool complete) const
 {
-    return QString::number(complete ? value : GetValidValue());
+    return QString::number(complete ? value : GetValue());
 }
 void AInt::WriteValue_CSV(std::ofstream& file) const
 {
-    file << GetValidValue();
+    file << GetValue();
 }
 void AInt::SetValueFromText(const QString& text)
 {
@@ -55,12 +55,26 @@ bool AInt::FitsMaxParam() const
 {
     return sharedParam->ignoreMax || value > sharedParam->max_i;
 }
-int AInt::GetValidValue() const
+int AInt::GetValue(bool _validated) const
 {
+    if (!_validated)
+        return value;
+
     int v = value;
     if (!FitsMinParam())
         v = sharedParam->min_i;
     else if (!FitsMaxParam())
         v = sharedParam->max_i;
     return v;
+}
+
+int AInt::GetMax(bool& useIt) const
+{
+    useIt = !sharedParam->ignoreMax;
+    return sharedParam->max_i;
+}
+int AInt::GetMin(bool& useIt) const
+{
+    useIt = !sharedParam->ignoreMin;
+    return sharedParam->min_i;
 }

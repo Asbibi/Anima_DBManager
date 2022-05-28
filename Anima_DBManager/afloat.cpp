@@ -17,11 +17,11 @@ Attribute* AFloat::CreateDuplica() const
 }
 QString AFloat::GetDisplayedText(bool complete) const
 {
-    return QString::number(complete ? value : GetValidValue());
+    return QString::number(complete ? value : GetValue());
 }
 void AFloat::WriteValue_CSV(std::ofstream& file) const
 {
-    file << GetValidValue();
+    file << GetValue();
 }
 void AFloat::SetValueFromText(const QString& text)
 {
@@ -50,12 +50,26 @@ bool AFloat::FitsMaxParam() const
 {
     return sharedParam->ignoreMax || value > sharedParam->max_f;
 }
-float AFloat::GetValidValue() const
+float AFloat::GetValue(bool _validated) const
 {
+    if (!_validated)
+        return value;
+
     float v = value;
     if (!FitsMinParam())
         v = sharedParam->min_f;
     else if (!FitsMaxParam())
         v = sharedParam->max_f;
     return v;
+}
+
+float AFloat::GetMax(bool& useIt) const
+{
+    useIt = !sharedParam->ignoreMax;
+    return sharedParam->max_f;
+}
+float AFloat::GetMin(bool& useIt) const
+{
+    useIt = !sharedParam->ignoreMin;
+    return sharedParam->min_f;
 }

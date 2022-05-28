@@ -2,6 +2,8 @@
 
 #include "abool.h"
 #include "aenumerator.h"
+#include "afloat.h"
+#include "aint.h"
 #include "atablestring.h"
 #include "qsstring.h"
 
@@ -101,16 +103,16 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
         }
         case Attribute::Type::Float :
         {
-            QLineEdit* content = new QLineEdit(this);
-            QObject::connect(content, &QLineEdit::editingFinished,
+            QDoubleSpinBox* content = new QDoubleSpinBox(this);
+            QObject::connect(content, &QDoubleSpinBox::editingFinished,
                                  this, &QAttribute::ContentStateChanged);
             myContent = content;
             break;
         }
         case Attribute::Type::Int :
         {
-            QLineEdit* content = new QLineEdit(this);
-            QObject::connect(content, &QLineEdit::editingFinished,
+            QSpinBox* content = new QSpinBox(this);
+            QObject::connect(content, &QSpinBox::editingFinished,
                                  this, &QAttribute::ContentStateChanged);
             myContent = content;
             break;
@@ -222,7 +224,41 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             break;
         }
         case Attribute::Type::Float :
+        {
+            auto* doubleSpinBox = dynamic_cast<QDoubleSpinBox*>(myContent);
+            const AFloat* floatAttribute = dynamic_cast<const AFloat*>(_attribute);
+            if(!doubleSpinBox || !floatAttribute)
+            {
+                LogErrorCast();
+                return;
+            }
+
+            bool use;
+            float max = floatAttribute->GetMax(use);
+            doubleSpinBox->setMaximum(use ? max : INT_MAX);
+            float min = floatAttribute->GetMin(use);
+            doubleSpinBox->setMinimum(use ? min : INT_MIN);
+            doubleSpinBox->setValue(floatAttribute->GetValue(false));
+            break;
+        }
         case Attribute::Type::Int :
+        {
+            auto* spinBox = dynamic_cast<QSpinBox*>(myContent);
+            const AInt* intAttribute = dynamic_cast<const AInt*>(_attribute);
+            if(!spinBox || !intAttribute)
+            {
+                LogErrorCast();
+                return;
+            }
+
+            bool use;
+            int max = intAttribute->GetMax(use);
+            spinBox->setMaximum(use ? max : INT_MAX);
+            int min = intAttribute->GetMin(use);
+            spinBox->setMinimum(use ? min : INT_MIN);
+            spinBox->setValue(intAttribute->GetValue(false));
+            break;
+        }
         case Attribute::Type::ShortString :
         {
             auto* lineEdit = dynamic_cast<QLineEdit*>(myContent);
@@ -290,6 +326,17 @@ void QAttribute::ContentStateChanged()
         }
         case Attribute::Type::Float :
         case Attribute::Type::Int :
+        {
+            auto* spinBoxAbstr = dynamic_cast<QAbstractSpinBox*>(myContent);
+            if(!spinBoxAbstr)
+            {
+                LogErrorCast();
+                return;
+            }
+            valueString = spinBoxAbstr->text();
+            valueString.replace(',', '.');
+            break;
+        }
         case Attribute::Type::ShortString :
         {
             auto* lineEdit = dynamic_cast<QLineEdit*>(myContent);
