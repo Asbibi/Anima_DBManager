@@ -9,7 +9,13 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    aaaniminstance.cpp \
+    aamesh.cpp \
+    aaniagara.cpp \
     aarray.cpp \
+    aasound.cpp \
+    aasset.cpp \
+    aatexture.cpp \
     abool.cpp \
     aenumerator.cpp \
     afloat.cpp \
@@ -23,6 +29,8 @@ SOURCES += \
     enumerator.cpp \
     main.cpp \
     mainwindow.cpp \
+    qassetlabel.cpp \
+    qassettexture.cpp \
     qattribute.cpp \
     qdatatable.cpp \
     qsstring.cpp \
@@ -37,7 +45,13 @@ SOURCES += \
     structuretemplate.cpp
 
 HEADERS += \
+    aaaniminstance.h \
+    aamesh.h \
+    aaniagara.h \
     aarray.h \
+    aasound.h \
+    aasset.h \
+    aatexture.h \
     abool.h \
     aenumerator.h \
     afloat.h \
@@ -50,6 +64,8 @@ HEADERS += \
     db_manager.h \
     enumerator.h \
     mainwindow.h \
+    qassetlabel.h \
+    qassettexture.h \
     qattribute.h \
     qdatatable.h \
     qsstring.h \

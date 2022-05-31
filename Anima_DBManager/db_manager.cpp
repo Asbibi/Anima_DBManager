@@ -8,12 +8,22 @@
 #include "ashortstring.h"
 #include "astructure.h"
 #include "atablestring.h"
+
+#include "aaaniminstance.h"
+#include "aamesh.h"
+#include "aaniagara.h"
+#include "aasound.h"
+#include "aatexture.h"
+
 #include <fstream>
 
 #include <qdebug.h>
 
 DB_Manager::DB_Manager()
 {
+    // Project Folder
+    myProjectContentFolderPath = "D:/Documents/Unreal/Anima_OLD/Content/";
+
     // Enums (TODO : remove to instead add automatic creation from loading file)
     AddEnum(Enumerator("Type", {"SOUL", "FIRE", "WATER", "GRASS", "GROUND","THUNDER","WIND"},
                        {QColorConstants::Gray, QColorConstants::Red, QColorConstants::Blue,
@@ -41,6 +51,8 @@ DB_Manager::DB_Manager()
     // Setup template
     StructureTemplate* templ = new StructureTemplate("Test2StructDB", QColorConstants::Red);
 
+    templ->AddAttribute("Mesh", new AAMesh());
+    templ->AddAttribute("Texture", new AATexture());
     templ->AddAttribute("Bool", new ABool());
     templ->AddAttribute("Enum", new AEnumerator(&enumerators[0], 4));
     AttributeParam floatParam = AttributeParam();

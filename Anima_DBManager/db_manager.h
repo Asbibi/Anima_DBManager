@@ -10,6 +10,7 @@
 class DB_Manager
 {
 private:
+    QString myProjectContentFolderPath;
     std::vector<Enumerator> enumerators;
     std::vector<StructureDB*> myStructures;
     std::vector<SStringTable> myStringTables;
@@ -22,6 +23,8 @@ private:
 
 public:
     static DB_Manager& GetDB_Manager();
+
+    const QString& GetProjectContentFolderPath() const { return myProjectContentFolderPath; }
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;

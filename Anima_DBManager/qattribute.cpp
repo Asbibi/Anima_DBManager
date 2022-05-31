@@ -6,6 +6,8 @@
 #include "aint.h"
 #include "atablestring.h"
 #include "qsstring.h"
+#include "qassetlabel.h"
+#include "qassettexture.h"
 
 #include <QDebug>
 #include <QtGlobal>
@@ -143,7 +145,40 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
             myContent = content;
             break;
         }
+        case Attribute::Type::Texture :
+        {
+            QAssetTexture* content = new QAssetTexture(this);
+            QObject::connect(content, &QAssetTexture::OnValueEdited,
+                                 this, &QAttribute::ContentStateChanged);
+            myContent = content;
+
+            BuildMoreButton();
+            QObject::connect(myEditButton, &QPushButton::clicked,
+                                 content, &QAssetTexture::OpenFileDialog);
+            break;
+        }
+#define CASE_ATTRIBUTE(type, typeStr, typeExt) \
+case Attribute::Type::type : \
+{ \
+    QAssetLabel* content = new QAssetLabel(typeStr, typeExt, this); \
+    QObject::connect(content, &QAssetLabel::OnValueEdited, \
+                         this, &QAttribute::ContentStateChanged); \
+    myContent = content;    \
+\
+    BuildMoreButton(); \
+    QObject::connect(myEditButton, &QPushButton::clicked, \
+                         content, &QAssetLabel::OpenFileDialog); \
+    break; \
+}
+
+        CASE_ATTRIBUTE(Mesh, "Mesh", "3D files (*.fbx)")
+        CASE_ATTRIBUTE(AnimInstance, "AnimInstance", "Anim Instances (AnimBP_*.uasset)")
+        CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems (P_*.uasset)")
+        CASE_ATTRIBUTE(Sound, "Sound", "Sounds (*.ogg, *.wav, *.mp3)")
+#undef CASE_ATTRIBUTE
     }
+
+
 
     if (myContent != nullptr)
     {
@@ -151,7 +186,7 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
     }
     if (myEditButton != nullptr)
     {
-        layout()->addItem(new QSpacerItem(20,5));
+        layout()->addItem(new QSpacerItem(10,5));
         layout()->addWidget(myEditButton);
     }
 }
@@ -284,6 +319,33 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             qsstring->SetValue(stringAttribute->GetTableName(), stringAttribute->GetStringIdentifier());
             break;
         }
+        case Attribute::Type::Texture :
+        {
+            auto* qassetTexture = dynamic_cast<QAssetTexture*>(myContent);
+            if(!qassetTexture)
+            {
+                LogErrorCast();
+                return;
+            }
+
+            qassetTexture->SetValue(_attribute->GetDisplayedText(true));
+            break;
+        }
+        case Attribute::Type::Mesh :
+        case Attribute::Type::AnimInstance :
+        case Attribute::Type::Niagara :
+        case Attribute::Type::Sound :
+        {
+            auto* qasset = dynamic_cast<QAssetLabel*>(myContent);
+            if(!qasset)
+            {
+                LogErrorCast();
+                return;
+            }
+
+            qasset->SetValue(_attribute->GetDisplayedText(true));
+            break;
+        }
     }
 
     update();
@@ -357,6 +419,31 @@ void QAttribute::ContentStateChanged()
                 return;
             }
             valueString = qsstring->GetFormattedValue();
+            break;
+        }
+        case Attribute::Type::Texture :
+        {
+            auto* qassetTexture = dynamic_cast<QAssetTexture*>(myContent);
+            if(!qassetTexture)
+            {
+                LogErrorCast();
+                return;
+            }
+            valueString = qassetTexture->GetValue();
+            break;
+        }
+        case Attribute::Type::Mesh :
+        case Attribute::Type::AnimInstance :
+        case Attribute::Type::Niagara :
+        case Attribute::Type::Sound :
+        {
+            auto* qasset = dynamic_cast<QAssetLabel*>(myContent);
+            if(!qasset)
+            {
+                LogErrorCast();
+                return;
+            }
+            valueString = qasset->GetValue();
             break;
         }
     }

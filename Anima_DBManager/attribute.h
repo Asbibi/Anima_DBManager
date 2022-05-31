@@ -4,8 +4,6 @@
 #include <QObject>
 #include <fstream>
 #include "attributeparam.h"
-//class QAttribute;
-
 
 class Attribute : public QObject
 {
@@ -13,30 +11,35 @@ class Attribute : public QObject
 
 protected:
     const AttributeParam* sharedParam;
-    //QAttribute* myAttributeWidget = nullptr;
 
-    //void ReplaceMyAttributeWidget(QAttribute* _newAttributeWidget);
     void EmitValueChanged();
 
 public:
     enum class Type
     {
         Invalid,
+
         Bool,
         Enum,
         Float,
         Int,
         ShortString,
         TableString,
+
         Array,
-        Structure
+        Structure,
+
+        Texture,
+        Mesh,
+        AnimInstance,
+        Niagara,
+        Sound,
     };
 
     Attribute(const AttributeParam* _sharedParam);
     virtual ~Attribute();
 
     virtual Type GetType()                                  const = 0;
-    //virtual int GetColumnWidth()                            const = 0;
     virtual Attribute* CreateDuplica()                      const = 0;
     virtual QString GetDisplayedText(bool complete = false) const = 0;
     virtual void WriteValue_CSV(std::ofstream& file)        const = 0;
@@ -47,15 +50,5 @@ signals:
 public slots:
     virtual void SetValueFromText(const QString& text)            = 0;
 };
-
-
-//#define DefAttribute_CreateWidget(attName, q_attName) \
-//QAttribute* attName::CreateWidget(QWidget* parent, const QColor& color) \
-//{ \
-//    QAttribute* widget = new q_attName(parent, QAttributeParam(ourWidth, ourHeight, color), this); \
-//    ReplaceMyAttributeWidget(widget); \
-//    return widget; \
-//}
-
 
 #endif // ATTRIBUTE_H
