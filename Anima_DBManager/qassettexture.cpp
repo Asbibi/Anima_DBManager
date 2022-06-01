@@ -15,7 +15,7 @@ QAssetTexture::QAssetTexture(QWidget *parent) :
     myTexturePreview->setMaximumSize(32,32);
     myTexturePreview->setMinimumSize(32,32);
 
-    myAssetLabel = new QAssetLabel("Texture", "Images (*.png)", this);
+    myAssetLabel = new QAssetLabel(Attribute::Type::Texture, "Texture", "Images (*.png)", this);
     QObject::connect(myAssetLabel, &QAssetLabel::OnValueEdited, this, &QAssetTexture::RelayAssetLabelSignal);
 
     layout()->addWidget(myTexturePreview);

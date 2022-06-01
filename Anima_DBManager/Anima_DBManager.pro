@@ -1,6 +1,8 @@
 QT       += core gui
+QT       += multimedia
+QT       += openglwidgets
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 5): QT += widgets
 
 CONFIG += c++11
 
@@ -29,7 +31,12 @@ SOURCES += \
     enumerator.cpp \
     main.cpp \
     mainwindow.cpp \
+    qapmesh.cpp \
+    qapsound.cpp \
+    qaptexture.cpp \
     qassetlabel.cpp \
+    qassetpreview.cpp \
+    qassetpreviewdialog.cpp \
     qassettexture.cpp \
     qattribute.cpp \
     qdatatable.cpp \
@@ -64,7 +71,12 @@ HEADERS += \
     db_manager.h \
     enumerator.h \
     mainwindow.h \
+    qapmesh.h \
+    qapsound.h \
+    qaptexture.h \
     qassetlabel.h \
+    qassetpreview.h \
+    qassetpreviewdialog.h \
     qassettexture.h \
     qattribute.h \
     qdatatable.h \

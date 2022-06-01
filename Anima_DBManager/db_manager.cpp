@@ -53,6 +53,9 @@ DB_Manager::DB_Manager()
 
     templ->AddAttribute("Mesh", new AAMesh());
     templ->AddAttribute("Texture", new AATexture());
+    templ->AddAttribute("Sound", new AASound());
+    templ->AddAttribute("Anim", new AAAnimInstance());
+    templ->AddAttribute("Niagara", new AANiagara());
     templ->AddAttribute("Bool", new ABool());
     templ->AddAttribute("Enum", new AEnumerator(&enumerators[0], 4));
     AttributeParam floatParam = AttributeParam();

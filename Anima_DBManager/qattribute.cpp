@@ -160,7 +160,7 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
 #define CASE_ATTRIBUTE(type, typeStr, typeExt) \
 case Attribute::Type::type : \
 { \
-    QAssetLabel* content = new QAssetLabel(typeStr, typeExt, this); \
+    QAssetLabel* content = new QAssetLabel(Attribute::Type::type, typeStr, typeExt, this); \
     QObject::connect(content, &QAssetLabel::OnValueEdited, \
                          this, &QAttribute::ContentStateChanged); \
     myContent = content;    \

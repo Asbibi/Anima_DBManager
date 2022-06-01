@@ -43,4 +43,5 @@ void QSString::EditValue()
         myStringIdentifier = outStringIdentifier;
         emit OnValueEdited();
     }
+    delete dialog;
 }
