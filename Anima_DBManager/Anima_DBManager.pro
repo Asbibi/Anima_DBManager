@@ -22,6 +22,7 @@ SOURCES += \
     aenumerator.cpp \
     afloat.cpp \
     aint.cpp \
+    areference.cpp \
     ashortstring.cpp \
     astructure.cpp \
     atablestring.cpp \
@@ -40,16 +41,18 @@ SOURCES += \
     qassettexture.cpp \
     qattribute.cpp \
     qdatatable.cpp \
+    qrefdialog.cpp \
+    qreflabel.cpp \
     qsstring.cpp \
     qsstringdialog.cpp \
-    qstructure.cpp \
     qstructuretable.cpp \
     sstringhelper.cpp \
     sstringitem.cpp \
     sstringtable.cpp \
     structure.cpp \
     structuredb.cpp \
-    structuretemplate.cpp
+    templateattribute.cpp \
+    templatestructure.cpp
 
 HEADERS += \
     aaaniminstance.h \
@@ -63,6 +66,7 @@ HEADERS += \
     aenumerator.h \
     afloat.h \
     aint.h \
+    areference.h \
     ashortstring.h \
     astructure.h \
     atablestring.h \
@@ -80,16 +84,18 @@ HEADERS += \
     qassettexture.h \
     qattribute.h \
     qdatatable.h \
+    qrefdialog.h \
+    qreflabel.h \
     qsstring.h \
     qsstringdialog.h \
-    qstructure.h \
     qstructuretable.h \
     sstringhelper.h \
     sstringitem.h \
     sstringtable.h \
     structure.h \
     structuredb.h \
-    structuretemplate.h
+    templateattribute.h \
+    templatestructure.h
 
 TRANSLATIONS += \
     Anima_DBManager_en_GB.ts

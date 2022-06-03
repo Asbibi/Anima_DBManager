@@ -2,7 +2,7 @@
 
 #include<QDebug>
 
-AStructure::AStructure(const StructureTemplate& structureTemplate) :
+AStructure::AStructure(const TemplateStructure& structureTemplate) :
     Attribute(nullptr),
     value(structureTemplate)
 {}

@@ -1,8 +1,9 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
 
-#include "structuretemplate.h"
+#include "templatestructure.h"
 #include <vector>
+#include <QObject>
 
 /**
  * Data Object for a Structure Object.
@@ -10,15 +11,15 @@
  * each one being assigned to a specific and unique name,
  * and their type can be various.
  */
-class Structure
+class Structure : public QObject
 {
 private:
     std::vector<Attribute*> attributes;
-    const StructureTemplate* templ;
+    const TemplateStructure* templ;
 
 public:
     Structure(const Structure& _other);
-    Structure(const StructureTemplate& _structureTemplate);
+    Structure(const TemplateStructure& _structureTemplate);
     ~Structure();
 
     int GetAttributeCount() const;
@@ -30,7 +31,7 @@ public:
 
     void GetAttributesDisplayedText(QString& _text) const;
     void WriteValue_CSV(std::ofstream& file) const;         // Used for structure as attribute of other structures
-    void WriteValue_CSV_AsRow(std::ofstream& file, int index) const;   // Used to directly save a row structure of a DataTable
+    void WriteValue_CSV_AsRow(std::ofstream& file) const;   // Used to directly save a row structure of a DataTable
 };
 
 #endif // STRUCTURE_H

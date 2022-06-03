@@ -2,9 +2,9 @@
 
 #include <QWidget>
 
-Enumerator::Enumerator(QString _name) : name(_name) {}
-Enumerator::Enumerator(QString _name, QString* _values, int _count) : Enumerator(_name, _values, nullptr, _count) {}
-Enumerator::Enumerator(QString _name, QString* _values, QColor* _colors, int _count) : Enumerator(_name)
+Enumerator::Enumerator(const QString& _name) : name(_name) {}
+Enumerator::Enumerator(const QString& _name, const QString* _values, const int _count) : Enumerator(_name, _values, nullptr, _count) {}
+Enumerator::Enumerator(const QString& _name, const QString* _values, const QColor* _colors, const int _count) : Enumerator(_name)
 {
     if (_values == nullptr)
         return;
@@ -22,11 +22,28 @@ Enumerator::Enumerator(QString _name, QString* _values, QColor* _colors, int _co
         }
     }
 }
-Enumerator::Enumerator(QString _name, std::vector<QString> _values) : name(_name), values(_values) {}
-Enumerator::Enumerator(QString _name, std::vector<QString> _values, std::vector<QColor> _colors) : name(_name), values(_values), colors(_colors) {}
+Enumerator::Enumerator(const QString& _name, const std::vector<QString>& _values) :
+    name(_name)
+{
+    values.assign(_values.begin(), _values.end());
+}
+Enumerator::Enumerator(const QString& _name, const std::vector<QString>& _values, const std::vector<QColor>& _colors) :
+    name(_name)
+{
+    values.assign(_values.begin(), _values.end());
+    colors.assign(_colors.begin(), _colors.end());
+}
+Enumerator::Enumerator(const Enumerator& _another) :
+    Enumerator(_another.name, _another.values, _another.colors)
+{}
 
 
-
+void Enumerator::operator=(const Enumerator& _another)
+{
+    name = _another.name;
+    values.assign(_another.values.begin(), _another.values.end());
+    colors.assign(_another.colors.begin(), _another.colors.end());
+}
 
 
 QString Enumerator::GetName() const

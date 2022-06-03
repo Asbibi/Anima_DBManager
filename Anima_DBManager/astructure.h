@@ -9,7 +9,7 @@ class AStructure : public Attribute
 public:
     Structure value;
 
-    AStructure(const StructureTemplate& structureTemplate);
+    AStructure(const TemplateStructure& structureTemplate);
     AStructure(const Structure& _value);
 
     virtual Type GetType() const override { return Type::Structure; };

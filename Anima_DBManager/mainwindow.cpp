@@ -10,7 +10,6 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QTableWidget>
-//#include <QHeaderView>
 #include <QStringList>
 
 #include "aarray.h"
@@ -33,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent)
     QHBoxLayout* layout = new QHBoxLayout(wid);
 
     myTabPanel = new QTabWidget();
+    myTabPanel->setMinimumWidth(600);
     myAttr = new QAttribute(myTabPanel);
     myTabPanel->addTab(myAttr, "Attribute");
     myTabPanel->addTab(new QTextEdit(myTabPanel), "Edit Text");
@@ -64,7 +64,12 @@ MainWindow::MainWindow(QWidget *parent)
         QStructureTable* testTable = new QStructureTable(*db);
         myTabPanel->addTab(testTable, db->GetTemplateName());
     }
-
+    StructureDB* db2 = myManager.GetStructures(1);
+    if (db2 != nullptr)
+    {
+        QStructureTable* testTable = new QStructureTable(*db2);
+        myTabPanel->addTab(testTable, db2->GetTemplateName());
+    }
 
     //---------
 
@@ -79,8 +84,9 @@ MainWindow::MainWindow(QWidget *parent)
     AShortString* stringAttr_hey = new AShortString(someParam, "Hey");
     AShortString* stringAttr_hw = new AShortString(someParam, "Hello world !!");
     Enumerator* enumm = new Enumerator("Enum", {"Fire","Earth","Wind"});
+    someParam->enumerator = enumm;
     //AEnumerator* enumAttr_f = new AEnumerator(enumm, 0);
-    AEnumerator* enumAttr_w = new AEnumerator(enumm, 2);
+    AEnumerator* enumAttr_w = new AEnumerator(someParam, 2);
 
     myDebugAttributes.push_back(boolAttr_true);
     myDebugAttributes.push_back(boolAttr_false);

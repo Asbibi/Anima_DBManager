@@ -3,7 +3,7 @@
 
 #include "enumerator.h"
 #include "structuredb.h"
-#include "structuretemplate.h"
+#include "templatestructure.h"
 #include "sstringtable.h"
 #include <vector>
 
@@ -34,7 +34,7 @@ public:
     int GetStructuresCount() const;
     const StructureDB* GetStructures(int index) const;
     StructureDB* GetStructures(int index);
-    void AddStructures(const StructureTemplate& _structureTemplate);
+    void CreateStructureDB(const TemplateStructure& _structureTemplate);
 
     int GetStringTableCount() const;
     const SStringTable* GetStringTable(int _index) const;

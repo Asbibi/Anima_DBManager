@@ -24,7 +24,9 @@ public:
         Float,
         Int,
         ShortString,
+
         TableString,
+        Reference,
 
         Array,
         Structure,

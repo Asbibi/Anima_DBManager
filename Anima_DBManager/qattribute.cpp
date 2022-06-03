@@ -5,9 +5,11 @@
 #include "afloat.h"
 #include "aint.h"
 #include "atablestring.h"
+#include "areference.h"
 #include "qsstring.h"
 #include "qassetlabel.h"
 #include "qassettexture.h"
+#include "qreflabel.h"
 
 #include <QDebug>
 #include <QtGlobal>
@@ -176,6 +178,18 @@ case Attribute::Type::type : \
         CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems (P_*.uasset)")
         CASE_ATTRIBUTE(Sound, "Sound", "Sounds (*.ogg, *.wav, *.mp3)")
 #undef CASE_ATTRIBUTE
+        case Attribute::Type::Reference :
+        {
+            QRefLabel* content = new QRefLabel(this);
+            QObject::connect(content, &QRefLabel::OnValueEdited,
+                                 this, &QAttribute::ContentStateChanged);
+            myContent = content;
+
+            BuildMoreButton();
+            QObject::connect(myEditButton, &QPushButton::clicked,
+                                 content, &QRefLabel::EditValue);
+            break;
+        }
     }
 
 
@@ -346,6 +360,20 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             qasset->SetValue(_attribute->GetDisplayedText(true));
             break;
         }
+        case Attribute::Type::Reference :
+        {
+            QRefLabel* refLabel = dynamic_cast<QRefLabel*>(myContent);
+            const AReference* refAttribute = dynamic_cast<const AReference*>(_attribute);
+            if(!refLabel || !refAttribute)
+            {
+                LogErrorCast();
+                return;
+            }
+
+            refLabel->SetStructureDB(refAttribute->GetStructureDB());
+            refLabel->SetValue(refAttribute->GetReferenceIndex());
+            break;
+        }
     }
 
     update();
@@ -444,6 +472,17 @@ void QAttribute::ContentStateChanged()
                 return;
             }
             valueString = qasset->GetValue();
+            break;
+        }
+        case Attribute::Type::Reference :
+        {
+            QRefLabel* refLabel = dynamic_cast<QRefLabel*>(myContent);
+            if(!refLabel)
+            {
+                LogErrorCast();
+                return;
+            }
+            valueString = refLabel->GetValueText();
             break;
         }
     }

@@ -56,12 +56,14 @@ void QStructureTable::UpdateTable()
     myChildWidgetsToDelete.reserve(structureCount * templAttrCount);
     for (int row = 0; row < structureCount; row++)
     {
-        const Structure& strct = myStructureDB.GetStructureAt(row);
+        const Structure* strct = myStructureDB.GetStructureAt(row);
+        if (!strct)
+            break;
         for (int col = 0; col < templAttrCount; col++)
         {
             QAttribute* qAttr = new QAttribute(this);
             setCellWidget(row, col, qAttr);
-            qAttr->UpdateAttribute(strct.GetAttribute(col));
+            qAttr->UpdateAttribute(strct->GetAttribute(col));
             myChildWidgetsToDelete.push_back(qAttr);
         }
     }

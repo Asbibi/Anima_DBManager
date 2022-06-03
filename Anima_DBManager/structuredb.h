@@ -2,28 +2,36 @@
 #define STRUCTUREDB_H
 
 #include "structure.h"
-#include "structuretemplate.h"
+#include "templatestructure.h"
 #include <vector>
+#include <QObject>
 
-class StructureDB
+class StructureDB : public QObject
 {
 private:
-    const StructureTemplate templ;
-    std::vector<Structure> myStructures;
+    const TemplateStructure myTemplate;
+    std::vector<Structure*> myStructures;
 
-    void BoundIndex(int& index) const;
+    bool CheckIndex(int& index) const;
 
 public:
-    StructureDB(const StructureTemplate& _structureTemplate);
+    StructureDB(const TemplateStructure& _structureTemplate);
+    ~StructureDB();
 
     void AddStructureAt(int index);
     void RemoveStructureAt(int index);
     void ClearStructures();
+    const std::vector<Structure*>& GetStructures() const { return myStructures; }
+    // Todo : return count + change vector to QList
 
-    const StructureTemplate& GetTemplate() const;
-    const Structure& GetStructureAt(int index) const;
+    const TemplateStructure& GetTemplate() const;
+    const Structure* GetStructureAt(int index) const;
     int GetStructureCount() const;
     const QString& GetTemplateName() const;
+    const QString GetStructureRowName(int index) const;
+    const QString GetStructureRowName(const Structure* _structure) const;
+
+    void WriteValue_CSV_Table(std::ofstream& file) const;
 };
 
 #endif // STRUCTUREDB_H

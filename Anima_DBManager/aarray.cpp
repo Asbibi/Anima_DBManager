@@ -3,7 +3,12 @@
 
 AArray::AArray(const AttributeParam* _sharedParam) :
     AArray(_sharedParam, nullptr)
-{}
+{
+    if (_sharedParam == nullptr)
+        qFatal("\n\nNull param given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
+    else if (_sharedParam->templateAtt == nullptr)
+        qFatal("\n\nNull Template Attribute given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
+}
 AArray::AArray(const AttributeParam* _sharedParam, const std::vector<Attribute*>* _values) :
     Attribute(_sharedParam)
 {

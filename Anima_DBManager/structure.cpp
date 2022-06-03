@@ -1,16 +1,17 @@
 #include "structure.h"
 
+#include <QList>
 
 Structure::Structure(const Structure& _other) : templ(_other.templ)
 {
     for (const auto& _att : _other.attributes)
         attributes.push_back(_att->CreateDuplica());
 }
-Structure::Structure(const StructureTemplate& _structureTemplate) : templ(&_structureTemplate)
+Structure::Structure(const TemplateStructure& _structureTemplate) : templ(&_structureTemplate)
 {
-    const std::vector<const Attribute*>& _templates = _structureTemplate.GetAttributes();
-    for (const auto& _templ : _templates)
-        attributes.push_back(_templ->CreateDuplica());
+    const QList<TemplateAttribute>& _templateAttributes = _structureTemplate.GetAttributes();
+    for (const auto& _templ : _templateAttributes)
+        attributes.push_back(_templ.GenerateAttribute());
 }
 Structure::~Structure()
 {
@@ -78,11 +79,8 @@ void Structure::WriteValue_CSV(std::ofstream& file) const
 
     file << ")";
 }
-void Structure::WriteValue_CSV_AsRow(std::ofstream& file, int index) const
+void Structure::WriteValue_CSV_AsRow(std::ofstream& file) const
 {
-    // Add row name
-    file << templ->GetStructName().toStdString() << "_" << index;
-
     // Add all attribute values in between ""
     for (const auto& att : attributes)
     {

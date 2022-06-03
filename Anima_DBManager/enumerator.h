@@ -1,13 +1,14 @@
 #ifndef ENUMERATOR_H
 #define ENUMERATOR_H
 
+#include <QObject>
 #include <QString>
 #include <QColor>
 #include <vector>
 
 class QWidget;
 
-class Enumerator
+class Enumerator : public QObject
 {
 protected:
     QString                 name;
@@ -15,11 +16,14 @@ protected:
     std::vector<QColor>     colors;
 
 public:
-    Enumerator(QString _name);
-    Enumerator(QString _name, QString* _values, int _count);
-    Enumerator(QString _name, QString* _values, QColor* _colors, int _count); // colors and values must have same size
-    Enumerator(QString _name, std::vector<QString> _values);
-    Enumerator(QString _name, std::vector<QString> _values, std::vector<QColor> _colors);
+    Enumerator(const QString& _name);
+    Enumerator(const QString& _name, const QString* _values, const int _count);
+    Enumerator(const QString& _name, const QString* _values, const QColor* _colors, const int _count); // colors and values must have same size
+    Enumerator(const QString& _name, const std::vector<QString>& _values);
+    Enumerator(const QString& _name, const std::vector<QString>& _values, const std::vector<QColor>& _colors);
+    Enumerator(const Enumerator& _another);
+
+    void operator=(const Enumerator& another);
 
     QString GetName() const;
     int GetValueCount() const;

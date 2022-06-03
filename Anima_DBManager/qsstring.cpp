@@ -35,7 +35,7 @@ void QSString::EditValue()
     QString outTableName = myTableName;
     QString outStringIdentifier = myStringIdentifier;
     auto* dialog = new QSStringDialog(outTableName, outStringIdentifier, this);
-    dialog->exec();//open();
+    dialog->exec();
     int res = dialog->result();
     if (res == QDialog::Accepted)
     {
