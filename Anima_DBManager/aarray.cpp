@@ -42,7 +42,7 @@ QString AArray::GetDisplayedText(bool complete) const
         return "[ARRAY]";
 
     QString _text = "[";
-    for (int i = 0; i< values.size(); i++)
+    for (int i = 0; i < (int)(values.size()); i++)
     {
         if (i > 0)
             _text.append(',');
@@ -55,7 +55,7 @@ void AArray::WriteValue_CSV(std::ofstream& file) const
 {
     file << "(";
 
-    for (int i = 0; i< values.size(); i++)
+    for (int i = 0; i < (int)(values.size()); i++)
     {
         if (i > 0)
             file << ",";
@@ -135,7 +135,7 @@ void AArray::SetValueFromText(const QString& text)
 
 
     // Apply all the strings in the finalList to their attribute
-    for(int i =0; i < finalList.size(); i++)
+    for(int i =0; i < (int)(finalList.size()); i++)
         values[i]->SetValueFromText(finalList[i]);
 }
 
@@ -156,7 +156,7 @@ void AArray::AddRow()
 }
 void AArray::RemoveRow(int _index)
 {
-    if (_index < -1 || _index >= values.size())
+    if (_index < -1 || _index >= (int)(values.size()))
         return;
 
     Attribute* removed = values[_index];

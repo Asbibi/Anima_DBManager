@@ -1,11 +1,11 @@
 #ifndef ATTRIBUTEPARAM_H
 #define ATTRIBUTEPARAM_H
 
+#include "enumerator.h"
 #include <QPointer>
 
 class Attribute;
 class StructureDB;
-class Enumerator;
 struct AttributeParam
 {
     ~AttributeParam();

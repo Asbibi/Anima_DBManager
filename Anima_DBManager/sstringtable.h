@@ -1,36 +1,51 @@
 #ifndef SSTRINGTABLE_H
 #define SSTRINGTABLE_H
 
+#include <QObject>
+
 #include "sstringhelper.h"
 #include "sstringitem.h"
 
 #include <QString>
-#include <vector>
+#include <QList>
+#include <fstream>
 
-class SStringTable
+class SStringTable : public QObject
 {
+    Q_OBJECT
+
 private:
     QString myTableName;
-    std::vector<SStringItem> myStrings;
+    QList<SStringItem> myStrings;
 
 public:
     SStringTable(const QString& _tableName);
+    SStringTable(const SStringTable& _another);
+    void operator=(const SStringTable& _another);
 
     const QString& GetTableName() const;
     int GetStringItemCount() const;
     int GetIndexFromIdentifier(const QString& _identifier) const;
     const QString* GetString(int _index, SStringHelper::SStringLanguages _language) const;
     const QString* GetString(const QString& _identifier, SStringHelper::SStringLanguages _language) const;
-    const std::vector<SStringItem>& GetStringItems() const;
+    const QList<SStringItem>& GetStringItems() const;
     const SStringItem* GetStringItem(int _index) const;
     const SStringItem* GetStringItem(const QString& _identifier) const;
 
     SStringItem* GetStringItemW(int _index);
     SStringItem* GetStringItemW(const QString& _identifier);
-    QString AddStringItem(const QString* _wantedIdentifier = nullptr); // return the actual identifier
-    void AddStringItemWithTexts(const QString _texts[], const QString* _wantedIdentifier = nullptr);
-    void RemoveStingItem(int _index);
-    void RemoveStingItem(const QString& _identifier);
+    QString AddStringItem(int _index, const QString* _wantedIdentifier = nullptr); // return the actual identifier
+    void AddStringItemWithTexts(int _index, const QString _texts[], const QString* _wantedIdentifier = nullptr);
+    void RemoveStringItem(int _index);
+    void RemoveStringItem(const QString& _identifier);
+    void SwapStringItems(int _indexFirst, int _indexSecond);
+    void MoveStringItems(int _indexFrom, int _indexTo);
+
+    bool SetItemIdentifier(const int _index, const QString& _identifier);
+    void SetItemString(int _row, SStringHelper::SStringLanguages _col, const QString& _text);
+
+
+    void WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language) const;
 };
 
 #endif // SSTRINGTABLE_H

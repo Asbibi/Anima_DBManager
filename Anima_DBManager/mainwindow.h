@@ -3,27 +3,30 @@
 
 #include <QMainWindow>
 
+#include <QMenuBar>
 #include <QTabWidget>
+#include <QToolBox>
 
 #include "db_manager.h"
 
-#include "attribute.h"
-#include "qattribute.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+private:
+    DB_Manager& myManager;
+
+    QMenuBar* myMenuBar;
+    QTabWidget* myTabStruct;
+    QTabWidget* myTabString;
+    QToolBox* myDefToolBox;
+
+
+
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private:
-    DB_Manager& myManager;
-
-    QTabWidget* myTabPanel = nullptr;
-
-    std::vector<Attribute*> myDebugAttributes;
-    QAttribute* myAttr = nullptr;
 };
 #endif // MAINWINDOW_H

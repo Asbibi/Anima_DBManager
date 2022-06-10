@@ -94,7 +94,7 @@ void AStructure::SetValueFromText(const QString& text)
         qFatal("\n\nError in '{' and '[' closing while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
         return;
     }
-    if (finalList.size() != value.GetAttributeCount())
+    if ((int)finalList.size() != value.GetAttributeCount())
     {
         qFatal("\n\nNot a text value per attribute while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
         return;
@@ -102,7 +102,7 @@ void AStructure::SetValueFromText(const QString& text)
 
 
     // Apply all the strings in the finalList to their attribute
-    for(int i =0; i < finalList.size(); i++)
+    for(int i =0; i < (int)finalList.size(); i++)
         value.SetAttributeValueFromText(i, finalList[i]);
 }
 

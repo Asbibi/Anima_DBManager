@@ -8,6 +8,23 @@ SStringItem::SStringItem(const QString& _identifier) :
         myStrings[i] = "";
     }
 }
+SStringItem::SStringItem(const SStringItem& _another) :
+    myIdentifier(_another.myIdentifier)
+{
+    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+        myStrings[i] = _another.myStrings[i];
+}
+void SStringItem::operator=(const SStringItem& _another)
+{
+    myIdentifier = _another.myIdentifier;
+    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+        myStrings[i] = _another.myStrings[i];
+}
+bool SStringItem::operator==(const SStringItem& _other) const
+{
+    return myIdentifier == _other.myIdentifier;
+}
+
 
 
 const QString& SStringItem::GetIdentifier() const
@@ -21,13 +38,18 @@ const QString& SStringItem::GetString(SStringHelper::SStringLanguages _language)
 
     return myStrings[_language];
 }
+
+void SStringItem::SetIdentifier(const QString& _identifier)
+{
+    myIdentifier = _identifier;
+}
 void SStringItem::SetString(SStringHelper::SStringLanguages _language, const QString& _str)
 {
     if (_language != SStringHelper::SStringLanguages::Count)
         myStrings[_language] = _str;
 }
 
-bool SStringItem::operator=(const SStringItem& _other) const
+void SStringItem::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language) const
 {
-    return myIdentifier == _other.myIdentifier;
+    _file << myIdentifier.toStdString() << ',' << myStrings[_language].toStdString();
 }

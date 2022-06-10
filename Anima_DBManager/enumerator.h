@@ -23,7 +23,7 @@ public:
     Enumerator(const QString& _name, const std::vector<QString>& _values, const std::vector<QColor>& _colors);
     Enumerator(const Enumerator& _another);
 
-    void operator=(const Enumerator& another);
+    void operator=(const Enumerator& _another);
 
     QString GetName() const;
     int GetValueCount() const;

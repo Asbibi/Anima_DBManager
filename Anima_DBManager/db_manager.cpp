@@ -36,18 +36,21 @@ DB_Manager::DB_Manager()
     AddStringTable("Shitty Stuff");
     QString text1s[] = {"Ceribou (anglais : Cherubi ; japonais : チェリンボ Cherinbo) est un Pokémon de type Plante de la quatrième génération.",
                         "Cherubi (Japanese: チェリンボ Cherinbo) is a Grass-type Pokémon introduced in Generation IV. It evolves into Cherrim starting at level 25."};
-    QString text2s[] = {"Palkia shiny de ses morts", "Fucka youuuuuu"};
+    QString text2s[] = {"Palkia shiny de ses morts", ""};
     QString text3s[] = {"Les grandes apparitions de ce Pokémon remontent à son utilisation par Flo dans les DP031 et 37.\nOn peut noter l'apparition d'un Ceribou dans le film Pokémon : L'ascension de Darkrai.\nOn reverra très peu (ou très rapidement) ce Pokémon par la suite (DP066 et 88), jusqu'à son utilisation par Maryline dans le DP125 : en effet, cette dernière juge Ceribou faisant partie des Pokémon mignons.",
                         "Cherubi debuted in The Grass-type Is Always Greener!, under the ownership of Gardenia.\nIt was first used in a battle against Ash. It faced off against Turtwig, and during the battle, Gardenia was able to learn quite a bit about Turtwig.\nCherubi reappeared in The Grass Menagerie!, where it once again fought Turtwig during an official Gym battle.\nIts speed forced Ash to recall Turtwig for Staravia, after which Cherubi was defeated."};
     QString id = "Palkia";
     QString text4s[] = {"He ho hohohoh", "ah ahaha ahiiiii"};
     QString id2 = "7 nains";
-    myStringTables[0].AddStringItemWithTexts(text1s);
-    myStringTables[0].AddStringItemWithTexts(text2s, &id);
-    myStringTables[0].AddStringItemWithTexts(text3s);
-    myStringTables[1].AddStringItem();
-    myStringTables[1].AddStringItem(&id);
-    myStringTables[1].AddStringItemWithTexts(text4s, &id2);
+    myStringTables[0].AddStringItemWithTexts(-1, text1s);
+    myStringTables[0].AddStringItem(-1);
+    myStringTables[0].AddStringItem(-1);
+    myStringTables[0].AddStringItem(-1);
+    myStringTables[0].AddStringItemWithTexts(-1, text2s, &id);
+    myStringTables[0].AddStringItemWithTexts(-1,text3s);
+    myStringTables[1].AddStringItem(-1);
+    myStringTables[1].AddStringItem(-1,&id);
+    myStringTables[1].AddStringItemWithTexts(-1,text4s, &id2);
 
     // Setup template
     TemplateStructure templ1 = TemplateStructure("Struct Test", QColorConstants::Red);
@@ -66,18 +69,18 @@ DB_Manager::DB_Manager()
     templ2.AddAttributeTemplate(Attribute::Type::Float, "Float", AttributeParam());         // Same
     templ2.AddAttributeTemplate(Attribute::Type::ShortString, "Short", AttributeParam());   // Same
     AttributeParam tempRefParam = AttributeParam();
-    tempRefParam.structTable = GetStructures(0);
+    tempRefParam.structTable = GetStructureTable(0);
     templ2.AddAttributeTemplate(Attribute::Type::Reference, "Ref", tempRefParam);          // Enum requires that the param has a non null enum ptr
     //templ2.SetAttributeDefaultValue("Enum", "GROUND");
 
     CreateStructureDB(templ2);
 
-    StructureDB* db1 = GetStructures(0);
+    StructureDB* db1 = GetStructureTable(0);
     db1->AddStructureAt(0);
     db1->AddStructureAt(0);
     db1->AddStructureAt(0);
 
-    StructureDB* db2 = GetStructures(1);
+    StructureDB* db2 = GetStructureTable(1);
     db2->AddStructureAt(0);
     db2->AddStructureAt(0);
 
@@ -205,7 +208,7 @@ int DB_Manager::GetEnumCount() const
 }
 const Enumerator* DB_Manager::GetEnum(int _index) const
 {
-    if (_index < 0 || _index >= enumerators.size())
+    if (_index < 0 || _index >= (int)enumerators.size())
         return nullptr;
 
     return &enumerators[_index];
@@ -216,7 +219,7 @@ void DB_Manager::AddEnum(const Enumerator& _enum)
 }
 void DB_Manager::RemoveEnum(int _index)
 {
-    if (_index < 0 || _index >= enumerators.size())
+    if (_index < 0 || _index >= (int)enumerators.size())
         return;
 
     enumerators.erase(enumerators.begin() + _index);
@@ -227,7 +230,7 @@ int DB_Manager::GetStructuresCount() const
 {
     return (int)(myStructures.size());
 }
-const StructureDB* DB_Manager::GetStructures(int index) const
+const StructureDB* DB_Manager::GetStructureTable(int index) const
 {
     if (index < 0)
         index = 0;
@@ -236,7 +239,7 @@ const StructureDB* DB_Manager::GetStructures(int index) const
 
     return myStructures[index];
 }
-StructureDB* DB_Manager::GetStructures(int index)
+StructureDB* DB_Manager::GetStructureTable(int index)
 {
     if (myStructures.size() == 0)
         return nullptr;
@@ -276,6 +279,17 @@ const SStringTable* DB_Manager::GetStringTable(int _index) const
     return &myStringTables[_index];
 }
 const SStringTable* DB_Manager::GetStringTable(const QString& _tableName) const
+{
+    return GetStringTable(GetIndexFromStringTableName(_tableName));
+}
+SStringTable* DB_Manager::GetStringTable(int _index)
+{
+    if (_index < 0 || _index >= GetStringTableCount())
+        return nullptr;
+
+    return &myStringTables[_index];
+}
+SStringTable* DB_Manager::GetStringTable(const QString& _tableName)
 {
     return GetStringTable(GetIndexFromStringTableName(_tableName));
 }

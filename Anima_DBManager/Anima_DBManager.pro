@@ -45,6 +45,7 @@ SOURCES += \
     qreflabel.cpp \
     qsstring.cpp \
     qsstringdialog.cpp \
+    qsstringtable.cpp \
     qstructuretable.cpp \
     sstringhelper.cpp \
     sstringitem.cpp \
@@ -88,6 +89,7 @@ HEADERS += \
     qreflabel.h \
     qsstring.h \
     qsstringdialog.h \
+    qsstringtable.h \
     qstructuretable.h \
     sstringhelper.h \
     sstringitem.h \

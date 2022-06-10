@@ -5,6 +5,8 @@
 #include "structuredb.h"
 #include "templatestructure.h"
 #include "sstringtable.h"
+
+#include <QList>
 #include <vector>
 
 class DB_Manager
@@ -13,7 +15,7 @@ private:
     QString myProjectContentFolderPath;
     std::vector<Enumerator> enumerators;
     std::vector<StructureDB*> myStructures;
-    std::vector<SStringTable> myStringTables;
+    QList<SStringTable> myStringTables;
 
     DB_Manager();
     DB_Manager(const DB_Manager&) = delete;
@@ -32,13 +34,15 @@ public:
     void RemoveEnum(int _index);
 
     int GetStructuresCount() const;
-    const StructureDB* GetStructures(int index) const;
-    StructureDB* GetStructures(int index);
+    const StructureDB* GetStructureTable(int index) const;
+    StructureDB* GetStructureTable(int index);
     void CreateStructureDB(const TemplateStructure& _structureTemplate);
 
     int GetStringTableCount() const;
     const SStringTable* GetStringTable(int _index) const;
     const SStringTable* GetStringTable(const QString& _tableName) const;
+    SStringTable* GetStringTable(int _index);
+    SStringTable* GetStringTable(const QString& _tableName);
     void AddStringTable(const QString& _newTableName);
     void RemoveStringTable(int _index);
     void RemoveStringTable(const QString& _tableName);

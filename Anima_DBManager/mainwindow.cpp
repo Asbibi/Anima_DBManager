@@ -1,138 +1,116 @@
 #include "mainwindow.h"
 
-//#include<QDebug>
-//#include "structure.h"
-//#include "astring.h"
 #include <QLabel>
 #include <QTextEdit>
 #include <QGroupBox>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
-#include <QTableWidget>
-#include <QStringList>
+#include <QSplitter>
+#include <QMenu>
+#include <QAction>
 
-#include "aarray.h"
-#include "abool.h"
-#include "aenumerator.h"
-#include "aint.h"
-#include "afloat.h"
-#include "ashortstring.h"
-#include "astructure.h"
 #include "qstructuretable.h"
+#include "qsstringtable.h"
+#include "sstringhelper.h"
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       myManager(DB_Manager::GetDB_Manager())
 {
-    QWidget* wid = new QWidget();
-    setCentralWidget(wid);
-    //QMainWindow::centralWidget()->layout()->setContentsMargins(0, 0, 0, 0);
+    myMenuBar = new QMenuBar(this);
+    QMenu* fileMenu = myMenuBar->addMenu("File");
+    QMenu* exportMenu = myMenuBar->addMenu("Export");
+    QMenu* importMenu = myMenuBar->addMenu("Import");
+    QMenu* displayMenu = myMenuBar->addMenu("Display");
+    setMenuBar(myMenuBar);
 
-    QHBoxLayout* layout = new QHBoxLayout(wid);
+    fileMenu->addAction("New");
+    fileMenu->addAction("Open");
+    fileMenu->addAction("Save");
+    fileMenu->addAction("Save As...");
 
-    myTabPanel = new QTabWidget();
-    myTabPanel->setMinimumWidth(600);
-    myAttr = new QAttribute(myTabPanel);
-    myTabPanel->addTab(myAttr, "Attribute");
-    myTabPanel->addTab(new QTextEdit(myTabPanel), "Edit Text");
-    layout->addWidget(myTabPanel);
-    //myTabPanel->resize(570,420);
-    //resize(570,420);
-    //QGroupBox for grouping things maybe for creating structures templates or enum
+    exportMenu->addAction("Export Current Structure Table");
+    exportMenu->addAction("Export All Structure Tables");
+    exportMenu->addSeparator();
+    QMenu* exportCurrentStringMenu = exportMenu->addMenu("Export Current String Table");
+    QMenu* exportAllStringsMenu = exportMenu->addMenu("Export All String Tables");
+    exportMenu->addSeparator();
+    exportMenu->addAction("Export Everything");
 
-    QTableWidget* tableWidget = new QTableWidget(myTabPanel);
-    tableWidget->setRowCount(10);
-    tableWidget->setColumnCount(5);
-    //tableWidget->setColumnWidth(0,50);
-    tableWidget->setRowHeight(0,50);
-    QStringList verticalHeaderNames = {"Item","Barbe","a","papa","hey"};
-    tableWidget->setHorizontalHeaderLabels(verticalHeaderNames);
-    //tableWidget->horizontalHeader();
+    importMenu->addAction("Import in Current Structure Table");
+    QMenu* importCurrentStringMenu = importMenu->addMenu("Import in Current String Table");
 
-    /*auto* it = new QAttributeTableItem();
-    QString imgPath = "/home/haris/Pictures/face/3.png";
-    QPixmap pix1(imgPath);
-    it->setData(QVariant(imgPath), Qt::UserRole);
-    tableWidget->setItem(0,0, it);*/
-    //tableWidget->setCellWidget(0,0, myAttr );
-    myTabPanel->addTab(tableWidget, "Table");
+    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+    {
+        exportCurrentStringMenu->addAction("Export Current in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
+        exportAllStringsMenu->addAction("Export All in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
+        importCurrentStringMenu->addAction("Import in Current in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
+    }
+    exportCurrentStringMenu->addAction("Export Current in All Languages");
+    exportAllStringsMenu->addAction("Export All in All Languages");
 
-    StructureDB* db = myManager.GetStructures(0);
+    displayMenu->addAction("Update Current Table");
+    displayMenu->addAction("Update All Tables");
+
+
+    //---------
+
+    QSplitter* splitter = new QSplitter(this);
+    setCentralWidget(splitter);
+    //splitter->setStyleSheet("QSplitter::handle { width: 2px; color: solid green;}");
+
+    //---------
+
+    QToolBox* myTableToolBox = new QToolBox();
+    myTableToolBox->setMinimumWidth(600);
+    splitter->addWidget(myTableToolBox);
+
+    myTabStruct = new QTabWidget();
+    myTabString = new QTabWidget();
+    myTableToolBox->addItem(myTabString, "Structures");
+    myTableToolBox->addItem(myTabStruct, "Table Strings");
+
+
+    StructureDB* db = myManager.GetStructureTable(0);
     if (db != nullptr)
     {
         QStructureTable* testTable = new QStructureTable(*db);
-        myTabPanel->addTab(testTable, db->GetTemplateName());
+        myTabStruct->addTab(testTable, db->GetTemplateName());
     }
-    StructureDB* db2 = myManager.GetStructures(1);
+    StructureDB* db2 = myManager.GetStructureTable(1);
     if (db2 != nullptr)
     {
         QStructureTable* testTable = new QStructureTable(*db2);
-        myTabPanel->addTab(testTable, db2->GetTemplateName());
+        myTabStruct->addTab(testTable, db2->GetTemplateName());
+    }
+
+    SStringTable* sTable = myManager.GetStringTable(0);
+    if (sTable != nullptr)
+    {
+        QSStringTable* stringTable = new QSStringTable(*sTable);
+        myTabString->addTab(stringTable, sTable->GetTableName());
     }
 
     //---------
 
-    AttributeParam* someParam = new AttributeParam();
+    myDefToolBox = new QToolBox();
+    splitter->addWidget(myDefToolBox);
 
-    ABool* boolAttr_true = new ABool(true);
-    ABool* boolAttr_false = new ABool(false);
-    AInt* intAttr_0 = new AInt(someParam, 0);
-    AInt* intAttr_10 = new AInt(someParam, 10);
-    AFloat* floatAttr_0 = new AFloat(someParam, 0.5f);
-    AFloat* floatAttr_1 = new AFloat(someParam, 0.6654845f);
-    AShortString* stringAttr_hey = new AShortString(someParam, "Hey");
-    AShortString* stringAttr_hw = new AShortString(someParam, "Hello world !!");
-    Enumerator* enumm = new Enumerator("Enum", {"Fire","Earth","Wind"});
-    someParam->enumerator = enumm;
-    //AEnumerator* enumAttr_f = new AEnumerator(enumm, 0);
-    AEnumerator* enumAttr_w = new AEnumerator(someParam, 2);
+    QWidget* enumWidget = new QWidget();
+    QWidget* stringWidget = new QWidget();
+    QWidget* structWidget = new QWidget();
+    myDefToolBox->addItem(enumWidget, "Enumerators");
+    myDefToolBox->addItem(stringWidget, "String Tables");
+    myDefToolBox->addItem(structWidget, "Structures");
 
-    myDebugAttributes.push_back(boolAttr_true);
-    myDebugAttributes.push_back(boolAttr_false);
-    myDebugAttributes.push_back(intAttr_0);
-    myDebugAttributes.push_back(intAttr_10);
-    myDebugAttributes.push_back(floatAttr_0);
-    myDebugAttributes.push_back(floatAttr_1);
-    myDebugAttributes.push_back(stringAttr_hey);
-    myDebugAttributes.push_back(stringAttr_hw);
-    //myDebugAttributes.push_back(enumAttr_f);
-    myDebugAttributes.push_back(enumAttr_w);
-
-    QGroupBox* group = new QGroupBox("Attributes");
+    /*QGroupBox* group = new QGroupBox("Attributes");
     QVBoxLayout *vbox = new QVBoxLayout(group);
-
-    for (const auto* attr : myDebugAttributes)
-    {
-        QPushButton* btn = new QPushButton(attr->GetDisplayedText());
-        QObject::connect(btn, &QPushButton::clicked, [this, attr](){
-            if (attr != nullptr)
-                myAttr->UpdateAttribute(attr);
-        });
-        vbox->addWidget(btn);
-    }
-
-    //vbox->addStretch(1);
     group->setLayout(vbox);
-    layout->addWidget(group);
-
-    /*QPushButton* editBtn = new QPushButton("Edit Int");
-    QObject::connect(editBtn, &QPushButton::clicked, [intAttr_0](){
-        if (intAttr_0 != nullptr)
-            intAttr_0->SetValueFromText("99");
-    });
-    layout->addWidget(editBtn);*/
+    vbox->addWidget(btn);*/
 }
 
 MainWindow::~MainWindow()
-{
-    for (auto* attr : myDebugAttributes)
-    {
-        delete attr;
-    }
-    if (myAttr != nullptr)
-        delete myAttr;
-    if (myTabPanel != nullptr)
-        delete myTabPanel;
-}
+{}
 
