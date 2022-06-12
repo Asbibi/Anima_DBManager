@@ -2,6 +2,7 @@
 #define SSTRINGHELPER_H
 
 #include <QString>
+#include <functional>
 
 namespace SStringHelper {
 
@@ -14,6 +15,7 @@ enum SStringLanguages
 };
 
 QString GetLanguageString(SStringLanguages _language);
+QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const QString&)> _ValidateId, bool _noneAutorized);
 
 }
 

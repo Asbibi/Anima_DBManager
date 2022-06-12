@@ -17,7 +17,7 @@ QEnumPanel::QEnumPanel(QWidget *parent)
 
     QGroupBox* listGroupBox = new QGroupBox("All Enums");
     myLayout->addWidget(listGroupBox);
-    myItemList = new QAugmentedList(listGroupBox);
+    myItemList = new QAugmentedList(false, "New Enum", listGroupBox);
     QVBoxLayout* listGroupBoxLayout = new QVBoxLayout();
     listGroupBox->setLayout(listGroupBoxLayout);
     listGroupBoxLayout->addWidget(myItemList);
@@ -29,7 +29,7 @@ QEnumPanel::QEnumPanel(QWidget *parent)
     myLayout->addWidget(editGroupBox);
 
 
-    myEnumValuesList = new QAugmentedList();
+    myEnumValuesList = new QAugmentedList(true, "Case");
     myEnumColorList = new QListWidget();
     myColorCheckbox = new QCheckBox();
     editLayout->addWidget(new QLabel("Values:"), 0, 0);
@@ -50,11 +50,13 @@ QEnumPanel::QEnumPanel(QWidget *parent)
 
     QObject::connect(myItemList, &QAugmentedList::ItemEdited, this, &QEnumPanel::OnItemEdited);
     QObject::connect(myItemList, &QAugmentedList::ItemAdded, this, &QEnumPanel::OnItemAdded);
+    QObject::connect(myItemList, &QAugmentedList::ItemDuplicated, this, &QEnumPanel::OnItemDuplicated);
     QObject::connect(myItemList, &QAugmentedList::ItemMoved, this, &QEnumPanel::OnItemMoved);
     QObject::connect(myItemList, &QAugmentedList::ItemRemoved, this, &QEnumPanel::OnItemRemoved);
 
     QObject::connect(myEnumColorList, &QListWidget::itemChanged, this, &QEnumPanel::SetColorFromText);
     QObject::connect(myEnumValuesList, &QAugmentedList::ItemAdded, this, &QEnumPanel::OnAddedEnumValue);
+    QObject::connect(myEnumValuesList, &QAugmentedList::ItemDuplicated, this, &QEnumPanel::OnDuplicatedEnumValue);
     QObject::connect(myEnumValuesList, &QAugmentedList::ItemMoved, this, &QEnumPanel::OnMovedEnumValue);
     QObject::connect(myEnumValuesList, &QAugmentedList::ItemRemoved, this, &QEnumPanel::OnRemovedEnumValue);
 
@@ -164,6 +166,17 @@ void QEnumPanel::OnItemAdded(const int _index, const QString& _value)
 {
     DB_Manager::GetDB_Manager().AddEnum(Enumerator(_value), _index);
 }
+void QEnumPanel::OnItemDuplicated(const int _index, const int _originalIndex)
+{
+    auto& DB = DB_Manager::GetDB_Manager();
+    const auto* originalEnum = DB.GetEnum(_originalIndex);
+    if (!originalEnum)
+    {
+        qFatal("Duplicating inexisting enumerator");
+        return;
+    }
+    DB.AddEnum(Enumerator(*originalEnum), _index);
+}
 void QEnumPanel::OnItemMoved(const int _indexFrom, const int _indexTo)
 {
     DB_Manager::GetDB_Manager().MoveEnum(_indexFrom, _indexTo);
@@ -186,6 +199,15 @@ void QEnumPanel::OnAddedEnumValue(int _index)
 {
     CHECK_USE_COLOR();
     AddColorItem("#------", _index);
+}
+void QEnumPanel::OnDuplicatedEnumValue(int _index, int _originalIndex)
+{
+    CHECK_USE_COLOR();
+    const auto* originalColor = myEnumColorList->item(_originalIndex);
+    if (originalColor)
+        AddColorItem(originalColor->text(), _index);
+    else
+        AddColorItem("#------", _index);    // Fallback, shouldn't be triggered
 }
 void QEnumPanel::OnMovedEnumValue(int _indexFrom, int _indexTo)
 {

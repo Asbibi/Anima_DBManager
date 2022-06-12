@@ -91,6 +91,7 @@ SStringItem* SStringTable::GetStringItemW(const QString& _identifier)
     return GetStringItemW(GetIndexFromIdentifier(_identifier));
 }
 
+
 QString SStringTable::AddStringItem(int _index, const QString* _wantedIdentifier /*= nullptr*/)
 {
     if (_index < 0 || _index > GetStringItemCount())
@@ -102,15 +103,10 @@ QString SStringTable::AddStringItem(int _index, const QString* _wantedIdentifier
         return *_wantedIdentifier;
     }
 
-    const QString baseIdentifier = _wantedIdentifier ? *_wantedIdentifier : myTableName;
-    int addition = 0;
-    QString identifier;
-    do
-    {
-        addition++;
-        identifier = baseIdentifier + '_' + QString::number(addition);
-    }
-    while (GetIndexFromIdentifier(identifier) != -1);
+    QString baseIdentifier = _wantedIdentifier ? *_wantedIdentifier : myTableName;
+    auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetIndexFromIdentifier(_identifier) == -1); };
+    const QString identifier = SStringHelper::GetUniqueIdentifier(baseIdentifier, validate, false);
+
 
     myStrings.insert(_index, SStringItem(identifier));
     return identifier;
@@ -125,15 +121,13 @@ void SStringTable::AddStringItemWithTexts(int _index, const QString _texts[], co
         item->SetString((SStringHelper::SStringLanguages)i, _texts[i]);
     }
 }
-#include <QDebug>
+
 void SStringTable::RemoveStringItem(int _index)
 {
     if (_index < 0 || _index >= GetStringItemCount())
         return;
 
-    qDebug() << "Remove at " << _index;
     myStrings.removeAt(_index);
-    //myStrings.erase()
 }
 
 void SStringTable::RemoveStringItem(const QString& _identifier)

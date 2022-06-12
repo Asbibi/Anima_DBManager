@@ -29,7 +29,6 @@ private:
 public:
     explicit QEnumPanel(QWidget *parent = nullptr);
 
-signals:
 public slots:
     void UpdateItemList();
     void UpdateEditSection(const int _index);
@@ -39,11 +38,13 @@ public slots:
 
     void OnItemEdited(const int _index, const QString& _value);
     void OnItemAdded(const int _index, const QString& _value);
+    void OnItemDuplicated(const int _index, const int _originalIndex);
     void OnItemMoved(const int _indexFrom, const int _indexTo);
     void OnItemRemoved(const int _index);
 
     void SetColorFromText(QListWidgetItem* _item);
     void OnAddedEnumValue(int _index);
+    void OnDuplicatedEnumValue(int _index, int _originalIndex);
     void OnMovedEnumValue(int _indexFrom, int _indexTo);
     void OnRemovedEnumValue(int _index);
     void OnToggleUseColor(const int _state);

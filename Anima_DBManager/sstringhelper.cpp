@@ -14,4 +14,34 @@ QString GetLanguageString(SStringLanguages _language)
     return "";
 }
 
+QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const QString&)> _ValidateId, bool _noneAutorized)
+{
+    if (_noneAutorized && _ValidateId(_baseIdentifier))
+        return _baseIdentifier;
+
+    int addition = 0;
+    const int last_Index = _baseIdentifier.lastIndexOf('_');
+    if (last_Index >= 0)
+    {
+        const QString post_String = _baseIdentifier.right(_baseIdentifier.length() - last_Index - 1);
+        bool isOnlyDigit;
+        int baseAddition = post_String.toInt(&isOnlyDigit);
+        if (isOnlyDigit)
+        {
+            addition = baseAddition;
+            _baseIdentifier = _baseIdentifier.left(last_Index);
+        }
+    }
+
+    QString identifier;
+    do
+    {
+        addition++;
+        identifier = _baseIdentifier + '_' + QString::number(addition);
+    }
+    while (!_ValidateId(identifier));
+
+    return identifier;
+}
+
 }

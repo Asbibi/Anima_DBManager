@@ -1,5 +1,7 @@
 #include "qaugmentedlist.h"
 
+#include "sstringhelper.h"
+
 #include <QPushButton>
 //#include <QHBoxLayout>
 #include <QGridLayout>
@@ -7,8 +9,10 @@
 
 #include <QDebug>
 
-QAugmentedList::QAugmentedList(QWidget *parent)
-    : QWidget{parent}
+QAugmentedList::QAugmentedList(bool _unique, const QString& _defValue, QWidget *parent) :
+    QWidget{parent},
+    myOnlyUniqueValues {_unique},
+    myDefaultValue{_defValue}
 {
     QVBoxLayout* myLayout = new QVBoxLayout();
     setLayout(myLayout);
@@ -77,7 +81,7 @@ void QAugmentedList::Clear()
     myList->clear();
     CHANGE_SIGNAL_ENABLE(true);
 }
-void QAugmentedList::AddItemAt(const QString& _label, int _index, const bool _emit)
+void QAugmentedList::AddItemAt(const QString& _label, int _index, const bool _emit, const int _copyFrom)
 {
     const int count = myList->count();
     if (_index < 0 || _index > count)
@@ -85,13 +89,32 @@ void QAugmentedList::AddItemAt(const QString& _label, int _index, const bool _em
 
     CHANGE_SIGNAL_ENABLE(false);
 
-    myList->insertItem(_index, _label);
+    QString identifier = _label;
+    if (myOnlyUniqueValues)
+    {
+        QString baseIdentifier = _label;
+        auto validate = [this](const QString& _identifier)->bool{
+            const int count = myList->count();
+            for (int i = 0; i < count; i++)
+            {
+                if (myList->item(i)->text() == _identifier)
+                    return false;
+            }
+            return true;
+        };
+        identifier = SStringHelper::GetUniqueIdentifier(baseIdentifier, validate, true);
+    }
+
+    myList->insertItem(_index, identifier);
     auto* item = myList->item(_index);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
 
     if (_emit)
     {
-        emit ItemAdded(_index, _label);
+        if (_copyFrom < 0)
+            emit ItemAdded(_index, identifier);
+        else
+            emit ItemDuplicated(_index, _copyFrom);
         myList->setCurrentRow(_index);
     }
     CHANGE_SIGNAL_ENABLE(true);
@@ -145,8 +168,31 @@ void QAugmentedList::OnSelectionChanged(const int _index)
 }
 void QAugmentedList::OnListEdited(QListWidgetItem *item)
 {
-    if (myPropagateChanged)
-        emit ItemEdited(myList->row(item), item->text());
+    if (!myPropagateChanged)
+        return;
+
+    const int editedRow = myList->row(item);
+    QString value = item->text();
+
+    if (myOnlyUniqueValues)
+    {
+        QString wantedValue = value;
+        auto validate = [this, &editedRow](const QString& _identifier)->bool{
+            const int count = myList->count();
+            for (int i = 0; i < count; i++)
+            {
+                if (myList->item(i)->text() == _identifier && i != editedRow)
+                    return false;
+            }
+            return true;
+        };
+        value = SStringHelper::GetUniqueIdentifier(wantedValue, validate, true);
+    }
+
+    if (item->text() != value)
+        item->setText(value);
+    else
+        emit ItemEdited(editedRow, value);
 }
 
 
@@ -166,17 +212,17 @@ void QAugmentedList::OnListEdited(QListWidgetItem *item)
 void QAugmentedList::OnAddBefore()
 {
     GET_CURRENT_OR_ZERO;
-    AddItemAt("", current, true);
+    AddItemAt(myDefaultValue, current, true);
 }
 void QAugmentedList::OnAddAfter()
 {
     GET_CURRENT_OR_ZERO;
-    AddItemAt("", current + 1, true);
+    AddItemAt(myDefaultValue, current + 1, true);
 }
 void QAugmentedList::OnDuplicate()
 {
     GET_CURRENT;
-    AddItemAt(myList->currentItem()->text(), current + 1, true);
+    AddItemAt(myList->currentItem()->text(), current + 1, true, current);
 }
 void QAugmentedList::OnRemove()
 {
