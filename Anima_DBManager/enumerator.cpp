@@ -56,32 +56,50 @@ int Enumerator::GetValueCount() const
 }
 QString Enumerator::GetValue(int _index) const
 {
-    if (_index < 0 || _index >= values.size())
+    if (_index < 0 || _index >= (int)(values.size()))
         return "";
 
     return values[_index];
 }
 int Enumerator::GetValueIndex(const QString& _value) const
 {
-    for(int i = 0; i < values.size(); i++)
+    const int count = values.size();
+    for(int i = 0; i < count; i++)
         if (_value == values[i])
             return i;
 
     return -1;
 }
 
+
+
+bool Enumerator::GetUseColor() const
+{
+    return colors.size() != 0;
+}
+QString Enumerator::GetColorHex(int _index) const
+{
+    if (_index < 0 || _index >= (int)(colors.size()))
+        return "#------";
+
+    return colors[_index].name();
+}
 void Enumerator::SetColorToWidget(int _index, QWidget* _widget) const
 {
-    if (_index < 0 || _index >= colors.size())
-        return ;
-
-    _widget->setStyleSheet("QComboBox { color: " + colors[_index].name(QColor::HexRgb) + "; }");
+    if (_index < 0 || _index >= (int)(colors.size()))
+        _widget->setStyleSheet("QComboBox { color: black; }");
+    else
+        _widget->setStyleSheet("QComboBox { color: " + colors[_index].name(QColor::HexRgb) + "; }");
     // Notabene: Background Color -> "background-color:..."
 }
 
 
 
 
+void Enumerator::SetName(const QString& _name)
+{
+    name = _name;
+}
 void Enumerator::AddValue(const QString& _value)
 {
     AddValue(_value, nullptr);
@@ -93,7 +111,7 @@ void Enumerator::AddValue(const QString& _value, const QColor* _color)
             return;
 
     values.push_back(_value);
-    // We add a color only if we already colors only
+    // We add a color only if we already colors
     if (colors.size() > 0)
     {
         colors.push_back(_color ? *_color : QColorConstants::Black);
@@ -111,7 +129,7 @@ void Enumerator::RemoveValue(const QString& _value)
 }
 void Enumerator::RemoveValue(int _index)
 {
-    if (_index < 0 || _index >= values.size())
+    if (_index < 0 || _index >= (int)(values.size()))
         return;
 
     values.erase(values.begin() + _index);

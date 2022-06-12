@@ -1,6 +1,7 @@
 #ifndef DB_MANAGER_H
 #define DB_MANAGER_H
 
+#include "attributeparam.h"
 #include "enumerator.h"
 #include "structuredb.h"
 #include "templatestructure.h"
@@ -13,7 +14,8 @@ class DB_Manager
 {
 private:
     QString myProjectContentFolderPath;
-    std::vector<Enumerator> enumerators;
+    QList<AttributeParam*> myAttributeParamPtrs;
+    QList<Enumerator> enumerators;
     std::vector<StructureDB*> myStructures;
     QList<SStringTable> myStringTables;
 
@@ -21,17 +23,26 @@ private:
     DB_Manager(const DB_Manager&) = delete;
     ~DB_Manager();
 
+
     int GetIndexFromStringTableName(const QString& _tableName) const;
 
 public:
     static DB_Manager& GetDB_Manager();
 
+    void Init();
+
     const QString& GetProjectContentFolderPath() const { return myProjectContentFolderPath; }
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
-    void AddEnum(const Enumerator& _enum);
+    void AddEnum(const Enumerator& _enum, int _index = -1);
+    void MoveEnum(const int _indexFrom, const int _indexTo);
     void RemoveEnum(int _index);
+    void UpdateEnum(int _index, const Enumerator& _another);
+    void UpdateEnumName(int _index, const QString& _name);
+
+    void RegisterAttributeParam(AttributeParam* _param);
+    void UnregisterAttributeParam(AttributeParam* _param);
 
     int GetStructuresCount() const;
     const StructureDB* GetStructureTable(int index) const;

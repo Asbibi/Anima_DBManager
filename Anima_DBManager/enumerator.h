@@ -1,4 +1,4 @@
-#ifndef ENUMERATOR_H
+﻿#ifndef ENUMERATOR_H
 #define ENUMERATOR_H
 
 #include <QObject>
@@ -29,8 +29,12 @@ public:
     int GetValueCount() const;
     QString GetValue(int _index) const;
     int GetValueIndex(const QString& _value) const;
+
+    bool GetUseColor() const;
+    QString GetColorHex(int _index) const;
     void SetColorToWidget(int _index, QWidget* _widget) const;
 
+    void SetName(const QString& _name);
     void AddValue(const QString& _value);
     void AddValue(const QString& _value, const QColor* _color);
     void RemoveValue(const QString& _value);

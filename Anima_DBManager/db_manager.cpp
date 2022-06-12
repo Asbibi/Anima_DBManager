@@ -21,6 +21,18 @@
 #include <qdebug.h>
 
 DB_Manager::DB_Manager()
+{}
+DB_Manager::~DB_Manager()
+{
+    for(auto const& strct : myStructures)
+        delete(strct);
+}
+DB_Manager& DB_Manager::GetDB_Manager()
+{
+    static DB_Manager singleton = DB_Manager();
+    return singleton;
+}
+void DB_Manager::Init()
 {
     // Project Folder
     myProjectContentFolderPath = "D:/Documents/Unreal/Anima_OLD/Content/";
@@ -57,12 +69,13 @@ DB_Manager::DB_Manager()
     templ1.AddAttributeTemplate(Attribute::Type::Texture, "Texture", AttributeParam());
     templ1.AddAttributeTemplate(Attribute::Type::Bool, "Bool", AttributeParam());
     AttributeParam tempEnumParam = AttributeParam();
-    tempEnumParam.enumerator = &enumerators[0];
+    tempEnumParam.enumeratorIndex = 0;
     templ1.AddAttributeTemplate(Attribute::Type::Enum, "Enum", tempEnumParam);          // Enum requires that the param has a non null enum ptr
     templ1.SetAttributeDefaultValue("Enum", "GROUND");
     templ1.AddAttributeTemplate(Attribute::Type::TableString, "Table", AttributeParam());
 
     CreateStructureDB(templ1);
+
 
     TemplateStructure templ2 = TemplateStructure("Another Struct", QColorConstants::Red);
     templ2.AddAttributeTemplate(Attribute::Type::Int, "Int", AttributeParam());             // Int use the param given but default are ok
@@ -70,10 +83,10 @@ DB_Manager::DB_Manager()
     templ2.AddAttributeTemplate(Attribute::Type::ShortString, "Short", AttributeParam());   // Same
     AttributeParam tempRefParam = AttributeParam();
     tempRefParam.structTable = GetStructureTable(0);
-    templ2.AddAttributeTemplate(Attribute::Type::Reference, "Ref", tempRefParam);          // Enum requires that the param has a non null enum ptr
-    //templ2.SetAttributeDefaultValue("Enum", "GROUND");
+    templ2.AddAttributeTemplate(Attribute::Type::Reference, "Ref", tempRefParam);
 
     CreateStructureDB(templ2);
+
 
     StructureDB* db1 = GetStructureTable(0);
     db1->AddStructureAt(0);
@@ -85,68 +98,68 @@ DB_Manager::DB_Manager()
     db2->AddStructureAt(0);
 
 
-    /*
-    TemplateStructure* templ = new TemplateStructure("Test2StructDB", QColorConstants::Red);
+/*
+TemplateStructure* templ = new TemplateStructure("Test2StructDB", QColorConstants::Red);
 
-    //templ->AddAttribute("Mesh", new AAMesh());
-    templ->AddAttribute("Texture", new AATexture());
-    //templ->AddAttribute("Sound", new AASound());
-    //templ->AddAttribute("Anim", new AAAnimInstance());
-    //templ->AddAttribute("Niagara", new AANiagara());
-    templ->AddAttribute("Bool", new ABool());
-    AttributeParam* enumParam = new AttributeParam();
-    enumParam->enumerator = &enumerators[0];
-    templ->AddAttribute("Enum", new AEnumerator(enumParam, 4));
-    AttributeParam* floatParam = new AttributeParam();
-    AFloat* floatAttTempl = new AFloat(floatParam);
-    floatAttTempl->SetValueFromText("0.253");
-    templ->AddAttribute("Float", floatAttTempl);
-    AttributeParam* intParam = new AttributeParam();
-    templ->AddAttribute("Int", new AInt(intParam));
-    AttributeParam* stringParam = new AttributeParam();
-    stringParam->max_i = 32;
-    templ->AddAttribute("Short String", new AShortString(stringParam, "Hello There !!!"));
-    templ->AddAttribute("Table String", new ATableString());
+//templ->AddAttribute("Mesh", new AAMesh());
+templ->AddAttribute("Texture", new AATexture());
+//templ->AddAttribute("Sound", new AASound());
+//templ->AddAttribute("Anim", new AAAnimInstance());
+//templ->AddAttribute("Niagara", new AANiagara());
+templ->AddAttribute("Bool", new ABool());
+AttributeParam* enumParam = new AttributeParam();
+enumParam->enumerator = &enumerators[0];
+templ->AddAttribute("Enum", new AEnumerator(enumParam, 4));
+AttributeParam* floatParam = new AttributeParam();
+AFloat* floatAttTempl = new AFloat(floatParam);
+floatAttTempl->SetValueFromText("0.253");
+templ->AddAttribute("Float", floatAttTempl);
+AttributeParam* intParam = new AttributeParam();
+templ->AddAttribute("Int", new AInt(intParam));
+AttributeParam* stringParam = new AttributeParam();
+stringParam->max_i = 32;
+templ->AddAttribute("Short String", new AShortString(stringParam, "Hello There !!!"));
+templ->AddAttribute("Table String", new ATableString());
 
-    TemplateStructure* templ2 = new TemplateStructure("Test_Strct", QColorConstants::Red);
-    AStructure* structAtt = new AStructure(*templ);
-    templ2->AddAttribute("Struct", structAtt);
-    AttributeParam* arrayParam = new AttributeParam();
-    arrayParam->templateAtt = floatAttTempl->CreateDuplica();
-    AArray* arrayAtt = new AArray(arrayParam);
-    arrayAtt->AddRow();
-    arrayAtt->AddRow();
-    templ2->AddAttribute("Array", arrayAtt);
+TemplateStructure* templ2 = new TemplateStructure("Test_Strct", QColorConstants::Red);
+AStructure* structAtt = new AStructure(*templ);
+templ2->AddAttribute("Struct", structAtt);
+AttributeParam* arrayParam = new AttributeParam();
+arrayParam->templateAtt = floatAttTempl->CreateDuplica();
+AArray* arrayAtt = new AArray(arrayParam);
+arrayAtt->AddRow();
+arrayAtt->AddRow();
+templ2->AddAttribute("Array", arrayAtt);
 
-    TemplateStructure* templ3 = new TemplateStructure("Test_Combine", QColorConstants::Red);
-    AttributeParam* arrayParam2 = new AttributeParam();
-    arrayParam2->templateAtt = structAtt->CreateDuplica();
-    AArray* arrayAtt2 = new AArray(arrayParam2);
-    arrayAtt2->AddRow();
-    arrayAtt2->AddRow();
-    templ3->AddAttribute("ArrayOfStruct", arrayAtt2);
+TemplateStructure* templ3 = new TemplateStructure("Test_Combine", QColorConstants::Red);
+AttributeParam* arrayParam2 = new AttributeParam();
+arrayParam2->templateAtt = structAtt->CreateDuplica();
+AArray* arrayAtt2 = new AArray(arrayParam2);
+arrayAtt2->AddRow();
+arrayAtt2->AddRow();
+templ3->AddAttribute("ArrayOfStruct", arrayAtt2);
 
-    TemplateStructure* templ4 = new TemplateStructure("Test_Combine", QColorConstants::Red);
-    AStructure* structAtt2 = new AStructure(*templ2);
-    templ4->AddAttribute("StructOfStructAndArray", structAtt2);
+TemplateStructure* templ4 = new TemplateStructure("Test_Combine", QColorConstants::Red);
+AStructure* structAtt2 = new AStructure(*templ2);
+templ4->AddAttribute("StructOfStructAndArray", structAtt2);
 
 
-    AddStructures(*templ);
-    AddStructures(*templ2);
-    AddStructures(*templ3);
-    AddStructures(*templ4);
+AddStructures(*templ);
+AddStructures(*templ2);
+AddStructures(*templ3);
+AddStructures(*templ4);
 
-    StructureDB* db1 = GetStructures(0);
+StructureDB* db1 = GetStructures(0);
 
-    //Ref in struct 1
-    AttributeParam* refParam = new AttributeParam();
-    refParam->structTable = GetStructures(1);
-    templ->AddAttribute("Ref", new AReference(refParam));
+//Ref in struct 1
+AttributeParam* refParam = new AttributeParam();
+refParam->structTable = GetStructures(1);
+templ->AddAttribute("Ref", new AReference(refParam));
 
-    db1->AddStructureAt(0);
-    db1->AddStructureAt(0);
-    db1->AddStructureAt(0);
-    */
+db1->AddStructureAt(0);
+db1->AddStructureAt(0);
+db1->AddStructureAt(0);
+*/
 
 
 //#define fileExportTest
@@ -190,17 +203,10 @@ DB_Manager::DB_Manager()
 #else
 
 #endif
+
 }
-DB_Manager::~DB_Manager()
-{
-    for(auto const& strct : myStructures)
-        delete(strct);
-}
-DB_Manager& DB_Manager::GetDB_Manager()
-{
-    static DB_Manager singleton = DB_Manager();
-    return singleton;
-}
+
+
 
 int DB_Manager::GetEnumCount() const
 {
@@ -213,17 +219,82 @@ const Enumerator* DB_Manager::GetEnum(int _index) const
 
     return &enumerators[_index];
 }
-void DB_Manager::AddEnum(const Enumerator& _enum)
+void DB_Manager::AddEnum(const Enumerator& _enum, int _index)
 {
-    enumerators.push_back(_enum);
+    const int enumCount = enumerators.size();
+    if (_index < 0 || _index > enumCount)
+        _index = enumCount;
+
+    enumerators.insert(_index, _enum);
+}
+void DB_Manager::MoveEnum(const int _indexFrom, const int _indexTo)
+{
+    if (_indexFrom == _indexTo)
+        return;
+    const int enumCount = enumerators.size();
+    if (_indexFrom < 0 || _indexFrom >= enumCount)
+        return;
+    if (_indexTo < 0 || _indexTo >= enumCount)
+        return;
+
+    for (auto& attrParamPtr : myAttributeParamPtrs)
+    {
+        int& enumIndex = attrParamPtr->enumeratorIndex;
+        if (enumIndex == -1)
+            continue;
+
+        else if (enumIndex == _indexFrom)
+            enumIndex = _indexTo;
+        else if (_indexTo <= enumIndex && enumIndex < _indexFrom)
+            enumIndex++;
+        else if (_indexFrom < enumIndex && enumIndex <= _indexTo)
+            enumIndex--;
+    }
+
+    auto movedEnum = enumerators.takeAt(_indexFrom);
+    enumerators.insert(_indexTo, movedEnum);
 }
 void DB_Manager::RemoveEnum(int _index)
 {
     if (_index < 0 || _index >= (int)enumerators.size())
         return;
 
-    enumerators.erase(enumerators.begin() + _index);
+    for (auto& attrParamPtr : myAttributeParamPtrs)
+    {
+        if (attrParamPtr->enumeratorIndex == _index)
+            attrParamPtr->enumeratorIndex = -1;
+    }
+
+    enumerators.removeAt(_index);
 }
+void DB_Manager::UpdateEnum(int _index, const Enumerator& _another)
+{
+    if (_index < 0 || _index >= (int)enumerators.size())
+        return;
+
+    enumerators[_index].operator=(_another);
+}
+void DB_Manager::UpdateEnumName(int _index, const QString& _name)
+{
+    if (_index < 0 || _index >= (int)enumerators.size())
+        return;
+
+    enumerators[_index].SetName(_name);
+}
+
+
+
+
+void DB_Manager::RegisterAttributeParam(AttributeParam* _param)
+{
+    myAttributeParamPtrs.append(_param);
+}
+void DB_Manager::UnregisterAttributeParam(AttributeParam* _param)
+{
+    myAttributeParamPtrs.removeOne(_param);
+}
+
+
 
 
 int DB_Manager::GetStructuresCount() const

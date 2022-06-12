@@ -260,6 +260,8 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
                 comboBox->removeItem(0);
             }
             const auto* attrEnum = enumeratorAttribute->GetEnum();
+            if (!attrEnum)
+                break;
             const int valueCount = attrEnum->GetValueCount();
             const int currIndex = enumeratorAttribute->GetEnumValue();
             for (int i = 0; i < valueCount; i++)

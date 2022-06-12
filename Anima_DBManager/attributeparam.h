@@ -1,13 +1,16 @@
 #ifndef ATTRIBUTEPARAM_H
 #define ATTRIBUTEPARAM_H
 
-#include "enumerator.h"
 #include <QPointer>
 
 class Attribute;
 class StructureDB;
+class Enumerator;
+
 struct AttributeParam
 {
+    AttributeParam();
+    AttributeParam(const AttributeParam& _another);
     ~AttributeParam();
 
     bool ignoreMin = true;
@@ -19,8 +22,11 @@ struct AttributeParam
     float min_f = 0;
     float max_f = -1;                               // Max are inclusive for float
     Attribute* templateAtt = nullptr;               // Used for AArray only;
-    StructureDB* structTable = nullptr;    // Used for AReference only;         //QPointer<>
-    QPointer<Enumerator> enumerator = nullptr;      // Used for AEnumerator only;
+    StructureDB* structTable = nullptr;             // Used for AReference only;         //QPointer<>
+
+    // Only for Enum Attributes
+    int enumeratorIndex = -1;      // Used for AEnumerator only;
+    const Enumerator* GetEnum() const;
 };
 
 #endif // ATTRIBUTEPARAM_H

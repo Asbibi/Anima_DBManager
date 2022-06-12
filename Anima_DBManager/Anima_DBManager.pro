@@ -40,7 +40,9 @@ SOURCES += \
     qassetpreviewdialog.cpp \
     qassettexture.cpp \
     qattribute.cpp \
+    qaugmentedlist.cpp \
     qdatatable.cpp \
+    qenumpanel.cpp \
     qrefdialog.cpp \
     qreflabel.cpp \
     qsstring.cpp \
@@ -84,7 +86,9 @@ HEADERS += \
     qassetpreviewdialog.h \
     qassettexture.h \
     qattribute.h \
+    qaugmentedlist.h \
     qdatatable.h \
+    qenumpanel.h \
     qrefdialog.h \
     qreflabel.h \
     qsstring.h \

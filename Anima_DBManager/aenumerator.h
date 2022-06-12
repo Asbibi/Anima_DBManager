@@ -8,7 +8,7 @@ class AEnumerator : public Attribute
 {
 private:
     int value_index;
-    bool CheckEnumIsAlive() const;
+    bool CheckEnumIsValid() const;
 
 public:
     AEnumerator(const AttributeParam* _sharedParam, int _valueIndex = 0);
@@ -19,7 +19,7 @@ public:
     virtual void WriteValue_CSV(std::ofstream& file)            const override;
     virtual void SetValueFromText(const QString& text)                override;
 
-    const Enumerator*   GetEnum()       const { return CheckEnumIsAlive() ? sharedParam->enumerator : nullptr; };
+    const Enumerator*   GetEnum()       const { return CheckEnumIsValid() ? sharedParam->GetEnum() : nullptr; };
     int                 GetEnumValue()  const { return value_index; };
     void                SetEnumValue(int _valueIndex);
 };

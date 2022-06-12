@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 
+#include "db_manager.h"
+
 #include <QApplication>
 #include <QLocale>
 #include <QTranslator>
@@ -17,6 +19,7 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    DB_Manager::GetDB_Manager().Init();
     MainWindow w;
     w.show();
     return a.exec();

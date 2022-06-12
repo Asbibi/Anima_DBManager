@@ -10,15 +10,20 @@
 #include <QMenu>
 #include <QAction>
 
+#include "sstringhelper.h"
+
 #include "qstructuretable.h"
 #include "qsstringtable.h"
-#include "sstringhelper.h"
+
+#include "qenumpanel.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
       myManager(DB_Manager::GetDB_Manager())
 {
+    setWindowIcon(QIcon("../DB_Icon.png"));
+
     myMenuBar = new QMenuBar(this);
     QMenu* fileMenu = myMenuBar->addMenu("File");
     QMenu* exportMenu = myMenuBar->addMenu("Export");
@@ -98,7 +103,7 @@ MainWindow::MainWindow(QWidget *parent)
     myDefToolBox = new QToolBox();
     splitter->addWidget(myDefToolBox);
 
-    QWidget* enumWidget = new QWidget();
+    QEnumPanel* enumWidget = new QEnumPanel();
     QWidget* stringWidget = new QWidget();
     QWidget* structWidget = new QWidget();
     myDefToolBox->addItem(enumWidget, "Enumerators");
