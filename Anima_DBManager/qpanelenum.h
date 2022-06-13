@@ -1,7 +1,7 @@
-#ifndef QENUMPANEL_H
-#define QENUMPANEL_H
+#ifndef QPANELENUM_H
+#define QPANELENUM_H
 
-#include <QWidget>
+#include "qpanelbase.h"
 
 #include "qaugmentedlist.h"
 #include <QCheckBox>
@@ -10,13 +10,11 @@
 #include <QPushButton>
 #include <QString>
 
-class QEnumPanel : public QWidget
+class QPanelEnum : public QPanelBase
 {
     Q_OBJECT
 
 private:
-    QAugmentedList* myItemList;
-
     QAugmentedList* myEnumValuesList;
     QListWidget* myEnumColorList;
     QCheckBox* myColorCheckbox;
@@ -27,20 +25,21 @@ private:
     void AddColorItem(const QString& _hexColor, int _index = -1);
 
 public:
-    explicit QEnumPanel(QWidget *parent = nullptr);
+    explicit QPanelEnum(QWidget *parent = nullptr);
+    virtual void Init() override;
 
 public slots:
-    void UpdateItemList();
+    virtual void UpdateItemList() override;
     void UpdateEditSection(const int _index);
 
     void ApplyEdits();
     void RevertEdits();
 
-    void OnItemEdited(const int _index, const QString& _value);
-    void OnItemAdded(const int _index, const QString& _value);
-    void OnItemDuplicated(const int _index, const int _originalIndex);
-    void OnItemMoved(const int _indexFrom, const int _indexTo);
-    void OnItemRemoved(const int _index);
+    virtual void OnItemEdited(const int _index, const QString& _value) override;
+    virtual void OnItemAdded(const int _index, const QString& _value) override;
+    virtual void OnItemDuplicated(const int _index, const int _originalIndex) override;
+    virtual void OnItemMoved(const int _indexFrom, const int _indexTo) override;
+    virtual void OnItemRemoved(const int _index) override;
 
     void SetColorFromText(QListWidgetItem* _item);
     void OnAddedEnumValue(int _index);
@@ -48,6 +47,7 @@ public slots:
     void OnMovedEnumValue(int _indexFrom, int _indexTo);
     void OnRemovedEnumValue(int _index);
     void OnToggleUseColor(const int _state);
+    void OnSelectEnumValue(const int _index);
 };
 
-#endif // QENUMPANEL_H
+#endif // QPANELENUM_H

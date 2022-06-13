@@ -1,12 +1,13 @@
 #include "qsstringtable.h"
 
 #include "sstringhelper.h"
+#include "db_manager.h"
 #include <QMenu>
 #include <QCursor>
 
-QSStringTable::QSStringTable(SStringTable& _stringTable, QWidget* _parent) :
+QSStringTable::QSStringTable(int _strTableIndex, QWidget* _parent) :
     QTableWidget(_parent),
-    myStringTable(_stringTable)
+    myStringTableIndex(_strTableIndex)
 {
     setColumnCount(1 + SStringHelper::SStringLanguages::Count);
 
@@ -27,14 +28,32 @@ QSStringTable::QSStringTable(SStringTable& _stringTable, QWidget* _parent) :
 }
 
 
+
+SStringTable& QSStringTable::GetTable()
+{
+    auto * table = DB_Manager::GetDB_Manager().GetStringTable(myStringTableIndex);
+    if (!table)
+    {
+        qFatal("No table associated to index %d", myStringTableIndex);
+    }
+    return *table;
+}
+
+void QSStringTable::UpdateIndex(int _strTableIndex)
+{
+    myStringTableIndex = _strTableIndex;
+}
+
+
+
 void QSStringTable::UpdateTable()
 {
-    const int count = myStringTable.GetStringItemCount();
+    const int count = GetTable().GetStringItemCount();
     setRowCount(count);
 
     for (int i = 0; i < count; i++)
     {
-        const auto& stringItem = myStringTable.GetStringItem(i);
+        const auto& stringItem = GetTable().GetStringItem(i);
         QTableWidgetItem* item = new QTableWidgetItem(stringItem->GetIdentifier());
         item->setBackground(idBrush);
         setItem(i, 0, item);
@@ -62,14 +81,14 @@ void QSStringTable::OnCellEdited(int row, int col)
     const QString text = changedItem->text();
     if (col == 0)
     {
-        const QString oldId = myStringTable.GetStringItem(row)->GetIdentifier();
-        if (!myStringTable.SetItemIdentifier(row, text))
+        const QString oldId = GetTable().GetStringItem(row)->GetIdentifier();
+        if (!GetTable().SetItemIdentifier(row, text))
             changedItem->setText(oldId);
     }
     else
     {
         changedItem->setBackground(text.isEmpty() ? emptyBrush : defBrush);
-        myStringTable.SetItemString(row, (SStringHelper::SStringLanguages)(col -1), text);
+        GetTable().SetItemString(row, (SStringHelper::SStringLanguages)(col -1), text);
     }
 }
 
@@ -84,7 +103,7 @@ void QSStringTable::HandleContextMenu(const QPoint& point)
     const int rowClicked = row(item);
     qDebug() << rowClicked;
     QMenu menu(this);
-    const auto* stringItem = myStringTable.GetStringItem(rowClicked);
+    const auto* stringItem = GetTable().GetStringItem(rowClicked);
     if (!stringItem)
         return;
 
@@ -95,8 +114,8 @@ void QSStringTable::HandleContextMenu(const QPoint& point)
     auto* action_Dupl = menu.addAction("Duplicate '"+rowId+"'");
     // Set verified/validated ?
 
-    QObject::connect(action_AddB, &QAction::triggered, [this, rowClicked](){ myStringTable.AddStringItem(rowClicked); UpdateTable(); });
-    QObject::connect(action_AddA, &QAction::triggered, [this, rowClicked](){ myStringTable.AddStringItem(rowClicked+1); UpdateTable(); });
+    QObject::connect(action_AddB, &QAction::triggered, [this, rowClicked](){ GetTable().AddStringItem(rowClicked); UpdateTable(); });
+    QObject::connect(action_AddA, &QAction::triggered, [this, rowClicked](){ GetTable().AddStringItem(rowClicked+1); UpdateTable(); });
     QObject::connect(action_Dupl, &QAction::triggered, [this, rowClicked, stringItem](){
         QString _texts[SStringHelper::SStringLanguages::Count];
         for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
@@ -104,11 +123,11 @@ void QSStringTable::HandleContextMenu(const QPoint& point)
             _texts[i] = stringItem->GetString((SStringHelper::SStringLanguages)i);
         }
 
-        myStringTable.AddStringItemWithTexts(rowClicked+1, _texts, &stringItem->GetIdentifier());
+        GetTable().AddStringItemWithTexts(rowClicked+1, _texts, &stringItem->GetIdentifier());
         UpdateTable();
     });
 
-    const int itemCount = myStringTable.GetStringItemCount();
+    const int itemCount = GetTable().GetStringItemCount();
     if (itemCount > 1)
     {
         const int colClicked = column(item);
@@ -120,11 +139,11 @@ void QSStringTable::HandleContextMenu(const QPoint& point)
             auto* action_MovU = menu.addAction("Move '"+rowId+"' up");
 
             QObject::connect(action_MovF, &QAction::triggered, [this, rowClicked, colClicked](){
-                myStringTable.MoveStringItems(rowClicked, 0);
+                GetTable().MoveStringItems(rowClicked, 0);
                 setCurrentCell(0, colClicked);
                 UpdateTable(); });
             QObject::connect(action_MovU, &QAction::triggered, [this, rowClicked, colClicked](){
-                myStringTable.SwapStringItems(rowClicked, rowClicked-1);
+                GetTable().SwapStringItems(rowClicked, rowClicked-1);
                 setCurrentCell(rowClicked-1, colClicked);
                 UpdateTable(); });
         }
@@ -134,18 +153,18 @@ void QSStringTable::HandleContextMenu(const QPoint& point)
             auto* action_MovL = menu.addAction("Move '"+rowId+"' last");
 
             QObject::connect(action_MovD, &QAction::triggered, [this, rowClicked, colClicked](){
-                myStringTable.SwapStringItems(rowClicked, rowClicked+1);
+                GetTable().SwapStringItems(rowClicked, rowClicked+1);
                 setCurrentCell(rowClicked+1, colClicked);
                 UpdateTable(); });
             QObject::connect(action_MovL, &QAction::triggered, [this, rowClicked, colClicked, itemCount](){
-                myStringTable.MoveStringItems(rowClicked, itemCount-1);
+                GetTable().MoveStringItems(rowClicked, itemCount-1);
                 setCurrentCell(itemCount-1, colClicked);
                 UpdateTable(); });
         }
 
         menu.addSeparator();
         auto* action_RMov = menu.addAction("Remove '"+rowId+"'");
-        QObject::connect(action_RMov, &QAction::triggered, [this, rowClicked](){ myStringTable.RemoveStringItem(rowClicked); UpdateTable(); });
+        QObject::connect(action_RMov, &QAction::triggered, [this, rowClicked](){ GetTable().RemoveStringItem(rowClicked); UpdateTable(); });
     }
 
     menu.exec(QCursor::pos());

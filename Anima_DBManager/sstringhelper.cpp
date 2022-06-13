@@ -19,7 +19,7 @@ QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const Q
     if (_noneAutorized && _ValidateId(_baseIdentifier))
         return _baseIdentifier;
 
-    int addition = 0;
+    int addition = 1;
     const int last_Index = _baseIdentifier.lastIndexOf('_');
     if (last_Index >= 0)
     {
@@ -33,13 +33,12 @@ QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const Q
         }
     }
 
-    QString identifier;
-    do
+    QString identifier = _baseIdentifier + '_' + QString::number(addition);
+    while (!_ValidateId(identifier))
     {
         addition++;
         identifier = _baseIdentifier + '_' + QString::number(addition);
     }
-    while (!_ValidateId(identifier));
 
     return identifier;
 }

@@ -15,12 +15,10 @@
 #include "qstructuretable.h"
 #include "qsstringtable.h"
 
-#include "qenumpanel.h"
 
-
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent),
-      myManager(DB_Manager::GetDB_Manager())
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    myManager(DB_Manager::GetDB_Manager())
 {
     setWindowIcon(QIcon("../DB_Icon.png"));
 
@@ -77,45 +75,85 @@ MainWindow::MainWindow(QWidget *parent)
     myTableToolBox->addItem(myTabString, "Structures");
     myTableToolBox->addItem(myTabStruct, "Table Strings");
 
-
-    StructureDB* db = myManager.GetStructureTable(0);
-    if (db != nullptr)
-    {
-        QStructureTable* testTable = new QStructureTable(*db);
-        myTabStruct->addTab(testTable, db->GetTemplateName());
-    }
-    StructureDB* db2 = myManager.GetStructureTable(1);
-    if (db2 != nullptr)
-    {
-        QStructureTable* testTable = new QStructureTable(*db2);
-        myTabStruct->addTab(testTable, db2->GetTemplateName());
-    }
-
-    SStringTable* sTable = myManager.GetStringTable(0);
-    if (sTable != nullptr)
-    {
-        QSStringTable* stringTable = new QSStringTable(*sTable);
-        myTabString->addTab(stringTable, sTable->GetTableName());
-    }
-
     //---------
 
-    myDefToolBox = new QToolBox();
-    splitter->addWidget(myDefToolBox);
+    QToolBox* defToolBox = new QToolBox();
+    splitter->addWidget(defToolBox);
 
-    QEnumPanel* enumWidget = new QEnumPanel();
-    QWidget* stringWidget = new QWidget();
-    QWidget* structWidget = new QWidget();
-    myDefToolBox->addItem(enumWidget, "Enumerators");
-    myDefToolBox->addItem(stringWidget, "String Tables");
-    myDefToolBox->addItem(structWidget, "Structures");
+    myEnumWidget = new QPanelEnum();
+    myStringWidget = new QPanelString();
+    myStructWidget = new QWidget();
+    myEnumWidget->Init();
+    myStringWidget->Init();
+    //myStructWidget->Init();
+    defToolBox->addItem(myEnumWidget, "Enumerators");
+    defToolBox->addItem(myStringWidget, "String Tables");
+    defToolBox->addItem(myStructWidget, "Structures");
 
-    /*QGroupBox* group = new QGroupBox("Attributes");
-    QVBoxLayout *vbox = new QVBoxLayout(group);
-    group->setLayout(vbox);
-    vbox->addWidget(btn);*/
+    //---------
+#define CONNECT_DB(method)  QObject::connect(&myManager, &DB_Manager::method, this, &MainWindow::On##method)
+
+    CONNECT_DB(StringTableAdded);
+    CONNECT_DB(StringTableMoved);
+    CONNECT_DB(StringTableRemoved);
+    CONNECT_DB(StringTableRenamed);
+
+#undef CONNECT_DB
 }
 
 MainWindow::~MainWindow()
 {}
 
+
+void MainWindow::Debug_Update()
+{
+    myEnumWidget->UpdateItemList();
+    myStringWidget->UpdateItemList();
+}
+
+
+void MainWindow::OnStringTableAdded(const int _index)
+{
+    SStringTable* sTable = myManager.GetStringTable(_index);
+    if (!sTable)
+        return;
+
+    QSStringTable* stringTable = new QSStringTable(_index);
+    myTabString->insertTab(_index, stringTable, sTable->GetTableName());
+    myTabString->setCurrentIndex(_index);
+}
+void MainWindow::OnStringTableMoved(const int _indexFrom, const int _indexTo)
+{
+    QSStringTable* tabToMove = dynamic_cast<QSStringTable*>(myTabString->widget(_indexFrom));
+    if (!tabToMove)
+        return;
+
+    const QString tabName = myTabString->tabText(_indexFrom);
+    const bool wasCurrent = myTabString->currentIndex() == _indexFrom;
+    myTabString->removeTab(_indexFrom);
+    myTabString->insertTab(_indexTo, tabToMove, tabName);
+
+    const int count = myTabString->count();
+    for (int i = 0; i < count; i++)
+    {
+        QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_indexFrom));
+        if (tabToMove)
+            tab->UpdateIndex(i);
+    }
+
+    if(wasCurrent)
+        myTabString->setCurrentIndex(_indexTo);
+}
+void MainWindow::OnStringTableRemoved(const int _index)
+{
+    QWidget* tabToDelete = myTabString->widget(_index);
+    if (!tabToDelete)
+        return;
+
+    myTabString->removeTab(_index);
+    delete tabToDelete;
+}
+void MainWindow::OnStringTableRenamed(const int _index, const QString& _name)
+{
+    myTabString->setTabText(_index, _name);
+}

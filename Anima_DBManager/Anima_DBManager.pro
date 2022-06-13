@@ -42,7 +42,9 @@ SOURCES += \
     qattribute.cpp \
     qaugmentedlist.cpp \
     qdatatable.cpp \
-    qenumpanel.cpp \
+    qpanelbase.cpp \
+    qpanelenum.cpp \
+    qpanelstring.cpp \
     qrefdialog.cpp \
     qreflabel.cpp \
     qsstring.cpp \
@@ -88,7 +90,9 @@ HEADERS += \
     qattribute.h \
     qaugmentedlist.h \
     qdatatable.h \
-    qenumpanel.h \
+    qpanelbase.h \
+    qpanelenum.h \
+    qpanelstring.h \
     qrefdialog.h \
     qreflabel.h \
     qsstring.h \

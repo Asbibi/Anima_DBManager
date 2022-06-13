@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QTranslator translator;
+    /*QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();
     for (const QString &locale : uiLanguages) {
         const QString baseName = "Anima_DBManager_" + QLocale(locale).name();
@@ -18,9 +18,11 @@ int main(int argc, char *argv[])
             a.installTranslator(&translator);
             break;
         }
-    }
-    DB_Manager::GetDB_Manager().Init();
+    }*/
+
     MainWindow w;
+    DB_Manager::GetDB_Manager().Init();
+    w.Debug_Update();
     w.show();
     return a.exec();
 }

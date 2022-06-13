@@ -32,10 +32,12 @@ public:
     const SStringItem* GetStringItem(int _index) const;
     const SStringItem* GetStringItem(const QString& _identifier) const;
 
+    void SetTableName(const QString& _name);
     SStringItem* GetStringItemW(int _index);
     SStringItem* GetStringItemW(const QString& _identifier);
     QString AddStringItem(int _index, const QString* _wantedIdentifier = nullptr); // return the actual identifier
     void AddStringItemWithTexts(int _index, const QString _texts[], const QString* _wantedIdentifier = nullptr);
+    void AddStringItemFromCopy(int _index, const SStringItem& _item);
     void RemoveStringItem(int _index);
     void RemoveStringItem(const QString& _identifier);
     void SwapStringItems(int _indexFirst, int _indexSecond);

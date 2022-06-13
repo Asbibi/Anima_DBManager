@@ -1,4 +1,4 @@
-#include "qenumpanel.h"
+#include "qpanelenum.h"
 
 #include "db_manager.h"
 #include "enumerator.h"
@@ -9,19 +9,10 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-QEnumPanel::QEnumPanel(QWidget *parent)
-    : QWidget{parent}
+QPanelEnum::QPanelEnum(QWidget *parent)
+    : QPanelBase {"Enum", false, parent}
 {
-    QVBoxLayout* myLayout = new QVBoxLayout();
-    setLayout(myLayout);
-
-    QGroupBox* listGroupBox = new QGroupBox("All Enums");
-    myLayout->addWidget(listGroupBox);
-    myItemList = new QAugmentedList(false, "New Enum", listGroupBox);
-    QVBoxLayout* listGroupBoxLayout = new QVBoxLayout();
-    listGroupBox->setLayout(listGroupBoxLayout);
-    listGroupBoxLayout->addWidget(myItemList);
-
+    QLayout* myLayout = layout();
 
     QGroupBox* editGroupBox = new QGroupBox("Edit Selected Enum");
     QGridLayout* editLayout = new QGridLayout();
@@ -46,31 +37,32 @@ QEnumPanel::QEnumPanel(QWidget *parent)
     editLayout->addWidget(myApplyBtn, 3, 0);
     editLayout->addWidget(myResetBtn, 3, 1);
 
-    QObject::connect(myItemList, &QAugmentedList::SelectionChanged, this, &QEnumPanel::UpdateEditSection);
+    QObject::connect(myItemList, &QAugmentedList::SelectionChanged, this, &QPanelEnum::UpdateEditSection);
 
-    QObject::connect(myItemList, &QAugmentedList::ItemEdited, this, &QEnumPanel::OnItemEdited);
-    QObject::connect(myItemList, &QAugmentedList::ItemAdded, this, &QEnumPanel::OnItemAdded);
-    QObject::connect(myItemList, &QAugmentedList::ItemDuplicated, this, &QEnumPanel::OnItemDuplicated);
-    QObject::connect(myItemList, &QAugmentedList::ItemMoved, this, &QEnumPanel::OnItemMoved);
-    QObject::connect(myItemList, &QAugmentedList::ItemRemoved, this, &QEnumPanel::OnItemRemoved);
+    QObject::connect(myEnumColorList, &QListWidget::itemChanged, this, &QPanelEnum::SetColorFromText);
+    QObject::connect(myEnumValuesList, &QAugmentedList::ItemAdded, this, &QPanelEnum::OnAddedEnumValue);
+    QObject::connect(myEnumValuesList, &QAugmentedList::ItemDuplicated, this, &QPanelEnum::OnDuplicatedEnumValue);
+    QObject::connect(myEnumValuesList, &QAugmentedList::ItemMoved, this, &QPanelEnum::OnMovedEnumValue);
+    QObject::connect(myEnumValuesList, &QAugmentedList::ItemRemoved, this, &QPanelEnum::OnRemovedEnumValue);
+    QObject::connect(myEnumValuesList, &QAugmentedList::SelectionChanged, this, &QPanelEnum::OnSelectEnumValue);
 
-    QObject::connect(myEnumColorList, &QListWidget::itemChanged, this, &QEnumPanel::SetColorFromText);
-    QObject::connect(myEnumValuesList, &QAugmentedList::ItemAdded, this, &QEnumPanel::OnAddedEnumValue);
-    QObject::connect(myEnumValuesList, &QAugmentedList::ItemDuplicated, this, &QEnumPanel::OnDuplicatedEnumValue);
-    QObject::connect(myEnumValuesList, &QAugmentedList::ItemMoved, this, &QEnumPanel::OnMovedEnumValue);
-    QObject::connect(myEnumValuesList, &QAugmentedList::ItemRemoved, this, &QEnumPanel::OnRemovedEnumValue);
+    QObject::connect(myColorCheckbox, &QCheckBox::stateChanged, this, &QPanelEnum::OnToggleUseColor);
 
-    QObject::connect(myColorCheckbox, &QCheckBox::stateChanged, this, &QEnumPanel::OnToggleUseColor);
+    QObject::connect(myApplyBtn, &QPushButton::clicked, this, &QPanelEnum::ApplyEdits);
+    QObject::connect(myResetBtn, &QPushButton::clicked, this, &QPanelEnum::RevertEdits);
 
-    QObject::connect(myApplyBtn, &QPushButton::clicked, this, &QEnumPanel::ApplyEdits);
-    QObject::connect(myResetBtn, &QPushButton::clicked, this, &QEnumPanel::RevertEdits);
-
-    UpdateItemList();
     UpdateEditSection(-1);
 }
 
-void QEnumPanel::UpdateItemList()
+void QPanelEnum::Init()
 {
+    QPanelBase::Init();
+    UpdateEditSection(-1);
+}
+
+void QPanelEnum::UpdateItemList()
+{
+    myItemList->Clear();
     const DB_Manager& DB = DB_Manager::GetDB_Manager();
     const int enumCount = DB.GetEnumCount();
     for (int i = 0; i < enumCount; i++)
@@ -80,7 +72,7 @@ void QEnumPanel::UpdateItemList()
 }
 
 
-void QEnumPanel::AddColorItem(const QString& _hexColor, int _index)
+void QPanelEnum::AddColorItem(const QString& _hexColor, int _index)
 {
     const int colorCount = myEnumColorList->count();
     if (_index < 0 || _index > colorCount)
@@ -89,10 +81,9 @@ void QEnumPanel::AddColorItem(const QString& _hexColor, int _index)
     myEnumColorList->insertItem(_index, _hexColor);
     auto* item = myEnumColorList->item(_index);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
-    //SetColorFromText(item);
 }
 
-void QEnumPanel::UpdateEditSection(const int _index)
+void QPanelEnum::UpdateEditSection(const int _index)
 {
     myEnumValuesList->Clear();
     myEnumColorList->clear();
@@ -126,7 +117,7 @@ void QEnumPanel::UpdateEditSection(const int _index)
 
 
 
-void QEnumPanel::ApplyEdits()
+void QPanelEnum::ApplyEdits()
 {
     QString name;
     const int currentIndex = myItemList->GetCurrent(&name);
@@ -151,22 +142,22 @@ void QEnumPanel::ApplyEdits()
 
     DB_Manager::GetDB_Manager().UpdateEnum(currentIndex, newEnum);
 }
-void QEnumPanel::RevertEdits()
+void QPanelEnum::RevertEdits()
 {
     UpdateEditSection(myItemList->GetCurrent());
 }
 
 
 
-void QEnumPanel::OnItemEdited(const int _index, const QString& _value)
+void QPanelEnum::OnItemEdited(const int _index, const QString& _value)
 {
     DB_Manager::GetDB_Manager().UpdateEnumName(_index, _value);
 }
-void QEnumPanel::OnItemAdded(const int _index, const QString& _value)
+void QPanelEnum::OnItemAdded(const int _index, const QString& _value)
 {
     DB_Manager::GetDB_Manager().AddEnum(Enumerator(_value), _index);
 }
-void QEnumPanel::OnItemDuplicated(const int _index, const int _originalIndex)
+void QPanelEnum::OnItemDuplicated(const int _index, const int _originalIndex)
 {
     auto& DB = DB_Manager::GetDB_Manager();
     const auto* originalEnum = DB.GetEnum(_originalIndex);
@@ -177,30 +168,30 @@ void QEnumPanel::OnItemDuplicated(const int _index, const int _originalIndex)
     }
     DB.AddEnum(Enumerator(*originalEnum), _index);
 }
-void QEnumPanel::OnItemMoved(const int _indexFrom, const int _indexTo)
+void QPanelEnum::OnItemMoved(const int _indexFrom, const int _indexTo)
 {
     DB_Manager::GetDB_Manager().MoveEnum(_indexFrom, _indexTo);
 }
-void QEnumPanel::OnItemRemoved(const int _index)
+void QPanelEnum::OnItemRemoved(const int _index)
 {
     DB_Manager::GetDB_Manager().RemoveEnum(_index);
 }
 
 
 
-void QEnumPanel::SetColorFromText(QListWidgetItem* _item)
+void QPanelEnum::SetColorFromText(QListWidgetItem* _item)
 {
     QColor color = QColor(_item->text());
     QBrush itemColor = QBrush(color.isValid() ? color : QColorConstants::Black);
     _item->setForeground(itemColor);
 }
 #define CHECK_USE_COLOR()     if (!myColorCheckbox->checkState()) return
-void QEnumPanel::OnAddedEnumValue(int _index)
+void QPanelEnum::OnAddedEnumValue(int _index)
 {
     CHECK_USE_COLOR();
     AddColorItem("#------", _index);
 }
-void QEnumPanel::OnDuplicatedEnumValue(int _index, int _originalIndex)
+void QPanelEnum::OnDuplicatedEnumValue(int _index, int _originalIndex)
 {
     CHECK_USE_COLOR();
     const auto* originalColor = myEnumColorList->item(_originalIndex);
@@ -209,7 +200,7 @@ void QEnumPanel::OnDuplicatedEnumValue(int _index, int _originalIndex)
     else
         AddColorItem("#------", _index);    // Fallback, shouldn't be triggered
 }
-void QEnumPanel::OnMovedEnumValue(int _indexFrom, int _indexTo)
+void QPanelEnum::OnMovedEnumValue(int _indexFrom, int _indexTo)
 {
     CHECK_USE_COLOR();
     auto* movedItem = myEnumColorList->takeItem(_indexFrom);
@@ -217,7 +208,7 @@ void QEnumPanel::OnMovedEnumValue(int _indexFrom, int _indexTo)
         return;
     myEnumColorList->insertItem(_indexTo, movedItem);
 }
-void QEnumPanel::OnRemovedEnumValue(int _index)
+void QPanelEnum::OnRemovedEnumValue(int _index)
 {
     CHECK_USE_COLOR();
 
@@ -225,8 +216,7 @@ void QEnumPanel::OnRemovedEnumValue(int _index)
     if (removedItem)
         delete removedItem;
 }
-#undef CHECK_USE_COLOR
-void QEnumPanel::OnToggleUseColor(const int _state)
+void QPanelEnum::OnToggleUseColor(const int _state)
 {
     bool useColor = _state != Qt::Unchecked;
     myEnumColorList->setEnabled(useColor);
@@ -240,3 +230,10 @@ void QEnumPanel::OnToggleUseColor(const int _state)
         AddColorItem("#------");
     }
 }
+void QPanelEnum::OnSelectEnumValue(const int _index)
+{
+    CHECK_USE_COLOR();
+
+    myEnumColorList->setCurrentRow(_index);
+}
+#undef CHECK_USE_COLOR

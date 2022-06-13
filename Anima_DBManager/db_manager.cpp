@@ -44,8 +44,8 @@ void DB_Manager::Init()
     AddEnum(Enumerator("MoveCategory", {"PHYSIC","SPECIAL","SUPPORT"}));
 
     // String Tables;
-    AddStringTable("Ceribou");
-    AddStringTable("Shitty Stuff");
+    AddStringTablePrivate("Ceribou");
+    AddStringTablePrivate("Shitty Stuff");
     QString text1s[] = {"Ceribou (anglais : Cherubi ; japonais : チェリンボ Cherinbo) est un Pokémon de type Plante de la quatrième génération.",
                         "Cherubi (Japanese: チェリンボ Cherinbo) is a Grass-type Pokémon introduced in Generation IV. It evolves into Cherrim starting at level 25."};
     QString text2s[] = {"Palkia shiny de ses morts", ""};
@@ -63,6 +63,8 @@ void DB_Manager::Init()
     myStringTables[1].AddStringItem(-1);
     myStringTables[1].AddStringItem(-1,&id);
     myStringTables[1].AddStringItemWithTexts(-1,text4s, &id2);
+    emit StringTableAdded(0);
+    emit StringTableAdded(1);
 
     // Setup template
     TemplateStructure templ1 = TemplateStructure("Struct Test", QColorConstants::Red);
@@ -364,22 +366,80 @@ SStringTable* DB_Manager::GetStringTable(const QString& _tableName)
 {
     return GetStringTable(GetIndexFromStringTableName(_tableName));
 }
-void DB_Manager::AddStringTable(const QString& _newTableName)
+void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int _index)
 {
-    if (GetIndexFromStringTableName(_newTableName) == -1)
-        myStringTables.push_back(SStringTable(_newTableName));
+    const int count = myStringTables.count();
+    if (_index < 0 || _index > count)
+        _index = count;
+
+    QString baseIdentifier = _newTableName;
+    auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetIndexFromStringTableName(_identifier) == -1); };
+    const QString identifier = SStringHelper::GetUniqueIdentifier(baseIdentifier, validate, true);
+
+    myStringTables.insert(_index, SStringTable(identifier));
+}
+void DB_Manager::AddStringTable(const QString& _newTableName, int _index)
+{
+    AddStringTablePrivate(_newTableName, _index);
+    myStringTables[_index].AddStringItem(-1);
+    emit StringTableAdded(_index);
+}
+void DB_Manager::DuplicateStringTable(int _index, int _indexOriginal)
+{
+    if (_indexOriginal < 0 || _indexOriginal >= myStringTables.count())
+        return;
+
+    const QString originalName = myStringTables[_indexOriginal].GetTableName();
+    AddStringTablePrivate(originalName, _index);
+
+    if (_index <= _indexOriginal)
+        _indexOriginal++;
+    const SStringTable& originalTable = myStringTables[_indexOriginal];
+    const auto& strings = originalTable.GetStringItems();
+    for (const auto& str : strings)
+    {
+        myStringTables[_index].AddStringItemFromCopy(-1, str);
+    }
+    emit StringTableAdded(_index);
+}
+void DB_Manager::MoveStringTable(int _indexFrom, int _indexTo)
+{
+    if (_indexFrom == _indexTo)
+        return;
+
+    const int count = GetStringTableCount();
+    if (_indexFrom < 0 || _indexFrom >= count)
+        return;
+    if (_indexTo < 0 || _indexTo >= count)
+        _indexTo = count - 1;
+
+    auto item = myStringTables.takeAt(_indexFrom);
+    myStringTables.insert(_indexTo, item);
+    emit StringTableMoved(_indexFrom, _indexTo);
 }
 void DB_Manager::RemoveStringTable(int _index)
 {
     if (_index < 0 || _index >= GetStringTableCount())
         return;
 
-    myStringTables.erase(myStringTables.begin() + _index);
+    myStringTables.removeAt(_index);
+    emit StringTableRemoved(_index);
 }
 void DB_Manager::RemoveStringTable(const QString& _tableName)
 {
     RemoveStringTable(GetIndexFromStringTableName(_tableName));
 }
+void DB_Manager::RenameStringTable(int _index, const QString& _tableName)
+{
+    if (_index < 0 || _index >= GetStringTableCount())
+        return;
+
+     myStringTables[_index].SetTableName(_tableName);
+     emit StringTableRenamed(_index, _tableName);
+
+     // TODO (?) : update all attributes using this table
+}
+
 bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const
 {
     const auto* stringTable = GetStringTable(_tableId);

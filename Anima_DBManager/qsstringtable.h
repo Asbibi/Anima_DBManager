@@ -11,13 +11,16 @@ class QSStringTable : public QTableWidget
     Q_OBJECT
 
 private:
-    SStringTable& myStringTable;
+    int myStringTableIndex;
     const QBrush defBrush = QBrush(QColorConstants::White);
     const QBrush idBrush = QBrush(QColorConstants::LightGray);
     const QBrush emptyBrush = QBrush(QColor(255,158,158));
 
+    SStringTable& GetTable();
+
 public:
-    QSStringTable(SStringTable& _stringTable, QWidget* _parent = nullptr);
+    QSStringTable(int _strTableIndex, QWidget* _parent = nullptr);
+    void UpdateIndex(int _strTableIndex);
 
 signals:
     void TableEdited(int _row, int _col, const QString& _text);

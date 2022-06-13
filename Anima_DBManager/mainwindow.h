@@ -8,6 +8,8 @@
 #include <QToolBox>
 
 #include "db_manager.h"
+#include "qpanelenum.h"
+#include "qpanelstring.h"
 
 
 class MainWindow : public QMainWindow
@@ -18,15 +20,24 @@ private:
     DB_Manager& myManager;
 
     QMenuBar* myMenuBar;
-    QTabWidget* myTabStruct;
     QTabWidget* myTabString;
-    QToolBox* myDefToolBox;
+    QTabWidget* myTabStruct;
 
+    QPanelEnum* myEnumWidget;
+    QPanelString* myStringWidget;
+    QWidget* myStructWidget;
 
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void Debug_Update();
+
+public slots:
+    void OnStringTableAdded(const int _index);
+    void OnStringTableMoved(const int _indexFrom, const int _indexTo);
+    void OnStringTableRemoved(const int _index);
+    void OnStringTableRenamed(const int _index, const QString& _name);
 };
 #endif // MAINWINDOW_H

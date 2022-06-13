@@ -79,6 +79,10 @@ const SStringItem* SStringTable::GetStringItem(const QString& _identifier) const
 
 
 
+void SStringTable::SetTableName(const QString& _name)
+{
+    myTableName = _name;
+}
 SStringItem* SStringTable::GetStringItemW(int _index)
 {
     if (_index < 0 || _index >= GetStringItemCount())
@@ -94,8 +98,9 @@ SStringItem* SStringTable::GetStringItemW(const QString& _identifier)
 
 QString SStringTable::AddStringItem(int _index, const QString* _wantedIdentifier /*= nullptr*/)
 {
-    if (_index < 0 || _index > GetStringItemCount())
-        _index = GetStringItemCount();
+    const int count = GetStringItemCount();
+    if (_index < 0 || _index > count)
+        _index = count;
 
     if (_wantedIdentifier && GetIndexFromIdentifier(*_wantedIdentifier) == -1)
     {
@@ -120,6 +125,20 @@ void SStringTable::AddStringItemWithTexts(int _index, const QString _texts[], co
     {
         item->SetString((SStringHelper::SStringLanguages)i, _texts[i]);
     }
+}
+
+void SStringTable::AddStringItemFromCopy(int _index, const SStringItem& _item)
+{
+    const int count = GetStringItemCount();
+    if (_index < 0 || _index > count)
+        _index = count;
+
+    QString baseIdentifier = _item.GetIdentifier();
+    auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetIndexFromIdentifier(_identifier) == -1); };
+    const QString identifier = SStringHelper::GetUniqueIdentifier(baseIdentifier, validate, true);
+
+    myStrings.insert(_index, _item);
+    myStrings[_index].SetIdentifier(identifier);
 }
 
 void SStringTable::RemoveStringItem(int _index)

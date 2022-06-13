@@ -7,11 +7,14 @@
 #include "templatestructure.h"
 #include "sstringtable.h"
 
+#include <QString>
 #include <QList>
 #include <vector>
 
-class DB_Manager
+class DB_Manager : public QObject
 {
+    Q_OBJECT
+
 private:
     QString myProjectContentFolderPath;
     QList<AttributeParam*> myAttributeParamPtrs;
@@ -23,8 +26,9 @@ private:
     DB_Manager(const DB_Manager&) = delete;
     ~DB_Manager();
 
-
     int GetIndexFromStringTableName(const QString& _tableName) const;
+    void AddStringTablePrivate(const QString& _newTableName, int _index = -1);
+
 
 public:
     static DB_Manager& GetDB_Manager();
@@ -54,11 +58,22 @@ public:
     const SStringTable* GetStringTable(const QString& _tableName) const;
     SStringTable* GetStringTable(int _index);
     SStringTable* GetStringTable(const QString& _tableName);
-    void AddStringTable(const QString& _newTableName);
+    void AddStringTable(const QString& _newTableName, int _index = -1);
+    void DuplicateStringTable(int _index, int _indexOriginal);
+    void MoveStringTable(int _indexFrom, int _indexTo);
     void RemoveStringTable(int _index);
     void RemoveStringTable(const QString& _tableName);
+    void RenameStringTable(int _index, const QString& _tableName);
     bool AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const;
     QString GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete = false) const;
+
+signals:
+    void StringTableAdded(const int _index);
+    void StringTableMoved(const int _indexFrom, const int _indexTo);
+    void StringTableRemoved(const int _index);
+    void StringTableRenamed(const int _index, const QString& _name);
+
+    void StructureTableListChanged();
 };
 
 #endif // DB_MANAGER_H
