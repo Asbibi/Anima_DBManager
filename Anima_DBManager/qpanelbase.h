@@ -20,6 +20,7 @@ signals:
 public slots:
     virtual void UpdateItemList() = 0;
 
+    virtual void OnItemSelected(const int _index) = 0;
     virtual void OnItemEdited(const int _index, const QString& _value) = 0;
     virtual void OnItemAdded(const int _index, const QString& _value) = 0;
     virtual void OnItemDuplicated(const int _index, const int _originalIndex) = 0;

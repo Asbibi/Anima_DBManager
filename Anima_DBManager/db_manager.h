@@ -66,12 +66,16 @@ public:
     void RenameStringTable(int _index, const QString& _tableName);
     bool AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const;
     QString GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete = false) const;
+    void AskFocusOnStringItem(const int _tableIndex, const int _stringIndex);
+    void AskUpdateOnStringTable(const int _tableIndex);
 
 signals:
     void StringTableAdded(const int _index);
     void StringTableMoved(const int _indexFrom, const int _indexTo);
     void StringTableRemoved(const int _index);
     void StringTableRenamed(const int _index, const QString& _name);
+    void StringItemFocus(const int _tableIndex, const int _index);
+    void StringItemChanged(const int _tableIndex);
 
     void StructureTableListChanged();
 };

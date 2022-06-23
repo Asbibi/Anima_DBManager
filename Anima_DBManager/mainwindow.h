@@ -39,5 +39,7 @@ public slots:
     void OnStringTableMoved(const int _indexFrom, const int _indexTo);
     void OnStringTableRemoved(const int _index);
     void OnStringTableRenamed(const int _index, const QString& _name);
+    void OnStringItemFocus(const int _tableIndex, const int _index);
+    void OnStringItemChanged(const int _tableIndex);
 };
 #endif // MAINWINDOW_H

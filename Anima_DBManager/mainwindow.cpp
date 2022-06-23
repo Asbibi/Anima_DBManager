@@ -97,6 +97,8 @@ MainWindow::MainWindow(QWidget *parent) :
     CONNECT_DB(StringTableMoved);
     CONNECT_DB(StringTableRemoved);
     CONNECT_DB(StringTableRenamed);
+    CONNECT_DB(StringItemFocus);
+    CONNECT_DB(StringItemChanged);
 
 #undef CONNECT_DB
 }
@@ -156,4 +158,20 @@ void MainWindow::OnStringTableRemoved(const int _index)
 void MainWindow::OnStringTableRenamed(const int _index, const QString& _name)
 {
     myTabString->setTabText(_index, _name);
+}
+void MainWindow::OnStringItemFocus(const int _tableIndex, const int _index)
+{
+    QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->widget(_tableIndex));
+    if (!currentTab)
+        return;
+
+    currentTab->setCurrentCell(_index, 0);
+}
+void MainWindow::OnStringItemChanged(const int _tableIndex)
+{
+    QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->widget(_tableIndex));
+    if (!currentTab)
+        return;
+
+    currentTab->UpdateTable();
 }

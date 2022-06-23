@@ -42,6 +42,7 @@ SOURCES += \
     qattribute.cpp \
     qaugmentedlist.cpp \
     qdatatable.cpp \
+    qlistwithsearch.cpp \
     qpanelbase.cpp \
     qpanelenum.cpp \
     qpanelstring.cpp \
@@ -90,6 +91,7 @@ HEADERS += \
     qattribute.h \
     qaugmentedlist.h \
     qdatatable.h \
+    qlistwithsearch.h \
     qpanelbase.h \
     qpanelenum.h \
     qpanelstring.h \

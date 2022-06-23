@@ -37,8 +37,6 @@ QPanelEnum::QPanelEnum(QWidget *parent)
     editLayout->addWidget(myApplyBtn, 3, 0);
     editLayout->addWidget(myResetBtn, 3, 1);
 
-    QObject::connect(myItemList, &QAugmentedList::SelectionChanged, this, &QPanelEnum::UpdateEditSection);
-
     QObject::connect(myEnumColorList, &QListWidget::itemChanged, this, &QPanelEnum::SetColorFromText);
     QObject::connect(myEnumValuesList, &QAugmentedList::ItemAdded, this, &QPanelEnum::OnAddedEnumValue);
     QObject::connect(myEnumValuesList, &QAugmentedList::ItemDuplicated, this, &QPanelEnum::OnDuplicatedEnumValue);
@@ -51,13 +49,14 @@ QPanelEnum::QPanelEnum(QWidget *parent)
     QObject::connect(myApplyBtn, &QPushButton::clicked, this, &QPanelEnum::ApplyEdits);
     QObject::connect(myResetBtn, &QPushButton::clicked, this, &QPanelEnum::RevertEdits);
 
-    UpdateEditSection(-1);
+    //OnItemSelected(-1);
+    myItemList->SelectItemAt(-1);
 }
 
 void QPanelEnum::Init()
 {
     QPanelBase::Init();
-    UpdateEditSection(-1);
+    OnItemSelected(-1);
 }
 
 void QPanelEnum::UpdateItemList()
@@ -83,7 +82,7 @@ void QPanelEnum::AddColorItem(const QString& _hexColor, int _index)
     item->setFlags(item->flags() | Qt::ItemIsEditable);
 }
 
-void QPanelEnum::UpdateEditSection(const int _index)
+void QPanelEnum::OnItemSelected(const int _index)
 {
     myEnumValuesList->Clear();
     myEnumColorList->clear();
@@ -144,7 +143,7 @@ void QPanelEnum::ApplyEdits()
 }
 void QPanelEnum::RevertEdits()
 {
-    UpdateEditSection(myItemList->GetCurrent());
+    OnItemSelected(myItemList->GetCurrent());
 }
 
 

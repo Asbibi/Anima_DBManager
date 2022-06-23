@@ -104,7 +104,7 @@ QString SStringTable::AddStringItem(int _index, const QString* _wantedIdentifier
 
     if (_wantedIdentifier && GetIndexFromIdentifier(*_wantedIdentifier) == -1)
     {
-        myStrings.push_back(SStringItem(*_wantedIdentifier));
+        myStrings.insert(_index, SStringItem(*_wantedIdentifier));
         return *_wantedIdentifier;
     }
 

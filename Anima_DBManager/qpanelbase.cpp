@@ -16,6 +16,7 @@ QPanelBase::QPanelBase(const QString& itemType, bool _uniqueNames, QWidget *pare
     listGroupBox->setLayout(listGroupBoxLayout);
     listGroupBoxLayout->addWidget(myItemList);
 
+    QObject::connect(myItemList, &QAugmentedList::SelectionChanged, this, &QPanelBase::OnItemSelected);
     QObject::connect(myItemList, &QAugmentedList::ItemEdited, this, &QPanelBase::OnItemEdited);
     QObject::connect(myItemList, &QAugmentedList::ItemAdded, this, &QPanelBase::OnItemAdded);
     QObject::connect(myItemList, &QAugmentedList::ItemDuplicated, this, &QPanelBase::OnItemDuplicated);

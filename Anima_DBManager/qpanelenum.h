@@ -30,11 +30,11 @@ public:
 
 public slots:
     virtual void UpdateItemList() override;
-    void UpdateEditSection(const int _index);
 
     void ApplyEdits();
     void RevertEdits();
 
+    virtual void OnItemSelected(const int _index) override;
     virtual void OnItemEdited(const int _index, const QString& _value) override;
     virtual void OnItemAdded(const int _index, const QString& _value) override;
     virtual void OnItemDuplicated(const int _index, const int _originalIndex) override;

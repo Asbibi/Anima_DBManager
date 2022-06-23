@@ -76,6 +76,7 @@ void QSStringTable::OnCellEdited(int row, int col)
     if (!changedItem)
     {
         qFatal("Invalid item changed");
+        return;
     }
 
     const QString text = changedItem->text();

@@ -2,8 +2,6 @@
 
 #include "sstringhelper.h"
 
-#include <QPushButton>
-//#include <QHBoxLayout>
 #include <QGridLayout>
 #include <QVBoxLayout>
 
@@ -36,7 +34,12 @@ QAugmentedList::QAugmentedList(bool _unique, const QString& _defValue, QWidget *
     ADD_BUTTON(0, 0, "<+", OnAddBefore);
     ADD_BUTTON(0, 1, "+>", OnAddAfter);
     ADD_BUTTON(0, 2, "++", OnDuplicate);
-    ADD_BUTTON(0, 3, "-", OnRemove);
+    {
+        myRemoveButton = new QPushButton("-");
+        btnLayout->addWidget(myRemoveButton, 0, 3);
+        QObject::connect(myRemoveButton, &QPushButton::clicked, this, &QAugmentedList::OnRemove);
+        myRemoveButton->setMaximumWidth(25);
+    }
 
     ADD_BUTTON(1, 0, "<<", OnMoveFirst);
     ADD_BUTTON(1, 1, "<", OnMoveUp);
@@ -70,6 +73,25 @@ const QString QAugmentedList::GetItemValue(const int _index) const
     return myList->item(_index)->text();
 }
 
+
+void QAugmentedList::SelectItemAt(const int _index)
+{
+    if (_index < 0 || _index >= myList->count())
+        return;
+    myList->setCurrentRow(_index);
+}
+void QAugmentedList::SelectItem(const QString& _text)
+{
+    const int count = myList->count();
+    for (int i = 0; i < count; i++)
+    {
+        if (myList->item(i)->text() == _text)
+        {
+            SelectItemAt(i);
+            return;
+        }
+    }
+}
 
 
 
@@ -117,6 +139,10 @@ void QAugmentedList::AddItemAt(const QString& _label, int _index, const bool _em
             emit ItemDuplicated(_index, _copyFrom);
         myList->setCurrentRow(_index);
     }
+
+    if (myDisableRemoveLast && myList->count() > 1)
+        myRemoveButton->setEnabled(true);
+
     CHANGE_SIGNAL_ENABLE(true);
 }
 void QAugmentedList::MoveItemAt(const int _indexFrom, const int _indexTo)
@@ -152,6 +178,9 @@ void QAugmentedList::RemoveItemAt(const int _index)
 
     delete removedItem;
     emit ItemRemoved(_index);
+
+    if (myDisableRemoveLast && myList->count() <= 1)
+        myRemoveButton->setEnabled(false);
 
     CHANGE_SIGNAL_ENABLE(true);
 }

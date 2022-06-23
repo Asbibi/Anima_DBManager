@@ -2,10 +2,14 @@
 #define QPANELSTRING_H
 
 #include "qpanelbase.h"
+#include "qlistwithsearch.h"
 
 class QPanelString : public QPanelBase
 {
     Q_OBJECT
+private:
+    QListWithSearch* mySearchList;
+
 public:
     explicit QPanelString(QWidget *parent = nullptr);    
     //virtual void Init() override;
@@ -13,11 +17,19 @@ public:
 public slots:
     virtual void UpdateItemList() override;
 
+    virtual void OnItemSelected(const int _index) override;
     virtual void OnItemEdited(const int _index, const QString& _value) override;
     virtual void OnItemAdded(const int _index, const QString& _value) override;
     virtual void OnItemDuplicated(const int _index, const int _originalIndex) override;
     virtual void OnItemMoved(const int _indexFrom, const int _indexTo) override;
     virtual void OnItemRemoved(const int _index) override;
+
+    void OnSubItemSelected(const int _index);
+    void OnSubItemEdited(const int _index, const QString& _value);
+    void OnSubItemAdded(const int _index, const QString& _value);
+    void OnSubItemDuplicated(const int _index, const int _originalIndex);
+    void OnSubItemMoved(const int _indexFrom, const int _indexTo);
+    void OnSubItemRemoved(const int _index);
 };
 
 #endif // QPANELSTRING_H
