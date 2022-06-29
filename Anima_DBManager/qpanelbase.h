@@ -16,6 +16,8 @@ public:
     explicit QPanelBase(const QString& itemBoxName, bool _uniqueNames, QWidget *parent = nullptr);
     virtual void Init();
 
+    int GetSelectedItem() const;
+
 signals:
 public slots:
     virtual void UpdateItemList() = 0;

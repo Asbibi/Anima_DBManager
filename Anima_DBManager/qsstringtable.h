@@ -17,6 +17,7 @@ private:
     const QBrush emptyBrush = QBrush(QColor(255,158,158));
 
     SStringTable& GetTable();
+    void PrivateUpdate();
 
 public:
     QSStringTable(int _strTableIndex, QWidget* _parent = nullptr);

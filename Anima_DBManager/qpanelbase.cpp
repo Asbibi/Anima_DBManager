@@ -28,3 +28,8 @@ void QPanelBase::Init()
 {
     UpdateItemList();
 }
+
+int QPanelBase::GetSelectedItem() const
+{
+    return myItemList->GetCurrent();
+}

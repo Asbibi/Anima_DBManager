@@ -97,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
     CONNECT_DB(StringTableMoved);
     CONNECT_DB(StringTableRemoved);
     CONNECT_DB(StringTableRenamed);
+    CONNECT_DB(StringTableChanged);
     CONNECT_DB(StringItemFocus);
     CONNECT_DB(StringItemChanged);
 
@@ -158,6 +159,11 @@ void MainWindow::OnStringTableRemoved(const int _index)
 void MainWindow::OnStringTableRenamed(const int _index, const QString& _name)
 {
     myTabString->setTabText(_index, _name);
+}
+void MainWindow::OnStringTableChanged(const int _tableIndex)
+{
+    if (myStringWidget->GetSelectedItem() == _tableIndex)
+        myStringWidget->OnItemSelected(_tableIndex);
 }
 void MainWindow::OnStringItemFocus(const int _tableIndex, const int _index)
 {

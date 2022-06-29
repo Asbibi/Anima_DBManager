@@ -463,6 +463,7 @@ QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& 
 
     return (myStr->length() > 15) ? (myStr->left(15) + "<font color=\"blue\">[...]</font>") : *myStr;  //<font color=\"blue\">Hello</font> //"[...]"
 }
+
 void DB_Manager::AskFocusOnStringItem(const int _tableIndex, const int _stringIndex)
 {
     emit StringItemFocus(_tableIndex, _stringIndex);
@@ -470,4 +471,8 @@ void DB_Manager::AskFocusOnStringItem(const int _tableIndex, const int _stringIn
 void DB_Manager::AskUpdateOnStringTable(const int _tableIndex)
 {
     emit StringItemChanged(_tableIndex);
+}
+void DB_Manager::AskUpdateOnStringPanel(const int _tableIndex)
+{
+    emit StringTableChanged(_tableIndex);
 }
