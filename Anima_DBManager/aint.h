@@ -9,8 +9,8 @@ private:
     int value;
 
 public:
-    AInt(const AttributeParam* _sharedParam);
-    AInt(const AttributeParam* _sharedParam, int _value);
+    AInt(const AttributeParam& _sharedParam);
+    AInt(const AttributeParam& _sharedParam, int _value);
 
     virtual Type GetType() const override { return Type::Int; };
     virtual Attribute* CreateDuplica()                          const override;

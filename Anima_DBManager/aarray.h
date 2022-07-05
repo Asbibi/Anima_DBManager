@@ -9,8 +9,8 @@ private:
     std::vector<Attribute*> values;
 
 public:
-    AArray(const AttributeParam* _sharedParam);
-    AArray(const AttributeParam* _sharedParam, const std::vector<Attribute*>* _values);
+    AArray(const AttributeParam& _sharedParam);
+    AArray(const AttributeParam& _sharedParam, const std::vector<Attribute*>* _values);
     ~AArray();
 
     virtual Type GetType() const override { return Type::Array; };

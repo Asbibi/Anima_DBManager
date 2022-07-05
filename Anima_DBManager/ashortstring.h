@@ -9,8 +9,8 @@ private:
     QString value;
 
 public:
-    AShortString(const AttributeParam* _sharedParam);
-    AShortString(const AttributeParam* _sharedParam, QString _value);
+    AShortString(const AttributeParam& _sharedParam);
+    AShortString(const AttributeParam& _sharedParam, QString _value);
 
     virtual Type GetType() const override { return Type::ShortString; };
     virtual Attribute* CreateDuplica()                          const override;

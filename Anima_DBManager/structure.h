@@ -2,25 +2,28 @@
 #define STRUCTURE_H
 
 #include "templatestructure.h"
-#include <vector>
+#include <QList>
 #include <QObject>
 
 /**
  * Data Object for a Structure Object.
  * It is composed of several Attributes,
- * each one being assigned to a specific and unique name,
- * and their type can be various.
+ * each one being related to a TemplateAttribute
+ * stored in the referenced TemplateStructure.
  */
 class Structure : public QObject
 {
 private:
-    std::vector<Attribute*> attributes;
-    const TemplateStructure* templ;
+    TemplateStructure& myTemplate;
+    QList<Attribute*> myAttributes;
 
 public:
+    Structure(TemplateStructure& _structureTemplate);
     Structure(const Structure& _other);
-    Structure(const TemplateStructure& _structureTemplate);
+    Structure(const Structure& _other, TemplateStructure& _newTemplate);
+    void operator=(const Structure& _other);
     ~Structure();
+
 
     int GetAttributeCount() const;
     const Attribute* GetAttribute(int _attIndex) const;

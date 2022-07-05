@@ -9,8 +9,8 @@ private:
     bool isSkeletal;
 
 public:
-    AAMesh(bool _isSkeletal = true);
-    AAMesh(QString _filePath, bool _isSkeletal = true);
+    AAMesh(const AttributeParam& _sharedParam, bool _isSkeletal = true);
+    AAMesh(const AttributeParam& _sharedParam, QString _filePath, bool _isSkeletal = true);
 
     virtual Type GetType() const override { return Type::Mesh; };
     virtual Attribute* CreateDuplica()                          const override;

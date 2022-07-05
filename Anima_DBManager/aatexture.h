@@ -6,8 +6,8 @@
 class AATexture : public AAsset
 {
 public:
-    AATexture();
-    AATexture(QString _filePath);
+    AATexture(const AttributeParam& _sharedParam);
+    AATexture(const AttributeParam& _sharedParam, QString _filePath);
 
     virtual Type GetType() const override { return Type::Texture; };
     virtual Attribute* CreateDuplica()                          const override;

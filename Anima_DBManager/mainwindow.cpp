@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent) :
     myManager(DB_Manager::GetDB_Manager())
 {
     setWindowIcon(QIcon("../DB_Icon.png"));
+    resize(1280,720);
 
     myMenuBar = new QMenuBar(this);
     QMenu* fileMenu = myMenuBar->addMenu("File");
@@ -72,8 +73,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     myTabStruct = new QTabWidget();
     myTabString = new QTabWidget();
-    myTableToolBox->addItem(myTabString, "Structures");
-    myTableToolBox->addItem(myTabStruct, "Table Strings");
+    myTableToolBox->addItem(myTabStruct, "Structures");
+    myTableToolBox->addItem(myTabString, "Table Strings");
 
     //---------
 
@@ -86,9 +87,9 @@ MainWindow::MainWindow(QWidget *parent) :
     myEnumWidget->Init();
     myStringWidget->Init();
     //myStructWidget->Init();
-    defToolBox->addItem(myEnumWidget, "Enumerators");
-    defToolBox->addItem(myStringWidget, "String Tables");
     defToolBox->addItem(myStructWidget, "Structures");
+    defToolBox->addItem(myStringWidget, "String Tables");
+    defToolBox->addItem(myEnumWidget, "Enumerators");
 
     //---------
 #define CONNECT_DB(method)  QObject::connect(&myManager, &DB_Manager::method, this, &MainWindow::On##method)
@@ -100,6 +101,14 @@ MainWindow::MainWindow(QWidget *parent) :
     CONNECT_DB(StringTableChanged);
     CONNECT_DB(StringItemFocus);
     CONNECT_DB(StringItemChanged);
+
+    CONNECT_DB(StructTableAdded);
+    CONNECT_DB(StructTableMoved);
+    CONNECT_DB(StructTableRemoved);
+    CONNECT_DB(StructTableRenamed);
+    CONNECT_DB(StructTableChanged);
+    CONNECT_DB(StructItemFocus);
+    CONNECT_DB(StructItemChanged);
 
 #undef CONNECT_DB
 }
@@ -176,6 +185,74 @@ void MainWindow::OnStringItemFocus(const int _tableIndex, const int _index)
 void MainWindow::OnStringItemChanged(const int _tableIndex)
 {
     QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->widget(_tableIndex));
+    if (!currentTab)
+        return;
+
+    currentTab->UpdateTable();
+}
+
+
+void MainWindow::OnStructTableAdded(const int _index)
+{
+    StructureDB* stcTable = myManager.GetStructureTable(_index);
+    if (!stcTable)
+        return;
+
+    QStructureTable* stuctureTable = new QStructureTable(*stcTable);
+    myTabStruct->insertTab(_index, stuctureTable, stcTable->GetTemplateName());
+    myTabStruct->setCurrentIndex(_index);
+}
+void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
+{
+    /*QStructureTable* tabToMove = dynamic_cast<QStructureTable*>(myTabStruct->widget(_indexFrom));
+    if (!tabToMove)
+        return;
+
+    const QString tabName = myTabStruct->tabText(_indexFrom);
+    const bool wasCurrent = myTabStruct->currentIndex() == _indexFrom;
+    myTabStruct->removeTab(_indexFrom);
+    myTabStruct->insertTab(_indexTo, tabToMove, tabName);
+
+    const int count = myTabStruct->count();
+    for (int i = 0; i < count; i++)
+    {
+        QStructureTable* tab = dynamic_cast<QStructureTable*>(myTabStruct->widget(_indexFrom));
+        if (tabToMove)
+            tab->UpdateIndex(i);
+    }
+
+    if(wasCurrent)
+        myTabStruct->setCurrentIndex(_indexTo);*/
+}
+void MainWindow::OnStructTableRemoved(const int _index)
+{
+    QWidget* tabToDelete = myTabStruct->widget(_index);
+    if (!tabToDelete)
+        return;
+
+    myTabStruct->removeTab(_index);
+    delete tabToDelete;
+}
+void MainWindow::OnStructTableRenamed(const int _index, const QString& _name)
+{
+    myTabStruct->setTabText(_index, _name);
+}
+void MainWindow::OnStructTableChanged(const int _tableIndex)
+{
+    /*if (myStringWidget->GetSelectedItem() == _tableIndex)
+        myStringWidget->OnItemSelected(_tableIndex);*/
+}
+void MainWindow::OnStructItemFocus(const int _tableIndex, const int _index)
+{
+    QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->widget(_tableIndex));
+    if (!currentTab)
+        return;
+
+    currentTab->setCurrentCell(_index, 0);
+}
+void MainWindow::OnStructItemChanged(const int _tableIndex)
+{
+    QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->widget(_tableIndex));
     if (!currentTab)
         return;
 

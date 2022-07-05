@@ -9,8 +9,8 @@ private:
     bool value;
 
 public:
-    ABool();
-    ABool(bool _value);
+    ABool(const AttributeParam& _sharedParam);
+    ABool(const AttributeParam& _sharedParam, bool _value);
 
     virtual Type GetType() const override { return Type::Bool; };
     virtual Attribute* CreateDuplica()                          const override;

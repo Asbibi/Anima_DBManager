@@ -2,16 +2,18 @@
 
 #include "db_manager.h"
 
-ATableString::ATableString() :
-    Attribute(nullptr)
+ATableString::ATableString(const AttributeParam& _sharedParam) :
+    Attribute(_sharedParam)
+{}
+ATableString::ATableString(const AttributeParam& _sharedParam, const QString& _tableName, const QString& _stringIdentifier):
+    Attribute(_sharedParam),
+    myTableName(_tableName),
+    myStringIdentifier(_stringIdentifier)
 {}
 
 Attribute* ATableString::CreateDuplica() const
 {
-    auto* duplica = new ATableString();
-    duplica->myTableName = myTableName;
-    duplica->myStringIdentifier = myStringIdentifier;
-    return duplica;
+    return new ATableString(mySharedParam, myTableName, myStringIdentifier);
 }
 QString ATableString::GetDisplayedText(bool complete) const
 {

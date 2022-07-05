@@ -14,8 +14,8 @@ private:
     QPointer<const Structure> myStructureRef;
 
 public:
-    AReference(const AttributeParam* _sharedParam);
-    AReference(const AttributeParam* _sharedParam, QPointer<const Structure> _structureRef);
+    AReference(const AttributeParam& _sharedParam);
+    AReference(const AttributeParam& _sharedParam, QPointer<const Structure> _structureRef);
 
     virtual Type GetType() const override { return Type::Reference; };
     virtual Attribute* CreateDuplica()                          const override;

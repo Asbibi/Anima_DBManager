@@ -1,19 +1,19 @@
 #include "aamesh.h"
 
-AAMesh::AAMesh(bool _isSkeletal) :
-    AAsset(),
+AAMesh::AAMesh(const AttributeParam& _sharedParam, bool _isSkeletal) :
+    AAsset(_sharedParam),
     isSkeletal(_isSkeletal)
 {}
 
-AAMesh::AAMesh(QString _filePath, bool _isSkeletal) :
-    AAsset(_filePath),
+AAMesh::AAMesh(const AttributeParam& _sharedParam, QString _filePath, bool _isSkeletal) :
+    AAsset(_sharedParam, _filePath),
     isSkeletal(_isSkeletal)
 {}
 
 
 Attribute* AAMesh::CreateDuplica() const
 {
-    return new AAMesh(filePath, isSkeletal);
+    return new AAMesh(mySharedParam, filePath, isSkeletal);
 }
 
 void AAMesh::WriteValue_CSV(std::ofstream& file) const

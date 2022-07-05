@@ -24,8 +24,10 @@ DB_Manager::DB_Manager()
 {}
 DB_Manager::~DB_Manager()
 {
-    for(auto const& strct : myStructures)
-        delete(strct);
+    while (myStructures.count())
+    {
+        RemoveStructureDB(0);
+    }
 }
 DB_Manager& DB_Manager::GetDB_Manager()
 {
@@ -76,7 +78,7 @@ void DB_Manager::Init()
     templ1.SetAttributeDefaultValue("Enum", "GROUND");
     templ1.AddAttributeTemplate(Attribute::Type::TableString, "Table", AttributeParam());
 
-    CreateStructureDB(templ1);
+    AddStructureDB(templ1);
 
 
     TemplateStructure templ2 = TemplateStructure("Another Struct", QColorConstants::Red);
@@ -87,7 +89,7 @@ void DB_Manager::Init()
     tempRefParam.structTable = GetStructureTable(0);
     templ2.AddAttributeTemplate(Attribute::Type::Reference, "Ref", tempRefParam);
 
-    CreateStructureDB(templ2);
+    AddStructureDB(templ2);
 
 
     StructureDB* db1 = GetStructureTable(0);
@@ -98,6 +100,9 @@ void DB_Manager::Init()
     StructureDB* db2 = GetStructureTable(1);
     db2->AddStructureAt(0);
     db2->AddStructureAt(0);
+
+    emit StructItemChanged(0);
+    emit StructItemChanged(1);
 
 
 /*
@@ -210,6 +215,12 @@ db1->AddStructureAt(0);
 
 
 
+// ==============================================================
+// ==============================================================
+
+
+
+
 int DB_Manager::GetEnumCount() const
 {
     return (int)enumerators.size();
@@ -286,6 +297,10 @@ void DB_Manager::UpdateEnumName(int _index, const QString& _name)
 
 
 
+// ==============================================================
+// ==============================================================
+
+
 
 void DB_Manager::RegisterAttributeParam(AttributeParam* _param)
 {
@@ -296,6 +311,10 @@ void DB_Manager::UnregisterAttributeParam(AttributeParam* _param)
     myAttributeParamPtrs.removeOne(_param);
 }
 
+
+
+// ==============================================================
+// ==============================================================
 
 
 
@@ -324,10 +343,82 @@ StructureDB* DB_Manager::GetStructureTable(int index)
 
     return myStructures[index];
 }
-void DB_Manager::CreateStructureDB(const TemplateStructure& _structureTemplate)
+void DB_Manager::AddStructureDB(const TemplateStructure& _structureTemplate, int _index)
 {
-    myStructures.push_back(new StructureDB(_structureTemplate));
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        _index = count;
+
+    myStructures.insert(_index, new StructureDB(_structureTemplate));
+    emit StructTableAdded(_index);
 }
+void DB_Manager::DuplicateStructureDB(int _index, int _indexOriginal)
+{
+    const int count = myStructures.count();
+    if (_indexOriginal < 0 || _indexOriginal > count)
+        return;
+     if (_index < 0 || _index > count)
+         _index = count;
+
+     myStructures.insert(_index, new StructureDB(*myStructures[_indexOriginal]));
+     emit StructTableAdded(_index);
+}
+void DB_Manager::MoveStructureDB(int _indexFrom, int _indexTo)
+{
+    const int count = myStructures.count();
+    if (_indexFrom < 0 || _indexFrom > count)
+        return;
+    if (_indexTo < 0 || _indexTo > count)
+        _indexTo = count;
+
+    myStructures.move(_indexFrom, _indexTo);
+    emit StructTableMoved(_indexFrom, _indexTo);
+}
+void DB_Manager::RemoveStructureDB(int _index, bool forDelete)
+{
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        return;
+
+
+    if (!forDelete)
+    {
+        emit StructTableRemoved(_index);
+    }
+
+    auto* structDB = myStructures.takeAt(_index);
+    delete structDB;
+}
+void DB_Manager::RemoveStructureDB(const QString& _tableName, bool forDelete)
+{
+    const int count = myStructures.count();
+    int index = -1;
+    for (int i = 0; i < count; i++)
+    {
+        if (myStructures[i]->GetTemplateName() == _tableName)
+        {
+            index = i;
+            break;
+        }
+    }
+    RemoveStructureDB(index, forDelete);
+}
+void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
+{
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        return;
+
+    myStructures[_index]->SetTemplateName(_tableName);
+    emit StructTableRenamed(_index, _tableName);
+}
+
+
+
+
+// ==============================================================
+// ==============================================================
+
 
 
 

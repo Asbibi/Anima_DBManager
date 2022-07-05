@@ -10,7 +10,7 @@ class Attribute : public QObject
     Q_OBJECT
 
 protected:
-    const AttributeParam* sharedParam;
+    const AttributeParam& mySharedParam;
 
     void EmitValueChanged();
 
@@ -38,11 +38,12 @@ public:
         Sound,
     };
 
-    Attribute(const AttributeParam* _sharedParam);
+    Attribute(const AttributeParam& _sharedParam);
     virtual ~Attribute();
 
     virtual Type GetType()                                  const = 0;
     virtual Attribute* CreateDuplica()                      const = 0;
+    virtual void CopyValueFromOther(const Attribute* /*_other*/) {qDebug("WIP");}
     virtual QString GetDisplayedText(bool complete = false) const = 0;
     virtual void WriteValue_CSV(std::ofstream& file)        const = 0;
 

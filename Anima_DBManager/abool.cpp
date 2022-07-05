@@ -1,10 +1,10 @@
 #include "abool.h"
 
-ABool::ABool() :
-    ABool(false)
+ABool::ABool(const AttributeParam& _sharedParam) :
+    ABool(_sharedParam, false)
 {}
-ABool::ABool(bool _value) :
-    Attribute(nullptr),
+ABool::ABool(const AttributeParam& _sharedParam, bool _value) :
+    Attribute(_sharedParam),
     value(_value)
 {}
 
@@ -12,7 +12,7 @@ ABool::ABool(bool _value) :
 
 Attribute* ABool::CreateDuplica() const
 {
-    return new ABool(value);
+    return new ABool(mySharedParam, value);
 }
 QString ABool::GetDisplayedText(bool) const
 {

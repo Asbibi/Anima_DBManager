@@ -9,8 +9,8 @@ protected:
     QString filePath;
 
 public:
-    AAsset();
-    AAsset(QString _filePath);
+    AAsset(const AttributeParam& _sharedParam);
+    AAsset(const AttributeParam& _sharedParam, QString _filePath);
 
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

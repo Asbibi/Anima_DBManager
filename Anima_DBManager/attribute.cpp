@@ -2,8 +2,8 @@
 #include "qattribute.h"
 
 
-Attribute::Attribute(const AttributeParam* _sharedParam) :
-    sharedParam(_sharedParam)
+Attribute::Attribute(const AttributeParam& _sharedParam) :
+    mySharedParam(_sharedParam)
 {}
 
 Attribute::~Attribute()

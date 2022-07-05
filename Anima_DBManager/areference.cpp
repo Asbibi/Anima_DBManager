@@ -3,21 +3,19 @@
 #include "structure.h"
 #include "structuredb.h"
 
-AReference::AReference(const AttributeParam* _sharedParam) :
+#include <QDebug>
+
+AReference::AReference(const AttributeParam& _sharedParam) :
     Attribute(_sharedParam)
 {
-    if (_sharedParam == nullptr)
-        qFatal("\n\nNull param given when instancing <REFERENCE> Attribute:\n\n\t===== Not allowed =====\n\n");
-    else if (_sharedParam->structTable == nullptr)
+    if (_sharedParam.structTable == nullptr)
         qFatal("\n\nNull StructureDB Attribute given when instancing <REFERENCE> Attribute:\n\n\t===== Not allowed =====\n\n");
 }
-AReference::AReference(const AttributeParam* _sharedParam, QPointer<const Structure> _structureRef) :
+AReference::AReference(const AttributeParam& _sharedParam, QPointer<const Structure> _structureRef) :
     Attribute(_sharedParam),
     myStructureRef(_structureRef)
 {
-    if (_sharedParam == nullptr)
-        qFatal("\n\nNull param given when instancing <REFERENCE> Attribute:\n\n\t===== Not allowed =====\n\n");
-    else if (_sharedParam->structTable == nullptr)
+    if (_sharedParam.structTable == nullptr)
         qFatal("\n\nNull StructureDB Attribute given when instancing <REFERENCE> Attribute:\n\n\t===== Not allowed =====\n\n");
 }
 
@@ -25,7 +23,7 @@ AReference::AReference(const AttributeParam* _sharedParam, QPointer<const Struct
 
 Attribute* AReference::CreateDuplica() const
 {
-    return new AReference(sharedParam, myStructureRef);
+    return new AReference(mySharedParam, myStructureRef);
 }
 QString AReference::GetDisplayedText(bool complete) const
 {
@@ -39,12 +37,12 @@ QString AReference::GetDisplayedText(bool complete) const
         return "&{" + structString + "}";
     }
 
-    return sharedParam->structTable->GetStructureRowName(myStructureRef);
+    return mySharedParam.structTable->GetStructureRowName(myStructureRef);
 }
 void AReference::WriteValue_CSV(std::ofstream& file) const
 {
     if(myStructureRef)
-        file << sharedParam->structTable->GetStructureRowName(myStructureRef).toStdString();
+        file << mySharedParam.structTable->GetStructureRowName(myStructureRef).toStdString();
 }
 void AReference::SetValueFromText(const QString& text)
 {
@@ -85,7 +83,7 @@ const Structure* AReference::GetReference() const
 }
 const StructureDB* AReference::GetStructureDB() const
 {
-    return sharedParam->structTable;
+    return mySharedParam.structTable;
 }
 int AReference::GetReferenceIndex() const
 {
@@ -99,5 +97,7 @@ int AReference::GetReferenceIndex() const
         if (myStructureRef == structs[i])
             return i;
     }
+
+    qCritical() << "My Ref not found in structs: should be null";
     return -1;
 }

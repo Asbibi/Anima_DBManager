@@ -1,20 +1,19 @@
 #include "aint.h"
 
 
-AInt::AInt(const AttributeParam* _sharedParam) : AInt(_sharedParam, 0) {}
-AInt::AInt(const AttributeParam* _sharedParam, int _value) :
+AInt::AInt(const AttributeParam& _sharedParam) :
+    AInt(_sharedParam, 0)
+{}
+AInt::AInt(const AttributeParam& _sharedParam, int _value) :
     Attribute(_sharedParam),
     value(_value)
-{
-    if (_sharedParam == nullptr)
-        qFatal("\n\nNull param given when instancing <INT> Attribute:\n\n\t===== Not allowed =====\n\n");
-}
+{}
 
 
 
 Attribute* AInt::CreateDuplica() const
 {
-    return new AInt(sharedParam, value);
+    return new AInt(mySharedParam, value);
 }
 QString AInt::GetDisplayedText(bool complete) const
 {
@@ -49,11 +48,11 @@ void AInt::SetValueFromText(const QString& text)
 
 bool AInt::FitsMinParam() const
 {
-    return sharedParam->ignoreMin || value < sharedParam->min_i;
+    return mySharedParam.ignoreMin || value < mySharedParam.min_i;
 }
 bool AInt::FitsMaxParam() const
 {
-    return sharedParam->ignoreMax || value > sharedParam->max_i;
+    return mySharedParam.ignoreMax || value > mySharedParam.max_i;
 }
 int AInt::GetValue(bool _validated) const
 {
@@ -62,19 +61,19 @@ int AInt::GetValue(bool _validated) const
 
     int v = value;
     if (!FitsMinParam())
-        v = sharedParam->min_i;
+        v = mySharedParam.min_i;
     else if (!FitsMaxParam())
-        v = sharedParam->max_i;
+        v = mySharedParam.max_i;
     return v;
 }
 
 int AInt::GetMax(bool& useIt) const
 {
-    useIt = !sharedParam->ignoreMax;
-    return sharedParam->max_i;
+    useIt = !mySharedParam.ignoreMax;
+    return mySharedParam.max_i;
 }
 int AInt::GetMin(bool& useIt) const
 {
-    useIt = !sharedParam->ignoreMin;
-    return sharedParam->min_i;
+    useIt = !mySharedParam.ignoreMin;
+    return mySharedParam.min_i;
 }

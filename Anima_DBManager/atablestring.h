@@ -10,7 +10,8 @@ private:
     QString myStringIdentifier;
 
 public:
-    ATableString();
+    ATableString(const AttributeParam& _sharedParam);
+    ATableString(const AttributeParam& _sharedParam, const QString& _tableName, const QString& _stringIdentifier);
 
     virtual Type GetType() const override { return Type::TableString; };
     virtual Attribute* CreateDuplica()                          const override;

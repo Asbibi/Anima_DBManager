@@ -9,8 +9,8 @@ private:
     float value;
 
 public:
-    AFloat(const AttributeParam* _sharedParam);
-    AFloat(const AttributeParam* _sharedParam, float _value);
+    AFloat(const AttributeParam& _sharedParam);
+    AFloat(const AttributeParam& _sharedParam, float _value);
 
     virtual Type GetType() const override { return Type::Float; };
     virtual Attribute* CreateDuplica()                          const override;

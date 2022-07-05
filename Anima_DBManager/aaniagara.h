@@ -6,8 +6,8 @@
 class AANiagara : public AAsset
 {
 public:
-    AANiagara();
-    AANiagara(QString _filePath);
+    AANiagara(const AttributeParam& _sharedParam);
+    AANiagara(const AttributeParam& _sharedParam, QString _filePath);
 
     virtual Type GetType() const override { return Type::Niagara; };
     virtual Attribute* CreateDuplica()                          const override;

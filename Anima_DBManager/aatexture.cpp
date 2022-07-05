@@ -1,17 +1,17 @@
 #include "aatexture.h"
 
-AATexture::AATexture() :
-    AAsset()
+AATexture::AATexture(const AttributeParam& _sharedParam) :
+    AAsset(_sharedParam)
 {}
 
-AATexture::AATexture(QString _filePath) :
-    AAsset(_filePath)
+AATexture::AATexture(const AttributeParam& _sharedParam, QString _filePath) :
+    AAsset(_sharedParam, _filePath)
 {}
 
 
 Attribute* AATexture::CreateDuplica() const
 {
-    return new AATexture(filePath);
+    return new AATexture(mySharedParam, filePath);
 }
 
 void AATexture::WriteValue_CSV(std::ofstream& file) const

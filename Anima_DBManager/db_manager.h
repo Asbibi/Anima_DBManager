@@ -19,7 +19,7 @@ private:
     QString myProjectContentFolderPath;
     QList<AttributeParam*> myAttributeParamPtrs;
     QList<Enumerator> enumerators;
-    std::vector<StructureDB*> myStructures;
+    QList<StructureDB*> myStructures;
     QList<SStringTable> myStringTables;
 
     DB_Manager();
@@ -51,7 +51,12 @@ public:
     int GetStructuresCount() const;
     const StructureDB* GetStructureTable(int index) const;
     StructureDB* GetStructureTable(int index);
-    void CreateStructureDB(const TemplateStructure& _structureTemplate);
+    void AddStructureDB(const TemplateStructure& _structureTemplate, int _index = -1);
+    void DuplicateStructureDB(int _index, int _indexOriginal);
+    void MoveStructureDB(int _indexFrom, int _indexTo);
+    void RemoveStructureDB(int _index, bool forDelete = false);
+    void RemoveStructureDB(const QString& _tableName, bool forDelete = false);
+    void RenameStructureDB(int _index, const QString& _tableName);
 
     int GetStringTableCount() const;
     const SStringTable* GetStringTable(int _index) const;
@@ -76,12 +81,17 @@ signals:
     void StringTableMoved(const int _indexFrom, const int _indexTo);
     void StringTableRemoved(const int _index);
     void StringTableRenamed(const int _index, const QString& _name);
-    void StringTableChanged(const int _tableIndex);
+    void StringTableChanged(const int _tableIndex);     // For edits done in table widget
     void StringItemFocus(const int _tableIndex, const int _index);
-    void StringItemChanged(const int _tableIndex);
+    void StringItemChanged(const int _tableIndex);      // For edits done in panel widget
 
-    void StructureTableListChanged();
-
+    void StructTableAdded(const int _index);
+    void StructTableMoved(const int _indexFrom, const int _indexTo);
+    void StructTableRemoved(const int _index);
+    void StructTableRenamed(const int _index, const QString& _name);
+    void StructTableChanged(const int _tableIndex);     // For edits done in table widget
+    void StructItemFocus(const int _tableIndex, const int _index);
+    void StructItemChanged(const int _tableIndex);      // For edits done in panel widget
 };
 
 #endif // DB_MANAGER_H

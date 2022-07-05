@@ -3,10 +3,35 @@
 StructureDB::StructureDB(const TemplateStructure& _structureTemplate):
     myTemplate(_structureTemplate)
 {}
+StructureDB::StructureDB(const StructureDB& _another) :
+    StructureDB(_another.myTemplate)
+{
+    for (const auto& otherStruct : _another.myStructures)
+    {
+        myStructures.push_back(new Structure(*otherStruct, myTemplate));
+    }
+}
+void StructureDB::operator=(const StructureDB& _another)
+{
+    myStructures.clear();
+    myTemplate = _another.myTemplate;
+    for (const auto& otherStruct : _another.myStructures)
+    {
+        myStructures.push_back(otherStruct);
+    }
+}
 StructureDB::~StructureDB()
 {
     ClearStructures();
 }
+void StructureDB::UpdateTemplate()
+{
+    for (const auto* strct : myStructures)
+    {
+        qDebug("WIP -- Todo: propagate the changes done on myTemplate (add/remove/move/edit attribute template");
+    }
+}
+
 
 bool StructureDB::CheckIndex(int& index) const
 {
@@ -18,7 +43,8 @@ void StructureDB::AddStructureAt(int index)
     if (!CheckIndex(index))
         index = GetStructureCount();
 
-    myStructures.emplace(myStructures.begin() + index, new Structure(myTemplate));
+    qDebug("WIP -- Notify AReference attributes");
+    myStructures.insert(index, new Structure(myTemplate));
 }
 
 void StructureDB::RemoveStructureAt(int index)
@@ -26,23 +52,31 @@ void StructureDB::RemoveStructureAt(int index)
     if (!CheckIndex(index))
         return;
 
-    auto structPtr = myStructures[index];
-    myStructures.erase(myStructures.begin() + index);
-    delete structPtr;
+    qDebug("WIP -- Notify AReference attributes");
+    auto* structToDelete = myStructures[index];
+    myStructures.removeAt(index);
+    delete structToDelete;
 }
 
 void StructureDB::ClearStructures()
 {
-    for (auto ptr : myStructures)
+    while (myStructures.count() > 0)
     {
-        delete ptr;
+        RemoveStructureAt(0);
     }
-
-    myStructures.clear();
 }
 
 
 
+
+void StructureDB::SetTemplateName(const QString& _name)
+{
+    return myTemplate.RenameStructureTemplate(_name);
+}
+const QString& StructureDB::GetTemplateName() const
+{
+    return myTemplate.GetStructName();
+}
 const TemplateStructure& StructureDB::GetTemplate() const
 {
     return myTemplate;
@@ -57,10 +91,6 @@ const Structure* StructureDB::GetStructureAt(int index) const
 int StructureDB::GetStructureCount() const
 {
     return (int)myStructures.size();
-}
-const QString& StructureDB::GetTemplateName() const
-{
-    return myTemplate.GetStructName();
 }
 const QString StructureDB::GetStructureRowName(int index) const
 {

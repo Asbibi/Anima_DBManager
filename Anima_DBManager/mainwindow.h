@@ -42,5 +42,13 @@ public slots:
     void OnStringTableChanged(const int _tableIndex);
     void OnStringItemFocus(const int _tableIndex, const int _index);
     void OnStringItemChanged(const int _tableIndex);
+
+    void OnStructTableAdded(const int _index);
+    void OnStructTableMoved(const int _indexFrom, const int _indexTo);
+    void OnStructTableRemoved(const int _index);
+    void OnStructTableRenamed(const int _index, const QString& _name);
+    void OnStructTableChanged(const int _tableIndex);
+    void OnStructItemFocus(const int _tableIndex, const int _index);
+    void OnStructItemChanged(const int _tableIndex);
 };
 #endif // MAINWINDOW_H

@@ -18,15 +18,20 @@
 #include "aatexture.h"
 
 
-TemplateAttribute::TemplateAttribute() :
+TemplateAttribute::TemplateAttribute(const AttributeParam& _sharedParamToCopy) :
     myAttrName(""),
-    mySharedParam(nullptr),
+    mySharedParam(*(new AttributeParam(_sharedParamToCopy))),
     myTemplateAttribute(nullptr)
 {}
-TemplateAttribute::TemplateAttribute(const QString& _name, const Attribute::Type _type, const AttributeParam& _sharedParam) :
+TemplateAttribute::TemplateAttribute(const QString& _name, const Attribute::Type _type, const AttributeParam& _sharedParamToCopy) :
     myAttrName(_name),
-    mySharedParam(new AttributeParam(_sharedParam))
+    mySharedParam(*(new AttributeParam(_sharedParamToCopy)))
 {
+
+//#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case Attribute::Type::TYPE: { myTemplateAttribute = QSharedPointer<Attribute>(new CLASS(*mySharedParam)); return; }
+#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case Attribute::Type::TYPE: { myTemplateAttribute = new CLASS(mySharedParam); return; }
+#define CASE_INIT_TEMPLATE(TYPE) CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, A##TYPE)
+
     switch (_type)
     {
         default:
@@ -36,87 +41,44 @@ TemplateAttribute::TemplateAttribute(const QString& _name, const Attribute::Type
             return;
         }
 
-        case Attribute::Type::Bool:
-        {
-            myTemplateAttribute = new ABool();
-            return;
-        }
-        case Attribute::Type::Enum:
-        {
-            myTemplateAttribute = new AEnumerator(mySharedParam);
-            return;
-        }
-        case Attribute::Type::Float:
-        {
-            myTemplateAttribute = new AFloat(mySharedParam);
-            return;
-        }
-        case Attribute::Type::Int:
-        {
-            myTemplateAttribute = new AInt(mySharedParam);
-            return;
-        }
-        case Attribute::Type::ShortString:
-        {
-            myTemplateAttribute = new AShortString(mySharedParam);
-            return;
-        }
-
-        case Attribute::Type::Array:
-        {
-            myTemplateAttribute = new AArray(mySharedParam);
-            return;
-        }
-        case Attribute::Type::Structure:
-        {
-            //myTemplateAttribute = new AStructure(&mySharedParam);
-            return;
-        }
-        case Attribute::Type::Reference:
-        {
-            myTemplateAttribute = new AReference(mySharedParam);
-            return;
-        }
-        case Attribute::Type::TableString:
-        {
-            myTemplateAttribute = new ATableString();
-            return;
-        }
-
-        case Attribute::Type::AnimInstance:
-        {
-            myTemplateAttribute = new AAAnimInstance();
-            return;
-        }
-        case Attribute::Type::Mesh:
-        {
-            myTemplateAttribute = new AAMesh();
-            return;
-        }
-        case Attribute::Type::Niagara:
-        {
-            myTemplateAttribute = new AANiagara();
-            return;
-        }
-        case Attribute::Type::Sound:
-        {
-            myTemplateAttribute = new AASound();
-            return;
-        }
-        case Attribute::Type::Texture:
-        {
-            myTemplateAttribute = new AATexture();
-            return;
-        }
+        CASE_INIT_TEMPLATE(Bool);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Enum, AEnumerator);
+        CASE_INIT_TEMPLATE(Float);
+        CASE_INIT_TEMPLATE(Int);
+        CASE_INIT_TEMPLATE(ShortString);
+        CASE_INIT_TEMPLATE(Array);
+        //CASE_INIT_TEMPLATE(Structure);
+        CASE_INIT_TEMPLATE(Reference);
+        CASE_INIT_TEMPLATE(TableString);
+        CASE_INIT_TEMPLATE_WITH_CLASS(AnimInstance, AAAnimInstance);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Mesh, AAAnimInstance);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Niagara, AAAnimInstance);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Sound, AAAnimInstance);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Texture, AAAnimInstance);
     }
+
+#undef CASE_INIT_TEMPLATE
+#undef CASE_INIT_TEMPLATE_WITH_CLASS
+}
+TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
+    TemplateAttribute(_another.myAttrName, _another.GetType(), _another.mySharedParam)
+{
+    Q_ASSERT(myTemplateAttribute && _another.myTemplateAttribute);
+    myTemplateAttribute->CopyValueFromOther(_another.myTemplateAttribute);
 }
 void TemplateAttribute::DeleteData()
 {
-    if (mySharedParam)
-        delete mySharedParam;
+    delete &mySharedParam;
     if (myTemplateAttribute)
         delete myTemplateAttribute;
 }
+void TemplateAttribute::operator=(const TemplateAttribute& _another)
+{
+    myAttrName = _another.myAttrName;
+    mySharedParam = _another.mySharedParam;
+    myTemplateAttribute = _another.myTemplateAttribute;
+}
+
 TemplateAttribute::~TemplateAttribute()
 {}
 
@@ -130,7 +92,7 @@ void TemplateAttribute::SetDefaultValue(const QString& _valueAsText)
 
 AttributeParam& TemplateAttribute::GetSharedParamW()
 {
-    return *mySharedParam;
+    return mySharedParam;
 }
 Attribute* TemplateAttribute::GetTemplateAttributeW()
 {

@@ -1,20 +1,16 @@
 #include "aarray.h"
 #include <QDebug>
 
-AArray::AArray(const AttributeParam* _sharedParam) :
+AArray::AArray(const AttributeParam& _sharedParam) :
     AArray(_sharedParam, nullptr)
 {
-    if (_sharedParam == nullptr)
-        qFatal("\n\nNull param given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
-    else if (_sharedParam->templateAtt == nullptr)
+     if (_sharedParam.templateAtt == nullptr)
         qFatal("\n\nNull Template Attribute given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
 }
-AArray::AArray(const AttributeParam* _sharedParam, const std::vector<Attribute*>* _values) :
+AArray::AArray(const AttributeParam& _sharedParam, const std::vector<Attribute*>* _values) :
     Attribute(_sharedParam)
 {
-    if (_sharedParam == nullptr)
-        qFatal("\n\nNull param given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
-    else if (_sharedParam->templateAtt == nullptr)
+    if (_sharedParam.templateAtt == nullptr)
         qFatal("\n\nNull Template Attribute given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
     else if (_values != nullptr && _values->size() != 0)
     {
@@ -34,7 +30,7 @@ AArray::~AArray()
 
 Attribute* AArray::CreateDuplica() const
 {
-    return new AArray(sharedParam, &values);
+    return new AArray(mySharedParam, &values);
 }
 QString AArray::GetDisplayedText(bool complete) const
 {
@@ -152,7 +148,7 @@ std::vector<QString> AArray::GetDisplayedTexts() const
 }
 void AArray::AddRow()
 {
-    values.push_back(sharedParam->templateAtt->CreateDuplica());
+    values.push_back(mySharedParam.templateAtt->CreateDuplica());
 }
 void AArray::RemoveRow(int _index)
 {

@@ -1,19 +1,18 @@
 #include "afloat.h"
 
-AFloat::AFloat(const AttributeParam* _sharedParam) : AFloat(_sharedParam, 0) {}
-AFloat::AFloat(const AttributeParam* _sharedParam, float _value) :
+AFloat::AFloat(const AttributeParam& _sharedParam) :
+    AFloat(_sharedParam, 0)
+{}
+AFloat::AFloat(const AttributeParam& _sharedParam, float _value) :
     Attribute(_sharedParam),
     value(_value)
-{
-    if (_sharedParam == nullptr)
-        qFatal("\n\nNull param given when instancing <FLOAT> Attribute:\n\n\t===== Not allowed =====\n\n");
-}
+{}
 
 
 
 Attribute* AFloat::CreateDuplica() const
 {
-    return new AFloat(sharedParam, value);
+    return new AFloat(mySharedParam, value);
 }
 QString AFloat::GetDisplayedText(bool complete) const
 {
@@ -44,11 +43,11 @@ void AFloat::SetValueFromText(const QString& text)
 
 bool AFloat::FitsMinParam() const
 {
-    return sharedParam->ignoreMin || value < sharedParam->min_f;
+    return mySharedParam.ignoreMin || value < mySharedParam.min_f;
 }
 bool AFloat::FitsMaxParam() const
 {
-    return sharedParam->ignoreMax || value > sharedParam->max_f;
+    return mySharedParam.ignoreMax || value > mySharedParam.max_f;
 }
 float AFloat::GetValue(bool _validated) const
 {
@@ -57,19 +56,19 @@ float AFloat::GetValue(bool _validated) const
 
     float v = value;
     if (!FitsMinParam())
-        v = sharedParam->min_f;
+        v = mySharedParam.min_f;
     else if (!FitsMaxParam())
-        v = sharedParam->max_f;
+        v = mySharedParam.max_f;
     return v;
 }
 
 float AFloat::GetMax(bool& useIt) const
 {
-    useIt = !sharedParam->ignoreMax;
-    return sharedParam->max_f;
+    useIt = !mySharedParam.ignoreMax;
+    return mySharedParam.max_f;
 }
 float AFloat::GetMin(bool& useIt) const
 {
-    useIt = !sharedParam->ignoreMin;
-    return sharedParam->min_f;
+    useIt = !mySharedParam.ignoreMin;
+    return mySharedParam.min_f;
 }

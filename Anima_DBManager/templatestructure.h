@@ -21,6 +21,8 @@ private:
 public:
     TemplateStructure(QString _structName, QColor _structColor);
     TemplateStructure(const TemplateStructure& _other);
+    void operator=(const TemplateStructure& _another);
+    // operator= !!!!!
 
     const QString& GetStructName() const                        { return myStructName; }
     void RenameStructureTemplate(const QString& _newStructName) { myStructName = _newStructName; }

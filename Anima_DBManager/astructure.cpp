@@ -2,12 +2,12 @@
 
 #include<QDebug>
 
-AStructure::AStructure(const TemplateStructure& structureTemplate) :
-    Attribute(nullptr),
+AStructure::AStructure(const AttributeParam& _sharedParam, TemplateStructure& structureTemplate) :
+    Attribute(_sharedParam),
     value(structureTemplate)
 {}
-AStructure::AStructure(const Structure& _value) :
-    Attribute(nullptr),
+AStructure::AStructure(const AttributeParam& _sharedParam, const Structure& _value) :
+    Attribute(_sharedParam),
     value(_value)
 {}
 
@@ -15,7 +15,7 @@ AStructure::AStructure(const Structure& _value) :
 
 Attribute* AStructure::CreateDuplica() const
 {
-    return new AStructure(value);
+    return new AStructure(mySharedParam, value);
 }
 QString AStructure::GetDisplayedText(bool complete) const
 {

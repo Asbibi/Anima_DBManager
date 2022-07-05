@@ -3,31 +3,35 @@
 
 #include "structure.h"
 #include "templatestructure.h"
-#include <vector>
+#include <QList>
 #include <QObject>
 
 class StructureDB : public QObject
 {
 private:
-    const TemplateStructure myTemplate;
-    std::vector<Structure*> myStructures;
+    TemplateStructure myTemplate;
+    QList<Structure*> myStructures;
 
+    void UpdateTemplate();
     bool CheckIndex(int& index) const;
 
 public:
     StructureDB(const TemplateStructure& _structureTemplate);
+    StructureDB(const StructureDB& _another);
+    void operator=(const StructureDB& _another);
     ~StructureDB();
 
     void AddStructureAt(int index);
     void RemoveStructureAt(int index);
     void ClearStructures();
-    const std::vector<Structure*>& GetStructures() const { return myStructures; }
+    const QList<Structure*>& GetStructures() const { return myStructures; }
     // Todo : return count + change vector to QList
 
+    void SetTemplateName(const QString& _name);
+    const QString& GetTemplateName() const;
     const TemplateStructure& GetTemplate() const;
     const Structure* GetStructureAt(int index) const;
     int GetStructureCount() const;
-    const QString& GetTemplateName() const;
     const QString GetStructureRowName(int index) const;
     const QString GetStructureRowName(const Structure* _structure) const;
 

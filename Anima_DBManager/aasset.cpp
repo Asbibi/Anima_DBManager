@@ -3,12 +3,12 @@
 #include "db_manager.h"
 
 
-AAsset::AAsset() :
-    AAsset("")
+AAsset::AAsset(const AttributeParam& _sharedParam) :
+    AAsset(_sharedParam, "")
 {}
 
-AAsset::AAsset(QString _filePath) :
-    Attribute(nullptr),
+AAsset::AAsset(const AttributeParam& _sharedParam, QString _filePath) :
+    Attribute(_sharedParam),
     filePath(_filePath)
 {}
 
