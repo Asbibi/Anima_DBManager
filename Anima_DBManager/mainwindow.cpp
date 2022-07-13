@@ -83,7 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     myEnumWidget = new QPanelEnum();
     myStringWidget = new QPanelString();
-    myStructWidget = new QWidget();
+    myStructWidget = new QPanelStruct();
     myEnumWidget->Init();
     myStringWidget->Init();
     //myStructWidget->Init();
@@ -121,6 +121,7 @@ void MainWindow::Debug_Update()
 {
     myEnumWidget->UpdateItemList();
     myStringWidget->UpdateItemList();
+    myStructWidget->UpdateItemList();
 }
 
 
@@ -149,7 +150,7 @@ void MainWindow::OnStringTableMoved(const int _indexFrom, const int _indexTo)
     for (int i = 0; i < count; i++)
     {
         QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_indexFrom));
-        if (tabToMove)
+        if (tab)
             tab->UpdateIndex(i);
     }
 
@@ -204,7 +205,7 @@ void MainWindow::OnStructTableAdded(const int _index)
 }
 void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
 {
-    /*QStructureTable* tabToMove = dynamic_cast<QStructureTable*>(myTabStruct->widget(_indexFrom));
+    QStructureTable* tabToMove = dynamic_cast<QStructureTable*>(myTabStruct->widget(_indexFrom));
     if (!tabToMove)
         return;
 
@@ -213,16 +214,8 @@ void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
     myTabStruct->removeTab(_indexFrom);
     myTabStruct->insertTab(_indexTo, tabToMove, tabName);
 
-    const int count = myTabStruct->count();
-    for (int i = 0; i < count; i++)
-    {
-        QStructureTable* tab = dynamic_cast<QStructureTable*>(myTabStruct->widget(_indexFrom));
-        if (tabToMove)
-            tab->UpdateIndex(i);
-    }
-
     if(wasCurrent)
-        myTabStruct->setCurrentIndex(_indexTo);*/
+        myTabStruct->setCurrentIndex(_indexTo);
 }
 void MainWindow::OnStructTableRemoved(const int _index)
 {

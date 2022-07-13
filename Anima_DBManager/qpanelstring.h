@@ -11,8 +11,7 @@ private:
     QListWithSearch* mySearchList;
 
 public:
-    explicit QPanelString(QWidget *parent = nullptr);    
-    //virtual void Init() override;
+    explicit QPanelString(QWidget *parent = nullptr);
 
 public slots:
     virtual void UpdateItemList() override;

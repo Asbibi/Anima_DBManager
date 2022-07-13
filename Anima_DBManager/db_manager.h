@@ -26,7 +26,8 @@ private:
     DB_Manager(const DB_Manager&) = delete;
     ~DB_Manager();
 
-    int GetIndexFromStringTableName(const QString& _tableName) const;
+    int GetStringTableIndex(const QString& _tableName) const;
+    int GetStructureTableIndex(const QString& _structName) const;
     void AddStringTablePrivate(const QString& _newTableName, int _index = -1);
 
 

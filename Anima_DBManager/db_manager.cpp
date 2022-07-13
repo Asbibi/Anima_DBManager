@@ -318,6 +318,15 @@ void DB_Manager::UnregisterAttributeParam(AttributeParam* _param)
 
 
 
+int DB_Manager::GetStructureTableIndex(const QString& _structName) const
+{
+    const int count = GetStructuresCount();
+    for (int i = 0; i < count; i++)
+        if (myStructures[i]->GetTemplateName() == _structName)
+            return i;
+
+    return -1;
+}
 int DB_Manager::GetStructuresCount() const
 {
     return (int)(myStructures.size());
@@ -349,7 +358,12 @@ void DB_Manager::AddStructureDB(const TemplateStructure& _structureTemplate, int
     if (_index < 0 || _index > count)
         _index = count;
 
+    QString originalName = _structureTemplate.GetStructName();
+    auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetStructureTableIndex(_identifier) == -1); };
+    const QString identifier = SStringHelper::GetUniqueIdentifier(originalName, validate, true);
+
     myStructures.insert(_index, new StructureDB(_structureTemplate));
+    myStructures[_index]->SetTemplateName(identifier);
     emit StructTableAdded(_index);
 }
 void DB_Manager::DuplicateStructureDB(int _index, int _indexOriginal)
@@ -360,7 +374,13 @@ void DB_Manager::DuplicateStructureDB(int _index, int _indexOriginal)
      if (_index < 0 || _index > count)
          _index = count;
 
-     myStructures.insert(_index, new StructureDB(*myStructures[_indexOriginal]));
+     StructureDB& original = *myStructures[_indexOriginal];
+     QString originalName = original.GetTemplateName();
+     auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetStructureTableIndex(_identifier) == -1); };
+     const QString identifier = SStringHelper::GetUniqueIdentifier(originalName, validate, true);
+
+     myStructures.insert(_index, new StructureDB(original));
+     myStructures[_index]->SetTemplateName(identifier);
      emit StructTableAdded(_index);
 }
 void DB_Manager::MoveStructureDB(int _indexFrom, int _indexTo)
@@ -422,7 +442,7 @@ void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
 
 
 
-int DB_Manager::GetIndexFromStringTableName(const QString& _tableName) const
+int DB_Manager::GetStringTableIndex(const QString& _tableName) const
 {
     const int count = GetStringTableCount();
     for (int i = 0; i < count; i++)
@@ -444,7 +464,7 @@ const SStringTable* DB_Manager::GetStringTable(int _index) const
 }
 const SStringTable* DB_Manager::GetStringTable(const QString& _tableName) const
 {
-    return GetStringTable(GetIndexFromStringTableName(_tableName));
+    return GetStringTable(GetStringTableIndex(_tableName));
 }
 SStringTable* DB_Manager::GetStringTable(int _index)
 {
@@ -455,7 +475,7 @@ SStringTable* DB_Manager::GetStringTable(int _index)
 }
 SStringTable* DB_Manager::GetStringTable(const QString& _tableName)
 {
-    return GetStringTable(GetIndexFromStringTableName(_tableName));
+    return GetStringTable(GetStringTableIndex(_tableName));
 }
 void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int _index)
 {
@@ -464,7 +484,7 @@ void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int _index)
         _index = count;
 
     QString baseIdentifier = _newTableName;
-    auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetIndexFromStringTableName(_identifier) == -1); };
+    auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetStringTableIndex(_identifier) == -1); };
     const QString identifier = SStringHelper::GetUniqueIdentifier(baseIdentifier, validate, true);
 
     myStringTables.insert(_index, SStringTable(identifier));
@@ -518,7 +538,7 @@ void DB_Manager::RemoveStringTable(int _index)
 }
 void DB_Manager::RemoveStringTable(const QString& _tableName)
 {
-    RemoveStringTable(GetIndexFromStringTableName(_tableName));
+    RemoveStringTable(GetStringTableIndex(_tableName));
 }
 void DB_Manager::RenameStringTable(int _index, const QString& _tableName)
 {

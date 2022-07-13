@@ -10,6 +10,7 @@
 #include "db_manager.h"
 #include "qpanelenum.h"
 #include "qpanelstring.h"
+#include "qpanelstruct.h"
 
 
 class MainWindow : public QMainWindow
@@ -25,7 +26,7 @@ private:
 
     QPanelEnum* myEnumWidget;
     QPanelString* myStringWidget;
-    QWidget* myStructWidget;
+    QPanelStruct* myStructWidget;
 
 
 public:
