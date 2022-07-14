@@ -134,6 +134,19 @@ void AArray::SetValueFromText(const QString& text)
     for(int i =0; i < (int)(finalList.size()); i++)
         values[i]->SetValueFromText(finalList[i]);
 }
+void AArray::CopyValueFromOther(const Attribute* _other)
+{
+    const AArray* other_AA = dynamic_cast<const AArray*>(_other);
+    if (!other_AA || mySharedParam.templateAtt != other_AA->mySharedParam.templateAtt)
+        return;
+
+    qDebug("TODO: Rework it to use a QList instead");
+    while (values.size() > 0)
+        RemoveRow(0);
+
+    for (const auto* attr : other_AA->values)
+        values.push_back(attr->CreateDuplica());
+}
 
 std::vector<QString> AArray::GetDisplayedTexts() const
 {
@@ -148,6 +161,7 @@ std::vector<QString> AArray::GetDisplayedTexts() const
 }
 void AArray::AddRow()
 {
+    qDebug("TODO: Rework it to use a QList instead");
     values.push_back(mySharedParam.templateAtt->CreateDuplica());
 }
 void AArray::RemoveRow(int _index)
@@ -155,6 +169,7 @@ void AArray::RemoveRow(int _index)
     if (_index < -1 || _index >= (int)(values.size()))
         return;
 
+    qDebug("TODO: Rework it to use a QList instead");
     Attribute* removed = values[_index];
     values.erase(values.begin() + _index);
     delete(removed);

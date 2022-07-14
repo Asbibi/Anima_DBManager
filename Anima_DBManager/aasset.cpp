@@ -53,6 +53,15 @@ void AAsset::SetValueFromText(const QString& text)
         qFatal("\n\nFile Path given when setting <ASSET> Attribute's value isn't in project folder:\n\n\t===== Abort =====\n\n");
 }
 
+void AAsset::CopyValueFromOther(const Attribute* _other)
+{
+    if (!_other || GetType() != _other->GetType())
+        return;
+
+    const AAsset* other_AA = dynamic_cast<const AAsset*>(_other);
+    filePath = other_AA->filePath;
+}
+
 
 QString AAsset::GetFilePathForDisplay(const QString& _filePath)
 {

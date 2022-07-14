@@ -52,6 +52,15 @@ void ATableString::SetValueFromText(const QString& text)
        myStringIdentifier = oldStringId;
    }
 }
+void ATableString::CopyValueFromOther(const Attribute* _other)
+{
+    const ATableString* other_ATS = dynamic_cast<const ATableString*>(_other);
+    if (!other_ATS)
+        return;
+
+    myTableName = other_ATS->myTableName;
+    myStringIdentifier = other_ATS->myStringIdentifier;
+}
 
 bool ATableString::HasValidValues() const
 {

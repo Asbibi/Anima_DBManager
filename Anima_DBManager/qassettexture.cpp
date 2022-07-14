@@ -3,6 +3,8 @@
 #include <QHBoxLayout>
 #include <QPixmap>
 
+#define PREVIEW_SIZE 22
+
 QAssetTexture::QAssetTexture(QWidget *parent) :
     QWidget(parent)
 {
@@ -12,8 +14,8 @@ QAssetTexture::QAssetTexture(QWidget *parent) :
     setLayout(myLayout);
 
     myTexturePreview = new QLabel();
-    myTexturePreview->setMaximumSize(32,32);
-    myTexturePreview->setMinimumSize(32,32);
+    myTexturePreview->setMaximumSize(PREVIEW_SIZE, PREVIEW_SIZE);
+    myTexturePreview->setMinimumSize(PREVIEW_SIZE, PREVIEW_SIZE);
 
     myAssetLabel = new QAssetLabel(Attribute::Type::Texture, "Texture", "Images (*.png)", this);
     QObject::connect(myAssetLabel, &QAssetLabel::OnValueEdited, this, &QAssetTexture::RelayAssetLabelSignal);
@@ -55,3 +57,5 @@ void QAssetTexture::RelayAssetLabelSignal()
     SetValue(myAssetLabel->GetValue());
     emit OnValueEdited();
 }
+
+#undef PREVIEW_SIZE

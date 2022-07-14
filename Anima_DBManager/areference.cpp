@@ -63,7 +63,14 @@ void AReference::SetValueFromText(const QString& text)
     if (structIndex > -1)
         SetReference(GetStructureDB()->GetStructureAt(structIndex));
 }
+void AReference::CopyValueFromOther(const Attribute* _other)
+{
+    const AReference* other_AR = dynamic_cast<const AReference*>(_other);
+    if (!other_AR || mySharedParam.structTable != other_AR->mySharedParam.structTable)
+        return;
 
+    myStructureRef = other_AR->myStructureRef;
+}
 
 
 

@@ -51,10 +51,10 @@ TemplateAttribute::TemplateAttribute(const QString& _name, const Attribute::Type
         CASE_INIT_TEMPLATE(Reference);
         CASE_INIT_TEMPLATE(TableString);
         CASE_INIT_TEMPLATE_WITH_CLASS(AnimInstance, AAAnimInstance);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Mesh, AAAnimInstance);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Niagara, AAAnimInstance);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Sound, AAAnimInstance);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Texture, AAAnimInstance);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Mesh, AAMesh);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Niagara, AANiagara);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Sound, AASound);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Texture, AATexture);
     }
 
 #undef CASE_INIT_TEMPLATE

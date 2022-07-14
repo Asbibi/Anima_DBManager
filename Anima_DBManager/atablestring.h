@@ -18,6 +18,7 @@ public:
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;
     virtual void SetValueFromText(const QString& text)                override;
+    virtual void CopyValueFromOther(const Attribute* _other)          override;
 
     bool HasValidValues() const;
     const QString& GetTableName() const;

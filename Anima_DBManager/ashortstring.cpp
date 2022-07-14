@@ -37,6 +37,14 @@ void AShortString::SetValueFromText(const QString& text)
         EmitValueChanged();
     }
 }
+void AShortString::CopyValueFromOther(const Attribute* _other)
+{
+    const AShortString* other_ASS = dynamic_cast<const AShortString*>(_other);
+    if (!other_ASS)
+        return;
+
+    value = other_ASS->value;
+}
 
 
 bool AShortString::HasValidSize() const

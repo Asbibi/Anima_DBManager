@@ -32,6 +32,15 @@ void ABool::SetValueFromText(const QString& text)
 {
     SetValue(QString::compare(text, "true", Qt::CaseInsensitive) == 0);
 }
+void ABool::CopyValueFromOther(const Attribute* _other)
+{
+    const ABool* other_AB = dynamic_cast<const ABool*>(_other);
+    if (!other_AB)
+        return;
+
+    value = other_AB->value;
+}
+
 
 void ABool::SetValue(bool _value)
 {

@@ -1,4 +1,5 @@
 #include "afloat.h"
+#include "aint.h"
 
 AFloat::AFloat(const AttributeParam& _sharedParam) :
     AFloat(_sharedParam, 0)
@@ -39,6 +40,30 @@ void AFloat::SetValueFromText(const QString& text)
         EmitValueChanged();
     }
 }
+void AFloat::CopyValueFromOther(const Attribute* _other)
+{
+    const AFloat* other_AF = dynamic_cast<const AFloat*>(_other);
+    float otherValue = 0;
+    if (other_AF)
+    {
+        otherValue = other_AF->GetValue();
+    }
+    else
+    {
+        const AInt* other_AI = dynamic_cast<const AInt*>(_other);
+        if (!other_AI)
+            return;
+
+        otherValue = other_AI->GetValue();
+    }
+
+    value = otherValue;
+    if (!FitsMinParam())
+        value = mySharedParam.min_f;
+    else if (!FitsMaxParam())
+            value = mySharedParam.max_f;
+}
+
 
 
 bool AFloat::FitsMinParam() const

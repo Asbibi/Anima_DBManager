@@ -71,6 +71,7 @@ void DB_Manager::Init()
     // Setup template
     TemplateStructure templ1 = TemplateStructure("Struct Test", QColorConstants::Red);
     templ1.AddAttributeTemplate(Attribute::Type::Texture, "Texture", AttributeParam());
+    templ1.AddAttributeTemplate(Attribute::Type::Sound, "Sound", AttributeParam());
     templ1.AddAttributeTemplate(Attribute::Type::Bool, "Bool", AttributeParam());
     AttributeParam tempEnumParam = AttributeParam();
     tempEnumParam.enumeratorIndex = 0;

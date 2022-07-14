@@ -40,6 +40,15 @@ void AEnumerator::SetValueFromText(const QString& text)
         indexValue = 0;
     SetEnumValue(indexValue);
 }
+void AEnumerator::CopyValueFromOther(const Attribute* _other)
+{
+    const AEnumerator* other_AE = dynamic_cast<const AEnumerator*>(_other);
+    if (!other_AE || mySharedParam.enumeratorIndex != other_AE->mySharedParam.enumeratorIndex)
+        return;
+
+    value_index = other_AE->value_index;
+}
+
 
 void AEnumerator::SetEnumValue(int _valueIndex)
 {

@@ -105,6 +105,14 @@ void AStructure::SetValueFromText(const QString& text)
     for(int i =0; i < (int)finalList.size(); i++)
         value.SetAttributeValueFromText(i, finalList[i]);
 }
+void AStructure::CopyValueFromOther(const Attribute* _other)
+{
+    const AStructure* other_AS = dynamic_cast<const AStructure*>(_other);
+    if (!other_AS)
+        return;
+
+    value = other_AS->value;
+}
 
 
 std::vector<QString> AStructure::GetDisplayedTexts() const
