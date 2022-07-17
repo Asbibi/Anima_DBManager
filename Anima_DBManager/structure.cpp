@@ -79,6 +79,15 @@ void Structure::ChangeAttribute(int _attIndex, Attribute* _newAttribute)
 {
     // ... todo depending on what i give : a New Attribute(), a Attribute(), do I copy or replace ? ....
 }
+void Structure::MoveAttribute(int _indexFrom, int _indexTo)
+{
+    auto* attr = myAttributes.takeAt(_indexFrom);
+    myAttributes.insert(_indexTo, attr);
+}
+void Structure::ResetAttributeToDefault(int _index)
+{
+    myAttributes[_index]->CopyValueFromOther(myTemplate.GetAttributeTemplate(_index)->GetDefaultAttr());
+}
 
 
 

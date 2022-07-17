@@ -6,9 +6,13 @@
 #include <QList>
 #include <QObject>
 
+class QTemplateStructure;
+
 class StructureDB : public QObject
 {
 private:
+    friend QTemplateStructure;
+
     TemplateStructure myTemplate;
     QList<Structure*> myStructures;
 
@@ -21,15 +25,21 @@ public:
     void operator=(const StructureDB& _another);
     ~StructureDB();
 
+    void SetTemplateName(const QString& _name);
+    void SetTemplateAttributeName(int _index, const QString& _name);
     void AddStructureAt(int index);
     void RemoveStructureAt(int index);
     void ClearStructures();
-    const QList<Structure*>& GetStructures() const { return myStructures; }
-    // Todo : return count + change vector to QList
+    void MoveAttribute(int _indexFrom, int _indexTo);
+    void ResetAttributeToDefault(int _attrIndex);
+    void ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param);
 
-    void SetTemplateName(const QString& _name);
+
     const QString& GetTemplateName() const;
+    QString GetTemplateColorString() const;
     const TemplateStructure& GetTemplate() const;
+
+    const QList<Structure*>& GetStructures() const { return myStructures; }
     const Structure* GetStructureAt(int index) const;
     int GetStructureCount() const;
     const QString GetStructureRowName(int index) const;

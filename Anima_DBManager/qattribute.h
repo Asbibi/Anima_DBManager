@@ -3,10 +3,11 @@
 
 #include <QWidget>
 
+#include "attributetype.h"
+#include "attributeparam.h"
 #include "attribute.h"
 
 #include <QPushButton>
-
 
 
 class QAttribute : public QWidget
@@ -14,7 +15,7 @@ class QAttribute : public QWidget
     Q_OBJECT
 
 private:
-    Attribute::Type myType = Attribute::Type::Invalid;
+    AttributeTypeHelper::Type myType = AttributeTypeHelper::Type::Invalid;
     const void* myAttributePtr = nullptr;   // Only use adress
 
     QWidget* myContent = nullptr;
@@ -23,7 +24,7 @@ private:
     void LogErrorCast() const;
     void DeleteContent();
     void RebuildAttributeWidget(const Attribute* _attribute);
-    void RebuildWidgetFromType(const Attribute::Type _type);
+    void RebuildWidgetFromType(const AttributeTypeHelper::Type _type);
     void BuildMoreButton();
 
 public:

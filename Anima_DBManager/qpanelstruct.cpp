@@ -20,6 +20,8 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     editGroupBox->setLayout(editLayout);
     myLayout->addWidget(editGroupBox);
 
+    myTemplateEditor = new QTemplateStructure();
+    editLayout->addRow("Attributes:", myTemplateEditor);
 
     QGridLayout* clearLayout = new QGridLayout();
     clearLayout->addWidget(new QLineEdit(), 0,0);
@@ -32,6 +34,17 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     myPushBtn->setMaximumWidth(90);
     numLayout->addWidget(myPushBtn);
     editLayout->addRow("Count:", numLayout);
+
+
+    QPushButton* addBtn = new QPushButton("Add Test");
+    editLayout->addRow("Debug:", addBtn);
+    addBtn->connect(addBtn, &QPushButton::clicked, [this](){
+        int cur = myItemList->GetCurrent();
+        auto& db = DB_Manager::GetDB_Manager();
+        StructureDB* sdb = db.GetStructureTable(cur);
+        sdb->AddStructureAt(0);
+        emit db.StructItemChanged(cur);
+    });
 }
 
 
@@ -49,31 +62,31 @@ void QPanelStruct::UpdateItemList()
 
 void QPanelStruct::OnItemSelected(const int _index)
 {
-    // Reset sub area
-
-    /*StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(_index);
-    if (!currentStructDB)
-        return;
-    */
-
+    StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(_index);
+    myTemplateEditor->SetStructureDB(currentStructDB);
 }
 void QPanelStruct::OnItemEdited(const int _index, const QString& _value)
 {
     DB_Manager::GetDB_Manager().RenameStructureDB(_index, _value);
+    OnItemSelected(_index);
 }
 void QPanelStruct::OnItemAdded(const int _index, const QString& _value)
 {
     DB_Manager::GetDB_Manager().AddStructureDB({_value, QColorConstants::LightGray}, _index);
+    OnItemSelected(_index);
 }
 void QPanelStruct::OnItemDuplicated(const int _index, const int _originalIndex)
 {
     DB_Manager::GetDB_Manager().DuplicateStructureDB(_index, _originalIndex);
+    OnItemSelected(_index);
 }
 void QPanelStruct::OnItemMoved(const int _indexFrom, const int _indexTo)
 {
     DB_Manager::GetDB_Manager().MoveStructureDB(_indexFrom, _indexTo);
+    OnItemSelected(_indexTo);
 }
 void QPanelStruct::OnItemRemoved(const int _index)
 {
     DB_Manager::GetDB_Manager().RemoveStructureDB(_index);
+    OnItemSelected(_index);
 }

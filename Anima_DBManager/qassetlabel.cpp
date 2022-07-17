@@ -6,7 +6,7 @@
 #include "qassetpreviewdialog.h"
 #include <QFileDialog>
 
-QAssetLabel::QAssetLabel(const Attribute::Type assetType, const QString& dialogTitle, const QString& dialogExtensions, QWidget* parent) :
+QAssetLabel::QAssetLabel(const AttributeTypeHelper::Type assetType, const QString& dialogTitle, const QString& dialogExtensions, QWidget* parent) :
     QLabel(parent),
     myAssetType(assetType),
     myDialogTitle("Select a " + dialogTitle + " asset"),
@@ -32,7 +32,7 @@ void QAssetLabel::OpenFileDialog()
 {
     QString fileName = myFilePath;
 
-    if (myAssetType == Attribute::Type::Niagara || myAssetType == Attribute::Type::AnimInstance || myFilePath.isEmpty())
+    if (myAssetType == AttributeTypeHelper::Type::Niagara || myAssetType == AttributeTypeHelper::Type::AnimInstance || myFilePath.isEmpty())
     {
         fileName = QFileDialog::getOpenFileName(this, myDialogTitle, myFilePath.isEmpty() ? DB_Manager::GetDB_Manager().GetProjectContentFolderPath() : myFilePath, myDialogExtensions);
     }

@@ -67,7 +67,7 @@ void QAttribute::RebuildAttributeWidget(const Attribute* _attribute)
     QObject::connect(_attribute, &Attribute::OnValueChanged, this, &QAttribute::UpdateAttribute);
     QObject::connect(this, &QAttribute::OnWidgetValueChanged, _attribute, &Attribute::SetValueFromText);
 
-    const Attribute::Type _newType = _attribute ? _attribute->GetType() : Attribute::Type::Invalid;
+    const AttributeTypeHelper::Type _newType = _attribute ? _attribute->GetType() : AttributeTypeHelper::Type::Invalid;
     if (_newType != myType)
     {
         RebuildWidgetFromType(_newType);
@@ -77,19 +77,19 @@ void QAttribute::RebuildAttributeWidget(const Attribute* _attribute)
     myType = _newType;
 }
 
-void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
+void QAttribute::RebuildWidgetFromType(const AttributeTypeHelper::Type _type)
 {
     DeleteContent();
 
     switch(_type)
     {
-        case Attribute::Type::Array :
+        case AttributeTypeHelper::Type::Array :
         {
             QLabel* content = new QLabel(this);
             myContent = content;
             break;
         }
-        case Attribute::Type::Bool :
+        case AttributeTypeHelper::Type::Bool :
         {
             QCheckBox* content = new QCheckBox(this);
             QObject::connect(content, &QCheckBox::clicked,
@@ -98,14 +98,14 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
             layout()->addWidget(myContent);
             break;
         }
-        case Attribute::Type::Enum :
+        case AttributeTypeHelper::Type::Enum :
         {
             QComboBox* content = new QComboBox(this);
             // Connection Handled in Update since it needs to be temporary disabled
             myContent = content;
             break;
         }
-        case Attribute::Type::Float :
+        case AttributeTypeHelper::Type::Float :
         {
             QDoubleSpinBox* content = new QDoubleSpinBox(this);
             QObject::connect(content, &QDoubleSpinBox::editingFinished,
@@ -113,7 +113,7 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
             myContent = content;
             break;
         }
-        case Attribute::Type::Int :
+        case AttributeTypeHelper::Type::Int :
         {
             QSpinBox* content = new QSpinBox(this);
             QObject::connect(content, &QSpinBox::editingFinished,
@@ -121,7 +121,7 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
             myContent = content;
             break;
         }
-        case Attribute::Type::ShortString :
+        case AttributeTypeHelper::Type::ShortString :
         {
             QLineEdit* content = new QLineEdit(this);
             QObject::connect(content, &QLineEdit::editingFinished,
@@ -129,7 +129,7 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
             myContent = content;
             break;
         }
-        case Attribute::Type::TableString :
+        case AttributeTypeHelper::Type::TableString :
         {
             QSString* content = new QSString(this);
             QObject::connect(content, &QSString::OnValueEdited,
@@ -141,13 +141,13 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
                                  content, &QSString::EditValue);
             break;
         }
-        case Attribute::Type::Structure :
+        case AttributeTypeHelper::Type::Structure :
         {
             QLabel* content = new QLabel(this);
             myContent = content;
             break;
         }
-        case Attribute::Type::Texture :
+        case AttributeTypeHelper::Type::Texture :
         {
             QAssetTexture* content = new QAssetTexture(this);
             QObject::connect(content, &QAssetTexture::OnValueEdited,
@@ -160,9 +160,9 @@ void QAttribute::RebuildWidgetFromType(const Attribute::Type _type)
             break;
         }
 #define CASE_ATTRIBUTE(type, typeStr, typeExt) \
-case Attribute::Type::type : \
+case AttributeTypeHelper::Type::type : \
 { \
-    QAssetLabel* content = new QAssetLabel(Attribute::Type::type, typeStr, typeExt, this); \
+    QAssetLabel* content = new QAssetLabel(AttributeTypeHelper::Type::type, typeStr, typeExt, this); \
     QObject::connect(content, &QAssetLabel::OnValueEdited, \
                          this, &QAttribute::ContentStateChanged); \
     myContent = content;    \
@@ -178,7 +178,7 @@ case Attribute::Type::type : \
         CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems (P_*.uasset)")
         CASE_ATTRIBUTE(Sound, "Sound", "Sounds (*.ogg, *.wav, *.mp3)")
 #undef CASE_ATTRIBUTE
-        case Attribute::Type::Reference :
+        case AttributeTypeHelper::Type::Reference :
         {
             QRefLabel* content = new QRefLabel(this);
             QObject::connect(content, &QRefLabel::OnValueEdited,
@@ -218,8 +218,8 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
 
     switch(myType)
     {
-        case Attribute::Type::Array :
-        case Attribute::Type::Structure :
+        case AttributeTypeHelper::Type::Array :
+        case AttributeTypeHelper::Type::Structure :
         {
             auto* label = dynamic_cast<QLabel*>(myContent);
             if(!label)
@@ -231,7 +231,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             label->setText(_attribute->GetDisplayedText());
             break;
         }
-        case Attribute::Type::Bool :
+        case AttributeTypeHelper::Type::Bool :
         {
             auto* checkBox = dynamic_cast<QCheckBox*>(myContent);
             const ABool* boolAttribute = dynamic_cast<const ABool*>(_attribute);
@@ -244,7 +244,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             checkBox->setChecked(boolAttribute->GetValue());
             break;
         }
-        case Attribute::Type::Enum :
+        case AttributeTypeHelper::Type::Enum :
         {
             auto* comboBox = dynamic_cast<QComboBox*>(myContent);
             const AEnumerator* enumeratorAttribute = dynamic_cast<const AEnumerator*>(_attribute);
@@ -263,18 +263,20 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             if (!attrEnum)
                 break;
             const int valueCount = attrEnum->GetValueCount();
-            const int currIndex = enumeratorAttribute->GetEnumValue();
+            int currIndex = enumeratorAttribute->GetEnumValue();
             for (int i = 0; i < valueCount; i++)
             {
                 comboBox->addItem(attrEnum->GetValue(i));
             }
+            if (currIndex >= valueCount)
+                currIndex = 0;
             comboBox->setCurrentIndex(currIndex);
             attrEnum->SetColorToWidget(currIndex, comboBox);
             QObject::connect(comboBox, &QComboBox::currentIndexChanged,
                                  this, &QAttribute::ContentStateChanged);
             break;
         }
-        case Attribute::Type::Float :
+        case AttributeTypeHelper::Type::Float :
         {
             auto* doubleSpinBox = dynamic_cast<QDoubleSpinBox*>(myContent);
             const AFloat* floatAttribute = dynamic_cast<const AFloat*>(_attribute);
@@ -292,7 +294,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             doubleSpinBox->setValue(floatAttribute->GetValue(false));
             break;
         }
-        case Attribute::Type::Int :
+        case AttributeTypeHelper::Type::Int :
         {
             auto* spinBox = dynamic_cast<QSpinBox*>(myContent);
             const AInt* intAttribute = dynamic_cast<const AInt*>(_attribute);
@@ -310,7 +312,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             spinBox->setValue(intAttribute->GetValue(false));
             break;
         }
-        case Attribute::Type::ShortString :
+        case AttributeTypeHelper::Type::ShortString :
         {
             auto* lineEdit = dynamic_cast<QLineEdit*>(myContent);
             if(!lineEdit)
@@ -322,7 +324,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             lineEdit->setText(_attribute->GetDisplayedText());
             break;
         }
-        case Attribute::Type::TableString :
+        case AttributeTypeHelper::Type::TableString :
         {
             auto* qsstring = dynamic_cast<QSString*>(myContent);
             const ATableString* stringAttribute = dynamic_cast<const ATableString*>(_attribute);
@@ -335,7 +337,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             qsstring->SetValue(stringAttribute->GetTableName(), stringAttribute->GetStringIdentifier());
             break;
         }
-        case Attribute::Type::Texture :
+        case AttributeTypeHelper::Type::Texture :
         {
             auto* qassetTexture = dynamic_cast<QAssetTexture*>(myContent);
             if(!qassetTexture)
@@ -347,10 +349,10 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             qassetTexture->SetValue(_attribute->GetDisplayedText(true));
             break;
         }
-        case Attribute::Type::Mesh :
-        case Attribute::Type::AnimInstance :
-        case Attribute::Type::Niagara :
-        case Attribute::Type::Sound :
+        case AttributeTypeHelper::Type::Mesh :
+        case AttributeTypeHelper::Type::AnimInstance :
+        case AttributeTypeHelper::Type::Niagara :
+        case AttributeTypeHelper::Type::Sound :
         {
             auto* qasset = dynamic_cast<QAssetLabel*>(myContent);
             if(!qasset)
@@ -362,7 +364,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             qasset->SetValue(_attribute->GetDisplayedText(true));
             break;
         }
-        case Attribute::Type::Reference :
+        case AttributeTypeHelper::Type::Reference :
         {
             QRefLabel* refLabel = dynamic_cast<QRefLabel*>(myContent);
             const AReference* refAttribute = dynamic_cast<const AReference*>(_attribute);
@@ -388,12 +390,12 @@ void QAttribute::ContentStateChanged()
     QString valueString;
     switch(myType)
     {
-        case Attribute::Type::Array :
-        case Attribute::Type::Structure :
+        case AttributeTypeHelper::Type::Array :
+        case AttributeTypeHelper::Type::Structure :
         {
             break;
         }
-        case Attribute::Type::Bool :
+        case AttributeTypeHelper::Type::Bool :
         {
             auto* checkBox = dynamic_cast<QCheckBox*>(myContent);
             if(!checkBox)
@@ -405,7 +407,7 @@ void QAttribute::ContentStateChanged()
             valueString = checkBox->isChecked() ? "true" : "false";
             break;
         }
-        case Attribute::Type::Enum :
+        case AttributeTypeHelper::Type::Enum :
         {
             auto* comboBox = dynamic_cast<QComboBox*>(myContent);
             if(!comboBox)
@@ -416,8 +418,8 @@ void QAttribute::ContentStateChanged()
             valueString = comboBox->currentText();
             break;
         }
-        case Attribute::Type::Float :
-        case Attribute::Type::Int :
+        case AttributeTypeHelper::Type::Float :
+        case AttributeTypeHelper::Type::Int :
         {
             auto* spinBoxAbstr = dynamic_cast<QAbstractSpinBox*>(myContent);
             if(!spinBoxAbstr)
@@ -429,7 +431,7 @@ void QAttribute::ContentStateChanged()
             valueString.replace(',', '.');
             break;
         }
-        case Attribute::Type::ShortString :
+        case AttributeTypeHelper::Type::ShortString :
         {
             auto* lineEdit = dynamic_cast<QLineEdit*>(myContent);
             if(!lineEdit)
@@ -440,7 +442,7 @@ void QAttribute::ContentStateChanged()
             valueString = lineEdit->text();
             break;
         }
-        case Attribute::Type::TableString :
+        case AttributeTypeHelper::Type::TableString :
         {
             auto* qsstring = dynamic_cast<QSString*>(myContent);
             if(!qsstring)
@@ -451,7 +453,7 @@ void QAttribute::ContentStateChanged()
             valueString = qsstring->GetFormattedValue();
             break;
         }
-        case Attribute::Type::Texture :
+        case AttributeTypeHelper::Type::Texture :
         {
             auto* qassetTexture = dynamic_cast<QAssetTexture*>(myContent);
             if(!qassetTexture)
@@ -462,10 +464,10 @@ void QAttribute::ContentStateChanged()
             valueString = qassetTexture->GetValue();
             break;
         }
-        case Attribute::Type::Mesh :
-        case Attribute::Type::AnimInstance :
-        case Attribute::Type::Niagara :
-        case Attribute::Type::Sound :
+        case AttributeTypeHelper::Type::Mesh :
+        case AttributeTypeHelper::Type::AnimInstance :
+        case AttributeTypeHelper::Type::Niagara :
+        case AttributeTypeHelper::Type::Sound :
         {
             auto* qasset = dynamic_cast<QAssetLabel*>(myContent);
             if(!qasset)
@@ -476,7 +478,7 @@ void QAttribute::ContentStateChanged()
             valueString = qasset->GetValue();
             break;
         }
-        case Attribute::Type::Reference :
+        case AttributeTypeHelper::Type::Reference :
         {
             QRefLabel* refLabel = dynamic_cast<QRefLabel*>(myContent);
             if(!refLabel)

@@ -28,6 +28,24 @@ AttributeParam::~AttributeParam()
 
     DB_Manager::GetDB_Manager().UnregisterAttributeParam(this);
 }
+void AttributeParam::operator=(const AttributeParam& _another)
+{
+    ignoreMin = _another.ignoreMin;
+    ignoreMax = _another.ignoreMax;
+    min_i = _another.min_i;
+    max_i = _another.max_i;
+    min_f = _another.min_f;
+    max_f = _another.max_f;
+    structTable = _another.structTable;
+    enumeratorIndex = _another.enumeratorIndex;
+
+    if (templateAtt != nullptr)
+        delete(templateAtt);
+    if (_another.templateAtt)
+        templateAtt = _another.templateAtt->CreateDuplica();
+    else
+        templateAtt = nullptr;
+}
 
 
 const Enumerator* AttributeParam::GetEnum() const

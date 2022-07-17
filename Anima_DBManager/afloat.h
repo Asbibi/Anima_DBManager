@@ -12,7 +12,7 @@ public:
     AFloat(const AttributeParam& _sharedParam);
     AFloat(const AttributeParam& _sharedParam, float _value);
 
-    virtual Type GetType() const override { return Type::Float; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Float; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

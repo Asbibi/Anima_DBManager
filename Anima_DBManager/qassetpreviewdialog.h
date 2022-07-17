@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-#include "attribute.h"
+#include "attributetype.h"
 #include "qaptexture.h"
 #include "qapsound.h"
 #include "qapmesh.h"
@@ -16,7 +16,6 @@ class QAssetPreviewDialog : public QDialog
     Q_OBJECT
 
 private:
-    //const Attribute::Type myType;
     QString& myFilePath;
     QPushButton* myOpenFileButton;
 
@@ -28,7 +27,7 @@ private:
     const QString& myDialogExtensions;
 
 public:
-    explicit QAssetPreviewDialog(const Attribute::Type& assetType,
+    explicit QAssetPreviewDialog(const AttributeTypeHelper::Type& assetType,
                                 const QString& dialogTitle,
                                 const QString& dialogExtensions,
                                 QString& filePath,

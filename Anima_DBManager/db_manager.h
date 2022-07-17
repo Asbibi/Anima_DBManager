@@ -52,12 +52,22 @@ public:
     int GetStructuresCount() const;
     const StructureDB* GetStructureTable(int index) const;
     StructureDB* GetStructureTable(int index);
+    const StructureDB* GetStructureTable(const QString& _SDBName) const;
+    StructureDB* GetStructureTable(const QString& _SDBName);
     void AddStructureDB(const TemplateStructure& _structureTemplate, int _index = -1);
     void DuplicateStructureDB(int _index, int _indexOriginal);
     void MoveStructureDB(int _indexFrom, int _indexTo);
     void RemoveStructureDB(int _index, bool forDelete = false);
     void RemoveStructureDB(const QString& _tableName, bool forDelete = false);
     void RenameStructureDB(int _index, const QString& _tableName);
+    void MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo);
+    void MoveStructureAttribute(const QString& _tableName, int _indexFrom, int _indexTo);
+    void RenameStructureAttribute(int _tableIndex, int _attributeIndex, const QString& _attributeName);
+    void RenameStructureAttribute(const QString& _tableName, int _attributeIndex, const QString& _attributeName);
+    void ResetAttributesToDefaultValue(int _tableIndex, int _attributeIndex);
+    void ResetAttributesToDefaultValue(const QString& _tableName, int _attributeIndex);
+    void ChangeAttributeTemplate(int _tableIndex, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
+    void ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
 
     int GetStringTableCount() const;
     const SStringTable* GetStringTable(int _index) const;
@@ -93,6 +103,7 @@ signals:
     void StructTableChanged(const int _tableIndex);     // For edits done in table widget
     void StructItemFocus(const int _tableIndex, const int _index);
     void StructItemChanged(const int _tableIndex);      // For edits done in panel widget
+    void StructAttributeNameChanged(const int _tableIndex);
 };
 
 #endif // DB_MANAGER_H

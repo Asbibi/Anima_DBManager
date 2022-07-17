@@ -12,6 +12,7 @@ struct AttributeParam
     AttributeParam();
     AttributeParam(const AttributeParam& _another);
     ~AttributeParam();
+    void operator=(const AttributeParam& _another);
 
     bool ignoreMin = true;
     bool ignoreMax = true;
@@ -25,7 +26,7 @@ struct AttributeParam
     StructureDB* structTable = nullptr;             // Used for AReference only;         //QPointer<>
 
     // Only for Enum Attributes
-    int enumeratorIndex = -1;      // Used for AEnumerator only;
+    int enumeratorIndex = -1;      // Used for AEnumerator only;    When changed, need to update all enum attribute, template attribute & qtemplateattribute
     const Enumerator* GetEnum() const;
 };
 

@@ -31,6 +31,8 @@ public:
     void SetAttributeValueFromText(int _attIndex, QString _valueText);
     void SetAttributeValueFromText(const QString& _attName, QString _valueText);
     void ChangeAttribute(int _attIndex, Attribute* _newAttribute);
+    void MoveAttribute(int _indexFrom, int _indexTo);
+    void ResetAttributeToDefault(int _index);
 
     void GetAttributesDisplayedText(QString& _text) const;
     void WriteValue_CSV(std::ofstream& file) const;         // Used for structure as attribute of other structures

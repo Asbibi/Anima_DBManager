@@ -68,5 +68,5 @@ void QStructureTable::UpdateTable()
         }
     }
     resizeRowsToContents();
-    resizeColumnsToContents();
+    //resizeColumnsToContents();
 }

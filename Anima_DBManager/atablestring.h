@@ -13,7 +13,7 @@ public:
     ATableString(const AttributeParam& _sharedParam);
     ATableString(const AttributeParam& _sharedParam, const QString& _tableName, const QString& _stringIdentifier);
 
-    virtual Type GetType() const override { return Type::TableString; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::TableString; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

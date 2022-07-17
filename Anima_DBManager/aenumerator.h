@@ -13,7 +13,7 @@ private:
 public:
     AEnumerator(const AttributeParam& _sharedParam, int _valueIndex = 0);
 
-    virtual Type GetType() const override { return Type::Enum; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Enum; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

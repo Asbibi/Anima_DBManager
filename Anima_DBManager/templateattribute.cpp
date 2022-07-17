@@ -23,19 +23,33 @@ TemplateAttribute::TemplateAttribute(const AttributeParam& _sharedParamToCopy) :
     mySharedParam(*(new AttributeParam(_sharedParamToCopy))),
     myTemplateAttribute(nullptr)
 {}
-TemplateAttribute::TemplateAttribute(const QString& _name, const Attribute::Type _type, const AttributeParam& _sharedParamToCopy) :
+TemplateAttribute::TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy) :
     myAttrName(_name),
     mySharedParam(*(new AttributeParam(_sharedParamToCopy)))
 {
+    InitDefaultAttribute(_type);
+}
+TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
+    TemplateAttribute(_another.myAttrName, _another.GetType(), _another.mySharedParam)
+{
+    Q_ASSERT(myTemplateAttribute && _another.myTemplateAttribute);
+    myTemplateAttribute->CopyValueFromOther(_another.myTemplateAttribute);
+}
+void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
+{
+    if (myTemplateAttribute != nullptr)
+    {
+        delete myTemplateAttribute;
+        myTemplateAttribute = nullptr;
+    }
 
-//#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case Attribute::Type::TYPE: { myTemplateAttribute = QSharedPointer<Attribute>(new CLASS(*mySharedParam)); return; }
-#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case Attribute::Type::TYPE: { myTemplateAttribute = new CLASS(mySharedParam); return; }
+#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case AttributeTypeHelper::Type::TYPE: { myTemplateAttribute = new CLASS(mySharedParam); return; }
 #define CASE_INIT_TEMPLATE(TYPE) CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, A##TYPE)
 
     switch (_type)
     {
         default:
-        case Attribute::Type::Invalid:
+        case AttributeTypeHelper::Type::Invalid:
         {
             qFatal("Initialized a Template Attribute with INVALID type !");
             return;
@@ -60,12 +74,6 @@ TemplateAttribute::TemplateAttribute(const QString& _name, const Attribute::Type
 #undef CASE_INIT_TEMPLATE
 #undef CASE_INIT_TEMPLATE_WITH_CLASS
 }
-TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
-    TemplateAttribute(_another.myAttrName, _another.GetType(), _another.mySharedParam)
-{
-    Q_ASSERT(myTemplateAttribute && _another.myTemplateAttribute);
-    myTemplateAttribute->CopyValueFromOther(_another.myTemplateAttribute);
-}
 void TemplateAttribute::DeleteData()
 {
     delete &mySharedParam;
@@ -85,12 +93,26 @@ TemplateAttribute::~TemplateAttribute()
 
 
 
+void TemplateAttribute::SetNewValues(AttributeTypeHelper::Type _type, const AttributeParam& _param)
+{
+    mySharedParam = _param;
+    if (GetType() == _type)
+        return;
+
+    InitDefaultAttribute(_type);
+}
 void TemplateAttribute::SetDefaultValue(const QString& _valueAsText)
 {
     myTemplateAttribute->SetValueFromText(_valueAsText);
 }
 
-AttributeParam& TemplateAttribute::GetSharedParamW()
+
+
+const AttributeParam& TemplateAttribute::GetSharedParam() const
+{
+    return mySharedParam;
+}
+AttributeParam& TemplateAttribute::GetSharedParam()
 {
     return mySharedParam;
 }
@@ -98,6 +120,13 @@ Attribute* TemplateAttribute::GetTemplateAttributeW()
 {
     return myTemplateAttribute;
 }
+
+
+bool TemplateAttribute::HasValidSharedParam() const
+{
+    return AttributeTypeHelper::AreParamValid(GetType(), mySharedParam);
+}
+
 
 Attribute* TemplateAttribute::GenerateAttribute() const
 {

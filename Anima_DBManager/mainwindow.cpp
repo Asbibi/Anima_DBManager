@@ -109,6 +109,7 @@ MainWindow::MainWindow(QWidget *parent) :
     CONNECT_DB(StructTableChanged);
     CONNECT_DB(StructItemFocus);
     CONNECT_DB(StructItemChanged);
+    CONNECT_DB(StructAttributeNameChanged);
 
 #undef CONNECT_DB
 }
@@ -202,6 +203,29 @@ void MainWindow::OnStructTableAdded(const int _index)
     QStructureTable* stuctureTable = new QStructureTable(*stcTable);
     myTabStruct->insertTab(_index, stuctureTable, stcTable->GetTemplateName());
     myTabStruct->setCurrentIndex(_index);
+
+    /*
+    //QString style = QString("QTabBar::tab::selected {  color: %1 }").arg(stcTable->GetTemplateColorString());
+    //QString style = QString("color: %1;").arg(stcTable->GetTemplateColorString());
+    //myTabStruct->setTabsClosable(true);
+    auto* tabBar = myTabStruct->tabBar();
+    tabBar->setStyleSheet("QTabBar::tab {border-bottom: 2px solid black}");
+
+    tabBar->setTabTextColor(0, QColorConstants::Red);
+    QColor col = tabBar->tabTextColor(0);
+    QString str = tabBar->tabText(0);
+    qDebug() << col.name();
+    qDebug() << str;
+    tabBar->tabRect(0);
+
+    auto* tabBtn = tabBar->tabButton(0, QTabBar::RightSide);
+    if (tabBtn)
+        qDebug("HHHHH");
+        //tabBtn->setStyleSheet(style);
+    auto* tabBtn2 = tabBar->tabButton(0, QTabBar::LeftSide);
+    if (tabBtn2)
+        qDebug("AAAAA");
+    */
 }
 void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
 {
@@ -250,4 +274,20 @@ void MainWindow::OnStructItemChanged(const int _tableIndex)
         return;
 
     currentTab->UpdateTable();
+}
+void MainWindow::OnStructAttributeNameChanged(const int _tableIndex)
+{
+    QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->widget(_tableIndex));
+    if (!currentTab)
+        return;
+
+    QStringList headerList;
+    const auto* table = myManager.GetStructureTable(_tableIndex);
+    Q_ASSERT(table);
+    const auto& templateAttributeArray = table->GetTemplate().GetAttributes();
+    for (const auto& attr : templateAttributeArray)
+    {
+        headerList.append(attr.GetName());
+    }
+    currentTab->setHorizontalHeaderLabels(headerList);
 }

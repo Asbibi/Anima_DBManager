@@ -12,7 +12,7 @@ public:
     ABool(const AttributeParam& _sharedParam);
     ABool(const AttributeParam& _sharedParam, bool _value);
 
-    virtual Type GetType() const override { return Type::Bool; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Bool; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText(bool complete = false)     const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;

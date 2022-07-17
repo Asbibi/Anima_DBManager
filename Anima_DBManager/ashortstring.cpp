@@ -18,7 +18,7 @@ Attribute* AShortString::CreateDuplica() const
 }
 QString AShortString::GetDisplayedText(bool complete) const
 {
-    if (mySharedParam.max_i < 0)
+    if (mySharedParam.ignoreMax)
         return value;
     else
         return complete ? value : value.left(mySharedParam.max_i);
@@ -49,7 +49,7 @@ void AShortString::CopyValueFromOther(const Attribute* _other)
 
 bool AShortString::HasValidSize() const
 {
-    if (mySharedParam.max_i < 0)
+    if (mySharedParam.ignoreMax)
         return true;
     else
         return value.size() < mySharedParam.max_i;

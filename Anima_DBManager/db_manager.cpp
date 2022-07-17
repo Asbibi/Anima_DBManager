@@ -69,26 +69,26 @@ void DB_Manager::Init()
     emit StringTableAdded(1);
 
     // Setup template
-    TemplateStructure templ1 = TemplateStructure("Struct Test", QColorConstants::Red);
-    templ1.AddAttributeTemplate(Attribute::Type::Texture, "Texture", AttributeParam());
-    templ1.AddAttributeTemplate(Attribute::Type::Sound, "Sound", AttributeParam());
-    templ1.AddAttributeTemplate(Attribute::Type::Bool, "Bool", AttributeParam());
+    TemplateStructure templ1 = TemplateStructure("Struct Test", QColorConstants::DarkRed);
+    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Texture, "Texture", AttributeParam());
+    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Sound, "Sound", AttributeParam());
+    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, "Bool", AttributeParam());
     AttributeParam tempEnumParam = AttributeParam();
     tempEnumParam.enumeratorIndex = 0;
-    templ1.AddAttributeTemplate(Attribute::Type::Enum, "Enum", tempEnumParam);          // Enum requires that the param has a non null enum ptr
+    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Enum, "Enum", tempEnumParam);          // Enum requires that the param has a non null enum ptr
     templ1.SetAttributeDefaultValue("Enum", "GROUND");
-    templ1.AddAttributeTemplate(Attribute::Type::TableString, "Table", AttributeParam());
+    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::TableString, "Table", AttributeParam());
 
     AddStructureDB(templ1);
 
 
-    TemplateStructure templ2 = TemplateStructure("Another Struct", QColorConstants::Red);
-    templ2.AddAttributeTemplate(Attribute::Type::Int, "Int", AttributeParam());             // Int use the param given but default are ok
-    templ2.AddAttributeTemplate(Attribute::Type::Float, "Float", AttributeParam());         // Same
-    templ2.AddAttributeTemplate(Attribute::Type::ShortString, "Short", AttributeParam());   // Same
+    TemplateStructure templ2 = TemplateStructure("Another Struct", QColorConstants::DarkBlue);
+    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Int, "Int", AttributeParam());             // Int use the param given but default are ok
+    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Float, "Float", AttributeParam());         // Same
+    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::ShortString, "Short", AttributeParam());   // Same
     AttributeParam tempRefParam = AttributeParam();
     tempRefParam.structTable = GetStructureTable(0);
-    templ2.AddAttributeTemplate(Attribute::Type::Reference, "Ref", tempRefParam);
+    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Reference, "Ref", tempRefParam);
 
     AddStructureDB(templ2);
 
@@ -346,12 +346,18 @@ StructureDB* DB_Manager::GetStructureTable(int index)
     if (myStructures.size() == 0)
         return nullptr;
 
-    if (index < 0)
-        index = 0;
-    else if (index >= GetStructuresCount())
-        index = GetStructuresCount() -1;
+    if (index < 0 || index >= GetStructuresCount())
+        return nullptr;
 
     return myStructures[index];
+}
+const StructureDB* DB_Manager::GetStructureTable(const QString& _SDBName) const
+{
+    return GetStructureTable(GetStructureTableIndex(_SDBName));
+}
+StructureDB* DB_Manager::GetStructureTable(const QString& _SDBName)
+{
+    return GetStructureTable(GetStructureTableIndex(_SDBName));
 }
 void DB_Manager::AddStructureDB(const TemplateStructure& _structureTemplate, int _index)
 {
@@ -432,6 +438,68 @@ void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
 
     myStructures[_index]->SetTemplateName(_tableName);
     emit StructTableRenamed(_index, _tableName);
+}
+void DB_Manager::MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    auto* structDB = myStructures[_tableIndex];
+    Q_ASSERT(structDB);
+    structDB->MoveAttribute(_indexFrom, _indexTo);
+    emit StructItemChanged(_tableIndex);
+}
+void DB_Manager::MoveStructureAttribute(const QString& _tableName, int _indexFrom, int _indexTo)
+{
+    MoveStructureAttribute(GetStructureTableIndex(_tableName), _indexFrom, _indexTo);
+}
+void DB_Manager::RenameStructureAttribute(int _tableIndex, int _attributeIndex, const QString& _attributeName)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->SetTemplateAttributeName(_attributeIndex, _attributeName);
+
+    emit StructAttributeNameChanged(_tableIndex);
+}
+void DB_Manager::RenameStructureAttribute(const QString& _tableName, int _attributeIndex, const QString& _attributeName)
+{
+    RenameStructureAttribute(GetStructureTableIndex(_tableName), _attributeIndex, _attributeName);
+}
+void DB_Manager::ResetAttributesToDefaultValue(int _tableIndex, int _attributeIndex)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->ResetAttributeToDefault(_attributeIndex);
+    emit StructItemChanged(_tableIndex);
+}
+void DB_Manager::ResetAttributesToDefaultValue(const QString& _tableName, int _attributeIndex)
+{
+    ResetAttributesToDefaultValue(GetStructureTableIndex(_tableName), _attributeIndex);
+}
+void DB_Manager::ChangeAttributeTemplate(int _tableIndex, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->ChangeAttributeTemplate(_attrIndex, _newType, _param);
+    if (_needResetValue)
+    {
+        ResetAttributesToDefaultValue(_tableIndex, _attrIndex);
+    }
+    else
+    {
+        emit StructItemChanged(_tableIndex);
+    }
+}
+void DB_Manager::ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue)
+{
+    ChangeAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex, _newType, _param, _needResetValue);
 }
 
 

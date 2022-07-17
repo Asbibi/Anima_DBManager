@@ -28,6 +28,7 @@ SOURCES += \
     atablestring.cpp \
     attribute.cpp \
     attributeparam.cpp \
+    attributetype.cpp \
     db_manager.cpp \
     enumerator.cpp \
     main.cpp \
@@ -43,6 +44,7 @@ SOURCES += \
     qaugmentedlist.cpp \
     qdatatable.cpp \
     qlistwithsearch.cpp \
+    qoptionalvalue.cpp \
     qpanelbase.cpp \
     qpanelenum.cpp \
     qpanelstring.cpp \
@@ -53,6 +55,8 @@ SOURCES += \
     qsstringdialog.cpp \
     qsstringtable.cpp \
     qstructuretable.cpp \
+    qtemplateattribute.cpp \
+    qtemplatestructure.cpp \
     sstringhelper.cpp \
     sstringitem.cpp \
     sstringtable.cpp \
@@ -62,6 +66,7 @@ SOURCES += \
     templatestructure.cpp
 
 HEADERS += \
+    AttributeType.h \
     aaaniminstance.h \
     aamesh.h \
     aaniagara.h \
@@ -79,6 +84,7 @@ HEADERS += \
     atablestring.h \
     attribute.h \
     attributeparam.h \
+    attributetype.h \
     db_manager.h \
     enumerator.h \
     mainwindow.h \
@@ -93,6 +99,7 @@ HEADERS += \
     qaugmentedlist.h \
     qdatatable.h \
     qlistwithsearch.h \
+    qoptionalvalue.h \
     qpanelbase.h \
     qpanelenum.h \
     qpanelstring.h \
@@ -103,6 +110,8 @@ HEADERS += \
     qsstringdialog.h \
     qsstringtable.h \
     qstructuretable.h \
+    qtemplateattribute.h \
+    qtemplatestructure.h \
     sstringhelper.h \
     sstringitem.h \
     sstringtable.h \

@@ -66,16 +66,53 @@ void StructureDB::ClearStructures()
     }
 }
 
+void StructureDB::MoveAttribute(int _indexFrom, int _indexTo)
+{
+    const int attrCount = myTemplate.GetAttributesCount();
+    if (_indexFrom == _indexTo)
+        return;
+    if (_indexFrom < 0 || _indexFrom >= attrCount)
+        return;
+    if(_indexTo < 0 || _indexTo >= attrCount)
+        return;
+
+    myTemplate.MoveAttribute(_indexFrom, _indexTo);
+
+    for (auto* structure : myStructures)
+    {
+        structure->MoveAttribute(_indexFrom, _indexTo);
+    }
+}
+void StructureDB::ResetAttributeToDefault(int _attrIndex)
+{
+    for (auto& structure : myStructures)
+    {
+        structure->ResetAttributeToDefault(_attrIndex);
+    }
+}
+void StructureDB::ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param)
+{
+    myTemplate.GetAttributeTemplate(_attrIndex)->SetNewValues(_newType, _param);
+}
+
 
 
 
 void StructureDB::SetTemplateName(const QString& _name)
 {
-    return myTemplate.RenameStructureTemplate(_name);
+    myTemplate.RenameStructureTemplate(_name);
+}
+void StructureDB::SetTemplateAttributeName(int _index, const QString& _name)
+{
+    myTemplate.RenameAttributeTemplate(_index, _name);
 }
 const QString& StructureDB::GetTemplateName() const
 {
     return myTemplate.GetStructName();
+}
+QString StructureDB::GetTemplateColorString() const
+{
+    return myTemplate.GetStructColor().name();
 }
 const TemplateStructure& StructureDB::GetTemplate() const
 {

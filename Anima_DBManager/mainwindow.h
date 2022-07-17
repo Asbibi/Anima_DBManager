@@ -51,5 +51,6 @@ public slots:
     void OnStructTableChanged(const int _tableIndex);
     void OnStructItemFocus(const int _tableIndex, const int _index);
     void OnStructItemChanged(const int _tableIndex);
+    void OnStructAttributeNameChanged(const int _tableIndex);
 };
 #endif // MAINWINDOW_H

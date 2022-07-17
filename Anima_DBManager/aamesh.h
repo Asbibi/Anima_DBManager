@@ -12,7 +12,7 @@ public:
     AAMesh(const AttributeParam& _sharedParam, bool _isSkeletal = true);
     AAMesh(const AttributeParam& _sharedParam, QString _filePath, bool _isSkeletal = true);
 
-    virtual Type GetType() const override { return Type::Mesh; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Mesh; };
     virtual Attribute* CreateDuplica()                          const override;
     virtual void WriteValue_CSV(std::ofstream& file)            const override;
 

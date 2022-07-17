@@ -57,13 +57,13 @@ int Enumerator::GetValueCount() const
 QString Enumerator::GetValue(int _index) const
 {
     if (_index < 0 || _index >= (int)(values.size()))
-        return "";
+        return values.size() > 0 ? values[0] : "";
 
     return values[_index];
 }
 int Enumerator::GetValueIndex(const QString& _value) const
 {
-    const int count = values.size();
+    const int count = (int)(values.size());
     for(int i = 0; i < count; i++)
         if (_value == values[i])
             return i;

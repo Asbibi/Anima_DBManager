@@ -25,7 +25,7 @@ void TemplateStructure::operator=(const TemplateStructure& _another)
 
 
 
-void TemplateStructure::AddAttributeTemplate(const Attribute::Type _type, const QString& att_Name, const AttributeParam& _attParam, int _index)
+void TemplateStructure::AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& att_Name, const AttributeParam& _attParam, int _index)
 {
     TemplateAttribute templAttr = TemplateAttribute(att_Name, _type, _attParam);
     AddAttributeTemplate(templAttr, nullptr, _index);
@@ -41,8 +41,6 @@ void TemplateStructure::AddAttributeTemplate(const TemplateAttribute& _attTempla
     if (_newName)
         myAttributeTemplates[_index].myAttrName = *_newName;
 }
-
-
 void TemplateStructure::RemoveAttribute(const int& _index)
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
@@ -54,6 +52,12 @@ void TemplateStructure::RemoveAttribute(const int& _index)
 void TemplateStructure::RemoveAttribute(const QString& _attName)
 {
     RemoveAttribute(GetAttributeIndex(_attName));
+}
+
+void TemplateStructure::MoveAttribute(int _indexFrom, int _indexTo)
+{
+    auto templAttrib = myAttributeTemplates.takeAt(_indexFrom);
+    myAttributeTemplates.insert(_indexTo, templAttrib);
 }
 
 
@@ -88,14 +92,21 @@ int TemplateStructure::GetAttributeIndex(const QString& _attName) const
 }
 
 
-Attribute::Type TemplateStructure::GetAttributeType(int _index) const
+AttributeTypeHelper::Type TemplateStructure::GetAttributeType(int _index) const
 {
     const TemplateAttribute* attr = GetAttributeTemplate(_index);
-    return attr ? attr->GetType() : Attribute::Type::Invalid;
+    return attr ? attr->GetType() : AttributeTypeHelper::Type::Invalid;
 }
 const QString& TemplateStructure::GetAttributeName(int _index) const
 {
     return myAttributeTemplates[_index].GetName();
+}
+TemplateAttribute* TemplateStructure::GetAttributeTemplate(int _index)
+{
+    if (_index < 0 || _index >= myAttributeTemplates.count())
+        return nullptr;
+
+    return &myAttributeTemplates[_index];
 }
 const TemplateAttribute* TemplateStructure::GetAttributeTemplate(int _index) const
 {

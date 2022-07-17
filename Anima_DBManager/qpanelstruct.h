@@ -2,10 +2,14 @@
 #define QPANELSTRUCT_H
 
 #include "qpanelbase.h"
+#include "qtemplatestructure.h"
 
 class QPanelStruct : public QPanelBase
 {
     Q_OBJECT
+private:
+    QTemplateStructure* myTemplateEditor;
+
 public:
     QPanelStruct(QWidget* parent = nullptr);
 

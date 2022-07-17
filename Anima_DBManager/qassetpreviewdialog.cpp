@@ -4,7 +4,7 @@
 #include <QHBoxLayout>
 #include <QFileDialog>
 
-QAssetPreviewDialog::QAssetPreviewDialog(const Attribute::Type& assetType,
+QAssetPreviewDialog::QAssetPreviewDialog(const AttributeTypeHelper::Type& assetType,
                                          const QString& dialogTitle,
                                          const QString& dialogExtensions,
                                          QString& filePath,
@@ -29,7 +29,7 @@ QAssetPreviewDialog::QAssetPreviewDialog(const Attribute::Type& assetType,
     // ----------
     switch (assetType)
     {
-        case Attribute::Type::Texture:
+        case AttributeTypeHelper::Type::Texture:
         {
             myTexturePreview = new QAPTexture();
             myTexturePreview->SetFilePath(filePath);
@@ -38,7 +38,7 @@ QAssetPreviewDialog::QAssetPreviewDialog(const Attribute::Type& assetType,
             title = "Texture" + title;
             break;
         }
-        case Attribute::Type::Sound:
+        case AttributeTypeHelper::Type::Sound:
         {
             mySoundPreview = new QAPSound();
             mySoundPreview->SetFilePath(filePath);
@@ -47,7 +47,7 @@ QAssetPreviewDialog::QAssetPreviewDialog(const Attribute::Type& assetType,
             title = "Sound" + title;
             break;
         }
-        case Attribute::Type::Mesh:
+        case AttributeTypeHelper::Type::Mesh:
         {
             myMeshPreview = new QAPMesh();
             myMeshPreview->SetFilePath(filePath);
