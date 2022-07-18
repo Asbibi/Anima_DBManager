@@ -34,6 +34,8 @@ public:
     void ResetAttributeToDefault(int _attrIndex);
     void ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param);
     void FixAttributesTypeToDefault(int _attIndex);
+    void AddAttribute(int _position, bool _copyFromPrevious);
+    void RemoveAttribute(int _position);
 
 
     const QString& GetTemplateName() const;

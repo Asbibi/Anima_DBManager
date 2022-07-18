@@ -34,6 +34,8 @@ public:
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attindex);
     void FixAttributeTypeToDefault(int _attIndex);
+    void AddAttribute(int _position, bool _copyFromPrevious);
+    void RemoveAttribute(int _position);
 
     void GetAttributesDisplayedText(QString& _text) const;
     void WriteValue_CSV(std::ofstream& file) const;         // Used for structure as attribute of other structures

@@ -36,6 +36,7 @@ public:
 
     void SetNewValues(AttributeTypeHelper::Type _type, const AttributeParam& _param);
     void SetDefaultValue(const QString& _valueAsText);
+    void SetName(const QString& _name) {myAttrName = _name;}
 
     const AttributeParam& GetSharedParam() const;
     AttributeParam& GetSharedParam();

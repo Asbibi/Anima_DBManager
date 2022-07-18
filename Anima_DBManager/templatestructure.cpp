@@ -48,8 +48,8 @@ void TemplateStructure::RemoveAttribute(const int& _index)
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return;
 
-    myAttributeTemplates[_index].DeleteData();
-    myAttributeTemplates.removeAt(_index);
+    auto removedAttribute = myAttributeTemplates.takeAt(_index);
+    removedAttribute.DeleteData();
 }
 void TemplateStructure::RemoveAttribute(const QString& _attName)
 {

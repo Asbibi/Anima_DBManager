@@ -68,6 +68,10 @@ public:
     void ResetAttributesToDefaultValue(const QString& _tableName, int _attributeIndex);
     void ChangeAttributeTemplate(int _tableIndex, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
     void ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
+    void AddAttribute(int _tableIndex, int _attrIndex, bool _copyFromPrevious);
+    void AddAttribute(const QString& _tableName, int _attrIndex, bool _copyFromPrevious);
+    void RemoveAttribute(int _tableIndex, int _attrIndex);
+    void RemoveAttribute(const QString& _tableName, int _attrIndex);
 
     int GetStringTableCount() const;
     const SStringTable* GetStringTable(int _index) const;

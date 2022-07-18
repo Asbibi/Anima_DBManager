@@ -94,7 +94,16 @@ void Structure::FixAttributeTypeToDefault(int _attIndex)
     myAttributes[_attIndex] = myTemplate.GetAttributeTemplate(_attIndex)->GenerateAttribute();
     delete attr;
 }
-
+void Structure::AddAttribute(int _position, bool _copyFromPrevious)
+{
+    myAttributes.insert(_position, myTemplate.GetAttributeTemplate(_position)->GenerateAttribute());
+    if (_copyFromPrevious)
+        myAttributes[_position]->CopyValueFromOther(myAttributes[_position -1]);
+}
+void Structure::RemoveAttribute(int _position)
+{
+    delete myAttributes.takeAt(_position);
+}
 
 
 void Structure::GetAttributesDisplayedText(QString& _text) const

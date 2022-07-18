@@ -507,6 +507,32 @@ void DB_Manager::ChangeAttributeTemplate(const QString& _tableName, int _attrInd
 {
     ChangeAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex, _newType, _param, _needResetValue);
 }
+void DB_Manager::AddAttribute(int _tableIndex, int _attrIndex, bool _copyFromPrevious)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->AddAttribute(_attrIndex, _copyFromPrevious);
+    emit StructItemChanged(_tableIndex);
+}
+void DB_Manager::AddAttribute(const QString& _tableName, int _attrIndex, bool _copyFromPrevious)
+{
+    AddAttribute(GetStructureTableIndex(_tableName), _attrIndex, _copyFromPrevious);
+}
+void DB_Manager::RemoveAttribute(int _tableIndex, int _attrIndex)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->RemoveAttribute(_attrIndex);
+    emit StructItemChanged(_tableIndex);
+}
+void DB_Manager::RemoveAttribute(const QString& _tableName, int _attrIndex)
+{
+    RemoveAttribute(GetStructureTableIndex(_tableName), _attrIndex);
+}
 
 
 

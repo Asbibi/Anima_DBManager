@@ -34,7 +34,7 @@ QTemplateStructure::QTemplateStructure(QWidget *parent)
     ADD_BUTTON(0, 0, "<+", OnAddBefore);
     ADD_BUTTON(0, 1, "+>", OnAddAfter);
     ADD_BUTTON(0, 2, "++", OnDuplicate);
-    ADD_BUTTON(0, 3, "-", OnDuplicate);
+    ADD_BUTTON(0, 3, "-", OnRemove);
 
 #undef ADD_BUTTON
 
@@ -124,6 +124,9 @@ void QTemplateStructure::OnApply(const QString& _attrName, AttributeTypeHelper::
 
     DB_Manager::GetDB_Manager().ChangeAttributeTemplate(myStructureDB->GetTemplateName(), index, _newType, _param, _hasCriticalChanges);
     OnRevert(_attrName);
+
+    if (_hasCriticalChanges)
+        UpdateAttributeTabText(index);
 }
 void QTemplateStructure::OnRevert(const QString& _attrName)
 {
@@ -146,7 +149,41 @@ void QTemplateStructure::OnApplyDefaultToAll(const QString& _attrName)
     DB_Manager::GetDB_Manager().ResetAttributesToDefaultValue(myStructureDB->GetTemplateName(), index);
 }
 
-void QTemplateStructure::OnAddBefore(){}
-void QTemplateStructure::OnAddAfter(){}
-void QTemplateStructure::OnDuplicate(){}
-void QTemplateStructure::OnRemove(){}
+
+
+void QTemplateStructure::AddAttribute(int _position, bool _duplicatePrevious)
+{
+    DB_Manager::GetDB_Manager().AddAttribute(myStructureDB->GetTemplateName(), _position, _duplicatePrevious);
+    UpdateContent();
+    myTabWidget->setCurrentIndex(_position);
+}
+void QTemplateStructure::OnAddBefore()
+{
+    int position = myTabWidget->currentIndex();
+    if (position < 0)
+        position = 0;
+    AddAttribute(position);
+}
+void QTemplateStructure::OnAddAfter()
+{
+    int position = myTabWidget->currentIndex() + 1;
+    AddAttribute(position);
+}
+void QTemplateStructure::OnDuplicate()
+{
+    int current = myTabWidget->currentIndex();
+    if (current < 0)
+        return;
+
+    AddAttribute(current + 1, true);
+}
+void QTemplateStructure::OnRemove()
+{
+    int current = myTabWidget->currentIndex();
+    if (current < 0)
+        return;
+
+    DB_Manager::GetDB_Manager().RemoveAttribute(myStructureDB->GetTemplateName(), current);
+    UpdateContent();
+    myTabWidget->setCurrentIndex(current);
+}

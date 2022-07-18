@@ -101,6 +101,47 @@ void StructureDB::FixAttributesTypeToDefault(int _attIndex)
         structure->FixAttributeTypeToDefault(_attIndex);
     }
 }
+void StructureDB::AddAttribute(int _position, bool _copyFromPrevious)
+{
+    const int attrCount = myTemplate.GetAttributesCount();
+    if (_position < 0 || _position > attrCount)
+        _position = attrCount;
+
+    if (_copyFromPrevious && _position == 0)
+        return;
+
+    myTemplate.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, " ", AttributeParam(), _position);
+    if (_copyFromPrevious)
+    {
+        auto& newAttributeTemplate = *myTemplate.GetAttributeTemplate(_position);
+        newAttributeTemplate = *myTemplate.GetAttributeTemplate(_position -1);
+        newAttributeTemplate.SetName(" ");
+        QString originalName = myTemplate.GetAttributeTemplate(_position -1)->GetName();
+        myTemplate.RenameAttributeTemplate(_position, originalName);
+    }
+    else
+    {
+        QString name = "New Attribute";
+        myTemplate.RenameAttributeTemplate(_position, name);
+    }
+
+
+    for (auto* str : myStructures)
+    {
+        str->AddAttribute(_position, _copyFromPrevious);
+    }
+}
+void StructureDB::RemoveAttribute(int _position)
+{
+    if (_position < 0 || _position >= myTemplate.GetAttributesCount())
+        return;
+
+    for (auto* str : myStructures)
+    {
+        str->RemoveAttribute(_position);
+    }
+    myTemplate.RemoveAttribute(_position);
+}
 
 
 

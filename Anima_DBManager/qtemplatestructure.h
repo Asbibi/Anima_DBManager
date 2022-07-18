@@ -21,6 +21,7 @@ private:
     QList<QPushButton*> myPushBtns;
 
     void UpdateAttributeTabText(int index);
+    void AddAttribute(int _position, bool _duplicatePrevious = false);
 
 public:
     explicit QTemplateStructure(QWidget *parent = nullptr);
