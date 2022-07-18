@@ -487,8 +487,14 @@ void DB_Manager::ChangeAttributeTemplate(int _tableIndex, int _attrIndex, Attrib
     if (_tableIndex < 0 || _tableIndex > count)
         return;
 
+    AttributeTypeHelper::Type previousType = myStructures[_tableIndex]->GetAttributeTemplateType(_attrIndex);
     myStructures[_tableIndex]->ChangeAttributeTemplate(_attrIndex, _newType, _param);
-    if (_needResetValue)
+    if (previousType != _newType)
+    {
+        myStructures[_tableIndex]->FixAttributesTypeToDefault(_attrIndex);
+        emit StructItemChanged(_tableIndex);
+    }
+    else if (_needResetValue)
     {
         ResetAttributesToDefaultValue(_tableIndex, _attrIndex);
     }

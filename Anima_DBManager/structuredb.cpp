@@ -85,7 +85,7 @@ void StructureDB::MoveAttribute(int _indexFrom, int _indexTo)
 }
 void StructureDB::ResetAttributeToDefault(int _attrIndex)
 {
-    for (auto& structure : myStructures)
+    for (auto* structure : myStructures)
     {
         structure->ResetAttributeToDefault(_attrIndex);
     }
@@ -93,6 +93,13 @@ void StructureDB::ResetAttributeToDefault(int _attrIndex)
 void StructureDB::ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param)
 {
     myTemplate.GetAttributeTemplate(_attrIndex)->SetNewValues(_newType, _param);
+}
+void StructureDB::FixAttributesTypeToDefault(int _attIndex)
+{
+    for (auto* structure : myStructures)
+    {
+        structure->FixAttributeTypeToDefault(_attIndex);
+    }
 }
 
 
@@ -118,6 +125,14 @@ const TemplateStructure& StructureDB::GetTemplate() const
 {
     return myTemplate;
 }
+AttributeTypeHelper::Type StructureDB::GetAttributeTemplateType(int _attributeIndex) const
+{
+    return myTemplate.GetAttributeType(_attributeIndex);
+}
+
+
+
+
 const Structure* StructureDB::GetStructureAt(int index) const
 {
     if (!CheckIndex(index))

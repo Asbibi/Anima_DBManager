@@ -213,7 +213,7 @@ void QAttribute::BuildMoreButton()
 
 void QAttribute::UpdateAttribute(const Attribute* _attribute)
 {
-    if (_attribute != myAttributePtr)
+    if (_attribute != myAttributePtr || myType != _attribute->GetType())
         RebuildAttributeWidget(_attribute);
 
     switch(myType)

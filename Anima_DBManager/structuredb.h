@@ -33,11 +33,13 @@ public:
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attrIndex);
     void ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param);
+    void FixAttributesTypeToDefault(int _attIndex);
 
 
     const QString& GetTemplateName() const;
     QString GetTemplateColorString() const;
     const TemplateStructure& GetTemplate() const;
+    AttributeTypeHelper::Type GetAttributeTemplateType(int _attributeIndex) const;
 
     const QList<Structure*>& GetStructures() const { return myStructures; }
     const Structure* GetStructureAt(int index) const;
