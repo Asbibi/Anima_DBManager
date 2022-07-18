@@ -109,7 +109,7 @@ void StructureDB::SetTemplateName(const QString& _name)
 {
     myTemplate.RenameStructureTemplate(_name);
 }
-void StructureDB::SetTemplateAttributeName(int _index, const QString& _name)
+void StructureDB::SetTemplateAttributeName(int _index, QString& _name)
 {
     myTemplate.RenameAttributeTemplate(_index, _name);
 }

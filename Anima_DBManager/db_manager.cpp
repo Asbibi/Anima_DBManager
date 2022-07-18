@@ -454,7 +454,7 @@ void DB_Manager::MoveStructureAttribute(const QString& _tableName, int _indexFro
 {
     MoveStructureAttribute(GetStructureTableIndex(_tableName), _indexFrom, _indexTo);
 }
-void DB_Manager::RenameStructureAttribute(int _tableIndex, int _attributeIndex, const QString& _attributeName)
+void DB_Manager::RenameStructureAttribute(int _tableIndex, int _attributeIndex, QString& _attributeName)
 {
     const int count = myStructures.count();
     if (_tableIndex < 0 || _tableIndex > count)
@@ -464,7 +464,7 @@ void DB_Manager::RenameStructureAttribute(int _tableIndex, int _attributeIndex, 
 
     emit StructAttributeNameChanged(_tableIndex);
 }
-void DB_Manager::RenameStructureAttribute(const QString& _tableName, int _attributeIndex, const QString& _attributeName)
+void DB_Manager::RenameStructureAttribute(const QString& _tableName, int _attributeIndex, QString& _attributeName)
 {
     RenameStructureAttribute(GetStructureTableIndex(_tableName), _attributeIndex, _attributeName);
 }

@@ -273,8 +273,8 @@ void QTemplateAttribute::OnNameEdited()
 {
     QString _newName = myName->text();
     _newName.replace(' ','_');
-    myName->setText(_newName);
     emit NameChanged(myNameCached, _newName);
+    myName->setText(_newName);
     myNameCached = _newName;
 }
 void QTemplateAttribute::OnApply()

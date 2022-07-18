@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+#include "sstringhelper.h"
+
 TemplateStructure::TemplateStructure(QString _structName, QColor _structColor) :
     myStructColor(_structColor),
     myStructName(_structName)
@@ -61,10 +63,16 @@ void TemplateStructure::MoveAttribute(int _indexFrom, int _indexTo)
 }
 
 
-void TemplateStructure::RenameAttributeTemplate(int _index, const QString& _newName)
+void TemplateStructure::RenameAttributeTemplate(int _index, QString& _newName)
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return;
+    if ( myAttributeTemplates[_index].myAttrName == _newName)
+        return;
+
+    QString baseName = _newName;
+    auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetAttributeIndex(_identifier) == -1); };
+    _newName = SStringHelper::GetUniqueIdentifier(baseName, validate, true);
 
     myAttributeTemplates[_index].myAttrName = _newName;
 }

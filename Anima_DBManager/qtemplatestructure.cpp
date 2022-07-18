@@ -106,14 +106,14 @@ void QTemplateStructure::OnTabMoved(int _indexFrom, int _indexTo)
     myAttributeNames.insert(_indexTo, item);
     DB_Manager::GetDB_Manager().MoveStructureAttribute(myStructureDB->GetTemplateName(), _indexFrom, _indexTo);
 }
-void QTemplateStructure::OnNameChanged(const QString& _previousName, const QString& _newName)
+void QTemplateStructure::OnNameChanged(const QString& _previousName, QString& _newName)
 {
     int index = myAttributeNames.indexOf(_previousName);
     if (index < 0)
         return;
-    myAttributeNames[index] = _newName;
 
     DB_Manager::GetDB_Manager().RenameStructureAttribute(myStructureDB->GetTemplateName(), index, _newName);
+    myAttributeNames[index] = _newName;
     UpdateAttributeTabText(index);
 }
 void QTemplateStructure::OnApply(const QString& _attrName, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _hasCriticalChanges)

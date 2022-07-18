@@ -42,7 +42,7 @@ public:
     void UpdateContent(AttributeTypeHelper::Type _type);
 
 signals:
-    void NameChanged(const QString& _previousName, const QString& _newName);
+    void NameChanged(const QString& _previousName, QString& _newName);
     void Applied(const QString& _name, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _hasCriticalChanges);
     void Reverted(const QString& _name);
     void AppliedDefaultToAll(const QString& _name);

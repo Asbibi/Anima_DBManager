@@ -26,7 +26,7 @@ public:
     ~StructureDB();
 
     void SetTemplateName(const QString& _name);
-    void SetTemplateAttributeName(int _index, const QString& _name);
+    void SetTemplateAttributeName(int _index, QString& _name);
     void AddStructureAt(int index);
     void RemoveStructureAt(int index);
     void ClearStructures();

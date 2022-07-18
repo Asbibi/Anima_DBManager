@@ -32,7 +32,7 @@ public slots:
     void UpdateContent();
 
     void OnTabMoved(int _indexFrom, int _indexTo);
-    void OnNameChanged(const QString& _previousName, const QString& _newName);
+    void OnNameChanged(const QString& _previousName, QString& _newName);
     void OnApply(const QString& _attrName, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _hasCriticalChanges);
     void OnRevert(const QString& _attrName);
     void OnApplyDefaultToAll(const QString& _attrName);

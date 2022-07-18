@@ -62,8 +62,8 @@ public:
     void RenameStructureDB(int _index, const QString& _tableName);
     void MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo);
     void MoveStructureAttribute(const QString& _tableName, int _indexFrom, int _indexTo);
-    void RenameStructureAttribute(int _tableIndex, int _attributeIndex, const QString& _attributeName);
-    void RenameStructureAttribute(const QString& _tableName, int _attributeIndex, const QString& _attributeName);
+    void RenameStructureAttribute(int _tableIndex, int _attributeIndex, QString& _attributeName);
+    void RenameStructureAttribute(const QString& _tableName, int _attributeIndex, QString& _attributeName);
     void ResetAttributesToDefaultValue(int _tableIndex, int _attributeIndex);
     void ResetAttributesToDefaultValue(const QString& _tableName, int _attributeIndex);
     void ChangeAttributeTemplate(int _tableIndex, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
