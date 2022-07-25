@@ -19,7 +19,7 @@ private:
 
 public:
     Structure(TemplateStructure& _structureTemplate);
-    Structure(const Structure& _other);
+    Structure(const Structure& _other, bool _attrDeepCopy = false);
     Structure(const Structure& _other, TemplateStructure& _newTemplate);
     void operator=(const Structure& _other);
     ~Structure();
@@ -30,7 +30,6 @@ public:
     const Attribute* GetAttribute(const QString& _attName) const;
     void SetAttributeValueFromText(int _attIndex, QString _valueText);
     void SetAttributeValueFromText(const QString& _attName, QString _valueText);
-    void ChangeAttribute(int _attIndex, Attribute* _newAttribute);
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attindex);
     void FixAttributeTypeToDefault(int _attIndex);
@@ -40,6 +39,7 @@ public:
     void GetAttributesDisplayedText(QString& _text) const;
     void WriteValue_CSV(std::ofstream& file) const;         // Used for structure as attribute of other structures
     void WriteValue_CSV_AsRow(std::ofstream& file) const;   // Used to directly save a row structure of a DataTable
+    QString GetDisplayText() const;
 };
 
 #endif // STRUCTURE_H

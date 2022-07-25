@@ -9,11 +9,19 @@ Structure::Structure(TemplateStructure& _structureTemplate) :
     for (const auto& _templ : _templateAttributes)
         myAttributes.push_back(_templ.GenerateAttribute());
 }
-Structure::Structure(const Structure& _other) :
+Structure::Structure(const Structure& _other, bool _attrDeepCopy) :
     myTemplate(_other.myTemplate)
 {
-    for (auto* _att : _other.myAttributes)
-        myAttributes.push_back(_att);
+    if (_attrDeepCopy)
+    {
+        for (auto* _att : _other.myAttributes)
+            myAttributes.push_back(_att->CreateDuplica());
+    }
+    else
+    {
+        for (auto* _att : _other.myAttributes)
+            myAttributes.push_back(_att);
+    }
 }
 Structure::Structure(const Structure& _other, TemplateStructure& _newTemplate) :
     myTemplate(_newTemplate)
@@ -74,10 +82,6 @@ void Structure::SetAttributeValueFromText(int _attIndex, QString _valueText)
 void Structure::SetAttributeValueFromText(const QString& _attName, QString _valueText)
 {
     SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _valueText);
-}
-void Structure::ChangeAttribute(int _attIndex, Attribute* _newAttribute)
-{
-    // ... todo depending on what i give : a New Attribute(), a Attribute(), do I copy or replace ? ....
 }
 void Structure::MoveAttribute(int _indexFrom, int _indexTo)
 {
@@ -142,4 +146,15 @@ void Structure::WriteValue_CSV_AsRow(std::ofstream& file) const
         file << "\"";
     }
     file << "\n";
+}
+QString Structure::GetDisplayText() const
+{
+    QString text = "";
+    const auto& attributeTemplates = myTemplate.GetAttributes();
+    const int nAttr = attributeTemplates.count();
+    for (int i = 0; i < nAttr; i++)
+    {
+        text += attributeTemplates[i].GetName() + " \t = " + GetAttribute(i)->GetDisplayedText(true) + "\n";
+    }
+    return text;
 }

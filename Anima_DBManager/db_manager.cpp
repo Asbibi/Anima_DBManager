@@ -533,7 +533,55 @@ void DB_Manager::RemoveAttribute(const QString& _tableName, int _attrIndex)
 {
     RemoveAttribute(GetStructureTableIndex(_tableName), _attrIndex);
 }
+void DB_Manager::AddStructureRow(const int _tableIndex, const int _position)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
 
+    myStructures[_tableIndex]->AddStructureAt(_position);
+    emit StructItemChanged(_tableIndex);
+}
+void DB_Manager::DuplicateStructureRow(const int _tableIndex, const int _position, const int _originalIndex)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->DuplicateStructureAt(_position, _originalIndex);
+    emit StructItemChanged(_tableIndex);
+}
+void DB_Manager::RemoveStructureRow(const int _tableIndex, const int _position)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->RemoveStructureAt(_position);
+    emit StructItemChanged(_tableIndex);
+}
+void DB_Manager::MoveStructureRow(const int _tableIndex, const int _positionFrom, int& _positionTo)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->MoveStructureAt(_positionFrom, _positionTo);
+    if (_positionFrom != _positionTo)
+        emit StructItemChanged(_tableIndex);
+}
+
+
+
+
+void DB_Manager::AskFocusOnStructPanel(const int _tableIndex, const int _itemIndex)
+{
+    emit StructTableFocus(_tableIndex, _itemIndex);
+}
+void DB_Manager::AskFocusOnStructPanel(const QString& _tableName, const int _itemIndex)
+{
+    AskFocusOnStructPanel(GetStructureTableIndex(_tableName), _itemIndex);
+}
 
 
 

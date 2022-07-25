@@ -106,7 +106,7 @@ MainWindow::MainWindow(QWidget *parent) :
     CONNECT_DB(StructTableMoved);
     CONNECT_DB(StructTableRemoved);
     CONNECT_DB(StructTableRenamed);
-    CONNECT_DB(StructTableChanged);
+    CONNECT_DB(StructTableFocus);
     CONNECT_DB(StructItemFocus);
     CONNECT_DB(StructItemChanged);
     CONNECT_DB(StructAttributeNameChanged);
@@ -254,10 +254,10 @@ void MainWindow::OnStructTableRenamed(const int _index, const QString& _name)
 {
     myTabStruct->setTabText(_index, _name);
 }
-void MainWindow::OnStructTableChanged(const int _tableIndex)
+void MainWindow::OnStructTableFocus(const int _tableIndex, const int _itemIndex)
 {
-    /*if (myStringWidget->GetSelectedItem() == _tableIndex)
-        myStringWidget->OnItemSelected(_tableIndex);*/
+    if (myStructWidget->GetSelectedItem() == _tableIndex)
+        myStructWidget->OnElementSelected(_itemIndex);
 }
 void MainWindow::OnStructItemFocus(const int _tableIndex, const int _index)
 {

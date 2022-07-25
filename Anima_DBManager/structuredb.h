@@ -16,7 +16,6 @@ private:
     TemplateStructure myTemplate;
     QList<Structure*> myStructures;
 
-    void UpdateTemplate();
     bool CheckIndex(int& index) const;
 
 public:
@@ -27,9 +26,12 @@ public:
 
     void SetTemplateName(const QString& _name);
     void SetTemplateAttributeName(int _index, QString& _name);
-    void AddStructureAt(int index);
-    void RemoveStructureAt(int index);
+    void AddStructureAt(int _index);
+    void DuplicateStructureAt(int _index, int _originalIndex);
+    void RemoveStructureAt(int _index);
+    void MoveStructureAt(int _indexFrom, int& _indexTo);
     void ClearStructures();
+
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attrIndex);
     void ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param);

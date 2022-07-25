@@ -47,7 +47,7 @@ void QRefDialog::UpdateIndex(int index)
         return;
     }
 
-    const auto& referencedStruct = myStructureDB.GetStructureAt(index);
+    const auto* referencedStruct = myStructureDB.GetStructureAt(index);
     if(!referencedStruct)
     {
         myComboBox->setCurrentIndex(myIndex);
@@ -55,16 +55,5 @@ void QRefDialog::UpdateIndex(int index)
     }
 
     myIndex = index;
-    QString text = "";
-    const auto& structTemplate = myStructureDB.GetTemplate();
-    const auto& attributeTemplates = structTemplate.GetAttributes();
-    const int nAttr = structTemplate.GetAttributesCount();
-    for (int i = 0; i < nAttr; i++)
-    {
-        text += attributeTemplates[i].GetName() + " \t = " + referencedStruct->GetAttribute(i)->GetDisplayedText(true) + "\n";
-    }
-    /*QString text = "{";
-    myStructureDB.GetStructureAt(myIndex)->GetAttributesDisplayedText(text);
-    text += '}';*/
-    myStructContent->setText(text);
+    myStructContent->setText(referencedStruct->GetDisplayText());
 }

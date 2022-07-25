@@ -19,9 +19,9 @@ public:
     explicit QStructureTable(StructureDB& _structureDB);
     virtual ~QStructureTable();
 
-signals:
 public slots:
     void UpdateTable();
+    void OnSelectOrEditItem(int _index);
 };
 
 #endif // QSTRUCTURETABLE_H

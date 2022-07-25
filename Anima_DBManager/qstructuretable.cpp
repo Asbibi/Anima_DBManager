@@ -2,13 +2,14 @@
 #include "qattribute.h"
 #include <QHBoxLayout>
 
-
+#include "db_manager.h"
 
 QStructureTable::QStructureTable(StructureDB& _structureDB) :
     QTableWidget(nullptr),
     myStructureDB(_structureDB)
 {
     UpdateTable();
+    QObject::connect(this, &QTableWidget::currentCellChanged, this, &QStructureTable::OnSelectOrEditItem);
 }
 
 QStructureTable::~QStructureTable()
@@ -65,8 +66,17 @@ void QStructureTable::UpdateTable()
             setCellWidget(row, col, qAttr);
             qAttr->UpdateAttribute(strct->GetAttribute(col));
             myChildWidgetsToDelete.push_back(qAttr);
+            QObject::connect(qAttr, &QAttribute::OnWidgetValueChanged, [this, row](){
+                OnSelectOrEditItem(row);
+            });
         }
     }
     resizeRowsToContents();
     //resizeColumnsToContents();
+}
+
+
+void QStructureTable::OnSelectOrEditItem(int _index)
+{
+    DB_Manager::GetDB_Manager().AskFocusOnStructPanel(myStructureDB.GetTemplateName(), _index);
 }

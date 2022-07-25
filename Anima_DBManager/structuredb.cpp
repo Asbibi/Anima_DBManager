@@ -24,13 +24,6 @@ StructureDB::~StructureDB()
 {
     ClearStructures();
 }
-void StructureDB::UpdateTemplate()
-{
-    for (const auto* strct : myStructures)
-    {
-        qDebug("WIP -- Todo: propagate the changes done on myTemplate (add/remove/move/edit attribute template");
-    }
-}
 
 
 bool StructureDB::CheckIndex(int& index) const
@@ -38,24 +31,52 @@ bool StructureDB::CheckIndex(int& index) const
     return index >= 0 && index < GetStructureCount();
 }
 
-void StructureDB::AddStructureAt(int index)
+void StructureDB::AddStructureAt(int _index)
 {
-    if (!CheckIndex(index))
-        index = GetStructureCount();
+    if (!CheckIndex(_index))
+        _index = GetStructureCount();
 
-    qDebug("WIP -- Notify AReference attributes");
-    myStructures.insert(index, new Structure(myTemplate));
+    qDebug("WIP -- Notify AReference attributes (?)");
+    myStructures.insert(_index, new Structure(myTemplate));
 }
 
-void StructureDB::RemoveStructureAt(int index)
+void StructureDB::DuplicateStructureAt(int _index, int _originalIndex)
 {
-    if (!CheckIndex(index))
+    if (!CheckIndex(_originalIndex))
+    {
+        AddStructureAt(_index);
+        return;
+    }
+
+
+    if (!CheckIndex(_index))
+        _index = GetStructureCount();
+
+    myStructures.insert(_index, new Structure(*myStructures[_originalIndex], true));
+}
+
+void StructureDB::RemoveStructureAt(int _index)
+{
+    if (!CheckIndex(_index))
         return;
 
     qDebug("WIP -- Notify AReference attributes");
-    auto* structToDelete = myStructures[index];
-    myStructures.removeAt(index);
+    auto* structToDelete = myStructures[_index];
+    myStructures.removeAt(_index);
     delete structToDelete;
+}
+
+void StructureDB::MoveStructureAt(int _indexFrom, int& _indexTo)
+{
+    if (!CheckIndex(_indexFrom))
+        return;
+    if (!CheckIndex(_indexTo))
+        _indexTo = GetStructureCount()-1;
+    if (_indexTo == _indexFrom)
+        return;
+
+    auto* strct = myStructures.takeAt(_indexFrom);
+    myStructures.insert(_indexTo, strct);
 }
 
 void StructureDB::ClearStructures()
@@ -65,6 +86,8 @@ void StructureDB::ClearStructures()
         RemoveStructureAt(0);
     }
 }
+
+
 
 void StructureDB::MoveAttribute(int _indexFrom, int _indexTo)
 {

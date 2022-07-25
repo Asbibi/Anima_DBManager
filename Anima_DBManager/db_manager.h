@@ -72,6 +72,10 @@ public:
     void AddAttribute(const QString& _tableName, int _attrIndex, bool _copyFromPrevious);
     void RemoveAttribute(int _tableIndex, int _attrIndex);
     void RemoveAttribute(const QString& _tableName, int _attrIndex);
+    void AddStructureRow(const int _tableIndex, const int _position);
+    void DuplicateStructureRow(const int _tableIndex, const int _position, const int _originalIndex);
+    void RemoveStructureRow(const int _tableIndex, const int _position);
+    void MoveStructureRow(const int _tableIndex, const int _positionFrom, int& _positionTo);
 
     int GetStringTableCount() const;
     const SStringTable* GetStringTable(int _index) const;
@@ -90,6 +94,8 @@ public:
     void AskFocusOnStringItem(const int _tableIndex, const int _stringIndex);
     void AskUpdateOnStringTable(const int _tableIndex);
     void AskUpdateOnStringPanel(const int _tableIndex);
+    void AskFocusOnStructPanel(const int _tableIndex, const int _itemIndex);
+    void AskFocusOnStructPanel(const QString& _tableName, const int _itemIndex);
 
 signals:
     void StringTableAdded(const int _index);
@@ -104,7 +110,7 @@ signals:
     void StructTableMoved(const int _indexFrom, const int _indexTo);
     void StructTableRemoved(const int _index);
     void StructTableRenamed(const int _index, const QString& _name);
-    void StructTableChanged(const int _tableIndex);     // For edits done in table widget
+    void StructTableFocus(const int _tableIndex, const int _itemIndex);   // For edits or selection done in table widget
     void StructItemFocus(const int _tableIndex, const int _index);
     void StructItemChanged(const int _tableIndex);      // For edits done in panel widget
     void StructAttributeNameChanged(const int _tableIndex);

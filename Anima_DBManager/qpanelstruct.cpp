@@ -23,6 +23,8 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     myTemplateEditor = new QTemplateStructure();
     editLayout->addRow("Attributes:", myTemplateEditor);
 
+    myElementHandler = new QElementHandler();
+    editLayout->addRow("Current:", myElementHandler);
     QGridLayout* clearLayout = new QGridLayout();
     clearLayout->addWidget(new QLineEdit(), 0,0);
     clearLayout->addWidget(new QPushButton("Clear Those"), 0,1);
@@ -34,17 +36,17 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     myPushBtn->setMaximumWidth(90);
     numLayout->addWidget(myPushBtn);
     editLayout->addRow("Count:", numLayout);
+    QObject::connect(myElementHandler, &QElementHandler::SpinBoxSelected, this, &QPanelStruct::OnElementSelected);
+    QObject::connect(myElementHandler, &QElementHandler::AddRequested, this, &QPanelStruct::OnElementAdded);
+    QObject::connect(myElementHandler, &QElementHandler::DuplicateRequested, this, &QPanelStruct::OnElementDuplicated);
+    QObject::connect(myElementHandler, &QElementHandler::MoveRequested, this, &QPanelStruct::OnElementMoved);
+    QObject::connect(myElementHandler, &QElementHandler::RemoveRequested, this, &QPanelStruct::OnElementRemoved);
+}
 
 
-    QPushButton* addBtn = new QPushButton("Add Test");
-    editLayout->addRow("Debug:", addBtn);
-    addBtn->connect(addBtn, &QPushButton::clicked, [this](){
-        int cur = myItemList->GetCurrent();
-        auto& db = DB_Manager::GetDB_Manager();
-        StructureDB* sdb = db.GetStructureTable(cur);
-        sdb->AddStructureAt(0);
-        emit db.StructItemChanged(cur);
-    });
+StructureDB* QPanelStruct::GetMyStructureDB()
+{
+    return DB_Manager::GetDB_Manager().GetStructureTable(GetSelectedItem());
 }
 
 
@@ -64,6 +66,7 @@ void QPanelStruct::OnItemSelected(const int _index)
 {
     StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(_index);
     myTemplateEditor->SetStructureDB(currentStructDB);
+    myElementHandler->OnSelectElement(-1, "");
 }
 void QPanelStruct::OnItemEdited(const int _index, const QString& _value)
 {
@@ -89,4 +92,36 @@ void QPanelStruct::OnItemRemoved(const int _index)
 {
     DB_Manager::GetDB_Manager().RemoveStructureDB(_index);
     OnItemSelected(_index);
+}
+
+
+
+void QPanelStruct::OnElementSelected(const int _index)
+{
+    const auto* structure = GetMyStructureDB()->GetStructureAt(_index);
+    if (structure)
+        myElementHandler->OnSelectElement(_index, structure->GetDisplayText());
+    else
+        myElementHandler->OnSelectElement(-1, "");
+}
+
+void QPanelStruct::OnElementAdded(const int _index)
+{
+    DB_Manager::GetDB_Manager().AddStructureRow(GetSelectedItem(), _index);
+    OnElementSelected(_index);
+}
+void QPanelStruct::OnElementDuplicated(const int _index, const int _originalIndex)
+{
+    DB_Manager::GetDB_Manager().DuplicateStructureRow(GetSelectedItem(), _index, _originalIndex);
+    OnElementSelected(_index);
+}
+void QPanelStruct::OnElementMoved(const int _indexFrom, int _indexTo)
+{
+    DB_Manager::GetDB_Manager().MoveStructureRow(GetSelectedItem(), _indexFrom, _indexTo);
+    OnElementSelected(_indexTo);
+}
+void QPanelStruct::OnElementRemoved(const int _index)
+{
+    DB_Manager::GetDB_Manager().RemoveStructureRow(GetSelectedItem(), _index);
+    OnElementSelected(_index);
 }
