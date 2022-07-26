@@ -170,6 +170,11 @@ void QAugmentedList::RemoveItemAt(const int _index)
     if (_index < 0 || _index >= myList->count())
         return;
 
+    bool canRemove = true;
+    emit ItemRemoveCheck(_index, canRemove);
+    if (!canRemove)
+        return;
+
     CHANGE_SIGNAL_ENABLE(false);
 
     auto* removedItem = myList->takeItem(_index);

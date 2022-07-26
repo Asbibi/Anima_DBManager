@@ -42,6 +42,7 @@ public:
     const Enumerator* GetEnum(int _index) const;
     void AddEnum(const Enumerator& _enum, int _index = -1);
     void MoveEnum(const int _indexFrom, const int _indexTo);
+    bool CanSafelyRemoveEnum(int _index) const;
     void RemoveEnum(int _index);
     void UpdateEnum(int _index, const Enumerator& _another);
     void UpdateEnumName(int _index, const QString& _name);

@@ -41,6 +41,7 @@ signals:
     void ItemDuplicated(const int _index, const int _originalIndex);
     void ItemMoved(const int _indexFrom, const int _indexTo);
     void ItemRemoved(const int _index);
+    void ItemRemoveCheck(const int _index, bool& _result);
 
 public slots:
     void OnSelectionChanged(const int _index);

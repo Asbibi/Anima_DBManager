@@ -17,6 +17,8 @@
 #include "aasound.h"
 #include "aatexture.h"
 
+#include <QDebug>
+
 
 TemplateAttribute::TemplateAttribute(const AttributeParam& _sharedParamToCopy) :
     myAttrName(""),
@@ -74,6 +76,25 @@ void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
 #undef CASE_INIT_TEMPLATE
 #undef CASE_INIT_TEMPLATE_WITH_CLASS
 }
+void TemplateAttribute::ResetUselessParam(AttributeTypeHelper::Type _type)
+{
+    if (_type != AttributeTypeHelper::Type::Enum)
+    {
+        mySharedParam.enumeratorIndex = -1;
+    }
+    if (_type != AttributeTypeHelper::Type::Reference)
+    {
+        mySharedParam.structTable = nullptr;
+    }
+    if (_type != AttributeTypeHelper::Type::Array)
+    {
+        qDebug() << "TODO - reset attribute ptr for array attribute";
+    }
+    if (_type != AttributeTypeHelper::Type::Structure)
+    {
+        qDebug() << "TODO - reset structure template for structure attribute";
+    }
+}
 void TemplateAttribute::DeleteData()
 {
     delete &mySharedParam;
@@ -100,6 +121,7 @@ void TemplateAttribute::SetNewValues(AttributeTypeHelper::Type _type, const Attr
         return;
 
     InitDefaultAttribute(_type);
+    ResetUselessParam(_type);
 }
 void TemplateAttribute::SetDefaultValue(const QString& _valueAsText)
 {

@@ -18,6 +18,7 @@ private:
     Attribute* myTemplateAttribute = nullptr;    // Same
 
     void InitDefaultAttribute(AttributeTypeHelper::Type _type);
+    void ResetUselessParam(AttributeTypeHelper::Type _type);
     void DeleteData();  // ~TemplateAttribute is called by std::vector but we want to keep the same mySharedParam and myTemplateAttribute
                         // as mySharedParam is referenced elsewhere so need a method to delete those outside of desctructor
                         // will be called by friend TemplateStructure when it's time to die.

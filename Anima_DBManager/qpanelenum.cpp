@@ -37,6 +37,8 @@ QPanelEnum::QPanelEnum(QWidget *parent)
     editLayout->addWidget(myApplyBtn, 3, 0);
     editLayout->addWidget(myResetBtn, 3, 1);
 
+    QObject::connect(myItemList, &QAugmentedList::ItemRemoveCheck, this, &QPanelEnum::OnItemRemoveCheck);
+
     QObject::connect(myEnumColorList, &QListWidget::itemChanged, this, &QPanelEnum::SetColorFromText);
     QObject::connect(myEnumValuesList, &QAugmentedList::ItemAdded, this, &QPanelEnum::OnAddedEnumValue);
     QObject::connect(myEnumValuesList, &QAugmentedList::ItemDuplicated, this, &QPanelEnum::OnDuplicatedEnumValue);
@@ -174,6 +176,10 @@ void QPanelEnum::OnItemMoved(const int _indexFrom, const int _indexTo)
 void QPanelEnum::OnItemRemoved(const int _index)
 {
     DB_Manager::GetDB_Manager().RemoveEnum(_index);
+}
+void QPanelEnum::OnItemRemoveCheck(const int _index, bool& _result)
+{
+    _result = DB_Manager::GetDB_Manager().CanSafelyRemoveEnum(_index);
 }
 
 

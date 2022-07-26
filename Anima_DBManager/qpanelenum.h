@@ -40,6 +40,7 @@ public slots:
     virtual void OnItemDuplicated(const int _index, const int _originalIndex) override;
     virtual void OnItemMoved(const int _indexFrom, const int _indexTo) override;
     virtual void OnItemRemoved(const int _index) override;
+            void OnItemRemoveCheck(const int _index, bool& _result);
 
     void SetColorFromText(QListWidgetItem* _item);
     void OnAddedEnumValue(int _index);

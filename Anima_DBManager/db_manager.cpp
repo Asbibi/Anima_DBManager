@@ -40,9 +40,12 @@ void DB_Manager::Init()
     myProjectContentFolderPath = "D:/Documents/Unreal/Anima_OLD/Content/";
 
     // Enums (TODO : remove to instead add automatic creation from loading file)
-    AddEnum(Enumerator("Type", {"SOUL", "FIRE", "WATER", "GRASS", "GROUND","THUNDER","WIND"},
-                       {QColorConstants::Gray, QColorConstants::Red, QColorConstants::Blue,
-                       QColorConstants::DarkGreen, QColorConstants::DarkMagenta, QColorConstants::DarkYellow, QColorConstants::DarkCyan}));
+    AddEnum(Enumerator("Type", {"SOUL", "FIRE", "WATER", "GRASS", "GROUND", "THUNDER", "WIND", "SNOW", "MYSTIC", "CORRUPTION", "TIME", "SPACE"},
+                       {QColorConstants::Gray,
+                        QColorConstants::Red, QColorConstants::Svg::mediumblue, QColorConstants::DarkGreen,
+                        QColorConstants::Svg::saddlebrown, QColorConstants::Svg::goldenrod, QColorConstants::DarkCyan,
+                        QColorConstants::Svg::midnightblue, QColorConstants::Svg::cornflowerblue, QColorConstants::Svg::dimgray,
+                        QColorConstants::Svg::maroon, QColorConstants::Svg::darkorchid}));
     AddEnum(Enumerator("MoveCategory", {"PHYSIC","SPECIAL","SUPPORT"}));
 
     // String Tables;
@@ -239,6 +242,12 @@ void DB_Manager::AddEnum(const Enumerator& _enum, int _index)
     if (_index < 0 || _index > enumCount)
         _index = enumCount;
 
+    for (auto& attrParamPtr : myAttributeParamPtrs)
+    {
+        int& enumIndex = attrParamPtr->enumeratorIndex;
+        if (_index <= enumIndex)
+            enumIndex++;
+    }
     enumerators.insert(_index, _enum);
 }
 void DB_Manager::MoveEnum(const int _indexFrom, const int _indexTo)
@@ -268,15 +277,29 @@ void DB_Manager::MoveEnum(const int _indexFrom, const int _indexTo)
     auto movedEnum = enumerators.takeAt(_indexFrom);
     enumerators.insert(_indexTo, movedEnum);
 }
+bool DB_Manager::CanSafelyRemoveEnum(int _index) const
+{
+    if (_index < 0 || _index >= (int)enumerators.size())
+        return false;
+
+    for (const auto& attrParamPtr : myAttributeParamPtrs)
+    {
+        if (attrParamPtr->enumeratorIndex == _index)
+            return false;
+    }
+    return true;
+}
 void DB_Manager::RemoveEnum(int _index)
 {
     if (_index < 0 || _index >= (int)enumerators.size())
         return;
 
+    // Assume that CanSafelyRemoveEnum() has been called before and returned true
     for (auto& attrParamPtr : myAttributeParamPtrs)
     {
-        if (attrParamPtr->enumeratorIndex == _index)
-            attrParamPtr->enumeratorIndex = -1;
+        int& enumIndex = attrParamPtr->enumeratorIndex;
+        if (_index < enumIndex)
+            enumIndex--;
     }
 
     enumerators.removeAt(_index);
