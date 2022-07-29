@@ -158,3 +158,8 @@ QString Structure::GetDisplayText() const
     }
     return text;
 }
+
+bool Structure::IsOneOfMyAttributes(const Attribute* _attributePtr) const
+{
+    return myAttributes.indexOf(_attributePtr) != -1;
+}

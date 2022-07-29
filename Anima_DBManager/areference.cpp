@@ -27,21 +27,24 @@ Attribute* AReference::CreateDuplica() const
 }
 QString AReference::GetDisplayedText(bool complete) const
 {
-    if(!myStructureRef)
-        return "<font color=\"darkred\">Ø</font>";
+    if(!mySharedParam.structTable || !myStructureRef)
+        return complete ? "Ø" : "<font color=\"darkred\">Ø</font>";
 
     else if (complete)
     {
         QString structString = "";
-        myStructureRef->GetAttributesDisplayedText(structString);
-        return "&{" + structString + "}";
+        if (myStructureRef->IsOneOfMyAttributes(this))
+            structString = "this";
+        else
+            myStructureRef->GetAttributesDisplayedText(structString);
+        return "&{ " + structString + " }";
     }
 
     return mySharedParam.structTable->GetStructureRowName(myStructureRef);
 }
 void AReference::WriteValue_CSV(std::ofstream& file) const
 {
-    if(myStructureRef)
+    if(mySharedParam.structTable && myStructureRef)
         file << mySharedParam.structTable->GetStructureRowName(myStructureRef).toStdString();
 }
 void AReference::SetValueFromText(const QString& text)
@@ -60,8 +63,8 @@ void AReference::SetValueFromText(const QString& text)
         return;
     }
 
-    if (structIndex > -1)
-        SetReference(GetStructureDB()->GetStructureAt(structIndex));
+    if (mySharedParam.structTable && structIndex > -1)
+        SetReference(mySharedParam.structTable->GetStructureAt(structIndex));
 }
 void AReference::CopyValueFromOther(const Attribute* _other)
 {

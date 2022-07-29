@@ -424,22 +424,25 @@ void DB_Manager::MoveStructureDB(int _indexFrom, int _indexTo)
     myStructures.move(_indexFrom, _indexTo);
     emit StructTableMoved(_indexFrom, _indexTo);
 }
-void DB_Manager::RemoveStructureDB(int _index, bool forDelete)
+void DB_Manager::RemoveStructureDB(int _index)
 {
     const int count = myStructures.count();
     if (_index < 0 || _index > count)
         return;
 
 
-    if (!forDelete)
+    auto* structDB = myStructures.takeAt(_index);
+    for (auto* attrParam : myAttributeParamPtrs)
     {
-        emit StructTableRemoved(_index);
+        if (attrParam->structTable == structDB)
+            attrParam->structTable = nullptr;
     }
 
-    auto* structDB = myStructures.takeAt(_index);
+    emit StructTableRemoved(_index);
+
     delete structDB;
 }
-void DB_Manager::RemoveStructureDB(const QString& _tableName, bool forDelete)
+void DB_Manager::RemoveStructureDB(const QString& _tableName)
 {
     const int count = myStructures.count();
     int index = -1;
@@ -451,7 +454,7 @@ void DB_Manager::RemoveStructureDB(const QString& _tableName, bool forDelete)
             break;
         }
     }
-    RemoveStructureDB(index, forDelete);
+    RemoveStructureDB(index);
 }
 void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
 {

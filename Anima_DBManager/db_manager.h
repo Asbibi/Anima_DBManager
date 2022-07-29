@@ -58,8 +58,8 @@ public:
     void AddStructureDB(const TemplateStructure& _structureTemplate, int _index = -1);
     void DuplicateStructureDB(int _index, int _indexOriginal);
     void MoveStructureDB(int _indexFrom, int _indexTo);
-    void RemoveStructureDB(int _index, bool forDelete = false);
-    void RemoveStructureDB(const QString& _tableName, bool forDelete = false);
+    void RemoveStructureDB(int _index);
+    void RemoveStructureDB(const QString& _tableName);
     void RenameStructureDB(int _index, const QString& _tableName);
     void MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo);
     void MoveStructureAttribute(const QString& _tableName, int _indexFrom, int _indexTo);
