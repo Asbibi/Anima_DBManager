@@ -45,6 +45,10 @@ bool DB_Manager::SetProjectContentFolderPath(const QString& _path)
 const QString& DB_Manager::GetProjectContentFolderPath() const {
     return myProjectPathIsValid ? myProjectContentFolderPath : myHomePath;
 }
+bool DB_Manager::IsProjectContentFolderPathValid() const
+{
+    return myProjectPathIsValid;
+}
 
 
 void DB_Manager::Init()

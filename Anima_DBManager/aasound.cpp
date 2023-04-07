@@ -16,5 +16,6 @@ Attribute* AASound::CreateDuplica() const
 
 void AASound::WriteValue_CSV(std::ofstream& file) const
 {
-    file << GetDisplayedText().toStdString();
+    qWarning("Sound : Need to check the correct prefix");
+    AAsset::WriteValue_CSV(file);
 }

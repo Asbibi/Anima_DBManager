@@ -7,6 +7,7 @@ class AAsset : public Attribute
 {
 protected:
     QString filePath;
+    bool isDirty = false;
 
 public:
     AAsset(const AttributeParam& _sharedParam);
@@ -17,7 +18,8 @@ public:
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
 
-    static QString GetFilePathForDisplay(const QString& _filePath);
+    static QString GetFilePathForDisplay(const QString& _filePath, bool _isDirty);
+    static bool IsDirty(const QString& _filePath);
 };
 
 #endif // AASSET_H

@@ -8,6 +8,7 @@
 #include "sstringtable.h"
 
 #include <QString>
+#include <QStandardPaths>
 #include <QList>
 #include <vector>
 
@@ -17,7 +18,7 @@ class DB_Manager : public QObject
 
 private:
     QString myProjectContentFolderPath;
-    const QString myHomePath = "/home";
+    const QString myHomePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     bool myProjectPathIsValid = false;
 
     QList<AttributeParam*> myAttributeParamPtrs;
@@ -41,6 +42,7 @@ public:
 
     bool SetProjectContentFolderPath(const QString& _path);
     const QString& GetProjectContentFolderPath() const;
+    bool IsProjectContentFolderPathValid() const;
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;

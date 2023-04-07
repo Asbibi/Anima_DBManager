@@ -5,6 +5,7 @@
 
 #include "qassetpreviewdialog.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 QAssetLabel::QAssetLabel(const AttributeTypeHelper::Type assetType, const QString& dialogTitle, const QString& dialogExtensions, QWidget* parent) :
     QLabel(parent),
@@ -18,7 +19,7 @@ QAssetLabel::QAssetLabel(const AttributeTypeHelper::Type assetType, const QStrin
 void QAssetLabel::SetValue(const QString& _filePath)
 {
     myFilePath = _filePath;
-    setText(AAsset::GetFilePathForDisplay(_filePath));
+    setText(myFilePath.isEmpty() ? "" : AAsset::GetFilePathForDisplay(_filePath, _filePath[0] == '!'));
 }
 
 const QString& QAssetLabel::GetValue() const
@@ -50,6 +51,28 @@ void QAssetLabel::OpenFileDialog()
 
     if (fileName.isEmpty() || fileName == myFilePath)
         return;
+
+
+    auto& dbManager = DB_Manager::GetDB_Manager();
+    const QString& projectFolder = dbManager.GetProjectContentFolderPath();
+    if (AAsset::IsDirty(projectFolder))
+    {
+        QString warningtext = dbManager.IsProjectContentFolderPathValid() ?
+                    "Selected asset isn't in the Project Folder.\nProject path : " + projectFolder :
+                    "There is currently no valid Project Folder.";
+
+        warningtext += "\nIf Ignore, asset will be set but ignored during export to csv.";
+        auto btn = QMessageBox::warning(
+            this,
+            "Warning",
+            warningtext,
+            QMessageBox::StandardButtons(QMessageBox::Ignore | QMessageBox::Abort) );
+        if (btn != QMessageBox::Ignore)
+        {
+            return;
+        }
+        fileName = '!' + fileName;
+    }
 
     SetValue(fileName);
     emit OnValueEdited();

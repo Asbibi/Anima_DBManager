@@ -19,5 +19,5 @@ Attribute* AAMesh::CreateDuplica() const
 void AAMesh::WriteValue_CSV(std::ofstream& file) const
 {
     file << (isSkeletal ? "SkeletalMesh" : "StaticMesh");
-    file << GetDisplayedText().toStdString();
+    AAsset::WriteValue_CSV(file);
 }

@@ -16,6 +16,6 @@ Attribute* AATexture::CreateDuplica() const
 
 void AATexture::WriteValue_CSV(std::ofstream& file) const
 {
-    file << "Texture2D";
-    file << GetDisplayedText().toStdString();
+    file << "/Script/Engine.Texture2D";
+    AAsset::WriteValue_CSV(file);
 }

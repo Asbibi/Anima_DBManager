@@ -16,7 +16,7 @@ Attribute* AANiagara::CreateDuplica() const
 
 void AANiagara::WriteValue_CSV(std::ofstream& file) const
 {
-    qFatal("Need to check the corret prefix");
+    qWarning("Niagara : Need to check the correct prefix");
     file << "NiagaraSystem";
-    file << GetDisplayedText().toStdString();
+    AAsset::WriteValue_CSV(file);
 }
