@@ -29,7 +29,8 @@ void QAPTexture::SetFilePath(const QString& _filePath)
 {
     QAssetPreview::SetFilePath(_filePath);
 
-    auto imagePixMap = QPixmap(_filePath);
+    QString actualPath = _filePath.isEmpty() || _filePath[0] != '!' ? _filePath : _filePath.right(_filePath.length() -1);
+    auto imagePixMap = QPixmap(actualPath);
     myImage->setPixmap(imagePixMap.scaled(IMAGE_SIZE, IMAGE_SIZE, Qt::AspectRatioMode::KeepAspectRatio));
     myImageSize->setText(QString("Size: %1x%2 px").arg(QString::number(imagePixMap.width()), QString::number(imagePixMap.height())));
 }

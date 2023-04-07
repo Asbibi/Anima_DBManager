@@ -173,6 +173,10 @@ void StructureDB::SetTemplateName(const QString& _name)
 {
     myTemplate.RenameStructureTemplate(_name);
 }
+void StructureDB::SetTemplateAbbrev(const QString& _abbrev)
+{
+    myTemplate.ReabbrevStructureTemplate(_abbrev);
+}
 void StructureDB::SetTemplateAttributeName(int _index, QString& _name)
 {
     myTemplate.RenameAttributeTemplate(_index, _name);
@@ -180,6 +184,10 @@ void StructureDB::SetTemplateAttributeName(int _index, QString& _name)
 const QString& StructureDB::GetTemplateName() const
 {
     return myTemplate.GetStructName();
+}
+const QString& StructureDB::GetTemplateAbbrev() const
+{
+    return myTemplate.GetStructAbbrev();
 }
 QString StructureDB::GetTemplateColorString() const
 {
@@ -213,7 +221,7 @@ const QString StructureDB::GetStructureRowName(int index) const
     if (!CheckIndex(index))
         return "";
 
-    return GetTemplateName() + "_" + QString::number(index);
+    return GetTemplateAbbrev() + "_" + QString::number(index);
 }
 const QString StructureDB::GetStructureRowName(const Structure* _structure) const
 {

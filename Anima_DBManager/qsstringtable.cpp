@@ -50,6 +50,27 @@ void QSStringTable::UpdateIndex(int _strTableIndex)
     myStringTableIndex = _strTableIndex;
 }
 
+void QSStringTable::ExportStringsToCSV(const QString _directoryPath, SStringHelper::SStringLanguages _language)
+{
+    Q_ASSERT(_language != SStringHelper::SStringLanguages::Count && !_directoryPath.isEmpty());
+    SStringTable& stringTable = GetTable();
+
+    QString filePath = _directoryPath + "/ST_" + SStringHelper::GetLanguageCD(_language) + "_" + stringTable.GetTableName() + ".csv";
+    qDebug() << "Export String table " << stringTable.GetTableName() << " to file : " << filePath;
+
+    std::ofstream csvFile(filePath.toStdString());
+    if (!csvFile)
+    {
+        qCritical() <<"ERROR EXPORT STRING TABLE : " << filePath << " couldn't be open";
+        return;
+    }
+
+    csvFile << "Key,SourceString";
+    stringTable.WriteValue_CSV(csvFile, _language);
+
+    csvFile.close();
+}
+
 
 
 void QSStringTable::UpdateTable()

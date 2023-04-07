@@ -51,5 +51,5 @@ void SStringItem::SetString(SStringHelper::SStringLanguages _language, const QSt
 
 void SStringItem::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language) const
 {
-    _file << myIdentifier.toStdString() << ',' << myStrings[_language].toStdString();
+    _file << "\"" << myIdentifier.toStdString() << "\",\"" << myStrings[_language].toStdString() << "\"";
 }

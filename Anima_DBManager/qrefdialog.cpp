@@ -11,6 +11,8 @@ QRefDialog::QRefDialog(const StructureDB& structureDB, int& outIndex, QWidget* p
     QVBoxLayout* vLayout = new QVBoxLayout();
     setLayout(vLayout);
 
+    vLayout->addWidget(new QLabel("Choose an item from : " + myStructureDB.GetTemplateName()));
+
     myComboBox = new QComboBox();
     myComboBox->setEditable(true);
     vLayout->addWidget(myComboBox);

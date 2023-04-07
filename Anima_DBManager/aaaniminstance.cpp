@@ -17,5 +17,5 @@ Attribute* AAAnimInstance::CreateDuplica() const
 void AAAnimInstance::WriteValue_CSV(std::ofstream& file) const
 {
     file << "Class";
-    file << GetDisplayedText().toStdString();
+    AAsset::WriteValue_CSV(file);
 }

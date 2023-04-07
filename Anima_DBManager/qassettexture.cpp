@@ -30,8 +30,10 @@ QAssetTexture::QAssetTexture(QWidget *parent) :
 
 void QAssetTexture::SetValue(const QString& _texturePath)
 {
+    QString actualPath = _texturePath.isEmpty() || _texturePath[0] != '!' ? _texturePath : _texturePath.right(_texturePath.length() -1);
+
     myAssetLabel->SetValue(_texturePath);
-    myTexturePreview->setPixmap(QPixmap(_texturePath).scaled(32,32, Qt::AspectRatioMode::KeepAspectRatioByExpanding));
+    myTexturePreview->setPixmap(QPixmap(actualPath).scaled(32,32, Qt::AspectRatioMode::KeepAspectRatioByExpanding));
 }
 
 

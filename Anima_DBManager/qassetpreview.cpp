@@ -21,6 +21,14 @@ QAssetPreview::QAssetPreview(QWidget *parent) :
 void QAssetPreview::SetFilePath(const QString& _filePath)
 {
     QString shortFilePath = _filePath;
-    shortFilePath.replace(DB_Manager::GetDB_Manager().GetProjectContentFolderPath(), "<font color=\"darkgreen\">PROJECT_FOLDER/</font>");
+    if (_filePath[0] == '!')
+    {
+        shortFilePath.replace('!', "<font color=\"red\">");
+        shortFilePath += "</font>";
+    }
+    else
+    {
+        shortFilePath.replace(DB_Manager::GetDB_Manager().GetProjectContentFolderPath(), "<font color=\"darkgreen\">PROJECT_FOLDER/</font>");
+    }
     myAssetPath->setText(shortFilePath);
 }

@@ -18,6 +18,7 @@
 
 #include <fstream>
 
+#include <QDir>
 #include <qdebug.h>
 
 DB_Manager::DB_Manager()
@@ -34,10 +35,27 @@ DB_Manager& DB_Manager::GetDB_Manager()
     static DB_Manager singleton = DB_Manager();
     return singleton;
 }
+
+bool DB_Manager::SetProjectContentFolderPath(const QString& _path)
+{
+    myProjectContentFolderPath = _path;
+    myProjectPathIsValid = QDir(myProjectContentFolderPath).exists();
+    return myProjectPathIsValid;
+}
+const QString& DB_Manager::GetProjectContentFolderPath() const {
+    return myProjectPathIsValid ? myProjectContentFolderPath : myHomePath;
+}
+bool DB_Manager::IsProjectContentFolderPathValid() const
+{
+    return myProjectPathIsValid;
+}
+
+
 void DB_Manager::Init()
 {
     // Project Folder
-    myProjectContentFolderPath = "D:/Documents/Unreal/Anima_OLD/Content/";
+    SetProjectContentFolderPath("D:/Documents/Unreal/Anima_OLD/Content/");
+    qDebug() << "Project path is valid : " << myProjectPathIsValid;
 
     // Enums (TODO : remove to instead add automatic creation from loading file)
     AddEnum(Enumerator("Type", {"SOUL", "FIRE", "WATER", "GRASS", "GROUND", "THUNDER", "WIND", "SNOW", "MYSTIC", "CORRUPTION", "TIME", "SPACE"},
@@ -72,7 +90,7 @@ void DB_Manager::Init()
     emit StringTableAdded(1);
 
     // Setup template
-    TemplateStructure templ1 = TemplateStructure("Struct Test", QColorConstants::DarkRed);
+    TemplateStructure templ1 = TemplateStructure("Struct Test", "STT", QColorConstants::DarkRed);
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Texture, "Texture", AttributeParam());
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Sound, "Sound", AttributeParam());
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, "Bool", AttributeParam());

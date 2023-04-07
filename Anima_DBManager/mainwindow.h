@@ -52,5 +52,11 @@ public slots:
     void OnStructItemFocus(const int _tableIndex, const int _index);
     void OnStructItemChanged(const int _tableIndex);
     void OnStructAttributeNameChanged(const int _tableIndex);
+
+    void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
+    void OnExportAllStringTables(SStringHelper::SStringLanguages _language);
+    void OnExportCurrentStructTable();
+    void OnExportAllStructTables();
+    void OnExportAll();
 };
 #endif // MAINWINDOW_H
