@@ -15,6 +15,19 @@ QString GetLanguageString(SStringLanguages _language)
     }
     return "";
 }
+QString GetLanguageCD(SStringLanguages _language)
+{
+    switch (_language)
+    {
+        case SStringLanguages::French:
+            return "FR";
+        case SStringLanguages::English:
+            return "EN";
+        default:
+            break;
+    }
+    return "";
+}
 
 QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const QString&)> _ValidateId, bool _noneAutorized)
 {

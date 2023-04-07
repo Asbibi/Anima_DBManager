@@ -17,6 +17,9 @@ class DB_Manager : public QObject
 
 private:
     QString myProjectContentFolderPath;
+    const QString myHomePath = "/home";
+    bool myProjectPathIsValid = false;
+
     QList<AttributeParam*> myAttributeParamPtrs;
     QList<Enumerator> enumerators;
     QList<StructureDB*> myStructures;
@@ -36,7 +39,8 @@ public:
 
     void Init();
 
-    const QString& GetProjectContentFolderPath() const { return myProjectContentFolderPath; }
+    bool SetProjectContentFolderPath(const QString& _path);
+    const QString& GetProjectContentFolderPath() const;
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
