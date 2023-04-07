@@ -25,6 +25,7 @@ public:
     ~StructureDB();
 
     void SetTemplateName(const QString& _name);
+    void SetTemplateAbbrev(const QString& _abbrev);
     void SetTemplateAttributeName(int _index, QString& _name);
     void AddStructureAt(int _index);
     void DuplicateStructureAt(int _index, int _originalIndex);
@@ -41,6 +42,7 @@ public:
 
 
     const QString& GetTemplateName() const;
+    const QString& GetTemplateAbbrev() const;
     QString GetTemplateColorString() const;
     const TemplateStructure& GetTemplate() const;
     AttributeTypeHelper::Type GetAttributeTemplateType(int _attributeIndex) const;

@@ -86,7 +86,7 @@ void DB_Manager::Init()
     emit StringTableAdded(1);
 
     // Setup template
-    TemplateStructure templ1 = TemplateStructure("Struct Test", QColorConstants::DarkRed);
+    TemplateStructure templ1 = TemplateStructure("Struct Test", "STT", QColorConstants::DarkRed);
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Texture, "Texture", AttributeParam());
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Sound, "Sound", AttributeParam());
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, "Bool", AttributeParam());

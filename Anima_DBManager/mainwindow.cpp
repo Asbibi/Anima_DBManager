@@ -36,8 +36,10 @@ MainWindow::MainWindow(QWidget *parent) :
     fileMenu->addAction("Save");
     fileMenu->addAction("Save As...");
 
-    exportMenu->addAction("Export Current Structure Table");
-    exportMenu->addAction("Export All Structure Tables");
+    auto* exportCurrentStruct = exportMenu->addAction("Export Current Structure Table");
+    QObject::connect(exportCurrentStruct, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable);
+    auto* exportAllStruct = exportMenu->addAction("Export All Structure Tables");
+    QObject::connect(exportAllStruct, &QAction::triggered, this, &MainWindow::OnExportAllStructTables);
     exportMenu->addSeparator();
     QMenu* exportCurrentStringMenu = exportMenu->addMenu("Export Current String Table");
     QMenu* exportAllStringsMenu = exportMenu->addMenu("Export All String Tables");
@@ -363,10 +365,45 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
         }
     }
 }
+void MainWindow::OnExportCurrentStructTable()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, "Select Struct DataTable Directory",
+                                                    myManager.GetProjectContentFolderPath());
+    if (dir.isEmpty())
+    {
+        return;
+    }
 
+    QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->currentWidget());
+    Q_ASSERT(currentTab != nullptr);
+
+    currentTab->ExportStructsToCSV(dir);
+}
+void MainWindow::OnExportAllStructTables()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, "Select Struct DataTable Directory",
+                                                    myManager.GetProjectContentFolderPath());
+    if (dir.isEmpty())
+    {
+        return;
+    }
+
+    int widgetCount = myTabString->count();
+    for (int i = 0; i < widgetCount; i++)
+    {
+        QStructureTable* tab = dynamic_cast<QStructureTable*>(myTabStruct->widget(i));
+        if(tab == nullptr)
+        {
+            continue;
+        }
+
+        tab->ExportStructsToCSV(dir);
+    }
+}
 void MainWindow::OnExportAll()
 {
-    qDebug() << "WIP -- Export structures";
-    OnExportAllStringTables(SStringHelper::SStringLanguages::Count);
     // Todo : change so there is only 1 directory selection for both struct and string exports ?
+
+    OnExportAllStructTables();
+    OnExportAllStringTables(SStringHelper::SStringLanguages::Count);
 }

@@ -4,13 +4,16 @@
 
 #include "sstringhelper.h"
 
-TemplateStructure::TemplateStructure(QString _structName, QColor _structColor) :
+TemplateStructure::TemplateStructure(const QString& _structName, const QColor& _structColor) :
+    TemplateStructure(_structName, _structName.left(2).toUpper(), _structColor)
+{}
+TemplateStructure::TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor) :
     myStructColor(_structColor),
-    myStructName(_structName)
+    myStructName(_structName),
+    myStructAbbrev(_structAbbrev)
 {}
 TemplateStructure::TemplateStructure(const TemplateStructure& _other) :    
-    myStructColor(_other.myStructColor),
-    myStructName(_other.myStructName)
+    TemplateStructure(_other.myStructName, _other.myStructAbbrev, _other.myStructColor)
 {
     for (const auto& otherTemplAttr : _other.myAttributeTemplates)
         myAttributeTemplates.append(otherTemplAttr);
@@ -19,6 +22,7 @@ void TemplateStructure::operator=(const TemplateStructure& _another)
 {
     myStructColor = _another.myStructColor;
     myStructName = _another.myStructName;
+    myStructAbbrev = _another.myStructAbbrev;
 
     myAttributeTemplates.clear();
     for (const auto& otherTemplAttr : _another.myAttributeTemplates)

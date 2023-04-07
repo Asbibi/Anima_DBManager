@@ -22,7 +22,7 @@ QString ATableString::GetDisplayedText(bool complete) const
 }
 void ATableString::WriteValue_CSV(std::ofstream& file) const
 {
-    qFatal("TODO : implement CSV exporter for Table Strings");
+    qWarning("TODO : implement CSV exporter for Table Strings");
     file << "**WIP**";
 }
 void ATableString::SetValueFromText(const QString& text)

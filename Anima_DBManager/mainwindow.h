@@ -55,7 +55,8 @@ public slots:
 
     void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
     void OnExportAllStringTables(SStringHelper::SStringLanguages _language);
-
+    void OnExportCurrentStructTable();
+    void OnExportAllStructTables();
     void OnExportAll();
 };
 #endif // MAINWINDOW_H

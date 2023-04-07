@@ -18,6 +18,7 @@ private:
 public:
     explicit QStructureTable(StructureDB& _structureDB);
     virtual ~QStructureTable();
+    void ExportStructsToCSV(const QString _directoryPath);
 
 public slots:
     void UpdateTable();

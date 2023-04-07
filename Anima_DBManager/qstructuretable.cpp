@@ -17,6 +17,26 @@ QStructureTable::~QStructureTable()
     DeleteAllChilds();
 }
 
+
+void QStructureTable::ExportStructsToCSV(const QString _directoryPath)
+{
+    Q_ASSERT(!_directoryPath.isEmpty());
+
+    QString filePath = _directoryPath + "/DT_" + myStructureDB.GetTemplateName() + ".csv";
+    qDebug() << "Export String table " << myStructureDB.GetTemplateName() << " to file : " << filePath;
+
+    std::ofstream csvFile(filePath.toStdString());
+    if (!csvFile)
+    {
+        qCritical() <<"ERROR EXPORT STRUCT TABLE : " << filePath << " couldn't be open";
+        return;
+    }
+
+    myStructureDB.WriteValue_CSV_Table(csvFile);
+
+    csvFile.close();
+}
+
 void QStructureTable::DeleteAllChilds()
 {
     while (myChildWidgetsToDelete.size() > 0)
