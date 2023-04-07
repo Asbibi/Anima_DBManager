@@ -54,5 +54,8 @@ public slots:
     void OnStructAttributeNameChanged(const int _tableIndex);
 
     void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
+    void OnExportAllStringTables(SStringHelper::SStringLanguages _language);
+
+    void OnExportAll();
 };
 #endif // MAINWINDOW_H
