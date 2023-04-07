@@ -79,6 +79,8 @@ bool AreParamValid(const Type _type, const AttributeParam& _param)
         {
             return !(!_param.ignoreMin && !_param.ignoreMax && _param.min_f > _param.max_f);
         }
+        default:
+            break;
     }
     return true;
 }

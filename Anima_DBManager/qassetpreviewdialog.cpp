@@ -56,6 +56,8 @@ QAssetPreviewDialog::QAssetPreviewDialog(const AttributeTypeHelper::Type& assetT
             title = "Mesh" + title;
             break;
         }
+        default:
+            break;
     }
 
     // ----------

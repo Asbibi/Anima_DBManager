@@ -9,7 +9,9 @@ QString GetLanguageString(SStringLanguages _language)
         case SStringLanguages::French:
             return "Français";
         case SStringLanguages::English:
-            return "English";
+            return "English";            
+        default:
+            break;
     }
     return "";
 }

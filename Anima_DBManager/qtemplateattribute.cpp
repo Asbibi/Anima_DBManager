@@ -174,6 +174,8 @@ void QTemplateAttribute::UpdateContent(AttributeTypeHelper::Type _type)
             QObject::connect(maxValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttribute::OnParamChanged_MaxInt);
             break;
         }
+        default:
+            break;
     }
 }
 

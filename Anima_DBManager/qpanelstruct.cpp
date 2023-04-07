@@ -15,7 +15,7 @@ QPanelStruct::QPanelStruct(QWidget* parent)
 {
     QLayout* myLayout = layout();
 
-    QGroupBox* editGroupBox = new QGroupBox("Edit Selected String Table");
+    QGroupBox* editGroupBox = new QGroupBox("Edit Selected Structure");
     QFormLayout* editLayout = new QFormLayout();
     editGroupBox->setLayout(editLayout);
     myLayout->addWidget(editGroupBox);
