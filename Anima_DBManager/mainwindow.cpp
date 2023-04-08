@@ -15,6 +15,7 @@
 
 #include "qstructuretable.h"
 #include "qsstringtable.h"
+#include "qimportstringdialog.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -26,8 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     myMenuBar = new QMenuBar(this);
     QMenu* fileMenu = myMenuBar->addMenu("File");
-    QMenu* exportMenu = myMenuBar->addMenu("Export");
-    QMenu* importMenu = myMenuBar->addMenu("Import");
+    QMenu* exportImportMenu = myMenuBar->addMenu("Export/Import");
     QMenu* displayMenu = myMenuBar->addMenu("Display");
     setMenuBar(myMenuBar);
 
@@ -36,20 +36,23 @@ MainWindow::MainWindow(QWidget *parent) :
     fileMenu->addAction("Save");
     fileMenu->addAction("Save As...");
 
-    auto* exportCurrentStruct = exportMenu->addAction("Export Current Structure Table");
+    auto* exportCurrentStruct = exportImportMenu->addAction("Export Current Structure Table");
     QObject::connect(exportCurrentStruct, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable);
-    auto* exportAllStruct = exportMenu->addAction("Export All Structure Tables");
+    auto* exportAllStruct = exportImportMenu->addAction("Export All Structure Tables");
     QObject::connect(exportAllStruct, &QAction::triggered, this, &MainWindow::OnExportAllStructTables);
-    exportMenu->addSeparator();
-    QMenu* exportCurrentStringMenu = exportMenu->addMenu("Export Current String Table");
-    QMenu* exportAllStringsMenu = exportMenu->addMenu("Export All String Tables");
-    exportMenu->addSeparator();
-    auto* exportAll = exportMenu->addAction("Export Everything");
+    exportImportMenu->addSeparator();
+    QMenu* exportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
+    QMenu* exportAllStringsMenu = exportImportMenu->addMenu("Export All String Tables");
+    exportImportMenu->addSeparator();
+    auto* exportAll = exportImportMenu->addAction("Export Everything");
     QObject::connect(exportAll, &QAction::triggered, this, &MainWindow::OnExportAll);
 
+    exportImportMenu->addSeparator();
+    auto* importStructAction = exportImportMenu->addAction("Import Structure Table");
+    QObject::connect(importStructAction, &QAction::triggered, this, &MainWindow::OnImportStuctTable);
+    auto* importStringAction = exportImportMenu->addAction("Import String Table");
+    QObject::connect(importStringAction, &QAction::triggered, this, &MainWindow::OnImportStringTable);
 
-    importMenu->addAction("Import in Current Structure Table");
-    QMenu* importCurrentStringMenu = importMenu->addMenu("Import in Current String Table");
 
     for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
     {
@@ -58,8 +61,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
         auto* exportAllStringAction = exportAllStringsMenu->addAction("Export All in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
         QObject::connect(exportAllStringAction, &QAction::triggered, this, [this, i]{OnExportAllStringTables((SStringHelper::SStringLanguages)i);});
-
-        importCurrentStringMenu->addAction("Import in Current in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
     }
     auto* exportCurrentStringAllLanguage = exportCurrentStringMenu->addAction("Export Current in All Languages");
     QObject::connect(exportCurrentStringAllLanguage, &QAction::triggered, this, [this]{OnExportCurrentStringTable(SStringHelper::SStringLanguages::Count);});
@@ -406,4 +407,15 @@ void MainWindow::OnExportAll()
 
     OnExportAllStructTables();
     OnExportAllStringTables(SStringHelper::SStringLanguages::Count);
+}
+
+void MainWindow::OnImportStringTable()
+{
+    auto* dialog = new QImportStringDialog(myStringWidget, this);
+    dialog->exec();
+    delete dialog;
+}
+void MainWindow::OnImportStuctTable()
+{
+    qDebug() << "Import Struct Table";
 }

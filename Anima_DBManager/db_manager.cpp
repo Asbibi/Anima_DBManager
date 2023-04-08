@@ -67,8 +67,9 @@ void DB_Manager::Init()
     AddEnum(Enumerator("MoveCategory", {"PHYSIC","SPECIAL","SUPPORT"}));
 
     // String Tables;
-    AddStringTablePrivate("Ceribou");
-    AddStringTablePrivate("Shitty Stuff");
+    int strIndex = -1;
+    AddStringTablePrivate("Ceribou", strIndex);
+    AddStringTablePrivate("Shitty Stuff", strIndex);
     QString text1s[] = {"Ceribou (anglais : Cherubi ; japonais : チェリンボ Cherinbo) est un Pokémon de type Plante de la quatrième génération.",
                         "Cherubi (Japanese: チェリンボ Cherinbo) is a Grass-type Pokémon introduced in Generation IV. It evolves into Cherrim starting at level 25."};
     QString text2s[] = {"Palkia shiny de ses morts", ""};
@@ -670,7 +671,7 @@ SStringTable* DB_Manager::GetStringTable(const QString& _tableName)
 {
     return GetStringTable(GetStringTableIndex(_tableName));
 }
-void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int _index)
+void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int& _index)
 {
     const int count = myStringTables.count();
     if (_index < 0 || _index > count)

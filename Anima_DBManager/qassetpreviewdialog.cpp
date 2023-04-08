@@ -2,6 +2,7 @@
 
 #include "db_manager.h"
 #include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <QFileDialog>
 
 QAssetPreviewDialog::QAssetPreviewDialog(const AttributeTypeHelper::Type& assetType,

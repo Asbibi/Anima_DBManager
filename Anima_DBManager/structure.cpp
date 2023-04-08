@@ -10,6 +10,7 @@ Structure::Structure(TemplateStructure& _structureTemplate) :
         myAttributes.push_back(_templ.GenerateAttribute());
 }
 Structure::Structure(const Structure& _other, bool _attrDeepCopy) :
+    QObject(),
     myTemplate(_other.myTemplate)
 {
     if (_attrDeepCopy)
