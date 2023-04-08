@@ -6,6 +6,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include "sstringhelper.h"
+#include "sstringtable.h"
 #include "qpanelstring.h"
 
 class QImportStringDialog : public QDialog
@@ -19,11 +20,11 @@ private:
     QLineEdit* myNewTableName;
     QPanelString* myStringWidget;
 
+    void PerformImport(SStringTable* _stringTable, int _overrideChoice);
+
 public:
     QImportStringDialog(QPanelString* _stringWidget, QWidget* _parent = nullptr);
-
-signals:
-    //void FilePathChanged(const QString& _filePath);
+    int GetTableIndex() const;
 
 public slots:
     void OnApplyBtnClicked();

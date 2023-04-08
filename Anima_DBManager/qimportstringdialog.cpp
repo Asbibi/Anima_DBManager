@@ -1,8 +1,10 @@
 #include "qimportstringdialog.h"
 
 #include <QFileDialog>
-#include <QGridLayout>
 #include <QFormLayout>
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -53,7 +55,7 @@ QImportStringDialog::QImportStringDialog(QPanelString* _stringWidget, QWidget* _
     myOverrideComboBox = new QComboBox();
     myOverrideComboBox->addItem("Overwrite with Imported");
     myOverrideComboBox->addItem("Keep existing");
-    myOverrideComboBox->addItem("Import with new name");
+    myOverrideComboBox->addItem("Import with new name (/!\\)");
     myOverrideComboBox->setEnabled(false);
     fLayout->addRow("On confict : ", myOverrideComboBox);
     myNewTableName = new QLineEdit("NewStringTable");
@@ -74,18 +76,90 @@ QImportStringDialog::QImportStringDialog(QPanelString* _stringWidget, QWidget* _
     setWindowTitle("Import CSV files as String Table");
 }
 
+int QImportStringDialog::GetTableIndex() const
+{
+    return myTableComboBox->currentIndex();
+}
+
+void QImportStringDialog::PerformImport(SStringTable* _stringTable, int _overrideChoice)
+{
+    Q_ASSERT(_stringTable != nullptr);
+    qDebug() << "Import String Table";
+    for (SStringHelper::SStringLanguages language : myCSVMap.keys())
+    {
+        QFile file(myCSVMap[language]);
+        if(!file.open(QIODevice::ReadOnly)) {
+            QMessageBox::information(0, "Error Reading CSV file", file.errorString());
+        }
+
+        QTextStream in(&file);
+
+        int lineNumber = 0;
+        while(!in.atEnd()) {
+            QString line = in.readLine();
+            if (lineNumber == 0)
+            {
+                lineNumber++;
+                continue;
+            }
+            lineNumber++;
+
+            //line.remove("\"");
+            QStringList fields = line.split("\",\"");
+            if (fields.count() != 2)
+            {
+                qWarning() << "Line " << lineNumber << " skipped because not formatted correctly : " << line;
+                continue;
+            }
+
+            fields[0].remove(0,1);
+            fields[1].remove(fields[1].length()-1,1);
+            if (fields[1].isEmpty())
+            {
+                continue;
+            }
+            qDebug() << "Importing language: " << SStringHelper::GetLanguageCD(language) << "key: " << fields[0] << " value: " << fields[1];
+
+            _stringTable->ImportString(language, fields[0], fields[1], _overrideChoice);
+        }
+
+        file.close();
+    }
+}
 
 void QImportStringDialog::OnApplyBtnClicked()
 {
+    if (myCSVMap.isEmpty())
+    {
+        QDialog::reject();
+        return;
+    }
+
+    int overrideChoice = myOverrideComboBox->currentIndex();
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     int stringTableIndex = myTableComboBox->currentIndex();
+    bool newTable = false;
     if (stringTableIndex == dbManager.GetStringTableCount())
     {
         dbManager.AddStringTable(myNewTableName->text());
-        myStringWidget->UpdateItemList();
+        overrideChoice = 0;
+        newTable = true;
+        dbManager.GetStringTable(stringTableIndex)->RemoveStringItem(0);
     }
 
-    qDebug() << "Import String Table";
+    PerformImport(dbManager.GetStringTable(stringTableIndex), overrideChoice);
+
+    if (newTable)
+    {
+        if (dbManager.GetStringTable(stringTableIndex)->GetStringItemCount() == 0)
+        {
+            dbManager.RemoveStringTable(stringTableIndex);
+        }
+        else
+        {
+            myStringWidget->UpdateItemList();
+        }
+    }
 
     QDialog::accept();
 }

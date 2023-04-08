@@ -78,7 +78,6 @@ const SStringItem* SStringTable::GetStringItem(const QString& _identifier) const
 
 
 
-
 void SStringTable::SetTableName(const QString& _name)
 {
     myTableName = _name;
@@ -225,6 +224,38 @@ void SStringTable::SetItemString(int _row, SStringHelper::SStringLanguages _col,
     }
 
     stringItem->SetString(_col, _text);
+}
+void SStringTable::ImportString(SStringHelper::SStringLanguages _language, const QString& _identifier, const QString& _text, int _overwritePolicy)
+{
+    int stringIndex = GetIndexFromIdentifier(_identifier);
+    if (stringIndex != -1)  // string already exists
+    {
+        if (!myStrings[stringIndex].GetString(_language).isEmpty())
+        {
+            if (_overwritePolicy == 1)
+            {
+                // Keep existing
+                // nothing to do
+                return;
+            }
+            else if (_overwritePolicy == 2)
+            {
+                // Write in a new line
+
+                stringIndex = GetStringItemCount();
+                AddStringItem(-1, &_identifier);
+            }
+            // else : overwrite existing : like the value is currently empty
+        }
+        myStrings[stringIndex].SetString(_language, _text);
+    }
+    else
+    {
+        // Line doesn't exists yet : need to create it
+        stringIndex = GetStringItemCount();
+        AddStringItem(-1, &_identifier);
+        myStrings[stringIndex].SetString(_language, _text);
+    }
 }
 
 

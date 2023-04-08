@@ -413,6 +413,16 @@ void MainWindow::OnImportStringTable()
 {
     auto* dialog = new QImportStringDialog(myStringWidget, this);
     dialog->exec();
+    int res = dialog->result();
+    if (res == QDialog::Accepted)
+    {
+        QSStringTable* stringTable = dynamic_cast<QSStringTable*>(myTabString->widget(dialog->GetTableIndex()));
+        if(stringTable != nullptr)
+        {
+            // can be nullptr if we imported in a new table that has been emptied and thus deleted
+            stringTable->UpdateTable();
+        }
+    }
     delete dialog;
 }
 void MainWindow::OnImportStuctTable()
