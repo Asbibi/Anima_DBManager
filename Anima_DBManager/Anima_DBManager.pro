@@ -45,6 +45,7 @@ SOURCES += \
     qdatatable.cpp \
     qelementhandler.cpp \
     qimportstringdialog.cpp \
+    qimportstructdialog.cpp \
     qlistwithsearch.cpp \
     qoptionalvalue.cpp \
     qpanelbase.cpp \
@@ -102,6 +103,7 @@ HEADERS += \
     qdatatable.h \
     qelementhandler.h \
     qimportstringdialog.h \
+    qimportstructdialog.h \
     qlistwithsearch.h \
     qoptionalvalue.h \
     qpanelbase.h \

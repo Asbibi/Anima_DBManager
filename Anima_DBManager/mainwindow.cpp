@@ -16,6 +16,7 @@
 #include "qstructuretable.h"
 #include "qsstringtable.h"
 #include "qimportstringdialog.h"
+#include "qimportstructdialog.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -427,5 +428,9 @@ void MainWindow::OnImportStringTable()
 }
 void MainWindow::OnImportStuctTable()
 {
-    qDebug() << "Import Struct Table";
+    auto* dialog = new QImportStructDialog(myStructWidget, this);
+    dialog->exec();
+    //int res = dialog->result();
+
+    delete dialog;
 }

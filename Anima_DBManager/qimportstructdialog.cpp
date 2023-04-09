@@ -1,4 +1,4 @@
-#include "qimportstringdialog.h"
+#include "qimportstructdialog.h"
 
 #include <QFileDialog>
 #include <QFormLayout>
@@ -11,56 +11,43 @@
 #include "db_manager.h"
 
 
-QImportStringDialog::QImportStringDialog(QPanelString* _stringWidget, QWidget* _parent) :
+QImportStructDialog::QImportStructDialog(QPanelStruct* _structWidget, QWidget* _parent) :
     QDialog(_parent),
-    myStringWidget(_stringWidget)
+    mySelectedFilePath(""),
+    myStructWidget(_structWidget)
 {
-    Q_ASSERT(_stringWidget != nullptr);
+    Q_ASSERT(myStructWidget != nullptr);
 
     QVBoxLayout* vLayout = new QVBoxLayout(this);
     setLayout(vLayout);
 
     const auto& dbManager = DB_Manager::GetDB_Manager();
     myTableComboBox = new QComboBox();
-    int stringTableCount = dbManager.GetStringTableCount();
-    for (int i = 0; i < stringTableCount; i++)
+    int structTableCount = dbManager.GetStructuresCount();
+    for (int i = 0; i < structTableCount; i++)
     {
-        myTableComboBox->addItem(dbManager.GetStringTable(i)->GetTableName());
+        myTableComboBox->addItem(dbManager.GetStructureTable(i)->GetTemplateName());
     }
-    myTableComboBox->addItem("*** NEW ***");
-    myTableComboBox->setCurrentIndex(stringTableCount);
-    QObject::connect(myTableComboBox, &QComboBox::currentIndexChanged, this, &QImportStringDialog::OnTableComboBoxChanged);
     vLayout->addWidget(myTableComboBox);
 
 
-
-    QWidget* fileWidget = new QWidget();
-    QGridLayout* gLayoutFile = new QGridLayout();
-    fileWidget->setLayout(gLayoutFile);
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
-    {
-        SStringHelper::SStringLanguages language = (SStringHelper::SStringLanguages)i;
-        gLayoutFile->addWidget(new QLabel(SStringHelper::GetLanguageString(language) + " :"), i, 0);
-        auto* fileLabel = new QLabel();
-        fileLabel->setMinimumWidth(200);
-        gLayoutFile->addWidget(fileLabel, i, 1);
-        auto* fileBtn = new QPushButton("+");
-        fileBtn->setMaximumWidth(20);
-        QObject::connect(fileBtn, &QPushButton::clicked, this, [this, language, fileLabel]{OnFileBtnClicked(language, fileLabel);});
-        gLayoutFile->addWidget(fileBtn, i, 2, Qt::AlignmentFlag::AlignCenter);
-    }
-    vLayout->addWidget(fileWidget);
-
     QFormLayout* fLayout = new QFormLayout();
+    QHBoxLayout* hLayoutOpen = new QHBoxLayout();
+    mySelectedFile = new QLabel();
+    mySelectedFile->setMinimumWidth(200);
+    hLayoutOpen->addWidget(mySelectedFile);
+    auto* fileBtn = new QPushButton("+");
+    fileBtn->setMaximumWidth(20);
+    QObject::connect(fileBtn, &QPushButton::clicked, this, &QImportStructDialog::OnFileBtnClicked);
+    hLayoutOpen->addWidget(fileBtn);
+    fLayout->addRow("Open file :", hLayoutOpen);
     myOverrideComboBox = new QComboBox();
     myOverrideComboBox->addItem("Overwrite with Imported");
     myOverrideComboBox->addItem("Keep existing");
     myOverrideComboBox->addItem("Import with new name (/!\\)");
-    myOverrideComboBox->setEnabled(false);
-    fLayout->addRow("On confict : ", myOverrideComboBox);
-    myNewTableName = new QLineEdit("NewStringTable");
-    fLayout->addRow("Name of new Table : ", myNewTableName);
+    fLayout->addRow("On confict :", myOverrideComboBox);
     vLayout->addLayout(fLayout);
+
 
     QWidget* btnWidget = new QWidget();
     QPushButton* applyBtn = new QPushButton("Apply");
@@ -68,20 +55,27 @@ QImportStringDialog::QImportStringDialog(QPanelString* _stringWidget, QWidget* _
     QHBoxLayout* hLayoutBtn = new QHBoxLayout();
     btnWidget->setLayout(hLayoutBtn);
     hLayoutBtn->addWidget(applyBtn);
-    QObject::connect(applyBtn, &QPushButton::clicked, this, &QImportStringDialog::OnApplyBtnClicked);
+    QObject::connect(applyBtn, &QPushButton::clicked, this, &QImportStructDialog::OnApplyBtnClicked);
     hLayoutBtn->addWidget(cancelBtn);
     QObject::connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
     vLayout->addWidget(btnWidget);
 
-    setWindowTitle("Import CSV files as String Table");
+    if (structTableCount == 0)
+    {
+        applyBtn->setEnabled(false);
+    }
+
+    setWindowTitle("Import CSV files as Struct Table");
 }
 
-int QImportStringDialog::GetTableIndex() const
+int QImportStructDialog::GetTableIndex() const
 {
     return myTableComboBox->currentIndex();
 }
 
-void QImportStringDialog::PerformImport(SStringTable* _stringTable, int _overrideChoice)
+
+/*
+void QImportStuctDialog::PerformImport(SStringTable* _stringTable, int _overrideChoice)
 {
     Q_ASSERT(_stringTable != nullptr);
     qDebug() << "Import String Table";
@@ -125,15 +119,16 @@ void QImportStringDialog::PerformImport(SStringTable* _stringTable, int _overrid
         file.close();
     }
 }
+*/
 
-void QImportStringDialog::OnApplyBtnClicked()
+void QImportStructDialog::OnApplyBtnClicked()
 {
-    if (myCSVMap.isEmpty())
+    if (mySelectedFilePath.isEmpty())
     {
         QDialog::reject();
         return;
     }
-
+/*
     int overrideChoice = myOverrideComboBox->currentIndex();
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     int stringTableIndex = myTableComboBox->currentIndex();
@@ -159,13 +154,13 @@ void QImportStringDialog::OnApplyBtnClicked()
             myStringWidget->UpdateItemList();
         }
     }
-
+*/
     QDialog::accept();
 }
 
-void QImportStringDialog::OnFileBtnClicked(SStringHelper::SStringLanguages _language, QLabel* _label)
+void QImportStructDialog::OnFileBtnClicked()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open CSV String Table file",
+    QString fileName = QFileDialog::getOpenFileName(this, "Open CSV Struct Table file",
                                                     DB_Manager::GetDB_Manager().GetProjectContentFolderPath(),
                                                     "CSV (*.csv)");
 
@@ -174,15 +169,7 @@ void QImportStringDialog::OnFileBtnClicked(SStringHelper::SStringLanguages _lang
         return;
     }
 
-    myCSVMap.insert(_language, fileName);
-
+    mySelectedFilePath = fileName;
     bool tooLong = fileName.length() > 35;
-    _label->setText(tooLong ? "..." + fileName.right(32) : fileName);
-}
-
-void QImportStringDialog::OnTableComboBoxChanged(int _index)
-{
-    bool newTable = _index == (myTableComboBox->count() -1);
-    myNewTableName->setEnabled(newTable);
-    myOverrideComboBox->setEnabled(!newTable);
+    mySelectedFile->setText(tooLong ? "..." + fileName.right(32) : fileName);
 }
