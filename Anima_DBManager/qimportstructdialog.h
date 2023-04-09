@@ -20,7 +20,8 @@ private:
     QComboBox* myOverrideComboBox;
     QPanelStruct* myStructWidget;
 
-    //void PerformImport(SStringTable* _stringTable, int _overrideChoice);
+    bool CheckCSVHearders(const StructureDB* _stringTable, const QString& _firstLine);
+    void PerformImport(StructureDB* _structTable, int _overrideChoice);
 
 public:
     QImportStructDialog(QPanelStruct* _structWidget, QWidget* _parent = nullptr);

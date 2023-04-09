@@ -73,53 +73,84 @@ int QImportStructDialog::GetTableIndex() const
     return myTableComboBox->currentIndex();
 }
 
-
-/*
-void QImportStuctDialog::PerformImport(SStringTable* _stringTable, int _overrideChoice)
+bool QImportStructDialog::CheckCSVHearders(const StructureDB* _stringTable, const QString& _firstLine)
 {
     Q_ASSERT(_stringTable != nullptr);
-    qDebug() << "Import String Table";
-    for (SStringHelper::SStringLanguages language : myCSVMap.keys())
+    QStringList headers = _firstLine.split(",");
+    const auto& structTemplate = _stringTable->GetTemplate();
+    const int attrCount = structTemplate.GetAttributesCount();
+    if (headers.count() != (attrCount + 1))
     {
-        QFile file(myCSVMap[language]);
-        if(!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::information(0, "Error Reading CSV file", file.errorString());
+        return false;
+    }
+
+    for (int i = 0; i < attrCount; i++)
+    {
+        if (structTemplate.GetAttributeName(i) != headers[i+1])
+        {
+            return false;
         }
+    }
 
-        QTextStream in(&file);
+    return true;
+}
 
-        int lineNumber = 0;
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            if (lineNumber == 0)
+
+void QImportStructDialog::PerformImport(StructureDB* _structTable, int _overrideChoice)
+{
+    Q_ASSERT(_structTable != nullptr);
+    qDebug() << "Import Struct Table";
+
+    QFile file(mySelectedFilePath);
+    if(!file.open(QIODevice::ReadOnly)) {
+        QMessageBox::information(0, "Error Reading CSV file", file.errorString());
+    }
+
+    QTextStream in(&file);
+
+    const int attrCount = _structTable->GetTemplate().GetAttributesCount();
+    const int attrCountPlusKey = attrCount + 1;
+    int lineNumber = 0;
+    while(!in.atEnd()) {
+        QString line = in.readLine();
+        if (lineNumber == 0)
+        {
+            if (CheckCSVHearders(_structTable, line))
             {
                 lineNumber++;
                 continue;
             }
-            lineNumber++;
-
-            QStringList fields = line.split("\",\"");
-            if (fields.count() != 2)
+            else
             {
-                qWarning() << "Line " << lineNumber << " skipped because not formatted correctly : " << line;
-                continue;
+                // display error message ? qWarning ?
+                return;
             }
+        }
+        lineNumber++;
 
-            fields[0].remove(0,1);
-            fields[1].remove(fields[1].length()-1,1);
-            if (fields[1].isEmpty())
-            {
-                continue;
-            }
-            qDebug() << "Importing language: " << SStringHelper::GetLanguageCD(language) << "key: " << fields[0] << " value: " << fields[1];
-
-            _stringTable->ImportString(language, fields[0], fields[1], _overrideChoice);
+        int firstComma = line.indexOf(',');
+        if (firstComma == -1)
+        {
+            qWarning() << "Line " << lineNumber << " skipped because not formatted correctly : " << line;
+            continue;
         }
 
-        file.close();
+        line.replace(firstComma, 1, "\",");
+        QStringList fields = line.split("\",\"");
+        if (fields.count() != attrCountPlusKey)
+        {
+            qWarning() << "Line " << lineNumber << " skipped because not formatted correctly : " << line;
+            continue;
+        }
+
+        fields[attrCount].remove(fields[attrCount].length()-1,1);
+
+        //_stringTable->ImportString(language, fields[0], fields[1], _overrideChoice);
     }
+
+    file.close();
 }
-*/
+
 
 void QImportStructDialog::OnApplyBtnClicked()
 {
@@ -128,33 +159,13 @@ void QImportStructDialog::OnApplyBtnClicked()
         QDialog::reject();
         return;
     }
-/*
+
     int overrideChoice = myOverrideComboBox->currentIndex();
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
-    int stringTableIndex = myTableComboBox->currentIndex();
-    bool newTable = false;
-    if (stringTableIndex == dbManager.GetStringTableCount())
-    {
-        dbManager.AddStringTable(myNewTableName->text());
-        overrideChoice = 0;
-        newTable = true;
-        dbManager.GetStringTable(stringTableIndex)->RemoveStringItem(0);
-    }
+    int structTableIndex = myTableComboBox->currentIndex();
 
-    PerformImport(dbManager.GetStringTable(stringTableIndex), overrideChoice);
+    PerformImport(dbManager.GetStructureTable(structTableIndex), overrideChoice);
 
-    if (newTable)
-    {
-        if (dbManager.GetStringTable(stringTableIndex)->GetStringItemCount() == 0)
-        {
-            dbManager.RemoveStringTable(stringTableIndex);
-        }
-        else
-        {
-            myStringWidget->UpdateItemList();
-        }
-    }
-*/
     QDialog::accept();
 }
 

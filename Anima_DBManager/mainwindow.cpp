@@ -430,7 +430,13 @@ void MainWindow::OnImportStuctTable()
 {
     auto* dialog = new QImportStructDialog(myStructWidget, this);
     dialog->exec();
-    //int res = dialog->result();
+    int res = dialog->result();
+    if (res == QDialog::Accepted)
+    {
+        QStructureTable* structTable = dynamic_cast<QStructureTable*>(myTabStruct->widget(dialog->GetTableIndex()));
+        Q_ASSERT(structTable);
+        structTable->UpdateTable();
+    }
 
     delete dialog;
 }
