@@ -14,7 +14,9 @@ public:
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Mesh; };
     virtual Attribute* CreateDuplica()                          const override;
-    virtual void WriteValue_CSV(std::ofstream& file)            const override;
+    virtual const QString& GetAssetClassNameForCSV()            const override;
+    virtual const QString& GetAssetFileExtension()              const override;
+    static const QString& GetStaticAssetFileExtension();
 
     bool GetIsSkeletal() const { return isSkeletal; }
     void SetIsSkeletal(bool _isSkeletal) { isSkeletal = _isSkeletal; }

@@ -10,7 +10,7 @@
 #include "areference.h"
 #include "atablestring.h"
 
-#include "aaaniminstance.h"
+#include "aasset.h"
 #include "aamesh.h"
 #include "aaniagara.h"
 #include "aasound.h"
@@ -67,8 +67,9 @@ void DB_Manager::Init()
     AddEnum(Enumerator("MoveCategory", {"PHYSIC","SPECIAL","SUPPORT"}));
 
     // String Tables;
-    AddStringTablePrivate("Ceribou");
-    AddStringTablePrivate("Shitty Stuff");
+    int strIndex = -1;
+    AddStringTablePrivate("Ceribou", strIndex);
+    AddStringTablePrivate("Shitty Stuff", strIndex);
     QString text1s[] = {"Ceribou (anglais : Cherubi ; japonais : チェリンボ Cherinbo) est un Pokémon de type Plante de la quatrième génération.",
                         "Cherubi (Japanese: チェリンボ Cherinbo) is a Grass-type Pokémon introduced in Generation IV. It evolves into Cherrim starting at level 25."};
     QString text2s[] = {"Palkia shiny de ses morts", ""};
@@ -94,6 +95,7 @@ void DB_Manager::Init()
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Texture, "Texture", AttributeParam());
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Sound, "Sound", AttributeParam());
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, "Bool", AttributeParam());
+    //templ1.AddAttributeTemplate(AttributeTypeHelper::Type::UAsset, "Standard Asset", AttributeParam());
     AttributeParam tempEnumParam = AttributeParam();
     tempEnumParam.enumeratorIndex = 0;
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Enum, "Enum", tempEnumParam);          // Enum requires that the param has a non null enum ptr
@@ -670,7 +672,7 @@ SStringTable* DB_Manager::GetStringTable(const QString& _tableName)
 {
     return GetStringTable(GetStringTableIndex(_tableName));
 }
-void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int _index)
+void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int& _index)
 {
     const int count = myStringTables.count();
     if (_index < 0 || _index > count)

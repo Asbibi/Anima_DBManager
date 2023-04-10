@@ -30,6 +30,7 @@ public:
     const Attribute* GetAttribute(const QString& _attName) const;
     void SetAttributeValueFromText(int _attIndex, QString _valueText);
     void SetAttributeValueFromText(const QString& _attName, QString _valueText);
+    void ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue);
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attindex);
     void FixAttributeTypeToDefault(int _attIndex);

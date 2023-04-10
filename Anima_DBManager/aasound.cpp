@@ -14,8 +14,18 @@ Attribute* AASound::CreateDuplica() const
     return new AASound(mySharedParam, filePath);
 }
 
-void AASound::WriteValue_CSV(std::ofstream& file) const
+
+const QString& AASound::GetAssetClassNameForCSV() const
 {
-    qWarning("Sound : Need to check the correct prefix");
-    AAsset::WriteValue_CSV(file);
+    static QString className = "/Script/Engine.SoundWave";
+    return className;
+}
+const QString& AASound::GetAssetFileExtension() const
+{
+    return AASound::GetStaticAssetFileExtension();
+}
+const QString& AASound::GetStaticAssetFileExtension()
+{
+    static QString ext = "wav";
+    return ext;
 }

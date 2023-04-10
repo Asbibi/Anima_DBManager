@@ -65,7 +65,7 @@ void QSStringTable::ExportStringsToCSV(const QString _directoryPath, SStringHelp
         return;
     }
 
-    csvFile << "Key,SourceString";
+    csvFile << "Key,SourceString\n";
     stringTable.WriteValue_CSV(csvFile, _language);
 
     csvFile.close();

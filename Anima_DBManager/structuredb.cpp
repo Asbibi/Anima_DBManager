@@ -221,7 +221,7 @@ const QString StructureDB::GetStructureRowName(int index) const
     if (!CheckIndex(index))
         return "";
 
-    return GetTemplateAbbrev() + "_" + QString::number(index);
+    return GetTemplateAbbrev() + QString("%1").arg(index, 3, 10, QChar('0')); //QString::number(index);
 }
 const QString StructureDB::GetStructureRowName(const Structure* _structure) const
 {
@@ -254,5 +254,30 @@ void StructureDB::WriteValue_CSV_Table(std::ofstream& file) const
     {
         file << GetStructureRowName(i).toStdString();
         myStructures[i]->WriteValue_CSV_AsRow(file);
+    }
+}
+void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy)
+{
+    int rowCount = GetStructureCount();
+    bool exists = _index < rowCount;
+
+    if (exists && _overwritePolicy == 1)
+    {
+        // Keep existing
+        // nothing to do
+        return;
+    }
+    else if (!exists || _overwritePolicy == 2)
+    {
+        // Write in a new row
+        _index = rowCount;
+        AddStructureAt(-1);
+    }
+    // else (exists && policy=3): overwrite existing
+
+    int attributeCount = fields.count();
+    for (int i = 0; i < attributeCount; i++)
+    {
+        myStructures[_index]->ReadAttributeValue_CSV(i, fields[i]);
     }
 }

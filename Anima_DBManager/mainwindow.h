@@ -58,5 +58,8 @@ public slots:
     void OnExportCurrentStructTable();
     void OnExportAllStructTables();
     void OnExportAll();
+
+    void OnImportStringTable();
+    void OnImportStuctTable();
 };
 #endif // MAINWINDOW_H

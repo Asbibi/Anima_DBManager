@@ -33,7 +33,7 @@ void QAssetLabel::OpenFileDialog()
 {
     QString fileName = myFilePath;
 
-    if (myAssetType == AttributeTypeHelper::Type::Niagara || myAssetType == AttributeTypeHelper::Type::AnimInstance || myFilePath.isEmpty())
+    if (myAssetType == AttributeTypeHelper::Type::UAsset || myAssetType == AttributeTypeHelper::Type::Niagara || myFilePath.isEmpty())
     {
         fileName = QFileDialog::getOpenFileName(this, myDialogTitle, myFilePath.isEmpty() ? DB_Manager::GetDB_Manager().GetProjectContentFolderPath() : myFilePath, myDialogExtensions);
     }

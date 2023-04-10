@@ -14,9 +14,8 @@ Attribute* AANiagara::CreateDuplica() const
     return new AANiagara(mySharedParam, filePath);
 }
 
-void AANiagara::WriteValue_CSV(std::ofstream& file) const
+const QString& AANiagara::GetAssetClassNameForCSV() const
 {
-    qWarning("Niagara : Need to check the correct prefix");
-    file << "NiagaraSystem";
-    AAsset::WriteValue_CSV(file);
+    static QString className = "/Script/Engine.NiagaraSystem";
+    return className;
 }

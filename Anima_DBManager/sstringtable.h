@@ -45,7 +45,7 @@ public:
 
     bool SetItemIdentifier(const int _index, const QString& _identifier);
     void SetItemString(int _row, SStringHelper::SStringLanguages _col, const QString& _text);
-
+    void ImportString(SStringHelper::SStringLanguages _language, const QString& _identifier, const QString& _text, int _overwritePolicy);
 
     void WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language) const;
 };

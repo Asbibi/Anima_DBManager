@@ -11,7 +11,7 @@
 #include "areference.h"
 #include "atablestring.h"
 
-#include "aaaniminstance.h"
+#include "aasset.h"
 #include "aamesh.h"
 #include "aaniagara.h"
 #include "aasound.h"
@@ -66,7 +66,7 @@ void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
         //CASE_INIT_TEMPLATE(Structure);
         CASE_INIT_TEMPLATE(Reference);
         CASE_INIT_TEMPLATE(TableString);
-        CASE_INIT_TEMPLATE_WITH_CLASS(AnimInstance, AAAnimInstance);
+        CASE_INIT_TEMPLATE_WITH_CLASS(UAsset, AAsset);
         CASE_INIT_TEMPLATE_WITH_CLASS(Mesh, AAMesh);
         CASE_INIT_TEMPLATE_WITH_CLASS(Niagara, AANiagara);
         CASE_INIT_TEMPLATE_WITH_CLASS(Sound, AASound);

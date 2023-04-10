@@ -26,6 +26,13 @@ void ATableString::WriteValue_CSV(std::ofstream& file) const
 }
 void ATableString::SetValueFromText(const QString& text)
 {
+    if (text.isEmpty() || text == "##")
+    {
+        myTableName = "";
+        myStringIdentifier = "";
+        return;
+    }
+
     QString tableId = text.section('#', 1,1);
     QString stringId = text.section('#', 2,2);
     if (text != ("#" + tableId + "#" + stringId) || stringId.contains('#'))
@@ -60,6 +67,16 @@ void ATableString::CopyValueFromOther(const Attribute* _other)
     myTableName = other_ATS->myTableName;
     myStringIdentifier = other_ATS->myStringIdentifier;
 }
+void ATableString::ReadValue_CSV(const QString& _text)
+{
+    QString textCopy = _text;
+    textCopy.replace("(myTable=", "#");
+    textCopy.replace(",myKey=\"", "#");
+    int textLength = textCopy.length();
+    textCopy.remove(textLength - 2, 2);
+    SetValueFromText(textCopy);
+}
+
 
 bool ATableString::HasValidValues() const
 {

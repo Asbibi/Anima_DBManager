@@ -59,7 +59,7 @@ void AReference::SetValueFromText(const QString& text)
     int structIndex = (contentText.remove('&')).toInt(&ok);
     if (!ok)
     {
-        qFatal("\n\nInvalid Index given while setting <REFERENCE> Attribute's value:\n\n\t===== Abort =====\n\n");
+        SetReference(nullptr);
         return;
     }
 
@@ -73,6 +73,10 @@ void AReference::CopyValueFromOther(const Attribute* _other)
         return;
 
     myStructureRef = other_AR->myStructureRef;
+}
+void AReference::ReadValue_CSV(const QString& _text)
+{
+    SetValueFromText('&' + QString(_text).remove(mySharedParam.structTable->GetTemplateAbbrev()));
 }
 
 

@@ -32,7 +32,7 @@ private:
 
     int GetStringTableIndex(const QString& _tableName) const;
     int GetStructureTableIndex(const QString& _structName) const;
-    void AddStringTablePrivate(const QString& _newTableName, int _index = -1);
+    void AddStringTablePrivate(const QString& _newTableName, int& _index);
 
 
 public:

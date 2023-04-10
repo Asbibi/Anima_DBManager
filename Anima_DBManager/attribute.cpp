@@ -13,3 +13,9 @@ void Attribute::EmitValueChanged()
 {
     emit OnValueChanged(this);
 }
+
+void Attribute::ReadValue_CSV(const QString& text)
+{
+    // By default simply use the standard set from text method
+    SetValueFromText(text);
+}

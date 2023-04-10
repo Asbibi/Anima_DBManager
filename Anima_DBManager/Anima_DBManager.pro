@@ -11,7 +11,6 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    aaaniminstance.cpp \
     aamesh.cpp \
     aaniagara.cpp \
     aarray.cpp \
@@ -44,6 +43,8 @@ SOURCES += \
     qaugmentedlist.cpp \
     qdatatable.cpp \
     qelementhandler.cpp \
+    qimportstringdialog.cpp \
+    qimportstructdialog.cpp \
     qlistwithsearch.cpp \
     qoptionalvalue.cpp \
     qpanelbase.cpp \
@@ -67,8 +68,6 @@ SOURCES += \
     templatestructure.cpp
 
 HEADERS += \
-    AttributeType.h \
-    aaaniminstance.h \
     aamesh.h \
     aaniagara.h \
     aarray.h \
@@ -86,6 +85,7 @@ HEADERS += \
     attribute.h \
     attributeparam.h \
     attributetype.h \
+    attributetype.h \
     db_manager.h \
     enumerator.h \
     mainwindow.h \
@@ -100,6 +100,8 @@ HEADERS += \
     qaugmentedlist.h \
     qdatatable.h \
     qelementhandler.h \
+    qimportstringdialog.h \
+    qimportstructdialog.h \
     qlistwithsearch.h \
     qoptionalvalue.h \
     qpanelbase.h \

@@ -10,6 +10,7 @@ Structure::Structure(TemplateStructure& _structureTemplate) :
         myAttributes.push_back(_templ.GenerateAttribute());
 }
 Structure::Structure(const Structure& _other, bool _attrDeepCopy) :
+    QObject(),
     myTemplate(_other.myTemplate)
 {
     if (_attrDeepCopy)
@@ -82,6 +83,12 @@ void Structure::SetAttributeValueFromText(int _attIndex, QString _valueText)
 void Structure::SetAttributeValueFromText(const QString& _attName, QString _valueText)
 {
     SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _valueText);
+}
+void Structure::ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue)
+{
+    if (_attIndex < 0 || _attIndex >= myAttributes.size())
+        return;
+    myAttributes[_attIndex]->ReadValue_CSV(_csvValue);
 }
 void Structure::MoveAttribute(int _indexFrom, int _indexTo)
 {

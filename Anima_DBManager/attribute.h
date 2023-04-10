@@ -24,6 +24,7 @@ public:
     virtual QString GetDisplayedText(bool complete = false) const = 0;
     virtual void WriteValue_CSV(std::ofstream& file)        const = 0;
     virtual void CopyValueFromOther(const Attribute* _other)      = 0;
+    virtual void ReadValue_CSV(const QString& text);
 
 signals:
     void OnValueChanged(const Attribute* _this);    // arg given during emit()
