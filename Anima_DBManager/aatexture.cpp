@@ -14,8 +14,18 @@ Attribute* AATexture::CreateDuplica() const
     return new AATexture(mySharedParam, filePath);
 }
 
-void AATexture::WriteValue_CSV(std::ofstream& file) const
+
+const QString& AATexture::GetAssetClassNameForCSV() const
 {
-    file << "/Script/Engine.Texture2D";
-    AAsset::WriteValue_CSV(file);
+    static QString className = "/Script/Engine.Texture2D";
+    return className;
+}
+const QString& AATexture::GetAssetFileExtension() const
+{
+    return AATexture::GetStaticAssetFileExtension();
+}
+const QString& AATexture::GetStaticAssetFileExtension()
+{
+    static QString ext = "png";
+    return ext;
 }

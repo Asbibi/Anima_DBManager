@@ -1,5 +1,10 @@
 #include "qattribute.h"
 
+#include "aasset.h"
+#include "aamesh.h"
+#include "aaniagara.h"
+#include "aasound.h"
+#include "aatexture.h"
 #include "abool.h"
 #include "aenumerator.h"
 #include "afloat.h"
@@ -159,10 +164,10 @@ void QAttribute::RebuildWidgetFromType(const AttributeTypeHelper::Type _type)
                                  content, &QAssetTexture::OpenFileDialog);
             break;
         }
-#define CASE_ATTRIBUTE(type, typeStr, typeExt) \
+#define CASE_ATTRIBUTE(type, typeStr, typeFile, expr, ext) \
 case AttributeTypeHelper::Type::type : \
 { \
-    QAssetLabel* content = new QAssetLabel(AttributeTypeHelper::Type::type, typeStr, typeExt, this); \
+    QAssetLabel* content = new QAssetLabel(AttributeTypeHelper::Type::type, typeStr, typeFile" ("#expr"." + ext + ")", this); \
     QObject::connect(content, &QAssetLabel::OnValueEdited, \
                          this, &QAttribute::ContentStateChanged); \
     myContent = content;    \
@@ -173,10 +178,10 @@ case AttributeTypeHelper::Type::type : \
     break; \
 }
 
-        CASE_ATTRIBUTE(Mesh, "Mesh", "3D files (*.fbx)")
-        CASE_ATTRIBUTE(AnimInstance, "AnimInstance", "Anim Instances (AnimBP_*.uasset)")
-        CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems (P_*.uasset)")
-        CASE_ATTRIBUTE(Sound, "Sound", "Sounds (*.ogg, *.wav, *.mp3)")
+        CASE_ATTRIBUTE(UAsset, "UAsset", "Ureal Assets", *, AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(Mesh, "Mesh", "3D Files", *, AATexture::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems", P_*, AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(Sound, "Sound", "Sounds", *, AASound::GetStaticAssetFileExtension());
 #undef CASE_ATTRIBUTE
         case AttributeTypeHelper::Type::Reference :
         {
@@ -190,6 +195,8 @@ case AttributeTypeHelper::Type::type : \
                                  content, &QRefLabel::EditValue);
             break;
         }
+        default:
+            break;
     }
 
 
@@ -349,8 +356,8 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             qassetTexture->SetValue(_attribute->GetDisplayedText(true));
             break;
         }
+        case AttributeTypeHelper::Type::UAsset :
         case AttributeTypeHelper::Type::Mesh :
-        case AttributeTypeHelper::Type::AnimInstance :
         case AttributeTypeHelper::Type::Niagara :
         case AttributeTypeHelper::Type::Sound :
         {
@@ -378,6 +385,8 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             refLabel->SetValue(refAttribute->GetReferenceIndex());
             break;
         }
+        default:
+            break;
     }
 
     update();
@@ -464,8 +473,8 @@ void QAttribute::ContentStateChanged()
             valueString = qassetTexture->GetValue();
             break;
         }
+        case AttributeTypeHelper::Type::UAsset :
         case AttributeTypeHelper::Type::Mesh :
-        case AttributeTypeHelper::Type::AnimInstance :
         case AttributeTypeHelper::Type::Niagara :
         case AttributeTypeHelper::Type::Sound :
         {
@@ -489,6 +498,8 @@ void QAttribute::ContentStateChanged()
             valueString = refLabel->GetValueText();
             break;
         }
+        default:
+            break;
     }
 
     emit OnWidgetValueChanged(valueString);

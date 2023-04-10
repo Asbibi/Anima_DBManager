@@ -10,7 +10,7 @@
 #include "areference.h"
 #include "atablestring.h"
 
-#include "aaaniminstance.h"
+#include "aasset.h"
 #include "aamesh.h"
 #include "aaniagara.h"
 #include "aasound.h"
@@ -95,6 +95,7 @@ void DB_Manager::Init()
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Texture, "Texture", AttributeParam());
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Sound, "Sound", AttributeParam());
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, "Bool", AttributeParam());
+    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::UAsset, "Standard Asset", AttributeParam());
     AttributeParam tempEnumParam = AttributeParam();
     tempEnumParam.enumeratorIndex = 0;
     templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Enum, "Enum", tempEnumParam);          // Enum requires that the param has a non null enum ptr

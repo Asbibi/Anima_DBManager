@@ -16,8 +16,18 @@ Attribute* AAMesh::CreateDuplica() const
     return new AAMesh(mySharedParam, filePath, isSkeletal);
 }
 
-void AAMesh::WriteValue_CSV(std::ofstream& file) const
+const QString& AAMesh::GetAssetClassNameForCSV() const
 {
-    file << (isSkeletal ? "SkeletalMesh" : "StaticMesh");
-    AAsset::WriteValue_CSV(file);
+    static QString staticName = "/Script/Engine.StaticMesh";
+    static QString skeletalName = "/Script/Engine.SkeletalMesh";
+    return isSkeletal ? staticName : skeletalName;
+}
+const QString& AAMesh::GetAssetFileExtension() const
+{
+    return AAMesh::GetStaticAssetFileExtension();
+}
+const QString& AAMesh::GetStaticAssetFileExtension()
+{
+    static QString ext = "fbx";
+    return ext;
 }

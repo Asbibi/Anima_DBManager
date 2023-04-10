@@ -22,9 +22,9 @@ enum class Type
     Array,
     Structure,
 
+    UAsset,
     Texture,
     Mesh,
-    AnimInstance,
     Niagara,
     Sound,
 };

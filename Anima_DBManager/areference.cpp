@@ -74,6 +74,10 @@ void AReference::CopyValueFromOther(const Attribute* _other)
 
     myStructureRef = other_AR->myStructureRef;
 }
+void AReference::ReadValue_CSV(const QString& _text)
+{
+    SetValueFromText('&' + _text);
+}
 
 
 

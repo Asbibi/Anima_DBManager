@@ -20,9 +20,9 @@ QString TypeToString(const Type _type)
         CASE(Array,         "Array");
         CASE(Structure,     "Structure");
 
+        CASE(UAsset,        "UAsset");
         CASE(Texture,       "Texture");
         CASE(Mesh,          "Mesh");
-        CASE(AnimInstance,  "AnimInstance");
         CASE(Niagara,       "Niagara");
         CASE(Sound,         "Sound");
 
@@ -49,9 +49,9 @@ Type StringToType(const QString& _typeString)
     CASE(Array,         "Array");
     CASE(Structure,     "Structure");
 
+    CASE(UAsset,        "UAsset");
     CASE(Texture,       "Texture");
     CASE(Mesh,          "Mesh");
-    CASE(AnimInstance,  "AnimInstance");
     CASE(Niagara,       "Niagara");
     CASE(Sound,         "Sound");
 

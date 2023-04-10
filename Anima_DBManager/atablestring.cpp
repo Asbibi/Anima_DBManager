@@ -60,6 +60,16 @@ void ATableString::CopyValueFromOther(const Attribute* _other)
     myTableName = other_ATS->myTableName;
     myStringIdentifier = other_ATS->myStringIdentifier;
 }
+void ATableString::ReadValue_CSV(const QString& _text)
+{
+    QString textCopy = _text;
+    textCopy.replace("(myTable=", "#");
+    textCopy.replace(",myKey=\"", "#");
+    int textLength = textCopy.length();
+    textCopy.remove(textLength - 2, 2);
+    SetValueFromText(textCopy);
+}
+
 
 bool ATableString::HasValidValues() const
 {

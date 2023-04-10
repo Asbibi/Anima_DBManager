@@ -11,7 +11,6 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    aaaniminstance.cpp \
     aamesh.cpp \
     aaniagara.cpp \
     aarray.cpp \
@@ -69,8 +68,6 @@ SOURCES += \
     templatestructure.cpp
 
 HEADERS += \
-    AttributeType.h \
-    aaaniminstance.h \
     aamesh.h \
     aaniagara.h \
     aarray.h \
@@ -87,6 +84,7 @@ HEADERS += \
     atablestring.h \
     attribute.h \
     attributeparam.h \
+    attributetype.h \
     attributetype.h \
     db_manager.h \
     enumerator.h \
