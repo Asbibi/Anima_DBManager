@@ -80,7 +80,13 @@ void AAsset::CopyValueFromOther(const Attribute* _other)
 }
 
 void AAsset::ReadValue_CSV(const QString& text)
-{
+{    
+    if(text.isEmpty() || text.endsWith("\'\'"))
+    {
+        SetValueFromText("");
+    }
+
+    const QString& className = GetAssetClassNameForCSV();
     const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     if (!dbManager.IsProjectContentFolderPathValid())
     {
@@ -88,7 +94,6 @@ void AAsset::ReadValue_CSV(const QString& text)
         return;
     }
 
-    QString className = GetAssetClassNameForCSV();
     if (!text.startsWith(className))
     {
         // Log ? Message Box ?

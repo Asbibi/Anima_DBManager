@@ -110,6 +110,7 @@ void QImportStructDialog::PerformImport(StructureDB* _structTable, int _override
 
     const int attrCount = _structTable->GetTemplate().GetAttributesCount();
     const int attrCountPlusKey = attrCount + 1;
+    const QString& structAbbrev = _structTable->GetTemplateAbbrev();
     int lineNumber = 0;
     while(!in.atEnd()) {
         QString line = in.readLine();
@@ -122,7 +123,7 @@ void QImportStructDialog::PerformImport(StructureDB* _structTable, int _override
             }
             else
             {
-                // display error message ? qWarning ?
+                qWarning() << "CSV file import aborted because headers are not corresponding to the structure attribute : " << line;
                 return;
             }
         }
@@ -143,9 +144,17 @@ void QImportStructDialog::PerformImport(StructureDB* _structTable, int _override
             continue;
         }
 
+        bool parsingOK = false;
+        int structIndex = fields[0].remove(structAbbrev).toInt(&parsingOK);
+        if (!parsingOK)
+        {
+            qWarning() << "Line " << lineNumber << " skipped because index couldn't be retrieved : " << line;
+            continue;
+        }
         fields[attrCount].remove(fields[attrCount].length()-1,1);
+        fields.removeFirst();
 
-        //_stringTable->ImportString(language, fields[0], fields[1], _overrideChoice);
+        _structTable->ReadValue_CSV_Table(structIndex, fields, _overrideChoice);
     }
 
     file.close();

@@ -84,6 +84,12 @@ void Structure::SetAttributeValueFromText(const QString& _attName, QString _valu
 {
     SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _valueText);
 }
+void Structure::ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue)
+{
+    if (_attIndex < 0 || _attIndex >= myAttributes.size())
+        return;
+    myAttributes[_attIndex]->ReadValue_CSV(_csvValue);
+}
 void Structure::MoveAttribute(int _indexFrom, int _indexTo)
 {
     auto* attr = myAttributes.takeAt(_indexFrom);

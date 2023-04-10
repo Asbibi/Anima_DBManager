@@ -26,6 +26,13 @@ void ATableString::WriteValue_CSV(std::ofstream& file) const
 }
 void ATableString::SetValueFromText(const QString& text)
 {
+    if (text.isEmpty() || text == "##")
+    {
+        myTableName = "";
+        myStringIdentifier = "";
+        return;
+    }
+
     QString tableId = text.section('#', 1,1);
     QString stringId = text.section('#', 2,2);
     if (text != ("#" + tableId + "#" + stringId) || stringId.contains('#'))

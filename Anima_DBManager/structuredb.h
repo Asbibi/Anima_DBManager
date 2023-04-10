@@ -54,6 +54,7 @@ public:
     const QString GetStructureRowName(const Structure* _structure) const;
 
     void WriteValue_CSV_Table(std::ofstream& file) const;
+    void ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy);
 };
 
 #endif // STRUCTUREDB_H
