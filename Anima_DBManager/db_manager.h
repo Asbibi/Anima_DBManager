@@ -31,7 +31,6 @@ private:
     ~DB_Manager();
 
     int GetStringTableIndex(const QString& _tableName) const;
-    int GetStructureTableIndex(const QString& _structName) const;
     void AddStringTablePrivate(const QString& _newTableName, int& _index);
 
 
@@ -61,6 +60,7 @@ public:
     StructureDB* GetStructureTable(int index);
     const StructureDB* GetStructureTable(const QString& _SDBName) const;
     StructureDB* GetStructureTable(const QString& _SDBName);
+    int GetStructureTableIndex(const QString& _structName) const;
     void AddStructureDB(const TemplateStructure& _structureTemplate, int _index = -1);
     void DuplicateStructureDB(int _index, int _indexOriginal);
     void MoveStructureDB(int _indexFrom, int _indexTo);

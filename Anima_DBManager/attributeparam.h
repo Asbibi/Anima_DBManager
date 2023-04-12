@@ -28,6 +28,8 @@ struct AttributeParam
     // Only for Enum Attributes
     int enumeratorIndex = -1;      // Used for AEnumerator only;    When changed, need to update all enum attribute, template attribute & qtemplateattribute
     const Enumerator* GetEnum() const;
+
+    void SaveParams_CSV(std::ofstream& file) const;
 };
 
 #endif // ATTRIBUTEPARAM_H

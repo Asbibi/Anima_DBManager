@@ -131,3 +131,18 @@ const TemplateAttribute* TemplateStructure::GetAttributeTemplate(const QString& 
 {
     return GetAttributeTemplate(GetAttributeIndex(att_Name));
 }
+
+
+void TemplateStructure::SaveTemplate_CSV(std::ofstream& file) const
+{
+    file << "###" << myStructName.toStdString() << "---"
+    << myStructAbbrev.toStdString()  << "---"
+    << myStructColor.name().toStdString()  << "---"
+    << "###\n";
+
+    for (const auto& templateAttr : myAttributeTemplates)
+    {
+        templateAttr.SaveTemplate_CSV(file);
+        file << "\n";
+    }
+}

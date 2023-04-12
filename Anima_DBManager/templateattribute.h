@@ -45,6 +45,8 @@ public:
     bool HasValidSharedParam() const;
 
     Attribute* GenerateAttribute() const;
+
+    void SaveTemplate_CSV(std::ofstream& file) const;
 };
 
 #endif // TEMPLATEATTRIBUTE_H

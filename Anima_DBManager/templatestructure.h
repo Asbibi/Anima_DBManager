@@ -49,6 +49,8 @@ public:
     int GetAttributesCount() const { return (int)(myAttributeTemplates.count()); }
 
     const QList<TemplateAttribute>& GetAttributes() const { return myAttributeTemplates; }
+
+    void SaveTemplate_CSV(std::ofstream& file) const;
 };
 
 #endif // TEMPLATESTRUCTURE_H
