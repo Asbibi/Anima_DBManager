@@ -96,6 +96,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     csvStringFile.close();
 
 
+
     // II. Save enums
 
     const int enumCount = dbManager.GetEnumCount();
@@ -112,6 +113,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
         enumerator->SaveEnum_CSV(csvEnumFile);
     }
     csvEnumFile.close();
+
 
 
     // III. Save structure templates
@@ -132,7 +134,24 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     csvTemplFile.close();
 
 
+
     // IV. Save structure datas
+
+    QString structFilePath = tempFolderPath + "DT.csv";
+    std::ofstream csvStructFile(structFilePath.toStdString());
+    if (!csvStructFile)
+    {
+        qCritical() << "ERROR SAVING DB : temp file " << structFilePath << " couldn't be created";
+        return;
+    }
+    for (int i = 0; i < structTableCount; i++)
+    {
+        const auto* structTable = dbManager.GetStructureTable(i);
+        csvStructFile << "###" << structTable->GetTemplateName().toStdString() << "###\n";
+        structTable->WriteValue_CSV_Table(csvStructFile);
+    }
+    csvStructFile.close();
+
 
 
     // V. Save Project Infos
