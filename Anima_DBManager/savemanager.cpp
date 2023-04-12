@@ -49,10 +49,12 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // Zip all files to a single save file
 
 
+
     // 0. Preparation
 
     const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
+    QStringList tempFileList = QStringList();
     if (QFileInfo::exists(tempFolderPath))
     {
         QString warningtext = "Needed temporary folder \"" + tempFolderPath + "\" already exists.\n\nPlease delete it or change your file name before saving again.";
@@ -76,6 +78,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
         languageCodeMap.insert(l, SStringHelper::GetLanguageCD((SStringHelper::SStringLanguages)l));
     }
     QString stringFilePath = tempFolderPath + "ST.csv";
+    tempFileList << stringFilePath;
     std::ofstream csvStringFile(stringFilePath.toStdString());
     if (!csvStringFile)
     {
@@ -101,6 +104,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     const int enumCount = dbManager.GetEnumCount();
     QString enumFilePath = tempFolderPath + "EN.csv";
+    tempFileList << enumFilePath;
     std::ofstream csvEnumFile(enumFilePath.toStdString());
     if (!csvEnumFile)
     {
@@ -120,6 +124,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     const int structTableCount = dbManager.GetStructuresCount();
     QString templFilePath = tempFolderPath + "TP.csv";
+    tempFileList << templFilePath;
     std::ofstream csvTemplFile(templFilePath.toStdString());
     if (!csvTemplFile)
     {
@@ -138,6 +143,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // IV. Save structure datas
 
     QString structFilePath = tempFolderPath + "DT.csv";
+    tempFileList << structFilePath;
     std::ofstream csvStructFile(structFilePath.toStdString());
     if (!csvStructFile)
     {
@@ -156,7 +162,8 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     // V. Save Project Infos
 
-    QString projectFilePath = tempFolderPath + "PRO.csv";
+    QString projectFilePath = tempFolderPath + "PR.csv";
+    tempFileList << projectFilePath;
     std::ofstream csvProFile(projectFilePath.toStdString());
     if (!csvProFile)
     {
@@ -171,7 +178,25 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     csvProFile.close();
 
 
+
     // VI. Compress all temp files in the final save file
+
+    QFile saveFile(_saveFilePath);
+    saveFile.open(QIODevice::WriteOnly);
+    QByteArray uncompressedData;
+    std::string separator = "%$%$%$%$%\n";
+    for (const auto& file : tempFileList)
+    {
+        uncompressedData.append(QByteArray::fromStdString(separator));
+        QFile infile(file);
+        infile.open(QIODevice::ReadOnly);
+        uncompressedData.append(infile.readAll());
+        infile.close();
+    }
+    QByteArray compressedData = qCompress(uncompressedData,9);
+    saveFile.write(compressedData);
+    saveFile.close();
+
 
 
     // VII. Clean Up
