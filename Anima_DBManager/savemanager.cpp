@@ -98,6 +98,21 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     // II. Save enums
 
+    const int enumCount = dbManager.GetEnumCount();
+    QString enumFilePath = tempFolderPath + "EN.csv";
+    std::ofstream csvEnumFile(enumFilePath.toStdString());
+    if (!csvEnumFile)
+    {
+        qCritical() << "ERROR SAVING DB : temp file " << enumFilePath << " couldn't be created";
+        return;
+    }
+    for (int i = 0; i < enumCount; i++)
+    {
+        const auto* enumerator = dbManager.GetEnum(i) ;
+        enumerator->SaveEnum_CSV(csvEnumFile);
+    }
+    csvEnumFile.close();
+
 
     // III. Save structure templates
 

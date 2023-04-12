@@ -5,6 +5,7 @@
 #include <QString>
 #include <QColor>
 #include <vector>
+#include <fstream>
 
 class QWidget;
 
@@ -39,6 +40,8 @@ public:
     void AddValue(const QString& _value, const QColor* _color);
     void RemoveValue(const QString& _value);
     void RemoveValue(int _index);
+
+    void SaveEnum_CSV(std::ofstream& file) const;
 };
 
 #endif // ENUMERATOR_H

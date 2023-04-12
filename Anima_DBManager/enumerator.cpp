@@ -135,3 +135,15 @@ void Enumerator::RemoveValue(int _index)
     values.erase(values.begin() + _index);
     colors.erase(colors.begin() + _index);
 }
+
+
+void Enumerator::SaveEnum_CSV(std::ofstream& file) const
+{
+    file << "###" << name.toStdString() << "###\n";
+    file << "useColor=" << (GetUseColor() ? "TRUE" : "FALSE") << '\n';
+    const int count = GetValueCount();
+    for (int i = 0; i < count; i++)
+    {
+        file << GetValue(i).toStdString() << '|' << GetColorHex(i).toStdString() << '\n';
+    }
+}
