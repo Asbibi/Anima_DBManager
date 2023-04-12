@@ -26,6 +26,14 @@ void SaveManager::OpenFile(const QString& _saveFilePath)
     SaveManager::GetSaveManager().OpenFileInternal(_saveFilePath);
 }
 
+
+
+const QString& SaveManager::GetSaveFileExtension()
+{
+    static const QString fileExt = "uadb";
+    // Stands for Unreal Anima DataBase
+    return fileExt;
+}
 void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 {
     // Save String Tables to a single file (values in CSV format)

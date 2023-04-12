@@ -19,6 +19,7 @@ class MainWindow : public QMainWindow
 
 private:
     DB_Manager& myManager;
+    QString myCurrentlyOpenedFile = "";
 
     QMenuBar* myMenuBar;
     QTabWidget* myTabString;
@@ -28,6 +29,7 @@ private:
     QPanelString* myStringWidget;
     QPanelStruct* myStructWidget;
 
+    void OnSaveDB_Internal(bool _saveAs);
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -52,6 +54,12 @@ public slots:
     void OnStructItemFocus(const int _tableIndex, const int _index);
     void OnStructItemChanged(const int _tableIndex);
     void OnStructAttributeNameChanged(const int _tableIndex);
+
+
+    void OnNewDB();
+    void OnSaveDB();
+    void OnSaveAsDB();
+    void OnOpenDB();
 
     void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
     void OnExportAllStringTables(SStringHelper::SStringLanguages _language);

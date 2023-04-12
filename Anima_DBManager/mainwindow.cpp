@@ -6,12 +6,14 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMenu>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QSplitter>
 #include <QTextEdit>
 #include <QVBoxLayout>
 
 #include "sstringhelper.h"
+#include "savemanager.h"
 
 #include "qstructuretable.h"
 #include "qsstringtable.h"
@@ -32,10 +34,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QMenu* displayMenu = myMenuBar->addMenu("Display");
     setMenuBar(myMenuBar);
 
-    fileMenu->addAction("New");
-    fileMenu->addAction("Open");
-    fileMenu->addAction("Save");
-    fileMenu->addAction("Save As...");
+    auto* newDB = fileMenu->addAction("New");
+    QObject::connect(newDB, &QAction::triggered, this, &MainWindow::OnNewDB);
+    auto* openDB = fileMenu->addAction("Open");
+    QObject::connect(openDB, &QAction::triggered, this, &MainWindow::OnOpenDB);
+    auto* saveDB = fileMenu->addAction("Save");
+    QObject::connect(saveDB, &QAction::triggered, this, &MainWindow::OnSaveDB);
+    auto* saveAsDB = fileMenu->addAction("Save As...");
+    QObject::connect(saveAsDB, &QAction::triggered, this, &MainWindow::OnSaveAsDB);
 
     auto* exportCurrentStruct = exportImportMenu->addAction("Export Current Structure Table");
     QObject::connect(exportCurrentStruct, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable);
@@ -309,6 +315,46 @@ void MainWindow::OnStructAttributeNameChanged(const int _tableIndex)
 
 
 
+// ================       File Methods       ================
+
+void MainWindow::OnNewDB()
+{
+    qWarning() << "Isn't implemented yet";
+}
+void MainWindow::OnSaveDB()
+{
+    OnSaveDB_Internal(false);
+}
+void MainWindow::OnSaveAsDB()
+{
+    OnSaveDB_Internal(true);
+}
+void MainWindow::OnSaveDB_Internal(bool _saveAs)
+{
+    const QString& fileExt = SaveManager::GetSaveFileExtension();
+    QString filePath = myCurrentlyOpenedFile;
+
+    if (_saveAs || myCurrentlyOpenedFile.isEmpty())
+    {
+        if (myCurrentlyOpenedFile.isEmpty())
+        {
+            filePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/New DataBase." + fileExt;
+        }
+
+
+        filePath = QFileDialog::getSaveFileName(this, "Save DataBase",
+                                                   filePath,
+                                                   "Unreal Anima Database (*." + fileExt + ")");
+    }
+    //else ...
+
+    qDebug() << filePath;
+}
+void MainWindow::OnOpenDB()
+{
+    qWarning() << "Isn't implemented yet";
+    // set myCurrentlyOpenedFile et the end of the process
+}
 
 // ================      Export Methods      ================
 
