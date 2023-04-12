@@ -334,7 +334,7 @@ void MainWindow::OnSaveDB_Internal(bool _saveAs)
     const QString& fileExt = SaveManager::GetSaveFileExtension();
     QString filePath = myCurrentlyOpenedFile;
 
-    if (_saveAs || myCurrentlyOpenedFile.isEmpty())
+    if (_saveAs || myCurrentlyOpenedFile.isEmpty() || !QFileInfo::exists(myCurrentlyOpenedFile))
     {
         if (myCurrentlyOpenedFile.isEmpty())
         {
@@ -346,9 +346,11 @@ void MainWindow::OnSaveDB_Internal(bool _saveAs)
                                                    filePath,
                                                    "Unreal Anima Database (*." + fileExt + ")");
     }
-    //else ...
+    //else : check if any change ? Or do nothing ?
 
     qDebug() << filePath;
+
+    SaveManager::SaveFile(filePath);
 }
 void MainWindow::OnOpenDB()
 {

@@ -2,6 +2,9 @@
 
 #include "db_manager.h"
 #include <QDebug>
+#include <QDir>
+#include <QFileInfo>
+#include <QMessageBox>
 
 
 SaveManager::SaveManager()
@@ -15,7 +18,9 @@ SaveManager& SaveManager::GetSaveManager()
 }
 QString SaveManager::GetSaveFileTempFolder(const QString& _saveFilePath)
 {
-    return QString(_saveFilePath).replace(_saveFilePath.lastIndexOf('/'), -1, "/temp/");    // can replace -1 by _saveFilePath.length() if nec
+    if (!_saveFilePath.endsWith(GetSaveFileExtension()))
+        return "";
+    return QString(_saveFilePath).replace(_saveFilePath.lastIndexOf('.'), GetSaveFileExtension().length() + 1, "__TEMP__/");    // can replace -1 by _saveFilePath.length() if nec
 }
 void SaveManager::SaveFile(const QString& _saveFilePath)
 {
@@ -39,10 +44,25 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // Save String Tables to a single file (values in CSV format)
     // Save Structure templates
     // Save structures as CSV or through the setByTextFormat
+    // Save Project infos
     // Zip all files to a single save file
 
-    const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
+
+    // 0. Preparation
+
     const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
+    const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
+    if (QFileInfo::exists(tempFolderPath))
+    {
+        QString warningtext = "Needed temporary folder \"" + tempFolderPath + "\" already exists.\n\nPlease delete it or change your file name before saving again.";
+        QMessageBox::information(
+            nullptr,
+            "Temporary Save Folder already exists",
+            warningtext,
+            QMessageBox::Ok);
+        return;
+    }
+    QDir().mkdir(tempFolderPath);
 
 
 
@@ -54,11 +74,11 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     {
         languageCodeMap.insert(l, SStringHelper::GetLanguageCD((SStringHelper::SStringLanguages)l));
     }
-    QString filePath = tempFolderPath + "/ST";    // + ".csv";
-    std::ofstream csvFile(filePath.toStdString());
-    if (!csvFile)
+    QString stringFilePath = tempFolderPath + "ST.csv";
+    std::ofstream csvStringFile(stringFilePath.toStdString());
+    if (!csvStringFile)
     {
-        qCritical() << "ERROR SAVING DB : temp file " << filePath << " couldn't be created";
+        qCritical() << "ERROR SAVING DB : temp file " << stringFilePath << " couldn't be created";
         return;
     }
 
@@ -68,17 +88,49 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
         const QString& tableName = table->GetTableName();
         for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
         {
-
-
-            csvFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###\n";
-            table->WriteValue_CSV(csvFile, (SStringHelper::SStringLanguages)l);
+            csvStringFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###\n";
+            table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l);
         }
     }
+    csvStringFile.close();
+
+
+    // II. Save structure templates
+
+
+    // III. Save structure datas
+
+
+    // IV. Save Project Infos
+
+    QString projectFilePath = tempFolderPath + "PRO.csv";
+    std::ofstream csvProFile(projectFilePath.toStdString());
+    if (!csvProFile)
+    {
+        qCritical() << "ERROR SAVING DB : temp file " << projectFilePath << " couldn't be created";
+        return;
+    }
+    csvProFile << "###PROJECT_FOLDER###\n";
+    if (dbManager.IsProjectContentFolderPathValid())
+    {
+        csvProFile << dbManager.GetProjectContentFolderPath().toStdString() << "\n";
+    }
+    csvProFile.close();
+
+
+    // V. Compress all temp files in the final save file
+
+
+    // VI. Clean Up
+
+    QDir tempDir(tempFolderPath);
+    tempDir.removeRecursively();
 }
 
 void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 {
     // Unzip save file
+    // Use Project infos
     // Import String Tables
     // Create the structure Tables from templates
         // For the reference attr, if the referenced table doesn't exist yet, add the attribute in a temp array
