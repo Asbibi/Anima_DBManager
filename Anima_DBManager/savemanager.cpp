@@ -42,6 +42,7 @@ const QString& SaveManager::GetSaveFileExtension()
 void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 {
     // Save String Tables to a single file (values in CSV format)
+    // Save enums
     // Save Structure templates
     // Save structures as CSV or through the setByTextFormat
     // Save Project infos
@@ -95,13 +96,31 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     csvStringFile.close();
 
 
-    // II. Save structure templates
+    // II. Save enums
 
 
-    // III. Save structure datas
+    // III. Save structure templates
+
+    const int structTableCount = dbManager.GetStructuresCount();
+    QString templFilePath = tempFolderPath + "TP.csv";
+    std::ofstream csvTemplFile(templFilePath.toStdString());
+    if (!csvTemplFile)
+    {
+        qCritical() << "ERROR SAVING DB : temp file " << templFilePath << " couldn't be created";
+        return;
+    }
+    for (int i = 0; i < structTableCount; i++)
+    {
+        const auto& templateStruct = dbManager.GetStructureTable(i)->GetTemplate();
+        templateStruct.SaveTemplate_CSV(csvTemplFile);
+    }
+    csvTemplFile.close();
 
 
-    // IV. Save Project Infos
+    // IV. Save structure datas
+
+
+    // V. Save Project Infos
 
     QString projectFilePath = tempFolderPath + "PRO.csv";
     std::ofstream csvProFile(projectFilePath.toStdString());
@@ -118,10 +137,10 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     csvProFile.close();
 
 
-    // V. Compress all temp files in the final save file
+    // VI. Compress all temp files in the final save file
 
 
-    // VI. Clean Up
+    // VII. Clean Up
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
@@ -132,6 +151,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     // Unzip save file
     // Use Project infos
     // Import String Tables
+    // Import Enums
     // Create the structure Tables from templates
         // For the reference attr, if the referenced table doesn't exist yet, add the attribute in a temp array
     // Fill all the values

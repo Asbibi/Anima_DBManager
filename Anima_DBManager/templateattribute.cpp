@@ -34,7 +34,7 @@ TemplateAttribute::TemplateAttribute(const QString& _name, const AttributeTypeHe
 TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
     TemplateAttribute(_another.myAttrName, _another.GetType(), _another.mySharedParam)
 {
-    Q_ASSERT(myTemplateAttribute && _another.myTemplateAttribute);
+    Q_ASSERT(myTemplateAttribute != nullptr && _another.myTemplateAttribute);
     myTemplateAttribute->CopyValueFromOther(_another.myTemplateAttribute);
 }
 void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
@@ -156,4 +156,13 @@ Attribute* TemplateAttribute::GenerateAttribute() const
         qFatal("GENERATING ATTRIBUTE FROM INVALID ATTRIBUTE");
 
     return myTemplateAttribute ? myTemplateAttribute->CreateDuplica() : nullptr;
+}
+
+
+void TemplateAttribute::SaveTemplate_CSV(std::ofstream& file) const
+{
+   file << myAttrName.toStdString();
+   file << '|' << AttributeTypeHelper::TypeToString(GetType()).toStdString();
+   file << '|'; mySharedParam.SaveParams_CSV(file);
+   file << '|'; myTemplateAttribute->WriteValue_CSV(file);
 }

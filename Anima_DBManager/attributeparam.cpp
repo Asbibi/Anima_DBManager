@@ -41,6 +41,7 @@ void AttributeParam::operator=(const AttributeParam& _another)
 
     if (templateAtt != nullptr)
         delete(templateAtt);
+
     if (_another.templateAtt)
         templateAtt = _another.templateAtt->CreateDuplica();
     else
@@ -51,4 +52,17 @@ void AttributeParam::operator=(const AttributeParam& _another)
 const Enumerator* AttributeParam::GetEnum() const
 {
     return DB_Manager::GetDB_Manager().GetEnum(enumeratorIndex);
+}
+
+void AttributeParam::SaveParams_CSV(std::ofstream& file) const
+{
+    file << "iMin=" << (ignoreMin ? "TRUE" : "FALSE") << ',';
+    file << "iMax=" << (ignoreMax ? "TRUE" : "FALSE") << ',';
+    file << "mInt=" << min_i << ',';
+    file << "MInt=" << max_i << ',';
+    file << "mFlt=" << min_f << ',';
+    file << "MFlt=" << max_f << ',';
+    file << "tmpl=" << -1 << ',';       // TODO
+    file << "sRef=" << (structTable != nullptr ? DB_Manager::GetDB_Manager().GetStructureTableIndex(structTable->GetTemplateName()) : -1 )<< ',';
+    file << "enum=" << enumeratorIndex;
 }
