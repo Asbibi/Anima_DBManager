@@ -53,6 +53,9 @@ bool DB_Manager::IsProjectContentFolderPathValid() const
 
 void DB_Manager::Init()
 {
+//#define testValues
+#ifdef testValues
+
     // Project Folder
     SetProjectContentFolderPath("D:/Documents/Unreal/Anima_OLD/Content/");
     qDebug() << "Project path is valid : " << myProjectPathIsValid;
@@ -128,113 +131,39 @@ void DB_Manager::Init()
     emit StructItemChanged(0);
     emit StructItemChanged(1);
 
-
-/*
-TemplateStructure* templ = new TemplateStructure("Test2StructDB", QColorConstants::Red);
-
-//templ->AddAttribute("Mesh", new AAMesh());
-templ->AddAttribute("Texture", new AATexture());
-//templ->AddAttribute("Sound", new AASound());
-//templ->AddAttribute("Anim", new AAAnimInstance());
-//templ->AddAttribute("Niagara", new AANiagara());
-templ->AddAttribute("Bool", new ABool());
-AttributeParam* enumParam = new AttributeParam();
-enumParam->enumerator = &enumerators[0];
-templ->AddAttribute("Enum", new AEnumerator(enumParam, 4));
-AttributeParam* floatParam = new AttributeParam();
-AFloat* floatAttTempl = new AFloat(floatParam);
-floatAttTempl->SetValueFromText("0.253");
-templ->AddAttribute("Float", floatAttTempl);
-AttributeParam* intParam = new AttributeParam();
-templ->AddAttribute("Int", new AInt(intParam));
-AttributeParam* stringParam = new AttributeParam();
-stringParam->max_i = 32;
-templ->AddAttribute("Short String", new AShortString(stringParam, "Hello There !!!"));
-templ->AddAttribute("Table String", new ATableString());
-
-TemplateStructure* templ2 = new TemplateStructure("Test_Strct", QColorConstants::Red);
-AStructure* structAtt = new AStructure(*templ);
-templ2->AddAttribute("Struct", structAtt);
-AttributeParam* arrayParam = new AttributeParam();
-arrayParam->templateAtt = floatAttTempl->CreateDuplica();
-AArray* arrayAtt = new AArray(arrayParam);
-arrayAtt->AddRow();
-arrayAtt->AddRow();
-templ2->AddAttribute("Array", arrayAtt);
-
-TemplateStructure* templ3 = new TemplateStructure("Test_Combine", QColorConstants::Red);
-AttributeParam* arrayParam2 = new AttributeParam();
-arrayParam2->templateAtt = structAtt->CreateDuplica();
-AArray* arrayAtt2 = new AArray(arrayParam2);
-arrayAtt2->AddRow();
-arrayAtt2->AddRow();
-templ3->AddAttribute("ArrayOfStruct", arrayAtt2);
-
-TemplateStructure* templ4 = new TemplateStructure("Test_Combine", QColorConstants::Red);
-AStructure* structAtt2 = new AStructure(*templ2);
-templ4->AddAttribute("StructOfStructAndArray", structAtt2);
-
-
-AddStructures(*templ);
-AddStructures(*templ2);
-AddStructures(*templ3);
-AddStructures(*templ4);
-
-StructureDB* db1 = GetStructures(0);
-
-//Ref in struct 1
-AttributeParam* refParam = new AttributeParam();
-refParam->structTable = GetStructures(1);
-templ->AddAttribute("Ref", new AReference(refParam));
-
-db1->AddStructureAt(0);
-db1->AddStructureAt(0);
-db1->AddStructureAt(0);
-*/
-
-
-//#define fileExportTest
-#ifdef fileExportTest
-    // Create structure
-    Structure structure = Structure(*templ);
-    Structure structure1 = Structure(*templ);
-    structure1.SetAttributeValueFromText("Bool", "tRuEe");
-    structure1.SetAttributeValueFromText("Enum", "FIREe");
-    structure1.SetAttributeValueFromText("Float", "15.623665l");
-    structure1.SetAttributeValueFromText("Int", "10.1");
-    structure1.SetAttributeValueFromText("String", "General Kenobi...");
-    Structure structure20 = Structure(*templ2);
-    Structure structure2 = Structure(*templ2);
-    structure2.SetAttributeValueFromText("Struct", "{true,WATER,5.86,90,Meh}");
-    structure2.SetAttributeValueFromText("Array", "[3.0,5.36]");
-    Structure structure30 = Structure(*templ3);
-    Structure structure3 = Structure(*templ3);
-    structure3.SetAttributeValueFromText("ArrayOfStruct", "[{true,FIRE,5.8886,53,hé},{false,Wind,2.33333,3,oh}]");
-    Structure structure40 = Structure(*templ4);
-    Structure structure4 = Structure(*templ4);
-    structure4.SetAttributeValueFromText("StructOfStructAndArray", "{{true,FIRE,5.8886,53,hé},[23.5,63.6]}");
-
-    // File handling
-    std::ofstream file;
-    file.open("Test_File_1.csv");
-    structure.WriteValue_CSV_AsRow(file, 0);
-    structure1.WriteValue_CSV_AsRow(file, 1);
-    file << "\n";
-    structure20.WriteValue_CSV_AsRow(file, 2);
-    structure2.WriteValue_CSV_AsRow(file, 2);
-    file << "\n";
-    structure30.WriteValue_CSV_AsRow(file, 3);
-    structure3.WriteValue_CSV_AsRow(file, 3);
-    file << "\n";
-    structure40.WriteValue_CSV_AsRow(file, 4);
-    structure4.WriteValue_CSV_AsRow(file, 4);
-    file.close();
-
-    //QString testStr = structure4.GetAttribute("StructOfStructAndArray")->GetDisplayedText(true);
 #else
 
 #endif
 
+}
+
+void DB_Manager::Reset()
+{
+    blockSignals(true);
+
+    int structTableCount = myStructures.count();
+    for (int i = structTableCount -1; i > -1; i--)
+    {
+        RemoveStructureDB(i);
+    }
+    int stringTableCount = myStringTables.count();
+    for (int i = stringTableCount -1; i > -1; i--)
+    {
+        RemoveStringTable(i);
+    }
+    int enumCount = enumerators.count();
+    for (int i = enumCount -1; i > -1; i--)
+    {
+        RemoveEnum(i);
+    }
+    //myStructures.clear();
+    //enumerators.clear();
+    //myStringTables.clear();
+    //myAttributeParamPtrs.clear();
+
+    myProjectContentFolderPath = "";
+
+    blockSignals(false);
 }
 
 

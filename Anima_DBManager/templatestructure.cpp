@@ -33,19 +33,22 @@ void TemplateStructure::operator=(const TemplateStructure& _another)
 
 void TemplateStructure::AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& att_Name, const AttributeParam& _attParam, int _index)
 {
-    TemplateAttribute templAttr = TemplateAttribute(att_Name, _type, _attParam);
-    AddAttributeTemplate(templAttr, nullptr, _index);
+    AddAttributeTemplateInternal(new TemplateAttribute(att_Name, _type, _attParam), nullptr, _index);
 }
-void TemplateStructure::AddAttributeTemplate(const TemplateAttribute& _attTemplate, const QString* _newName, int _index)
+void TemplateStructure::AddAttributeTemplate(const TemplateAttribute& _attTemplateToCopy, const QString* _newName, int _index)
+{
+    AddAttributeTemplateInternal(new TemplateAttribute(_attTemplateToCopy), _newName, _index);
+}
+void TemplateStructure::AddAttributeTemplateInternal(TemplateAttribute* _attTemplateToCopy, const QString* _newName, int _index)
 {
     const int count = (int)(myAttributeTemplates.count());
     if (_index < 0 || _index > count)
         _index = count;
 
-    myAttributeTemplates.insert(_index, _attTemplate);
+    myAttributeTemplates.insert(_index, new TemplateAttribute(*_attTemplateToCopy));
 
     if (_newName)
-        myAttributeTemplates[_index].myAttrName = *_newName;
+        myAttributeTemplates[_index]->SetName(*_newName);
 }
 void TemplateStructure::RemoveAttribute(const int& _index)
 {
@@ -53,7 +56,7 @@ void TemplateStructure::RemoveAttribute(const int& _index)
         return;
 
     auto removedAttribute = myAttributeTemplates.takeAt(_index);
-    removedAttribute.DeleteData();
+    delete removedAttribute;
 }
 void TemplateStructure::RemoveAttribute(const QString& _attName)
 {
@@ -71,21 +74,21 @@ void TemplateStructure::RenameAttributeTemplate(int _index, QString& _newName)
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return;
-    if ( myAttributeTemplates[_index].myAttrName == _newName)
+    if (myAttributeTemplates[_index]->GetName() == _newName)
         return;
 
     QString baseName = _newName;
     auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetAttributeIndex(_identifier) == -1); };
     _newName = SStringHelper::GetUniqueIdentifier(baseName, validate, true);
 
-    myAttributeTemplates[_index].myAttrName = _newName;
+    myAttributeTemplates[_index]->SetName(_newName);
 }
 void TemplateStructure::SetAttributeDefaultValue(int _index, const QString& _value)
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return;
 
-    myAttributeTemplates[_index].SetDefaultValue(_value);
+    myAttributeTemplates[_index]->SetDefaultValue(_value);
 }
 void TemplateStructure::SetAttributeDefaultValue(const QString& _attName, const QString& _value)
 {
@@ -96,7 +99,7 @@ int TemplateStructure::GetAttributeIndex(const QString& _attName) const
     int index = 0;
     for (const auto& attr : myAttributeTemplates)
     {
-        if (attr.GetName() == _attName)
+        if (attr->GetName() == _attName)
             return index;
         index++;
     }
@@ -111,21 +114,21 @@ AttributeTypeHelper::Type TemplateStructure::GetAttributeType(int _index) const
 }
 const QString& TemplateStructure::GetAttributeName(int _index) const
 {
-    return myAttributeTemplates[_index].GetName();
+    return myAttributeTemplates[_index]->GetName();
 }
 TemplateAttribute* TemplateStructure::GetAttributeTemplate(int _index)
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return nullptr;
 
-    return &myAttributeTemplates[_index];
+    return myAttributeTemplates[_index];
 }
 const TemplateAttribute* TemplateStructure::GetAttributeTemplate(int _index) const
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return nullptr;
 
-    return &myAttributeTemplates[_index];
+    return myAttributeTemplates[_index];
 }
 const TemplateAttribute* TemplateStructure::GetAttributeTemplate(const QString& att_Name) const
 {
@@ -142,7 +145,7 @@ void TemplateStructure::SaveTemplate_CSV(std::ofstream& file) const
 
     for (const auto& templateAttr : myAttributeTemplates)
     {
-        templateAttr.SaveTemplate_CSV(file);
+        templateAttr->SaveTemplate_CSV(file);
         file << "\n";
     }
 }

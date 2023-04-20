@@ -305,9 +305,9 @@ void MainWindow::OnStructAttributeNameChanged(const int _tableIndex)
     const auto* table = myManager.GetStructureTable(_tableIndex);
     Q_ASSERT(table);
     const auto& templateAttributeArray = table->GetTemplate().GetAttributes();
-    for (const auto& attr : templateAttributeArray)
+    for (const auto* attr : templateAttributeArray)
     {
-        headerList.append(attr.GetName());
+        headerList.append(attr->GetName());
     }
     currentTab->setHorizontalHeaderLabels(headerList);
 }
@@ -319,7 +319,7 @@ void MainWindow::OnStructAttributeNameChanged(const int _tableIndex)
 
 void MainWindow::OnNewDB()
 {
-    qWarning() << "Isn't implemented yet";
+    DB_Manager::GetDB_Manager().Reset();
 }
 void MainWindow::OnSaveDB()
 {

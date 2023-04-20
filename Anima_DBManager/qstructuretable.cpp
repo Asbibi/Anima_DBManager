@@ -57,7 +57,7 @@ void QStructureTable::UpdateTable()
     DeleteAllChilds();
 
     // Column number & Headers
-    const auto templ = myStructureDB.GetTemplate();
+    const auto& templ = myStructureDB.GetTemplate();
 
     const int templAttrCount = (int)(templ.GetAttributes().size());
     setColumnCount(templAttrCount);

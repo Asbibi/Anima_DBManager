@@ -95,12 +95,6 @@ void TemplateAttribute::ResetUselessParam(AttributeTypeHelper::Type _type)
         qDebug() << "TODO - reset structure template for structure attribute";
     }
 }
-void TemplateAttribute::DeleteData()
-{
-    delete &mySharedParam;
-    if (myTemplateAttribute)
-        delete myTemplateAttribute;
-}
 void TemplateAttribute::operator=(const TemplateAttribute& _another)
 {
     myAttrName = _another.myAttrName;
@@ -109,7 +103,11 @@ void TemplateAttribute::operator=(const TemplateAttribute& _another)
 }
 
 TemplateAttribute::~TemplateAttribute()
-{}
+{
+    delete &mySharedParam;
+    if (myTemplateAttribute)
+        delete myTemplateAttribute;
+}
 
 
 

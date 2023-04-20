@@ -85,12 +85,12 @@ void QTemplateStructure::UpdateContent()
     }
 
     const QString tabNameBase = "%1\n[%2]";
-    for (const auto& attr : myStructureDB->GetTemplate().GetAttributes())
+    for (const auto* attr : myStructureDB->GetTemplate().GetAttributes())
     {
         QTemplateAttribute* qattr = new QTemplateAttribute();
-        myAttributeNames.push_back(attr.GetName());
-        qattr->UpdateContent(attr);
-        myTabWidget->addTab(qattr, tabNameBase.arg(attr.GetName(), AttributeTypeHelper::TypeToString(attr.GetType())));
+        myAttributeNames.push_back(attr->GetName());
+        qattr->UpdateContent(*attr);
+        myTabWidget->addTab(qattr, tabNameBase.arg(attr->GetName(), AttributeTypeHelper::TypeToString(attr->GetType())));
         QObject::connect(qattr, &QTemplateAttribute::NameChanged, this, &QTemplateStructure::OnNameChanged);
         QObject::connect(qattr, &QTemplateAttribute::Applied, this, &QTemplateStructure::OnApply);
         QObject::connect(qattr, &QTemplateAttribute::Reverted, this, &QTemplateStructure::OnRevert);

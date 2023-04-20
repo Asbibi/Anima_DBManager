@@ -38,6 +38,7 @@ public:
     static DB_Manager& GetDB_Manager();
 
     void Init();
+    void Reset();
 
     bool SetProjectContentFolderPath(const QString& _path);
     const QString& GetProjectContentFolderPath() const;

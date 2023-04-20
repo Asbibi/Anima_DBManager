@@ -9,11 +9,13 @@
 class TemplateStructure
 {
 private:
-    QList<TemplateAttribute> myAttributeTemplates;
+    QList<TemplateAttribute*> myAttributeTemplates;
 
     QColor myStructColor;
     QString myStructName;   // Global Denomination of the struct (ex: "Anima", "Move, "HealingItem"...)
     QString myStructAbbrev; // Abbreviation of the struct name used for the constant part of row names (ex: "A", "M", "IH"...)
+
+    void AddAttributeTemplateInternal(TemplateAttribute* _attTemplateToCopy, const QString* _newName, int _index);
 
 public:
     TemplateStructure(const QString& _structName, const QColor& _structColor);
@@ -31,7 +33,7 @@ public:
 
 
     void AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& _attName, const AttributeParam& _attParam, int _index = -1);
-    void AddAttributeTemplate(const TemplateAttribute& _attTemplate, const QString* _newName = nullptr, int _index = -1);
+    void AddAttributeTemplate(const TemplateAttribute& _attTemplateToCopy, const QString* _newName = nullptr, int _index = -1);
     void RemoveAttribute(const int& _index);
     void RemoveAttribute(const QString& _attName);
     void MoveAttribute(int _indexFrom, int _indexTo);
@@ -48,7 +50,7 @@ public:
     const TemplateAttribute* GetAttributeTemplate(const QString& _attName) const;
     int GetAttributesCount() const { return (int)(myAttributeTemplates.count()); }
 
-    const QList<TemplateAttribute>& GetAttributes() const { return myAttributeTemplates; }
+    const QList<TemplateAttribute*>& GetAttributes() const { return myAttributeTemplates; }
 
     void SaveTemplate_CSV(std::ofstream& file) const;
 };
