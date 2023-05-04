@@ -85,12 +85,12 @@ void QTemplateStructure::UpdateContent()
     }
 
     const QString tabNameBase = "%1\n[%2]";
-    for (const auto& attr : myStructureDB->GetTemplate().GetAttributes())
+    for (const auto* attr : myStructureDB->GetTemplate().GetAttributes())
     {
         QTemplateAttribute* qattr = new QTemplateAttribute();
-        myAttributeNames.push_back(attr.GetName());
-        qattr->UpdateContent(attr);
-        myTabWidget->addTab(qattr, tabNameBase.arg(attr.GetName(), AttributeTypeHelper::TypeToString(attr.GetType())));
+        myAttributeNames.push_back(attr->GetName());
+        qattr->UpdateContent(*attr);
+        myTabWidget->addTab(qattr, tabNameBase.arg(attr->GetName(), AttributeTypeHelper::TypeToString(attr->GetType())));
         QObject::connect(qattr, &QTemplateAttribute::NameChanged, this, &QTemplateStructure::OnNameChanged);
         QObject::connect(qattr, &QTemplateAttribute::Applied, this, &QTemplateStructure::OnApply);
         QObject::connect(qattr, &QTemplateAttribute::Reverted, this, &QTemplateStructure::OnRevert);
@@ -153,7 +153,7 @@ void QTemplateStructure::OnApplyDefaultToAll(const QString& _attrName)
 
 void QTemplateStructure::AddAttribute(int _position, bool _duplicatePrevious)
 {
-    DB_Manager::GetDB_Manager().AddAttribute(myStructureDB->GetTemplateName(), _position, _duplicatePrevious);
+    DB_Manager::GetDB_Manager().AddAttributeTemplate(myStructureDB->GetTemplateName(), _position, _duplicatePrevious);
     UpdateContent();
     myTabWidget->setCurrentIndex(_position);
 }
@@ -183,7 +183,7 @@ void QTemplateStructure::OnRemove()
     if (current < 0)
         return;
 
-    DB_Manager::GetDB_Manager().RemoveAttribute(myStructureDB->GetTemplateName(), current);
+    DB_Manager::GetDB_Manager().RemoveAttributeTemplate(myStructureDB->GetTemplateName(), current);
     UpdateContent();
     myTabWidget->setCurrentIndex(current);
 }

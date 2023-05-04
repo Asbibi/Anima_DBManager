@@ -53,6 +53,9 @@ bool DB_Manager::IsProjectContentFolderPathValid() const
 
 void DB_Manager::Init()
 {
+//#define testValues
+#ifdef testValues
+
     // Project Folder
     SetProjectContentFolderPath("D:/Documents/Unreal/Anima_OLD/Content/");
     qDebug() << "Project path is valid : " << myProjectPathIsValid;
@@ -90,151 +93,95 @@ void DB_Manager::Init()
     emit StringTableAdded(0);
     emit StringTableAdded(1);
 
-    // Setup template
-    TemplateStructure templ1 = TemplateStructure("Struct Test", "STT", QColorConstants::DarkRed);
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Texture, "Texture", AttributeParam());
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Sound, "Sound", AttributeParam());
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, "Bool", AttributeParam());
-    //templ1.AddAttributeTemplate(AttributeTypeHelper::Type::UAsset, "Standard Asset", AttributeParam());
-    AttributeParam tempEnumParam = AttributeParam();
-    tempEnumParam.enumeratorIndex = 0;
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Enum, "Enum", tempEnumParam);          // Enum requires that the param has a non null enum ptr
-    templ1.SetAttributeDefaultValue("Enum", "GROUND");
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::TableString, "Table", AttributeParam());
 
-    AddStructureDB(templ1);
+    // Struct Tables;
+    AddStructureDB({"BasicStruct", QColorConstants::DarkRed}, 0);
+    AddAttributeTemplate(0, 0, false);
+    AddAttributeTemplate(0, 1, false);
+    AddAttributeTemplate(0, 2, false);
+    AddAttributeTemplate(0, 3, false);
+    AddAttributeTemplate(0, 4, false);
+    ChangeAttributeTemplate(0, 0, AttributeTypeHelper::Type::Texture, AttributeParam(), true);
+    ChangeAttributeTemplate(0, 1, AttributeTypeHelper::Type::Sound, AttributeParam(), true);
+    ChangeAttributeTemplate(0, 2, AttributeTypeHelper::Type::Bool, AttributeParam(), true);
+        AttributeParam tempEnumParam = AttributeParam();
+        tempEnumParam.enumeratorIndex = 0;
+    ChangeAttributeTemplate(0, 3, AttributeTypeHelper::Type::Enum, tempEnumParam, true);
+    ChangeAttributeTemplate(0, 4, AttributeTypeHelper::Type::TableString, AttributeParam(), true);
+    QString name = "TextureAttr";
+    RenameStructureAttribute(0,0, name);
+    name = "SoundAttr";
+    RenameStructureAttribute(0,1, name);
+    name = "BoolAttr";
+    RenameStructureAttribute(0,2, name);
+    name = "EnumAttr";
+    RenameStructureAttribute(0,3, name);
+    name = "SStringAttr";
+    RenameStructureAttribute(0,4, name);
+
+    AddStructureRow(0,0);
+    AddStructureRow(0,0);
+    AddStructureRow(0,0);
 
 
-    TemplateStructure templ2 = TemplateStructure("Another Struct", QColorConstants::DarkBlue);
-    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Int, "Int", AttributeParam());             // Int use the param given but default are ok
-    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Float, "Float", AttributeParam());         // Same
-    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::ShortString, "Short", AttributeParam());   // Same
+    AddStructureDB({"ConcreteStruct", QColorConstants::DarkBlue}, 1);
+    AddAttributeTemplate(1, 0, false);
+    AddAttributeTemplate(1, 1, false);
+    AddAttributeTemplate(1, 2, false);
+    AddAttributeTemplate(1, 3, false);
+    ChangeAttributeTemplate(1, 0, AttributeTypeHelper::Type::Int, AttributeParam(), true);
+    ChangeAttributeTemplate(1, 1, AttributeTypeHelper::Type::Float, AttributeParam(), true);
+    ChangeAttributeTemplate(1, 2, AttributeTypeHelper::Type::ShortString, AttributeParam(), true);
     AttributeParam tempRefParam = AttributeParam();
     tempRefParam.structTable = GetStructureTable(0);
-    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Reference, "Ref", tempRefParam);
+    ChangeAttributeTemplate(1, 3, AttributeTypeHelper::Type::Reference, tempRefParam, true);
+    name = "IntAttr";
+    RenameStructureAttribute(1,0, name);
+    name = "FloatAttr";
+    RenameStructureAttribute(1,1, name);
+    name = "StrAttr";
+    RenameStructureAttribute(1,2, name);
+    name = "RefAttr";
+    RenameStructureAttribute(1,3, name);
 
-    AddStructureDB(templ2);
+    AddStructureRow(1,0);
+    AddStructureRow(1,0);
 
-
-    StructureDB* db1 = GetStructureTable(0);
-    db1->AddStructureAt(0);
-    db1->AddStructureAt(0);
-    db1->AddStructureAt(0);
-
-    StructureDB* db2 = GetStructureTable(1);
-    db2->AddStructureAt(0);
-    db2->AddStructureAt(0);
-
-    emit StructItemChanged(0);
-    emit StructItemChanged(1);
-
-
-/*
-TemplateStructure* templ = new TemplateStructure("Test2StructDB", QColorConstants::Red);
-
-//templ->AddAttribute("Mesh", new AAMesh());
-templ->AddAttribute("Texture", new AATexture());
-//templ->AddAttribute("Sound", new AASound());
-//templ->AddAttribute("Anim", new AAAnimInstance());
-//templ->AddAttribute("Niagara", new AANiagara());
-templ->AddAttribute("Bool", new ABool());
-AttributeParam* enumParam = new AttributeParam();
-enumParam->enumerator = &enumerators[0];
-templ->AddAttribute("Enum", new AEnumerator(enumParam, 4));
-AttributeParam* floatParam = new AttributeParam();
-AFloat* floatAttTempl = new AFloat(floatParam);
-floatAttTempl->SetValueFromText("0.253");
-templ->AddAttribute("Float", floatAttTempl);
-AttributeParam* intParam = new AttributeParam();
-templ->AddAttribute("Int", new AInt(intParam));
-AttributeParam* stringParam = new AttributeParam();
-stringParam->max_i = 32;
-templ->AddAttribute("Short String", new AShortString(stringParam, "Hello There !!!"));
-templ->AddAttribute("Table String", new ATableString());
-
-TemplateStructure* templ2 = new TemplateStructure("Test_Strct", QColorConstants::Red);
-AStructure* structAtt = new AStructure(*templ);
-templ2->AddAttribute("Struct", structAtt);
-AttributeParam* arrayParam = new AttributeParam();
-arrayParam->templateAtt = floatAttTempl->CreateDuplica();
-AArray* arrayAtt = new AArray(arrayParam);
-arrayAtt->AddRow();
-arrayAtt->AddRow();
-templ2->AddAttribute("Array", arrayAtt);
-
-TemplateStructure* templ3 = new TemplateStructure("Test_Combine", QColorConstants::Red);
-AttributeParam* arrayParam2 = new AttributeParam();
-arrayParam2->templateAtt = structAtt->CreateDuplica();
-AArray* arrayAtt2 = new AArray(arrayParam2);
-arrayAtt2->AddRow();
-arrayAtt2->AddRow();
-templ3->AddAttribute("ArrayOfStruct", arrayAtt2);
-
-TemplateStructure* templ4 = new TemplateStructure("Test_Combine", QColorConstants::Red);
-AStructure* structAtt2 = new AStructure(*templ2);
-templ4->AddAttribute("StructOfStructAndArray", structAtt2);
-
-
-AddStructures(*templ);
-AddStructures(*templ2);
-AddStructures(*templ3);
-AddStructures(*templ4);
-
-StructureDB* db1 = GetStructures(0);
-
-//Ref in struct 1
-AttributeParam* refParam = new AttributeParam();
-refParam->structTable = GetStructures(1);
-templ->AddAttribute("Ref", new AReference(refParam));
-
-db1->AddStructureAt(0);
-db1->AddStructureAt(0);
-db1->AddStructureAt(0);
-*/
-
-
-//#define fileExportTest
-#ifdef fileExportTest
-    // Create structure
-    Structure structure = Structure(*templ);
-    Structure structure1 = Structure(*templ);
-    structure1.SetAttributeValueFromText("Bool", "tRuEe");
-    structure1.SetAttributeValueFromText("Enum", "FIREe");
-    structure1.SetAttributeValueFromText("Float", "15.623665l");
-    structure1.SetAttributeValueFromText("Int", "10.1");
-    structure1.SetAttributeValueFromText("String", "General Kenobi...");
-    Structure structure20 = Structure(*templ2);
-    Structure structure2 = Structure(*templ2);
-    structure2.SetAttributeValueFromText("Struct", "{true,WATER,5.86,90,Meh}");
-    structure2.SetAttributeValueFromText("Array", "[3.0,5.36]");
-    Structure structure30 = Structure(*templ3);
-    Structure structure3 = Structure(*templ3);
-    structure3.SetAttributeValueFromText("ArrayOfStruct", "[{true,FIRE,5.8886,53,hé},{false,Wind,2.33333,3,oh}]");
-    Structure structure40 = Structure(*templ4);
-    Structure structure4 = Structure(*templ4);
-    structure4.SetAttributeValueFromText("StructOfStructAndArray", "{{true,FIRE,5.8886,53,hé},[23.5,63.6]}");
-
-    // File handling
-    std::ofstream file;
-    file.open("Test_File_1.csv");
-    structure.WriteValue_CSV_AsRow(file, 0);
-    structure1.WriteValue_CSV_AsRow(file, 1);
-    file << "\n";
-    structure20.WriteValue_CSV_AsRow(file, 2);
-    structure2.WriteValue_CSV_AsRow(file, 2);
-    file << "\n";
-    structure30.WriteValue_CSV_AsRow(file, 3);
-    structure3.WriteValue_CSV_AsRow(file, 3);
-    file << "\n";
-    structure40.WriteValue_CSV_AsRow(file, 4);
-    structure4.WriteValue_CSV_AsRow(file, 4);
-    file.close();
-
-    //QString testStr = structure4.GetAttribute("StructOfStructAndArray")->GetDisplayedText(true);
 #else
 
 #endif
 
+}
+
+void DB_Manager::Reset()
+{
+    blockSignals(true);
+
+    int structTableCount = myStructures.count();
+    for (int i = structTableCount -1; i > -1; i--)
+    {
+        RemoveStructureDB(i);
+    }
+    int stringTableCount = myStringTables.count();
+    for (int i = stringTableCount -1; i > -1; i--)
+    {
+        RemoveStringTable(i);
+    }
+    int enumCount = enumerators.count();
+    for (int i = enumCount -1; i > -1; i--)
+    {
+        RemoveEnum(i);
+    }
+    //myStructures.clear();
+    //enumerators.clear();
+    //myStringTables.clear();
+    //myAttributeParamPtrs.clear();
+
+    myProjectContentFolderPath = "";
+
+    blockSignals(false);
+
+    emit ResetView();
 }
 
 
@@ -451,6 +398,7 @@ void DB_Manager::RemoveStructureDB(int _index)
         return;
 
 
+    // Clean up attributeParam that reference the deleted Struct Table (for AReference)
     auto* structDB = myStructures.takeAt(_index);
     for (auto* attrParam : myAttributeParamPtrs)
     {
@@ -553,7 +501,7 @@ void DB_Manager::ChangeAttributeTemplate(const QString& _tableName, int _attrInd
 {
     ChangeAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex, _newType, _param, _needResetValue);
 }
-void DB_Manager::AddAttribute(int _tableIndex, int _attrIndex, bool _copyFromPrevious)
+void DB_Manager::AddAttributeTemplate(int _tableIndex, int _attrIndex, bool _copyFromPrevious)
 {
     const int count = myStructures.count();
     if (_tableIndex < 0 || _tableIndex > count)
@@ -562,11 +510,11 @@ void DB_Manager::AddAttribute(int _tableIndex, int _attrIndex, bool _copyFromPre
     myStructures[_tableIndex]->AddAttribute(_attrIndex, _copyFromPrevious);
     emit StructItemChanged(_tableIndex);
 }
-void DB_Manager::AddAttribute(const QString& _tableName, int _attrIndex, bool _copyFromPrevious)
+void DB_Manager::AddAttributeTemplate(const QString& _tableName, int _attrIndex, bool _copyFromPrevious)
 {
-    AddAttribute(GetStructureTableIndex(_tableName), _attrIndex, _copyFromPrevious);
+    AddAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex, _copyFromPrevious);
 }
-void DB_Manager::RemoveAttribute(int _tableIndex, int _attrIndex)
+void DB_Manager::RemoveAttributeTemplate(int _tableIndex, int _attrIndex)
 {
     const int count = myStructures.count();
     if (_tableIndex < 0 || _tableIndex > count)
@@ -575,9 +523,9 @@ void DB_Manager::RemoveAttribute(int _tableIndex, int _attrIndex)
     myStructures[_tableIndex]->RemoveAttribute(_attrIndex);
     emit StructItemChanged(_tableIndex);
 }
-void DB_Manager::RemoveAttribute(const QString& _tableName, int _attrIndex)
+void DB_Manager::RemoveAttributeTemplate(const QString& _tableName, int _attrIndex)
 {
-    RemoveAttribute(GetStructureTableIndex(_tableName), _attrIndex);
+    RemoveAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex);
 }
 void DB_Manager::AddStructureRow(const int _tableIndex, const int _position)
 {

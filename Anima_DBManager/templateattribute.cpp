@@ -20,32 +20,41 @@
 #include <QDebug>
 
 
+TemplateAttribute::TemplateAttribute() :
+    myAttrName(""),
+    mySharedParam()
+{
+    myDefaultAttribute = new ABool(mySharedParam);
+}
 TemplateAttribute::TemplateAttribute(const AttributeParam& _sharedParamToCopy) :
     myAttrName(""),
-    mySharedParam(*(new AttributeParam(_sharedParamToCopy))),
-    myTemplateAttribute(nullptr)
-{}
+    mySharedParam(_sharedParamToCopy)
+{
+    myDefaultAttribute = new ABool(mySharedParam);
+}
 TemplateAttribute::TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy) :
     myAttrName(_name),
-    mySharedParam(*(new AttributeParam(_sharedParamToCopy)))
+    mySharedParam(_sharedParamToCopy)
 {
     InitDefaultAttribute(_type);
 }
 TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
     TemplateAttribute(_another.myAttrName, _another.GetType(), _another.mySharedParam)
 {
-    Q_ASSERT(myTemplateAttribute != nullptr && _another.myTemplateAttribute);
-    myTemplateAttribute->CopyValueFromOther(_another.myTemplateAttribute);
+    Q_ASSERT(myDefaultAttribute != nullptr && _another.myDefaultAttribute != nullptr);
+    Q_ASSERT(myDefaultAttribute->GetType() == _another.myDefaultAttribute->GetType());
+
+    myDefaultAttribute->CopyValueFromOther(_another.myDefaultAttribute);
 }
 void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
 {
-    if (myTemplateAttribute != nullptr)
+    if (myDefaultAttribute != nullptr)
     {
-        delete myTemplateAttribute;
-        myTemplateAttribute = nullptr;
+        delete myDefaultAttribute;
+        myDefaultAttribute = nullptr;
     }
 
-#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case AttributeTypeHelper::Type::TYPE: { myTemplateAttribute = new CLASS(mySharedParam); return; }
+#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case AttributeTypeHelper::Type::TYPE: { myDefaultAttribute = new CLASS(mySharedParam); return; }
 #define CASE_INIT_TEMPLATE(TYPE) CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, A##TYPE)
 
     switch (_type)
@@ -95,22 +104,52 @@ void TemplateAttribute::ResetUselessParam(AttributeTypeHelper::Type _type)
         qDebug() << "TODO - reset structure template for structure attribute";
     }
 }
-void TemplateAttribute::DeleteData()
-{
-    delete &mySharedParam;
-    if (myTemplateAttribute)
-        delete myTemplateAttribute;
-}
 void TemplateAttribute::operator=(const TemplateAttribute& _another)
 {
     myAttrName = _another.myAttrName;
     mySharedParam = _another.mySharedParam;
-    myTemplateAttribute = _another.myTemplateAttribute;
+
+    InitDefaultAttribute(_another.myDefaultAttribute->GetType());
+    myDefaultAttribute->CopyValueFromOther(_another.myDefaultAttribute);
 }
 
 TemplateAttribute::~TemplateAttribute()
-{}
+{
+    Q_ASSERT(myDefaultAttribute);
+    delete myDefaultAttribute;
+}
 
+
+
+const QString& TemplateAttribute::GetName() const
+{
+    return myAttrName;
+}
+AttributeTypeHelper::Type TemplateAttribute::GetType() const
+{
+    Q_ASSERT(myDefaultAttribute);
+    return myDefaultAttribute->GetType();
+}
+const Attribute* TemplateAttribute::GetDefaultAttribute() const
+{
+    return myDefaultAttribute;
+}
+const AttributeParam& TemplateAttribute::GetSharedParam() const
+{
+    return mySharedParam;
+}
+AttributeParam& TemplateAttribute::GetSharedParam()
+{
+    return mySharedParam;
+}
+Attribute* TemplateAttribute::GetDefaultAttributeW()
+{
+    return myDefaultAttribute;
+}
+bool TemplateAttribute::HasValidSharedParam() const
+{
+    return AttributeTypeHelper::AreParamValid(GetType(), mySharedParam);
+}
 
 
 
@@ -125,37 +164,14 @@ void TemplateAttribute::SetNewValues(AttributeTypeHelper::Type _type, const Attr
 }
 void TemplateAttribute::SetDefaultValue(const QString& _valueAsText)
 {
-    myTemplateAttribute->SetValueFromText(_valueAsText);
-}
-
-
-
-const AttributeParam& TemplateAttribute::GetSharedParam() const
-{
-    return mySharedParam;
-}
-AttributeParam& TemplateAttribute::GetSharedParam()
-{
-    return mySharedParam;
-}
-Attribute* TemplateAttribute::GetTemplateAttributeW()
-{
-    return myTemplateAttribute;
-}
-
-
-bool TemplateAttribute::HasValidSharedParam() const
-{
-    return AttributeTypeHelper::AreParamValid(GetType(), mySharedParam);
+    myDefaultAttribute->SetValueFromText(_valueAsText);
 }
 
 
 Attribute* TemplateAttribute::GenerateAttribute() const
 {
-    if (!myTemplateAttribute)
-        qFatal("GENERATING ATTRIBUTE FROM INVALID ATTRIBUTE");
-
-    return myTemplateAttribute ? myTemplateAttribute->CreateDuplica() : nullptr;
+    Q_ASSERT(myDefaultAttribute != nullptr);
+    return myDefaultAttribute->CreateDuplica();
 }
 
 
@@ -164,5 +180,5 @@ void TemplateAttribute::SaveTemplate_CSV(std::ofstream& file) const
    file << myAttrName.toStdString();
    file << '|' << AttributeTypeHelper::TypeToString(GetType()).toStdString();
    file << '|'; mySharedParam.SaveParams_CSV(file);
-   file << '|'; myTemplateAttribute->WriteValue_CSV(file);
+   file << '|'; myDefaultAttribute->WriteValue_CSV(file);
 }

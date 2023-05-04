@@ -5,9 +5,9 @@
 Structure::Structure(TemplateStructure& _structureTemplate) :
     myTemplate(_structureTemplate)
 {
-    const QList<TemplateAttribute>& _templateAttributes = _structureTemplate.GetAttributes();
-    for (const auto& _templ : _templateAttributes)
-        myAttributes.push_back(_templ.GenerateAttribute());
+    const QList<TemplateAttribute*>& _templateAttributes = _structureTemplate.GetAttributes();
+    for (const auto* _templ : _templateAttributes)
+        myAttributes.push_back(_templ->GenerateAttribute());
 }
 Structure::Structure(const Structure& _other, bool _attrDeepCopy) :
     QObject(),
@@ -97,7 +97,7 @@ void Structure::MoveAttribute(int _indexFrom, int _indexTo)
 }
 void Structure::ResetAttributeToDefault(int _attindex)
 {
-    myAttributes[_attindex]->CopyValueFromOther(myTemplate.GetAttributeTemplate(_attindex)->GetDefaultAttr());
+    myAttributes[_attindex]->CopyValueFromOther(myTemplate.GetAttributeTemplate(_attindex)->GetDefaultAttribute());
 }
 void Structure::FixAttributeTypeToDefault(int _attIndex)
 {
@@ -161,7 +161,7 @@ QString Structure::GetDisplayText() const
     const int nAttr = attributeTemplates.count();
     for (int i = 0; i < nAttr; i++)
     {
-        text += attributeTemplates[i].GetName() + " \t = " + GetAttribute(i)->GetDisplayedText(true) + "\n";
+        text += attributeTemplates[i]->GetName() + " \t = " + GetAttribute(i)->GetDisplayedText(true) + "\n";
     }
     return text;
 }

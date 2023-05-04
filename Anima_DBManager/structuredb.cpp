@@ -133,17 +133,18 @@ void StructureDB::AddAttribute(int _position, bool _copyFromPrevious)
     if (_copyFromPrevious && _position == 0)
         return;
 
-    myTemplate.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, " ", AttributeParam(), _position);
     if (_copyFromPrevious)
     {
-        auto& newAttributeTemplate = *myTemplate.GetAttributeTemplate(_position);
-        newAttributeTemplate = *myTemplate.GetAttributeTemplate(_position -1);
-        newAttributeTemplate.SetName(" ");
-        QString originalName = myTemplate.GetAttributeTemplate(_position -1)->GetName();
-        myTemplate.RenameAttributeTemplate(_position, originalName);
+        QString nameToUse = "";
+        const auto* previous = myTemplate.GetAttributeTemplate(_position - 1);
+        myTemplate.AddAttributeTemplate(*previous, &nameToUse, _position);
+
+        nameToUse = myTemplate.GetAttributeTemplate(_position -1)->GetName();
+        myTemplate.RenameAttributeTemplate(_position, nameToUse);
     }
     else
     {
+        myTemplate.AddAttributeTemplate(_position);
         QString name = "New Attribute";
         myTemplate.RenameAttributeTemplate(_position, name);
     }
@@ -242,10 +243,10 @@ void StructureDB::WriteValue_CSV_Table(std::ofstream& file) const
 {
     file << "---";
     const auto& templAttributes = myTemplate.GetAttributes();
-    for (const auto& attr : templAttributes)
+    for (const auto* attr : templAttributes)
     {
         file << ",";
-        file << attr.GetName().toStdString();
+        file << attr->GetName().toStdString();
     }
     file << '\n';
 

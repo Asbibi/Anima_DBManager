@@ -17,6 +17,8 @@ public:
     virtual void Init();
 
     int GetSelectedItem() const;
+    void Reset();
+    void UnselectItem();
 
 signals:
 public slots:

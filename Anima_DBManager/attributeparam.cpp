@@ -15,7 +15,7 @@ AttributeParam::AttributeParam(const AttributeParam& _another) :
     max_i {_another.max_i },
     min_f {_another.min_f },
     max_f {_another.max_f },
-    templateAtt {_another.templateAtt },
+    templateAtt {_another.templateAtt },    // new () ?
     structTable {_another.structTable },
     enumeratorIndex {_another.enumeratorIndex }
 {
