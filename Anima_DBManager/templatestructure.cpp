@@ -16,7 +16,7 @@ TemplateStructure::TemplateStructure(const TemplateStructure& _other) :
     TemplateStructure(_other.myStructName, _other.myStructAbbrev, _other.myStructColor)
 {
     for (const auto& otherTemplAttr : _other.myAttributeTemplates)
-        myAttributeTemplates.append(otherTemplAttr);
+        myAttributeTemplates.append(new TemplateAttribute(*otherTemplAttr));
 }
 void TemplateStructure::operator=(const TemplateStructure& _another)
 {
@@ -28,9 +28,24 @@ void TemplateStructure::operator=(const TemplateStructure& _another)
     for (const auto& otherTemplAttr : _another.myAttributeTemplates)
         myAttributeTemplates.push_back(otherTemplAttr);
 }
+TemplateStructure::~TemplateStructure()
+{
+    while (!myAttributeTemplates.isEmpty())
+    {
+        delete myAttributeTemplates.takeFirst();
+    }
+}
 
 
 
+void TemplateStructure::AddAttributeTemplate(int _index)
+{
+    AddAttributeTemplateInternal(new TemplateAttribute(), nullptr, _index);
+}
+void TemplateStructure::AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& _attName, int _index)
+{
+    AddAttributeTemplateInternal(new TemplateAttribute(_attName, _type, AttributeParam()), nullptr, _index);
+}
 void TemplateStructure::AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& att_Name, const AttributeParam& _attParam, int _index)
 {
     AddAttributeTemplateInternal(new TemplateAttribute(att_Name, _type, _attParam), nullptr, _index);
@@ -45,7 +60,7 @@ void TemplateStructure::AddAttributeTemplateInternal(TemplateAttribute* _attTemp
     if (_index < 0 || _index > count)
         _index = count;
 
-    myAttributeTemplates.insert(_index, new TemplateAttribute(*_attTemplateToCopy));
+    myAttributeTemplates.insert(_index, _attTemplateToCopy);
 
     if (_newName)
         myAttributeTemplates[_index]->SetName(*_newName);

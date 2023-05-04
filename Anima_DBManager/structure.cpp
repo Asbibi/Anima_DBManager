@@ -97,7 +97,7 @@ void Structure::MoveAttribute(int _indexFrom, int _indexTo)
 }
 void Structure::ResetAttributeToDefault(int _attindex)
 {
-    myAttributes[_attindex]->CopyValueFromOther(myTemplate.GetAttributeTemplate(_attindex)->GetDefaultAttr());
+    myAttributes[_attindex]->CopyValueFromOther(myTemplate.GetAttributeTemplate(_attindex)->GetDefaultAttribute());
 }
 void Structure::FixAttributeTypeToDefault(int _attIndex)
 {

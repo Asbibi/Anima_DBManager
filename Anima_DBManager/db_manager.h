@@ -76,10 +76,10 @@ public:
     void ResetAttributesToDefaultValue(const QString& _tableName, int _attributeIndex);
     void ChangeAttributeTemplate(int _tableIndex, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
     void ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
-    void AddAttribute(int _tableIndex, int _attrIndex, bool _copyFromPrevious);
-    void AddAttribute(const QString& _tableName, int _attrIndex, bool _copyFromPrevious);
-    void RemoveAttribute(int _tableIndex, int _attrIndex);
-    void RemoveAttribute(const QString& _tableName, int _attrIndex);
+    void AddAttributeTemplate(int _tableIndex, int _attrIndex, bool _copyFromPrevious);
+    void AddAttributeTemplate(const QString& _tableName, int _attrIndex, bool _copyFromPrevious);
+    void RemoveAttributeTemplate(int _tableIndex, int _attrIndex);
+    void RemoveAttributeTemplate(const QString& _tableName, int _attrIndex);
     void AddStructureRow(const int _tableIndex, const int _position);
     void DuplicateStructureRow(const int _tableIndex, const int _position, const int _originalIndex);
     void RemoveStructureRow(const int _tableIndex, const int _position);
@@ -122,6 +122,8 @@ signals:
     void StructItemFocus(const int _tableIndex, const int _index);
     void StructItemChanged(const int _tableIndex);      // For edits done in panel widget
     void StructAttributeNameChanged(const int _tableIndex);
+
+    void ResetView();
 };
 
 #endif // DB_MANAGER_H

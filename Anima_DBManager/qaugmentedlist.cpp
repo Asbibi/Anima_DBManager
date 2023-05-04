@@ -77,8 +77,9 @@ const QString QAugmentedList::GetItemValue(const int _index) const
 void QAugmentedList::SelectItemAt(const int _index)
 {
     if (_index < 0 || _index >= myList->count())
-        return;
-    myList->setCurrentRow(_index);
+        myList->setCurrentRow(-1);
+    else
+        myList->setCurrentRow(_index);
 }
 void QAugmentedList::SelectItem(const QString& _text)
 {

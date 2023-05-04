@@ -30,6 +30,7 @@ private:
     QPanelStruct* myStructWidget;
 
     void OnSaveDB_Internal(bool _saveAs);
+    void CleanTabWidget(QTabWidget* _tabWidget);
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -54,6 +55,8 @@ public slots:
     void OnStructItemFocus(const int _tableIndex, const int _index);
     void OnStructItemChanged(const int _tableIndex);
     void OnStructAttributeNameChanged(const int _tableIndex);
+
+    void OnResetView();
 
 
     void OnNewDB();

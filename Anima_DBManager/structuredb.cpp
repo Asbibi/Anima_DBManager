@@ -136,17 +136,15 @@ void StructureDB::AddAttribute(int _position, bool _copyFromPrevious)
     if (_copyFromPrevious)
     {
         QString nameToUse = "";
-        myTemplate.AddAttributeTemplate(*myTemplate.GetAttributeTemplate(_position - 1), &nameToUse, _position);
-        //myTemplate.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, " ", AttributeParam(), _position);
-        //auto& newAttributeTemplate = *myTemplate.GetAttributeTemplate(_position);
-        //newAttributeTemplate = *myTemplate.GetAttributeTemplate(_position -1);
+        const auto* previous = myTemplate.GetAttributeTemplate(_position - 1);
+        myTemplate.AddAttributeTemplate(*previous, &nameToUse, _position);
 
         nameToUse = myTemplate.GetAttributeTemplate(_position -1)->GetName();
         myTemplate.RenameAttributeTemplate(_position, nameToUse);
     }
     else
     {
-        myTemplate.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, " ", AttributeParam(), _position);
+        myTemplate.AddAttributeTemplate(_position);
         QString name = "New Attribute";
         myTemplate.RenameAttributeTemplate(_position, name);
     }

@@ -93,43 +93,59 @@ void DB_Manager::Init()
     emit StringTableAdded(0);
     emit StringTableAdded(1);
 
-    // Setup template
-    TemplateStructure templ1 = TemplateStructure("Struct Test", "STT", QColorConstants::DarkRed);
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Texture, "Texture", AttributeParam());
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Sound, "Sound", AttributeParam());
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Bool, "Bool", AttributeParam());
-    //templ1.AddAttributeTemplate(AttributeTypeHelper::Type::UAsset, "Standard Asset", AttributeParam());
-    AttributeParam tempEnumParam = AttributeParam();
-    tempEnumParam.enumeratorIndex = 0;
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::Enum, "Enum", tempEnumParam);          // Enum requires that the param has a non null enum ptr
-    templ1.SetAttributeDefaultValue("Enum", "GROUND");
-    templ1.AddAttributeTemplate(AttributeTypeHelper::Type::TableString, "Table", AttributeParam());
 
-    AddStructureDB(templ1);
+    // Struct Tables;
+    AddStructureDB({"BasicStruct", QColorConstants::DarkRed}, 0);
+    AddAttributeTemplate(0, 0, false);
+    AddAttributeTemplate(0, 1, false);
+    AddAttributeTemplate(0, 2, false);
+    AddAttributeTemplate(0, 3, false);
+    AddAttributeTemplate(0, 4, false);
+    ChangeAttributeTemplate(0, 0, AttributeTypeHelper::Type::Texture, AttributeParam(), true);
+    ChangeAttributeTemplate(0, 1, AttributeTypeHelper::Type::Sound, AttributeParam(), true);
+    ChangeAttributeTemplate(0, 2, AttributeTypeHelper::Type::Bool, AttributeParam(), true);
+        AttributeParam tempEnumParam = AttributeParam();
+        tempEnumParam.enumeratorIndex = 0;
+    ChangeAttributeTemplate(0, 3, AttributeTypeHelper::Type::Enum, tempEnumParam, true);
+    ChangeAttributeTemplate(0, 4, AttributeTypeHelper::Type::TableString, AttributeParam(), true);
+    QString name = "TextureAttr";
+    RenameStructureAttribute(0,0, name);
+    name = "SoundAttr";
+    RenameStructureAttribute(0,1, name);
+    name = "BoolAttr";
+    RenameStructureAttribute(0,2, name);
+    name = "EnumAttr";
+    RenameStructureAttribute(0,3, name);
+    name = "SStringAttr";
+    RenameStructureAttribute(0,4, name);
+
+    AddStructureRow(0,0);
+    AddStructureRow(0,0);
+    AddStructureRow(0,0);
 
 
-    TemplateStructure templ2 = TemplateStructure("Another Struct", QColorConstants::DarkBlue);
-    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Int, "Int", AttributeParam());             // Int use the param given but default are ok
-    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Float, "Float", AttributeParam());         // Same
-    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::ShortString, "Short", AttributeParam());   // Same
+    AddStructureDB({"ConcreteStruct", QColorConstants::DarkBlue}, 1);
+    AddAttributeTemplate(1, 0, false);
+    AddAttributeTemplate(1, 1, false);
+    AddAttributeTemplate(1, 2, false);
+    AddAttributeTemplate(1, 3, false);
+    ChangeAttributeTemplate(1, 0, AttributeTypeHelper::Type::Int, AttributeParam(), true);
+    ChangeAttributeTemplate(1, 1, AttributeTypeHelper::Type::Float, AttributeParam(), true);
+    ChangeAttributeTemplate(1, 2, AttributeTypeHelper::Type::ShortString, AttributeParam(), true);
     AttributeParam tempRefParam = AttributeParam();
     tempRefParam.structTable = GetStructureTable(0);
-    templ2.AddAttributeTemplate(AttributeTypeHelper::Type::Reference, "Ref", tempRefParam);
+    ChangeAttributeTemplate(1, 3, AttributeTypeHelper::Type::Reference, tempRefParam, true);
+    name = "IntAttr";
+    RenameStructureAttribute(1,0, name);
+    name = "FloatAttr";
+    RenameStructureAttribute(1,1, name);
+    name = "StrAttr";
+    RenameStructureAttribute(1,2, name);
+    name = "RefAttr";
+    RenameStructureAttribute(1,3, name);
 
-    AddStructureDB(templ2);
-
-
-    StructureDB* db1 = GetStructureTable(0);
-    db1->AddStructureAt(0);
-    db1->AddStructureAt(0);
-    db1->AddStructureAt(0);
-
-    StructureDB* db2 = GetStructureTable(1);
-    db2->AddStructureAt(0);
-    db2->AddStructureAt(0);
-
-    emit StructItemChanged(0);
-    emit StructItemChanged(1);
+    AddStructureRow(1,0);
+    AddStructureRow(1,0);
 
 #else
 
@@ -164,6 +180,8 @@ void DB_Manager::Reset()
     myProjectContentFolderPath = "";
 
     blockSignals(false);
+
+    emit ResetView();
 }
 
 
@@ -380,6 +398,7 @@ void DB_Manager::RemoveStructureDB(int _index)
         return;
 
 
+    // Clean up attributeParam that reference the deleted Struct Table (for AReference)
     auto* structDB = myStructures.takeAt(_index);
     for (auto* attrParam : myAttributeParamPtrs)
     {
@@ -482,7 +501,7 @@ void DB_Manager::ChangeAttributeTemplate(const QString& _tableName, int _attrInd
 {
     ChangeAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex, _newType, _param, _needResetValue);
 }
-void DB_Manager::AddAttribute(int _tableIndex, int _attrIndex, bool _copyFromPrevious)
+void DB_Manager::AddAttributeTemplate(int _tableIndex, int _attrIndex, bool _copyFromPrevious)
 {
     const int count = myStructures.count();
     if (_tableIndex < 0 || _tableIndex > count)
@@ -491,11 +510,11 @@ void DB_Manager::AddAttribute(int _tableIndex, int _attrIndex, bool _copyFromPre
     myStructures[_tableIndex]->AddAttribute(_attrIndex, _copyFromPrevious);
     emit StructItemChanged(_tableIndex);
 }
-void DB_Manager::AddAttribute(const QString& _tableName, int _attrIndex, bool _copyFromPrevious)
+void DB_Manager::AddAttributeTemplate(const QString& _tableName, int _attrIndex, bool _copyFromPrevious)
 {
-    AddAttribute(GetStructureTableIndex(_tableName), _attrIndex, _copyFromPrevious);
+    AddAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex, _copyFromPrevious);
 }
-void DB_Manager::RemoveAttribute(int _tableIndex, int _attrIndex)
+void DB_Manager::RemoveAttributeTemplate(int _tableIndex, int _attrIndex)
 {
     const int count = myStructures.count();
     if (_tableIndex < 0 || _tableIndex > count)
@@ -504,9 +523,9 @@ void DB_Manager::RemoveAttribute(int _tableIndex, int _attrIndex)
     myStructures[_tableIndex]->RemoveAttribute(_attrIndex);
     emit StructItemChanged(_tableIndex);
 }
-void DB_Manager::RemoveAttribute(const QString& _tableName, int _attrIndex)
+void DB_Manager::RemoveAttributeTemplate(const QString& _tableName, int _attrIndex)
 {
-    RemoveAttribute(GetStructureTableIndex(_tableName), _attrIndex);
+    RemoveAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex);
 }
 void DB_Manager::AddStructureRow(const int _tableIndex, const int _position)
 {

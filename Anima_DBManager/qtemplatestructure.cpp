@@ -153,7 +153,7 @@ void QTemplateStructure::OnApplyDefaultToAll(const QString& _attrName)
 
 void QTemplateStructure::AddAttribute(int _position, bool _duplicatePrevious)
 {
-    DB_Manager::GetDB_Manager().AddAttribute(myStructureDB->GetTemplateName(), _position, _duplicatePrevious);
+    DB_Manager::GetDB_Manager().AddAttributeTemplate(myStructureDB->GetTemplateName(), _position, _duplicatePrevious);
     UpdateContent();
     myTabWidget->setCurrentIndex(_position);
 }
@@ -183,7 +183,7 @@ void QTemplateStructure::OnRemove()
     if (current < 0)
         return;
 
-    DB_Manager::GetDB_Manager().RemoveAttribute(myStructureDB->GetTemplateName(), current);
+    DB_Manager::GetDB_Manager().RemoveAttributeTemplate(myStructureDB->GetTemplateName(), current);
     UpdateContent();
     myTabWidget->setCurrentIndex(current);
 }

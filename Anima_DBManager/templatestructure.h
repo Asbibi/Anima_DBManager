@@ -22,7 +22,7 @@ public:
     TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor);
     TemplateStructure(const TemplateStructure& _other);
     void operator=(const TemplateStructure& _another);
-    // operator= !!!!!
+    ~TemplateStructure();
 
     const QColor& GetStructColor() const { return myStructColor; }
 
@@ -32,6 +32,8 @@ public:
     void ReabbrevStructureTemplate(const QString& _newStructAbbrev) { myStructAbbrev = _newStructAbbrev; }
 
 
+    void AddAttributeTemplate(int _index = -1);
+    void AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& _attName, int _index = -1);
     void AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& _attName, const AttributeParam& _attParam, int _index = -1);
     void AddAttributeTemplate(const TemplateAttribute& _attTemplateToCopy, const QString* _newName = nullptr, int _index = -1);
     void RemoveAttribute(const int& _index);

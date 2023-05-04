@@ -83,7 +83,7 @@ void QTemplateAttribute::UpdateContent(const TemplateAttribute& _attr)
     {
         ShowDefaultWidgets(false);
     }
-    myDefAttribute->UpdateAttribute(_attr.GetDefaultAttr());
+    myDefAttribute->UpdateAttribute(_attr.GetDefaultAttribute());
 }
 
 

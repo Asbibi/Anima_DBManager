@@ -33,3 +33,14 @@ int QPanelBase::GetSelectedItem() const
 {
     return myItemList->GetCurrent();
 }
+
+void QPanelBase::Reset()
+{
+    UpdateItemList();
+    OnItemSelected(-1);
+}
+
+void QPanelBase::UnselectItem()
+{
+    myItemList->SelectItemAt(-1);
+}

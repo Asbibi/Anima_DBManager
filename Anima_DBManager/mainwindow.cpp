@@ -131,6 +131,8 @@ MainWindow::MainWindow(QWidget *parent) :
     CONNECT_DB(StructItemChanged);
     CONNECT_DB(StructAttributeNameChanged);
 
+    CONNECT_DB(ResetView);
+
 #undef CONNECT_DB
 }
 
@@ -312,6 +314,28 @@ void MainWindow::OnStructAttributeNameChanged(const int _tableIndex)
     currentTab->setHorizontalHeaderLabels(headerList);
 }
 
+void MainWindow::CleanTabWidget(QTabWidget* _tabWidget)
+{
+    const int tabCount = _tabWidget->count();
+    _tabWidget->blockSignals(true);
+    for (int i = tabCount -1; i > -1; i--)
+    {
+        auto* wid = _tabWidget->widget(i);
+        _tabWidget->removeTab(i);
+        wid->disconnect();
+        delete wid;
+    }
+    _tabWidget->blockSignals(false);
+}
+void MainWindow::OnResetView()
+{
+    myStructWidget->Reset();
+    myStringWidget->Reset();
+    myEnumWidget->Reset();
+
+    CleanTabWidget(myTabStruct);
+    CleanTabWidget(myTabString);
+}
 
 
 
@@ -319,6 +343,9 @@ void MainWindow::OnStructAttributeNameChanged(const int _tableIndex)
 
 void MainWindow::OnNewDB()
 {
+    //myStructWidget->OnElementSelected(-1);
+    myStructWidget->UnselectItem();
+    //myTabStruct->currentWidget()->setFocus();
     DB_Manager::GetDB_Manager().Reset();
 }
 void MainWindow::OnSaveDB()
