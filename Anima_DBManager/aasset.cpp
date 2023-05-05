@@ -9,29 +9,42 @@ AAsset::AAsset(const AttributeParam& _sharedParam) :
 
 AAsset::AAsset(const AttributeParam& _sharedParam, QString _filePath) :
     Attribute(_sharedParam),
-    filePath(_filePath),
-    isDirty(IsDirty(_filePath))
+    myFilePath(_filePath),
+    myIsDirty(IsDirty(_filePath))
 {}
 
 
+bool AAsset::IsDirty() const
+{
+    return myIsDirty;
+}
+bool AAsset::IsEmpty() const
+{
+    return myFilePath.isEmpty();
+}
+const QString& AAsset::GetFilePath() const
+{
+    return myFilePath;
+}
+
 Attribute* AAsset::CreateDuplica() const
 {
-    return new AAsset(mySharedParam, filePath);
+    return new AAsset(mySharedParam, myFilePath);
 }
 
 QString AAsset::GetDisplayedText(bool complete) const
 {
     if (complete)
-        return filePath;
+        return myFilePath;
 
-    return GetFilePathForDisplay(filePath, isDirty);
+    return GetFilePathForDisplay(myFilePath, myIsDirty);
 }
 
 void AAsset::WriteValue_CSV(std::ofstream& file) const
 {
-    if (filePath.isEmpty() || isDirty)
+    if (myFilePath.isEmpty() || myIsDirty)
     {
-        if (isDirty)
+        if (myIsDirty)
         {
             qWarning("Asset ignored because dirty");
         }
@@ -39,7 +52,7 @@ void AAsset::WriteValue_CSV(std::ofstream& file) const
         return;
     }
 
-    QString editedPath = filePath;
+    QString editedPath = myFilePath;
     editedPath = editedPath.replace(DB_Manager::GetDB_Manager().GetProjectContentFolderPath(), "/Game");
     const int pointIndex = editedPath.lastIndexOf('.');
     editedPath = editedPath.left(pointIndex);
@@ -59,14 +72,14 @@ void AAsset::SetValueFromText(const QString& text)
 {
     if (text.isEmpty())
     {
-        filePath = text;
-        isDirty = false;
+        myFilePath = text;
+        myIsDirty = false;
         return;
     }
 
-    isDirty = text[0] == '!';
-    filePath = isDirty ? text.right(text.length() -1) : text;
-    Q_ASSERT(isDirty == IsDirty(filePath));
+    myIsDirty = text[0] == '!';
+    myFilePath = myIsDirty ? text.right(text.length() -1) : text;
+    Q_ASSERT(myIsDirty == IsDirty(myFilePath));
 }
 
 void AAsset::CopyValueFromOther(const Attribute* _other)
@@ -75,8 +88,8 @@ void AAsset::CopyValueFromOther(const Attribute* _other)
         return;
 
     const AAsset* other_AA = dynamic_cast<const AAsset*>(_other);
-    filePath = other_AA->filePath;
-    isDirty = other_AA->isDirty;
+    myFilePath = other_AA->myFilePath;
+    myIsDirty = other_AA->myIsDirty;
 }
 
 void AAsset::ReadValue_CSV(const QString& text)

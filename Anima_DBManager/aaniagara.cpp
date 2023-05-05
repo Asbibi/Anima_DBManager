@@ -11,7 +11,7 @@ AANiagara::AANiagara(const AttributeParam& _sharedParam, QString _filePath) :
 
 Attribute* AANiagara::CreateDuplica() const
 {
-    return new AANiagara(mySharedParam, filePath);
+    return new AANiagara(mySharedParam, myFilePath);
 }
 
 const QString& AANiagara::GetAssetClassNameForCSV() const

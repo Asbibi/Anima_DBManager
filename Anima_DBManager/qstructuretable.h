@@ -11,9 +11,6 @@ class QStructureTable : public QTableWidget
 
 private:
     StructureDB& myStructureDB;
-    std::vector<QWidget*> myChildWidgetsToDelete;
-
-    void DeleteAllChilds();
 
 public:
     explicit QStructureTable(StructureDB& _structureDB);
