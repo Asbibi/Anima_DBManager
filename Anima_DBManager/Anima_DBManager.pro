@@ -40,6 +40,7 @@ SOURCES += \
     qassetpreviewdialog.cpp \
     qassettexture.cpp \
     qattribute.cpp \
+    qattributedisplay.cpp \
     qaugmentedlist.cpp \
     qdatatable.cpp \
     qelementhandler.cpp \
@@ -98,6 +99,7 @@ HEADERS += \
     qassetpreviewdialog.h \
     qassettexture.h \
     qattribute.h \
+    qattributedisplay.h \
     qaugmentedlist.h \
     qdatatable.h \
     qelementhandler.h \

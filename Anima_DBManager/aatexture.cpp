@@ -11,7 +11,7 @@ AATexture::AATexture(const AttributeParam& _sharedParam, QString _filePath) :
 
 Attribute* AATexture::CreateDuplica() const
 {
-    return new AATexture(mySharedParam, filePath);
+    return new AATexture(mySharedParam, myFilePath);
 }
 
 
@@ -28,4 +28,9 @@ const QString& AATexture::GetStaticAssetFileExtension()
 {
     static QString ext = "png";
     return ext;
+}
+QPixmap AATexture::GetPixmapFromAssetPath(const QString& _texturePath)
+{
+    QString actualPath = _texturePath.isEmpty() || _texturePath[0] != '!' ? _texturePath : _texturePath.right(_texturePath.length() -1);
+    return QPixmap(actualPath);
 }

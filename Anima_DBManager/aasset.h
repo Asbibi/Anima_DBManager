@@ -6,12 +6,16 @@
 class AAsset : public Attribute
 {
 protected:
-    QString filePath;
-    bool isDirty = false;
+    QString myFilePath;
+    bool myIsDirty = false;
 
 public:
     AAsset(const AttributeParam& _sharedParam);
     AAsset(const AttributeParam& _sharedParam, QString _filePath);
+
+    bool IsDirty() const;
+    bool IsEmpty() const;
+    const QString& GetFilePath() const;
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::UAsset; };
     virtual Attribute* CreateDuplica()                          const override;

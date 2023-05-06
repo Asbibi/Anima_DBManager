@@ -1,5 +1,5 @@
 #include "qstructuretable.h"
-#include "qattribute.h"
+#include "qattributedisplay.h"
 #include <QHBoxLayout>
 
 #include "db_manager.h"
@@ -8,14 +8,12 @@ QStructureTable::QStructureTable(StructureDB& _structureDB) :
     QTableWidget(nullptr),
     myStructureDB(_structureDB)
 {
-    UpdateTable();
-    QObject::connect(this, &QTableWidget::currentCellChanged, this, &QStructureTable::OnSelectOrEditItem);
+    setItemPrototype(new QAttributeDisplay());
+    QObject::connect(this, &QTableWidget::currentCellChanged, this, &QStructureTable::OnSelectItem);
 }
 
 QStructureTable::~QStructureTable()
-{
-    DeleteAllChilds();
-}
+{}
 
 
 void QStructureTable::ExportStructsToCSV(const QString _directoryPath)
@@ -37,28 +35,19 @@ void QStructureTable::ExportStructsToCSV(const QString _directoryPath)
     csvFile.close();
 }
 
-void QStructureTable::DeleteAllChilds()
-{
-    while (myChildWidgetsToDelete.size() > 0)
-    {
-        if (myChildWidgetsToDelete.back() != nullptr)
-        {
-            delete  myChildWidgetsToDelete.back();
-        }
-        myChildWidgetsToDelete.pop_back();
-    }
-}
-
 void QStructureTable::UpdateTable()
 {
     // Reset
-    setRowCount(0);
-    setColumnCount(0);
-    DeleteAllChilds();
+    if (myCurrentAttributeEditor != nullptr)
+    {
+        setCellWidget(currentRow(), currentColumn(), nullptr);
+        QObject::disconnect(myCurrentAttributeEditor);
+        delete myCurrentAttributeEditor;
+        myCurrentAttributeEditor = nullptr;
+    }
 
     // Column number & Headers
     const auto& templ = myStructureDB.GetTemplate();
-
     const int templAttrCount = (int)(templ.GetAttributes().size());
     setColumnCount(templAttrCount);
 
@@ -66,7 +55,6 @@ void QStructureTable::UpdateTable()
     for (int i = 0; i < templAttrCount; i++)
     {
         templAttrNames.append(templ.GetAttributeName(i));
-        //setColumnWidth(i, GetColWidth(templ.GetAttributeType(i)));
     }
     setHorizontalHeaderLabels(templAttrNames);
 
@@ -74,29 +62,70 @@ void QStructureTable::UpdateTable()
     // Fill the table
     const int structureCount = myStructureDB.GetStructureCount();
     setRowCount(structureCount);
-    myChildWidgetsToDelete.reserve(structureCount * templAttrCount);
+
     for (int row = 0; row < structureCount; row++)
     {
         const Structure* strct = myStructureDB.GetStructureAt(row);
-        if (!strct)
-            break;
+        Q_ASSERT(strct != nullptr);
         for (int col = 0; col < templAttrCount; col++)
         {
-            QAttribute* qAttr = new QAttribute(this);
-            setCellWidget(row, col, qAttr);
-            qAttr->UpdateAttribute(strct->GetAttribute(col));
-            myChildWidgetsToDelete.push_back(qAttr);
-            QObject::connect(qAttr, &QAttribute::OnWidgetValueChanged, [this, row](){
-                OnSelectOrEditItem(row);
-            });
+            const auto* attribute = strct->GetAttribute(col);
+
+            QAttributeDisplay* attributeItem;
+            auto* baseItem = item(row,col);
+            bool needCreateItem = true;
+            if (baseItem != nullptr)
+            {
+                attributeItem = dynamic_cast<QAttributeDisplay*>(baseItem);
+                if (attributeItem->IsRepresentingABool() && attribute->GetType() != AttributeTypeHelper::Type::Bool)
+                {
+                    delete takeItem(row, col);
+                }
+                else
+                {
+                    needCreateItem = false;
+                }
+            }
+
+            if (needCreateItem)
+            {
+                attributeItem = new QAttributeDisplay();
+                setItem(row, col, attributeItem);
+            }
+            Q_ASSERT(attributeItem);
+            attributeItem->SetContentFromAttribute(attribute);
         }
     }
-    resizeRowsToContents();
-    //resizeColumnsToContents();
 }
 
 
+
+void QStructureTable::OnSelectItem(int _currentRow, int _currentColumn, int _previousRow, int _previousColumn)
+{
+    if (myCurrentAttributeEditor != nullptr)
+    {
+        setCellWidget(_previousRow, _previousColumn, nullptr);
+        QObject::disconnect(myCurrentAttributeEditor);
+        delete myCurrentAttributeEditor;
+        auto * attributeItem = new QAttributeDisplay();
+        attributeItem->SetContentFromAttribute(myStructureDB.GetStructureAt(_previousRow)->GetAttribute(_previousColumn));
+        setItem(_previousRow, _previousColumn, attributeItem);
+    }
+
+    myCurrentAttributeEditor = new QAttribute();
+    myCurrentAttributeEditor->UpdateAttribute(myStructureDB.GetStructureAt(_currentRow)->GetAttribute(_currentColumn));
+    QObject::connect(myCurrentAttributeEditor, &QAttribute::OnWidgetValueChanged, [this, _currentRow](){
+                    OnSelectOrEditItem(_currentRow);
+                });
+
+    setItem(_currentRow, _currentColumn, nullptr);
+    setCellWidget(_currentRow, _currentColumn, myCurrentAttributeEditor);
+
+    OnSelectOrEditItem(_currentRow);
+}
+
 void QStructureTable::OnSelectOrEditItem(int _index)
 {
+    // Todo : QAttribute to add on cell, & delete previous
     DB_Manager::GetDB_Manager().AskFocusOnStructPanel(myStructureDB.GetTemplateName(), _index);
 }

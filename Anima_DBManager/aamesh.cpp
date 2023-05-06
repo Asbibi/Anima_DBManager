@@ -13,7 +13,7 @@ AAMesh::AAMesh(const AttributeParam& _sharedParam, QString _filePath, bool _isSk
 
 Attribute* AAMesh::CreateDuplica() const
 {
-    return new AAMesh(mySharedParam, filePath, isSkeletal);
+    return new AAMesh(mySharedParam, myFilePath, isSkeletal);
 }
 
 const QString& AAMesh::GetAssetClassNameForCSV() const

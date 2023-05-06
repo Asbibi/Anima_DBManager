@@ -33,6 +33,7 @@ public:
 
     bool GetUseColor() const;
     QString GetColorHex(int _index) const;
+    const QColor& GetColor(int _index) const;
     void SetColorToWidget(int _index, QWidget* _widget) const;
 
     void SetName(const QString& _name);

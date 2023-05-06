@@ -84,6 +84,12 @@ QString Enumerator::GetColorHex(int _index) const
 
     return colors[_index].name();
 }
+const QColor& Enumerator::GetColor(int _index) const
+{
+    Q_ASSERT(_index >= 0 && _index < (int)(colors.size()));
+
+    return colors[_index];
+}
 void Enumerator::SetColorToWidget(int _index, QWidget* _widget) const
 {
     if (_index < 0 || _index >= (int)(colors.size()))

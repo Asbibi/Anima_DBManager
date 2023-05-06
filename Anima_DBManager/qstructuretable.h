@@ -4,6 +4,7 @@
 #include <QTableWidget>
 
 #include "structuredb.h"
+#include "qattribute.h"
 
 class QStructureTable : public QTableWidget
 {
@@ -11,9 +12,7 @@ class QStructureTable : public QTableWidget
 
 private:
     StructureDB& myStructureDB;
-    std::vector<QWidget*> myChildWidgetsToDelete;
-
-    void DeleteAllChilds();
+    QAttribute* myCurrentAttributeEditor = nullptr;
 
 public:
     explicit QStructureTable(StructureDB& _structureDB);
@@ -22,6 +21,7 @@ public:
 
 public slots:
     void UpdateTable();
+    void OnSelectItem(int _currentRow, int _currentColumn, int _previousRow, int _previousColumn);
     void OnSelectOrEditItem(int _index);
 };
 

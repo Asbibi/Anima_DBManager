@@ -18,9 +18,9 @@ Attribute* AEnumerator::CreateDuplica() const
 {
     return new AEnumerator(mySharedParam, value_index);
 }
-QString AEnumerator::GetDisplayedText(bool) const
+QString AEnumerator::GetDisplayedText(bool _complete) const
 {
-    return CheckEnumIsValid() ? mySharedParam.GetEnum()->GetValue(value_index) : "<font color=\"darkred\">!!! NULL ENUM !!!</font>";
+    return CheckEnumIsValid() ? mySharedParam.GetEnum()->GetValue(value_index) : (_complete ? "Ø" : "<font color=\"darkred\">!!! NULL ENUM !!!</font>");
 }
 void AEnumerator::WriteValue_CSV(std::ofstream& file) const
 {

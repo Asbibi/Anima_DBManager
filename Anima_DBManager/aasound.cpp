@@ -11,7 +11,7 @@ AASound::AASound(const AttributeParam& _sharedParam, QString _filePath) :
 
 Attribute* AASound::CreateDuplica() const
 {
-    return new AASound(mySharedParam, filePath);
+    return new AASound(mySharedParam, myFilePath);
 }
 
 
