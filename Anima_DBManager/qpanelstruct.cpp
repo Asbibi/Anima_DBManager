@@ -98,11 +98,18 @@ void QPanelStruct::OnItemRemoved(const int _index)
 
 void QPanelStruct::OnElementSelected(const int _index)
 {
-    const auto* structure = GetMyStructureDB()->GetStructureAt(_index);
-    if (structure)
-        myElementHandler->OnSelectElement(_index, structure->GetDisplayText());
-    else
-        myElementHandler->OnSelectElement(-1, "");
+    const auto* selectedStructureDB = GetMyStructureDB();
+    if (selectedStructureDB)
+    {
+        const auto* structure = selectedStructureDB->GetStructureAt(_index);
+        if (structure)
+        {
+            myElementHandler->OnSelectElement(_index, structure->GetDisplayText());
+            return;
+        }
+    }
+
+    myElementHandler->OnSelectElement(-1, "");
 }
 
 void QPanelStruct::OnElementAdded(const int _index)

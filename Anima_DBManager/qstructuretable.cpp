@@ -1,5 +1,4 @@
 #include "qstructuretable.h"
-#include "qattribute.h"
 #include "qattributedisplay.h"
 #include <QHBoxLayout>
 
@@ -10,7 +9,7 @@ QStructureTable::QStructureTable(StructureDB& _structureDB) :
     myStructureDB(_structureDB)
 {
     setItemPrototype(new QAttributeDisplay());
-    //QObject::connect(this, &QTableWidget::currentCellChanged, this, &QStructureTable::OnSelectOrEditItem);
+    QObject::connect(this, &QTableWidget::currentCellChanged, this, &QStructureTable::OnSelectItem);
 }
 
 QStructureTable::~QStructureTable()
@@ -39,7 +38,13 @@ void QStructureTable::ExportStructsToCSV(const QString _directoryPath)
 void QStructureTable::UpdateTable()
 {
     // Reset
-        // delete current QAttribute
+    if (myCurrentAttributeEditor != nullptr)
+    {
+        setCellWidget(currentRow(), currentColumn(), nullptr);
+        QObject::disconnect(myCurrentAttributeEditor);
+        delete myCurrentAttributeEditor;
+        myCurrentAttributeEditor = nullptr;
+    }
 
     // Column number & Headers
     const auto& templ = myStructureDB.GetTemplate();
@@ -93,6 +98,31 @@ void QStructureTable::UpdateTable()
     }
 }
 
+
+
+void QStructureTable::OnSelectItem(int _currentRow, int _currentColumn, int _previousRow, int _previousColumn)
+{
+    if (myCurrentAttributeEditor != nullptr)
+    {
+        setCellWidget(_previousRow, _previousColumn, nullptr);
+        QObject::disconnect(myCurrentAttributeEditor);
+        delete myCurrentAttributeEditor;
+        auto * attributeItem = new QAttributeDisplay();
+        attributeItem->SetContentFromAttribute(myStructureDB.GetStructureAt(_previousRow)->GetAttribute(_previousColumn));
+        setItem(_previousRow, _previousColumn, attributeItem);
+    }
+
+    myCurrentAttributeEditor = new QAttribute();
+    myCurrentAttributeEditor->UpdateAttribute(myStructureDB.GetStructureAt(_currentRow)->GetAttribute(_currentColumn));
+    QObject::connect(myCurrentAttributeEditor, &QAttribute::OnWidgetValueChanged, [this, _currentRow](){
+                    OnSelectOrEditItem(_currentRow);
+                });
+
+    setItem(_currentRow, _currentColumn, nullptr);
+    setCellWidget(_currentRow, _currentColumn, myCurrentAttributeEditor);
+
+    OnSelectOrEditItem(_currentRow);
+}
 
 void QStructureTable::OnSelectOrEditItem(int _index)
 {

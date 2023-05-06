@@ -706,11 +706,11 @@ bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _st
 QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete) const
 {
     if (!AreValidIdentifiers(_tableId, _stringId))
-        return _complete ? "Ø" : "<font color=\"darkred\">!!! ERROR !!!</font>";
+        return _complete ? "Ø" : "<font color=\"darkred\">INVALID</font>";
 
     const QString* myStr = GetStringTable(_tableId)->GetString(_stringId, SStringHelper::SStringLanguages::French);
     if (!myStr)
-        return _complete ? "-" : "<font color=\"darkyellow\">??? UNSET ??? </font>";
+        return _complete ? "-" : "<font color=\"darkyellow\">INVALID</font>";
 
     if (_complete)
         return *myStr;
