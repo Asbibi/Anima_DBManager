@@ -341,22 +341,36 @@ void MainWindow::OnResetView()
 
 // ================       File Methods       ================
 
-void MainWindow::OnNewDB()
+bool MainWindow::OnNewDB()
 {
+    QMessageBox::StandardButton btn = QMessageBox::question(this, "Save ?", "Save project before proceeding ?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+    if (btn == QMessageBox::Cancel)
+    {
+        return false;
+    }
+    else if (btn == QMessageBox::Yes)
+    {
+        bool saveComplete = OnSaveDB();
+        if (!saveComplete)
+            return false;
+    }
+
     //myStructWidget->OnElementSelected(-1);
     myStructWidget->UnselectItem();
     //myTabStruct->currentWidget()->setFocus();
     DB_Manager::GetDB_Manager().Reset();
+
+    return true;
 }
-void MainWindow::OnSaveDB()
+bool MainWindow::OnSaveDB()
 {
-    OnSaveDB_Internal(false);
+    return OnSaveDB_Internal(false);
 }
 void MainWindow::OnSaveAsDB()
 {
     OnSaveDB_Internal(true);
 }
-void MainWindow::OnSaveDB_Internal(bool _saveAs)
+bool MainWindow::OnSaveDB_Internal(bool _saveAs)
 {
     const QString& fileExt = SaveManager::GetSaveFileExtension();
     QString filePath = myCurrentlyOpenedFile;
@@ -372,12 +386,15 @@ void MainWindow::OnSaveDB_Internal(bool _saveAs)
         filePath = QFileDialog::getSaveFileName(this, "Save DataBase",
                                                    filePath,
                                                    "Unreal Anima Database (*." + fileExt + ")");
+        if (filePath.isEmpty())
+            return false;
     }
     //else : check if any change ? Or do nothing ?
 
     qDebug() << filePath;
 
     SaveManager::SaveFile(filePath);
+    return true;
 }
 void MainWindow::OnOpenDB()
 {
