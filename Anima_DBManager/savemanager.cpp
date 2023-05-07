@@ -6,6 +6,14 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+//#define WITH_COMPRESSION
+
+const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
+const QString SaveManager::fileEndString = "ST.csv";
+const QString SaveManager::fileEndEnum = "EN.csv";
+const QString SaveManager::fileEndTemplate = "TP.csv";
+const QString SaveManager::fileEndData = "DT.csv";
+const QString SaveManager::fileEndPro = "PR.csv";
 
 SaveManager::SaveManager()
 {}
@@ -21,6 +29,59 @@ QString SaveManager::GetSaveFileTempFolder(const QString& _saveFilePath)
     if (!_saveFilePath.endsWith(GetSaveFileExtension()))
         return "";
     return QString(_saveFilePath).replace(_saveFilePath.lastIndexOf('.'), GetSaveFileExtension().length() + 1, "__TEMP__/");    // can replace -1 by _saveFilePath.length() if nec
+}
+bool SaveManager::TryMakeTempFolder(const QString& _tempFolderPath)
+{
+    if (QFileInfo::exists(_tempFolderPath))
+    {
+        QString warningtext = "Needed temporary folder \"" + _tempFolderPath + "\" already exists.\n\nPlease delete it or change your file name before saving again.";
+        QMessageBox::information(
+            nullptr,
+            "Temporary Save Folder already exists",
+            warningtext,
+            QMessageBox::Ok);
+        return false;
+    }
+
+    QDir().mkdir(_tempFolderPath);
+    return true;
+}
+int SaveManager::FindFileSeparatorStart(const QByteArray& _data, const int _start)
+{
+    const int separatorlength = separator.length();
+    int possibleStart = _data.indexOf(separator[0], _start);
+    bool inValidation = true;
+
+    while(inValidation && possibleStart != -1)
+    {
+        possibleStart = _data.indexOf(separator[0], possibleStart);
+        bool ok = true;
+        for (int i = 0; i < separatorlength; i++)
+        {
+            if (separator[i] != _data[i+possibleStart])
+            {
+                ok = false;
+                break;
+            }
+        }
+        if (ok)
+        {
+            inValidation = false;
+        }
+    }
+    return possibleStart;
+}
+int SaveManager::WriteTempFileOnOpen(const QByteArray& _data, const QString& _tempFilePath, int _separatorBegin)
+{
+    const int separatorlength = separator.length();
+    int nextSeparator = FindFileSeparatorStart(_data, _separatorBegin + separatorlength);
+
+    QFile tempEnumFile(_tempFilePath);
+    tempEnumFile.open(QIODevice::WriteOnly);
+    tempEnumFile.write(_data.mid(_separatorBegin + separatorlength, nextSeparator - _separatorBegin - separatorlength));
+    tempEnumFile.close();
+
+    return nextSeparator;
 }
 void SaveManager::SaveFile(const QString& _saveFilePath)
 {
@@ -54,18 +115,11 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
-    QStringList tempFileList = QStringList();
-    if (QFileInfo::exists(tempFolderPath))
+    if (!TryMakeTempFolder(tempFolderPath))
     {
-        QString warningtext = "Needed temporary folder \"" + tempFolderPath + "\" already exists.\n\nPlease delete it or change your file name before saving again.";
-        QMessageBox::information(
-            nullptr,
-            "Temporary Save Folder already exists",
-            warningtext,
-            QMessageBox::Ok);
         return;
     }
-    QDir().mkdir(tempFolderPath);
+    QStringList tempFileList = QStringList();
 
 
 
@@ -77,7 +131,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     {
         languageCodeMap.insert(l, SStringHelper::GetLanguageCD((SStringHelper::SStringLanguages)l));
     }
-    QString stringFilePath = tempFolderPath + "ST.csv";
+    QString stringFilePath = tempFolderPath + fileEndString;
     tempFileList << stringFilePath;
     std::ofstream csvStringFile(stringFilePath.toStdString());
     if (!csvStringFile)
@@ -103,7 +157,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // II. Save enums
 
     const int enumCount = dbManager.GetEnumCount();
-    QString enumFilePath = tempFolderPath + "EN.csv";
+    QString enumFilePath = tempFolderPath + fileEndEnum;
     tempFileList << enumFilePath;
     std::ofstream csvEnumFile(enumFilePath.toStdString());
     if (!csvEnumFile)
@@ -123,7 +177,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // III. Save structure templates
 
     const int structTableCount = dbManager.GetStructuresCount();
-    QString templFilePath = tempFolderPath + "TP.csv";
+    QString templFilePath = tempFolderPath + fileEndTemplate;
     tempFileList << templFilePath;
     std::ofstream csvTemplFile(templFilePath.toStdString());
     if (!csvTemplFile)
@@ -142,7 +196,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     // IV. Save structure datas
 
-    QString structFilePath = tempFolderPath + "DT.csv";
+    QString structFilePath = tempFolderPath + fileEndData;
     tempFileList << structFilePath;
     std::ofstream csvStructFile(structFilePath.toStdString());
     if (!csvStructFile)
@@ -162,7 +216,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     // V. Save Project Infos
 
-    QString projectFilePath = tempFolderPath + "PR.csv";
+    QString projectFilePath = tempFolderPath + fileEndPro;
     tempFileList << projectFilePath;
     std::ofstream csvProFile(projectFilePath.toStdString());
     if (!csvProFile)
@@ -184,17 +238,20 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::WriteOnly);
     QByteArray uncompressedData;
-    std::string separator = "%$%$%$%$%\n";
     for (const auto& file : tempFileList)
     {
-        uncompressedData.append(QByteArray::fromStdString(separator));
+        uncompressedData.append(separator);
         QFile infile(file);
         infile.open(QIODevice::ReadOnly);
         uncompressedData.append(infile.readAll());
         infile.close();
     }
+#ifdef WITH_COMPRESSION
     QByteArray compressedData = qCompress(uncompressedData,9);
     saveFile.write(compressedData);
+#else
+    saveFile.write(uncompressedData);
+#endif
     saveFile.close();
 
 
@@ -204,10 +261,9 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
 }
-
 void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 {
-    // Unzip save file
+    // Unzip all
     // Use Project infos
     // Import String Tables
     // Import Enums
@@ -216,4 +272,56 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     // Fill all the values
         // For reference attr, dont set the value but put it in the myDelayedReferenceValues map
     // Once every structure has been created, set all the reference attributes
+
+
+
+    // 0. Preparation
+
+    const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
+    const int separatorlength = separator.length();
+    const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
+    if (!TryMakeTempFolder(tempFolderPath))
+    {
+        return;
+    }
+
+
+
+    // I. Unzip save file
+
+    QFile saveFile(_saveFilePath);
+    saveFile.open(QIODevice::ReadOnly);
+#ifdef WITH_COMPRESSION
+    QByteArray compressedData = saveFile.readAll();
+    QByteArray uncompressedData = qUncompress(compressedData);
+#else
+    QByteArray uncompressedData = saveFile.readAll();
+#endif
+    saveFile.close();
+
+
+
+    // II. Read Bytes in separate temporary files
+
+    int firstSeparator = FindFileSeparatorStart(uncompressedData, 0);
+    int secondSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndString, firstSeparator);
+    int thirdSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndEnum, secondSeparator);
+    int fourthSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndTemplate, thirdSeparator);
+    int fithSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndData, fourthSeparator);
+    WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndPro, fithSeparator);
+
+
+
+    // III. Project Info
+    // IV. String Table
+    // V. Enums
+    // VI. Struct Templ
+    // VII. Fill Data except refs
+    // VIII. Fill Refs
+
+
+    // IX. Clean Up
+
+    QDir tempDir(tempFolderPath);
+    tempDir.removeRecursively();
 }
