@@ -398,8 +398,43 @@ bool MainWindow::OnSaveDB_Internal(bool _saveAs)
 }
 void MainWindow::OnOpenDB()
 {
-    qWarning() << "Isn't implemented yet";
+    // Choose FilePath
+
+    const QString& fileExt = SaveManager::GetSaveFileExtension();
+    QString filePath = myCurrentlyOpenedFile;
+
+    if (filePath.isEmpty())
+    {
+        filePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    }
+    filePath = QFileDialog::getOpenFileName(this, "Open DataBase",
+                                               filePath,
+                                               "Unreal Anima Database (*." + fileExt + ")");
+    if (filePath.isEmpty())
+    {
+        return;
+    }
+    if (myCurrentlyOpenedFile == filePath)
+    {
+        QMessageBox::StandardButton btn = QMessageBox::question(this, "Refresh opened", "The Database you asked to open is already opened.\nDo you want to reopen it ?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (btn == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
+    qDebug() << filePath;
+    Q_ASSERT(QFileInfo::exists(filePath));
+
+
+    // New
+    OnNewDB();
+
+    // OpenInternal
+    SaveManager::OpenFile(filePath);
+
     // set myCurrentlyOpenedFile et the end of the process
+    myCurrentlyOpenedFile = filePath;
 }
 
 // ================      Export Methods      ================
