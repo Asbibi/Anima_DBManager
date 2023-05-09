@@ -3,6 +3,7 @@
 
 #include <QMap>
 #include "areference.h"
+#include "db_manager.h"
 
 class SaveManager
 {
@@ -27,6 +28,9 @@ private:
     static int WriteTempFileOnOpen(const QByteArray& _data, const QString& _tempFilePath, const int _separatorBegin);
     void SaveFileInternal(const QString& _saveFilePath);
     void OpenFileInternal(const QString& _saveFilePath);
+
+    void ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
+    void ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
 
 public:
     static const QString& GetSaveFileExtension();

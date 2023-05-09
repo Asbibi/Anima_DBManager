@@ -117,12 +117,12 @@ void Enumerator::AddValue(const QString& _value, const QColor* _color)
             return;
 
     values.push_back(_value);
-    // We add a color only if we already colors
+    // We add a color only if we already have colors
     if (colors.size() > 0)
     {
         colors.push_back(_color ? *_color : QColorConstants::Black);
     }
-    // Or if we have a color and it's our first value
+    // Or if we have a color given and it's our first value
     else if (_color && values.size() == 1)
     {
         colors.push_back( *_color);

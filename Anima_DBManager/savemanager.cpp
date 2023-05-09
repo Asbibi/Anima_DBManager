@@ -1,6 +1,5 @@
 #include "savemanager.h"
 
-#include "db_manager.h"
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
@@ -277,8 +276,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // 0. Preparation
 
-    const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
-    const int separatorlength = separator.length();
+    DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
     if (!TryMakeTempFolder(tempFolderPath))
     {
@@ -313,15 +311,92 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
 
     // III. Project Info
+
+    ProcessProjTempFile(tempFolderPath, dbManager);
+
+
     // IV. String Table
     // V. Enums
+
+    ProcessEnumTempFile(tempFolderPath, dbManager);
+
+
     // VI. Struct Templ
     // VII. Fill Data except refs
     // VIII. Fill Refs
+
 
 
     // IX. Clean Up
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
+}
+
+
+void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+    QFile projectFile(_tempFolderPath + fileEndPro);
+    bool openProCheck = projectFile.open(QIODevice::ReadOnly);
+    Q_ASSERT(openProCheck);
+    QTextStream proIn(&projectFile);
+    QString proFirstLine = proIn.readLine();
+    Q_ASSERT(proFirstLine == "###PROJECT_FOLDER###");
+    _dbManager.SetProjectContentFolderPath(proIn.readLine());
+
+    Q_ASSERT(proIn.atEnd());
+}
+void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+    QFile file(_tempFolderPath + fileEndEnum);
+    bool openCheck = file.open(QIODevice::ReadOnly);
+    Q_ASSERT(openCheck);
+    QTextStream in(&file);
+
+    Enumerator currentEnum = Enumerator("");
+    QString currentLine;
+    bool firstLine = true;
+    bool useColor = false;
+    while (!in.atEnd())
+    {
+        currentLine = in.readLine();
+        if (currentLine[0] == '#')
+        {
+            if (firstLine)
+            {
+                firstLine = false;
+            }
+            else
+            {
+                _dbManager.AddEnum(currentEnum);
+            }
+
+            currentEnum = Enumerator(currentLine.remove('#'));
+
+            continue;
+        }
+
+        int indexOfSeparator = currentLine.indexOf('|');
+        if (indexOfSeparator < 0)
+        {
+            useColor = currentLine.last(4) == "TRUE";
+            continue;
+        }
+
+        if (useColor)
+        {
+            QColor color = QColor(currentLine.last(6));
+            currentEnum.AddValue(currentLine.first(indexOfSeparator), &color);
+
+        }
+        else
+        {
+            currentEnum.AddValue(currentLine.first(indexOfSeparator));
+        }
+    }
+
+    if (!firstLine)
+    {
+        _dbManager.AddEnum(currentEnum);
+    }
 }
