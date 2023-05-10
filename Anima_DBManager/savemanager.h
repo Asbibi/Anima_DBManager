@@ -30,7 +30,10 @@ private:
     void OpenFileInternal(const QString& _saveFilePath);
 
     void ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
+    void ProcessStringTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
+    void ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
+    void ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
 
 public:
     static const QString& GetSaveFileExtension();

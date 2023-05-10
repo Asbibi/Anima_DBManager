@@ -335,6 +335,17 @@ void MainWindow::OnResetView()
 
     CleanTabWidget(myTabStruct);
     CleanTabWidget(myTabString);
+
+    const int stringTableCount = myManager.GetStringTableCount();
+    for (int i = 0; i < stringTableCount; i++)
+    {
+        OnStringTableAdded(i);
+    }
+    const int structTableCount = myManager.GetStructuresCount();
+    for (int i = 0; i < structTableCount; i++)
+    {
+        OnStructTableAdded(i);
+    }
 }
 
 
@@ -431,7 +442,10 @@ void MainWindow::OnOpenDB()
     OnNewDB();
 
     // OpenInternal
+    myManager.blockSignals(true);
     SaveManager::OpenFile(filePath);
+    myManager.blockSignals(false);
+    OnResetView();
 
     // set myCurrentlyOpenedFile et the end of the process
     myCurrentlyOpenedFile = filePath;

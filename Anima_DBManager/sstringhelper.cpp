@@ -1,7 +1,21 @@
 #include "sstringhelper.h"
 
+#define CD_FR "FR"
+#define CD_EN "EN"
+
+
 namespace SStringHelper {
 
+
+SStringLanguages GetLanguageFromCD(const QString& _cd)
+{
+    if (_cd == CD_FR)
+        return SStringLanguages::French;
+    else if (_cd == CD_EN)
+        return SStringLanguages::English;
+
+    return SStringLanguages::Count;
+}
 QString GetLanguageString(SStringLanguages _language)
 {
     switch (_language)
@@ -20,9 +34,9 @@ QString GetLanguageCD(SStringLanguages _language)
     switch (_language)
     {
         case SStringLanguages::French:
-            return "FR";
+            return CD_FR;
         case SStringLanguages::English:
-            return "EN";
+            return CD_EN;
         default:
             break;
     }

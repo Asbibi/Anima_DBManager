@@ -81,54 +81,9 @@ int QImportStringDialog::GetTableIndex() const
     return myTableComboBox->currentIndex();
 }
 
-void QImportStringDialog::PerformImport(SStringTable* _stringTable, int _overrideChoice)
-{
-    Q_ASSERT(_stringTable != nullptr);
-    qDebug() << "Import String Table";
-    for (SStringHelper::SStringLanguages language : myCSVMap.keys())
-    {
-        QFile file(myCSVMap[language]);
-        if(!file.open(QIODevice::ReadOnly)) {
-            QMessageBox::information(0, "Error Reading CSV file", file.errorString());
-        }
-
-        QTextStream in(&file);
-
-        int lineNumber = 0;
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            if (lineNumber == 0)
-            {
-                lineNumber++;
-                continue;
-            }
-            lineNumber++;
-
-            QStringList fields = line.split("\",\"");
-            if (fields.count() != 2)
-            {
-                qWarning() << "Line " << lineNumber << " skipped because not formatted correctly : " << line;
-                continue;
-            }
-
-            fields[0].remove(0,1);
-            fields[1].remove(fields[1].length()-1,1);
-            if (fields[1].isEmpty())
-            {
-                continue;
-            }
-            qDebug() << "Importing language: " << SStringHelper::GetLanguageCD(language) << "key: " << fields[0] << " value: " << fields[1];
-
-            _stringTable->ImportString(language, fields[0], fields[1], _overrideChoice);
-        }
-
-        file.close();
-    }
-}
-
 void QImportStringDialog::OnApplyBtnClicked()
 {
-    if (myCSVMap.isEmpty())
+    if (myImporter.HasNoFileRegistered())
     {
         QDialog::reject();
         return;
@@ -137,16 +92,12 @@ void QImportStringDialog::OnApplyBtnClicked()
     int overrideChoice = myOverrideComboBox->currentIndex();
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     int stringTableIndex = myTableComboBox->currentIndex();
-    bool newTable = false;
-    if (stringTableIndex == dbManager.GetStringTableCount())
-    {
-        dbManager.AddStringTable(myNewTableName->text());
-        overrideChoice = 0;
-        newTable = true;
-        dbManager.GetStringTable(stringTableIndex)->RemoveStringItem(0);
-    }
+    bool newTable = stringTableIndex == dbManager.GetStringTableCount();
 
-    PerformImport(dbManager.GetStringTable(stringTableIndex), overrideChoice);
+    if (!myImporter.PerformImport(stringTableIndex, overrideChoice, myNewTableName->text()))
+    {
+        QMessageBox::information(0, "Error Reading CSV file", QString("File %1 couldn't be open during String Table import").arg(myNewTableName->text()));
+    }
 
     if (newTable)
     {
@@ -174,7 +125,7 @@ void QImportStringDialog::OnFileBtnClicked(SStringHelper::SStringLanguages _lang
         return;
     }
 
-    myCSVMap.insert(_language, fileName);
+    myImporter.RegisterLanguageFile(_language, fileName);
 
     bool tooLong = fileName.length() > 35;
     _label->setText(tooLong ? "..." + fileName.right(32) : fileName);

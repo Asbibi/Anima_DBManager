@@ -62,6 +62,7 @@ SOURCES += \
     qtemplatestructure.cpp \
     savemanager.cpp \
     sstringhelper.cpp \
+    sstringimporter.cpp \
     sstringitem.cpp \
     sstringtable.cpp \
     structure.cpp \
@@ -121,6 +122,7 @@ HEADERS += \
     qtemplatestructure.h \
     savemanager.h \
     sstringhelper.h \
+    sstringimporter.h \
     sstringitem.h \
     sstringtable.h \
     structure.h \

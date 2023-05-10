@@ -5,6 +5,8 @@
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include "sstringimporter.h"
+
 //#define WITH_COMPRESSION
 
 const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
@@ -316,13 +318,25 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
 
     // IV. String Table
+
+    ProcessStringTempFile(tempFolderPath, dbManager);
+
+
     // V. Enums
 
     ProcessEnumTempFile(tempFolderPath, dbManager);
 
 
     // VI. Struct Templ
+
+    ProcessTemplTempFile(tempFolderPath, dbManager);
+
+
     // VII. Fill Data except refs
+
+    ProcessDataTempFile(tempFolderPath, dbManager);
+
+
     // VIII. Fill Refs
 
 
@@ -345,6 +359,79 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     _dbManager.SetProjectContentFolderPath(proIn.readLine());
 
     Q_ASSERT(proIn.atEnd());
+}
+void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+    QMap<QString, SStringImporter> importerMap;
+
+    QFile file(_tempFolderPath + fileEndString);
+    bool openCheck = file.open(QIODevice::ReadOnly);
+    Q_ASSERT(openCheck);
+    QTextStream in(&file);
+
+
+    QString currentLine;
+
+    QFile* currentFile = nullptr;
+    QTextStream* curentFileStream = nullptr;
+
+    while (!in.atEnd())
+    {
+        currentLine = in.readLine();
+
+        if (currentLine.first(3) == "###" && currentLine.last(3) == "###")
+        {
+            int separatorStart = currentLine.indexOf("-");
+            QString currentLangg = currentLine.mid(3, separatorStart - 3);
+            QString currentTable = currentLine.mid(separatorStart + 3, currentLine.length() - 6 - separatorStart);
+
+            QString currentFilePath = _tempFolderPath + currentTable + currentLangg + fileEndString;
+
+
+            if (currentFile != nullptr)
+            {
+                currentFile->close();
+                delete currentFile;
+                delete curentFileStream;
+                currentFile = nullptr;
+                curentFileStream = nullptr;
+            }
+
+            currentFile = new QFile(currentFilePath);
+            currentFile->open(QIODevice::WriteOnly);
+            curentFileStream = new QTextStream(currentFile);
+
+            if (!importerMap.contains(currentTable))
+            {
+                importerMap.insert(currentTable, SStringImporter());
+            }
+
+            importerMap[currentTable].RegisterLanguageFile(SStringHelper::GetLanguageFromCD(currentLangg), currentFilePath);
+        }
+
+        if (curentFileStream != nullptr)
+        {
+            *curentFileStream << currentLine << '\n';
+        }
+    }
+
+    if (currentFile != nullptr)
+    {
+        currentFile->close();
+        delete currentFile;
+        delete curentFileStream;
+        currentFile = nullptr;
+        curentFileStream = nullptr;
+    }
+
+
+
+
+    auto stringTableNames = importerMap.keys();
+    for (const auto& tableName : stringTableNames)
+    {
+        importerMap[tableName].PerformImport(-1, 0, tableName);
+    }
 }
 void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
 {
@@ -399,4 +486,12 @@ void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager
     {
         _dbManager.AddEnum(currentEnum);
     }
+}
+void SaveManager::ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+
+}
+void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+
 }
