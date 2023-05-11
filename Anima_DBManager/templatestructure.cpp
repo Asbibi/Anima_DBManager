@@ -84,6 +84,24 @@ void TemplateStructure::MoveAttribute(int _indexFrom, int _indexTo)
     myAttributeTemplates.insert(_indexTo, templAttrib);
 }
 
+void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList)
+{
+    // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
+    Q_ASSERT(myAttributeTemplates.count() == 0);
+
+    int attrCount = _stringList.count();
+    for (int i = 0; i < attrCount; i++)
+    {
+        const QString& stringAttr = _stringList[i];
+
+        AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(stringAttr.section('|', 1, 1));
+        AttributeParam param = AttributeParam(stringAttr.section('|', 2, 2));
+        AddAttributeTemplate(type, stringAttr.section('|', 0, 0), param, i);
+        myAttributeTemplates[i]->GetDefaultAttributeW()->ReadValue_CSV(stringAttr.section('|', 3, 3));
+    }
+}
+
+
 
 void TemplateStructure::RenameAttributeTemplate(int _index, QString& _newName)
 {
@@ -155,8 +173,7 @@ void TemplateStructure::SaveTemplate_CSV(std::ofstream& file) const
 {
     file << "###" << myStructName.toStdString() << "---"
     << myStructAbbrev.toStdString()  << "---"
-    << myStructColor.name().toStdString()  << "---"
-    << "###\n";
+    << myStructColor.name().toStdString() << "###\n";
 
     for (const auto& templateAttr : myAttributeTemplates)
     {

@@ -527,6 +527,15 @@ void DB_Manager::RemoveAttributeTemplate(const QString& _tableName, int _attrInd
 {
     RemoveAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex);
 }
+void DB_Manager::SetAttributeTemplatesFromStringList(int _tableIndex, const QList<QString>& _stringList)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->SetAttributesFromList(_stringList);
+    emit StructItemChanged(_tableIndex);
+}
 void DB_Manager::AddStructureRow(const int _tableIndex, const int _position)
 {
     const int count = myStructures.count();

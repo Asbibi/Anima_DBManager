@@ -488,8 +488,60 @@ void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager
     }
 }
 void SaveManager::ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
-{
+{    
+    struct TempTemplateStruct
+    {
+        QString myTemplateName;
+        QString myTemplateAbbrev;
+        QColor myTemplateColor;
+        QList<QString> myTemplateAttributes;
+    };
 
+    QFile file(_tempFolderPath + fileEndTemplate);
+    bool openCheck = file.open(QIODevice::ReadOnly);
+    Q_ASSERT(openCheck);
+    QTextStream in(&file);
+    QString currentLine;
+    int currentTemplate = -1;
+    QList<TempTemplateStruct> tempTemplates;
+
+    while (!in.atEnd())
+    {
+        currentLine = in.readLine();
+        if (currentLine.first(3) != "###" || currentLine.last(3) != "###")
+        {
+            Q_ASSERT(currentTemplate != -1);
+            tempTemplates[currentTemplate].myTemplateAttributes.push_back(currentLine);
+            continue;
+        }
+
+        currentTemplate++;
+        TempTemplateStruct newTemplate;
+        int firstSeparator = currentLine.indexOf('-');
+        int secondSeparator = currentLine.indexOf('-', firstSeparator +3);
+        Q_ASSERT(firstSeparator != -1 && secondSeparator != -1);
+
+        newTemplate.myTemplateName = currentLine.mid(3, firstSeparator - 3);
+        newTemplate.myTemplateAbbrev = currentLine.mid(firstSeparator + 3, secondSeparator - firstSeparator - 3);
+        newTemplate.myTemplateColor = QColor(currentLine.last(9).first(6));
+
+        tempTemplates.push_back(newTemplate);
+    }
+
+    for (const auto& tempTempl : tempTemplates)
+    {
+        _dbManager.AddStructureDB(TemplateStructure{
+                                      tempTempl.myTemplateName,
+                                      tempTempl.myTemplateAbbrev,
+                                      tempTempl.myTemplateColor
+                                  });
+    }
+
+    const int structCount = tempTemplates.count();
+    for (int i = 0; i < structCount; i++)
+    {
+        _dbManager.SetAttributeTemplatesFromStringList(i, tempTemplates[i].myTemplateAttributes);
+    }
 }
 void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
 {

@@ -39,6 +39,7 @@ public:
     void FixAttributesTypeToDefault(int _attIndex);
     void AddAttribute(int _position, bool _copyFromPrevious);
     void RemoveAttribute(int _position);
+    void SetAttributesFromList(const QList<QString>& _stringList);
 
 
     const QString& GetTemplateName() const;

@@ -166,6 +166,12 @@ void StructureDB::RemoveAttribute(int _position)
     }
     myTemplate.RemoveAttribute(_position);
 }
+void StructureDB::SetAttributesFromList(const QList<QString>& _stringList)
+{
+    // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
+    Q_ASSERT(myStructures.count() == 0);
+    myTemplate.SetAttributeFromList(_stringList);
+}
 
 
 

@@ -39,6 +39,7 @@ public:
     void RemoveAttribute(const int& _index);
     void RemoveAttribute(const QString& _attName);
     void MoveAttribute(int _indexFrom, int _indexTo);
+    void SetAttributeFromList(const QList<QString>& _stringList);
 
     void RenameAttributeTemplate(int _index, QString& _newName);
     void SetAttributeDefaultValue(int _index, const QString& _value);
