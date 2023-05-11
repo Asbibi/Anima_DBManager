@@ -474,9 +474,8 @@ void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager
 
         if (useColor)
         {
-            QColor color = QColor(currentLine.last(6));
+            QColor color = QColor(currentLine.last(7));
             currentEnum.AddValue(currentLine.first(indexOfSeparator), &color);
-
         }
         else
         {
@@ -525,7 +524,7 @@ void SaveManager::ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manage
 
         newTemplate.myTemplateName = currentLine.mid(3, firstSeparator - 3);
         newTemplate.myTemplateAbbrev = currentLine.mid(firstSeparator + 3, secondSeparator - firstSeparator - 3);
-        newTemplate.myTemplateColor = QColor(currentLine.last(9).first(6));
+        newTemplate.myTemplateColor = QColor(currentLine.last(10).first(7));
 
         tempTemplates.push_back(newTemplate);
     }
