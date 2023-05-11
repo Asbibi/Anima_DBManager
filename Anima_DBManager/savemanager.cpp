@@ -6,6 +6,7 @@
 #include <QMessageBox>
 
 #include "sstringimporter.h"
+#include "structureimporthelper.h"
 
 //#define WITH_COMPRESSION
 
@@ -319,7 +320,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // IV. String Table
 
-    ProcessStringTempFile(tempFolderPath, dbManager);
+    ProcessStringTempFile(tempFolderPath);
 
 
     // V. Enums
@@ -339,6 +340,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // VIII. Fill Refs
 
+    ProcessDelayedRef();
 
 
     // IX. Clean Up
@@ -360,7 +362,7 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
 
     Q_ASSERT(proIn.atEnd());
 }
-void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath)
 {
     QMap<QString, SStringImporter> importerMap;
 
@@ -540,10 +542,51 @@ void SaveManager::ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manage
     const int structCount = tempTemplates.count();
     for (int i = 0; i < structCount; i++)
     {
-        _dbManager.SetAttributeTemplatesFromStringList(i, tempTemplates[i].myTemplateAttributes);
+        _dbManager.SetAttributeTemplatesFromStringList(i, tempTemplates[i].myTemplateAttributes, myRefMap);
     }
 }
 void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
 {
+    QFile file(_tempFolderPath + fileEndData);
+    bool openCheck = file.open(QIODevice::ReadOnly);
+    Q_ASSERT(openCheck);
+    QTextStream in(&file);
+    QString currentLine;
 
+    StructureDB* currentStructTable = nullptr;
+
+    while (!in.atEnd())
+    {
+        currentLine = in.readLine();
+
+        // Start of a new Struct table
+        if (currentLine.first(3) == "###" && currentLine.last(3) == "###")
+        {
+            currentStructTable = _dbManager.GetStructureTable(currentLine.remove('#'));
+            Q_ASSERT(currentStructTable != nullptr);
+            continue;
+        }
+
+        // Header line, useless
+        if (currentLine.first(3) == "---")
+        {
+            continue;
+        }
+
+        Q_ASSERT(currentStructTable != nullptr);
+        QStringList fields;
+        bool decompose = StructureImportHelper::DecomposeCSVString(currentLine, currentStructTable->GetTemplate().GetAttributesCount() + 1, fields, true);
+        Q_ASSERT(decompose);
+        currentStructTable->AddValue_CSV_TableWithDelayedReference(fields, myRefMap);
+    }
+}
+void SaveManager::ProcessDelayedRef()
+{
+    auto refAttributes = myRefMap.keys();
+    for (auto* aref : refAttributes)
+    {
+        aref->ReadValue_CSV(myRefMap[aref]);
+    }
+
+    myRefMap.clear();
 }

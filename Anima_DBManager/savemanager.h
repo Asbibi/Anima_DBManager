@@ -19,7 +19,8 @@ private:
     static const QString fileEndData;
     static const QString fileEndPro;
 
-    QMap<AReference, QString> myDelayedReferenceValues;
+    QHash<AReference*, QString> myRefMap = QHash<AReference*, QString>();
+
 
     static SaveManager& GetSaveManager();
     static QString GetSaveFileTempFolder(const QString& _saveFilePath);
@@ -30,10 +31,11 @@ private:
     void OpenFileInternal(const QString& _saveFilePath);
 
     void ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
-    void ProcessStringTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
+    void ProcessStringTempFile(const QString& _tempFolderPath);
     void ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
+    void ProcessDelayedRef();
 
 public:
     static const QString& GetSaveFileExtension();

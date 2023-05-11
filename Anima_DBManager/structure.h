@@ -28,6 +28,7 @@ public:
     int GetAttributeCount() const;
     const Attribute* GetAttribute(int _attIndex) const;
     const Attribute* GetAttribute(const QString& _attName) const;
+    Attribute* GetAttribute(int _attIndex);
     void SetAttributeValueFromText(int _attIndex, QString _valueText);
     void SetAttributeValueFromText(const QString& _attName, QString _valueText);
     void ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue);

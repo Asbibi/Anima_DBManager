@@ -84,7 +84,7 @@ void TemplateStructure::MoveAttribute(int _indexFrom, int _indexTo)
     myAttributeTemplates.insert(_indexTo, templAttrib);
 }
 
-void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList)
+void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap)
 {
     // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
     Q_ASSERT(myAttributeTemplates.count() == 0);
@@ -97,7 +97,18 @@ void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList)
         AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(stringAttr.section('|', 1, 1));
         AttributeParam param = AttributeParam(stringAttr.section('|', 2, 2));
         AddAttributeTemplate(type, stringAttr.section('|', 0, 0), param, i);
-        myAttributeTemplates[i]->GetDefaultAttributeW()->ReadValue_CSV(stringAttr.section('|', 3, 3));
+
+        // Reference attribute initalisation is deleguated to the map owner
+        if (type == AttributeTypeHelper::Type::Reference)
+        {
+            AReference* aref = dynamic_cast<AReference*>(myAttributeTemplates[i]->GetDefaultAttributeW());
+            Q_ASSERT(aref != nullptr);
+            _outRefMap.insert(aref, stringAttr.section('|', 3, 3));
+        }
+        else
+        {
+            myAttributeTemplates[i]->GetDefaultAttributeW()->ReadValue_CSV(stringAttr.section('|', 3, 3));
+        }
     }
 }
 

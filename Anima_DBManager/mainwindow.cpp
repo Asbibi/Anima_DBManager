@@ -345,6 +345,7 @@ void MainWindow::OnResetView()
     for (int i = 0; i < structTableCount; i++)
     {
         OnStructTableAdded(i);
+        OnStructItemChanged(i);
     }
 }
 

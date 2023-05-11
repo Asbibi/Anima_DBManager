@@ -67,6 +67,7 @@ SOURCES += \
     sstringtable.cpp \
     structure.cpp \
     structuredb.cpp \
+    structureimporthelper.cpp \
     templateattribute.cpp \
     templatestructure.cpp
 
@@ -127,6 +128,7 @@ HEADERS += \
     sstringtable.h \
     structure.h \
     structuredb.h \
+    structureimporthelper.h \
     templateattribute.h \
     templatestructure.h
 
