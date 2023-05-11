@@ -14,6 +14,7 @@ enum SStringLanguages
     Count
 };
 
+SStringLanguages GetLanguageFromCD(const QString& _cd);
 QString GetLanguageString(SStringLanguages _language);
 QString GetLanguageCD(SStringLanguages _language);
 QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const QString&)> _ValidateId, bool _noneAutorized);

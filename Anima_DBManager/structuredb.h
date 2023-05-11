@@ -3,7 +3,9 @@
 
 #include "structure.h"
 #include "templatestructure.h"
+#include "areference.h"
 #include <QList>
+#include <QHash>
 #include <QObject>
 
 class QTemplateStructure;
@@ -39,6 +41,7 @@ public:
     void FixAttributesTypeToDefault(int _attIndex);
     void AddAttribute(int _position, bool _copyFromPrevious);
     void RemoveAttribute(int _position);
+    void SetAttributesFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap);
 
 
     const QString& GetTemplateName() const;
@@ -55,6 +58,7 @@ public:
 
     void WriteValue_CSV_Table(std::ofstream& file) const;
     void ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy);
+    void AddValue_CSV_TableWithDelayedReference(const QStringList& fields, QHash<AReference*, QString>& referenceMap);
 };
 
 #endif // STRUCTUREDB_H

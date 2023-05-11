@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 
 #include "db_manager.h"
+#include "structureimporthelper.h"
 
 
 QImportStructDialog::QImportStructDialog(QPanelStruct* _structWidget, QWidget* _parent) :
@@ -129,20 +130,13 @@ void QImportStructDialog::PerformImport(StructureDB* _structTable, int _override
         }
         lineNumber++;
 
-        int firstComma = line.indexOf(',');
-        if (firstComma == -1)
+        QStringList fields;
+        if (!StructureImportHelper::DecomposeCSVString(line, attrCountPlusKey, fields))
         {
             qWarning() << "Line " << lineNumber << " skipped because not formatted correctly : " << line;
             continue;
         }
 
-        line.replace(firstComma, 1, "\",");
-        QStringList fields = line.split("\",\"");
-        if (fields.count() != attrCountPlusKey)
-        {
-            qWarning() << "Line " << lineNumber << " skipped because not formatted correctly : " << line;
-            continue;
-        }
 
         bool parsingOK = false;
         int structIndex = fields[0].remove(structAbbrev).toInt(&parsingOK);
@@ -151,7 +145,6 @@ void QImportStructDialog::PerformImport(StructureDB* _structTable, int _override
             qWarning() << "Line " << lineNumber << " skipped because index couldn't be retrieved : " << line;
             continue;
         }
-        fields[attrCount].remove(fields[attrCount].length()-1,1);
         fields.removeFirst();
 
         _structTable->ReadValue_CSV_Table(structIndex, fields, _overrideChoice);

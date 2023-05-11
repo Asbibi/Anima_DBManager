@@ -29,7 +29,7 @@ private:
     QPanelString* myStringWidget;
     QPanelStruct* myStructWidget;
 
-    void OnSaveDB_Internal(bool _saveAs);
+    bool OnSaveDB_Internal(bool _saveAs);
     void CleanTabWidget(QTabWidget* _tabWidget);
 
 public:
@@ -59,8 +59,8 @@ public slots:
     void OnResetView();
 
 
-    void OnNewDB();
-    void OnSaveDB();
+    bool OnNewDB();
+    bool OnSaveDB();
     void OnSaveAsDB();
     void OnOpenDB();
 

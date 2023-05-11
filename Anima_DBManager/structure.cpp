@@ -74,6 +74,13 @@ const Attribute* Structure::GetAttribute(const QString& _attName) const
 {
     return GetAttribute(myTemplate.GetAttributeIndex(_attName));
 }
+Attribute* Structure::GetAttribute(int _attIndex)
+{
+    if (_attIndex < 0 || _attIndex >= myAttributes.size())
+        return nullptr;
+
+    return myAttributes[_attIndex];
+}
 void Structure::SetAttributeValueFromText(int _attIndex, QString _valueText)
 {
     if (_attIndex < 0 || _attIndex >= myAttributes.size())

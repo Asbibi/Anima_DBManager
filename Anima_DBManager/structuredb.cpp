@@ -166,6 +166,12 @@ void StructureDB::RemoveAttribute(int _position)
     }
     myTemplate.RemoveAttribute(_position);
 }
+void StructureDB::SetAttributesFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap)
+{
+    // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
+    Q_ASSERT(myStructures.count() == 0);
+    myTemplate.SetAttributeFromList(_stringList, _outRefMap);
+}
 
 
 
@@ -280,5 +286,24 @@ void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, int
     for (int i = 0; i < attributeCount; i++)
     {
         myStructures[_index]->ReadAttributeValue_CSV(i, fields[i]);
+    }
+}
+void StructureDB::AddValue_CSV_TableWithDelayedReference(const QStringList& fields, QHash<AReference*, QString>& referenceMap)
+{
+    int newIndex = GetStructureCount();
+    AddStructureAt(-1);
+
+    int attributeCount = fields.count();
+    for (int i = 0; i < attributeCount; i++)
+    {
+        if (myStructures[newIndex]->GetAttribute(i)->GetType() == AttributeTypeHelper::Type::Reference)
+        {
+            AReference* aref = dynamic_cast<AReference*>(myStructures[newIndex]->GetAttribute(i));
+            Q_ASSERT(aref != nullptr);
+            referenceMap.insert(aref, fields[i]);
+            continue;
+        }
+
+        myStructures[newIndex]->ReadAttributeValue_CSV(i, fields[i]);
     }
 }

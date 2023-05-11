@@ -1,11 +1,21 @@
 #include "savemanager.h"
 
-#include "db_manager.h"
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
 #include <QMessageBox>
 
+#include "sstringimporter.h"
+#include "structureimporthelper.h"
+
+//#define WITH_COMPRESSION
+
+const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
+const QString SaveManager::fileEndString = "ST.csv";
+const QString SaveManager::fileEndEnum = "EN.csv";
+const QString SaveManager::fileEndTemplate = "TP.csv";
+const QString SaveManager::fileEndData = "DT.csv";
+const QString SaveManager::fileEndPro = "PR.csv";
 
 SaveManager::SaveManager()
 {}
@@ -21,6 +31,63 @@ QString SaveManager::GetSaveFileTempFolder(const QString& _saveFilePath)
     if (!_saveFilePath.endsWith(GetSaveFileExtension()))
         return "";
     return QString(_saveFilePath).replace(_saveFilePath.lastIndexOf('.'), GetSaveFileExtension().length() + 1, "__TEMP__/");    // can replace -1 by _saveFilePath.length() if nec
+}
+bool SaveManager::TryMakeTempFolder(const QString& _tempFolderPath)
+{
+    if (QFileInfo::exists(_tempFolderPath))
+    {
+        QString warningtext = "Needed temporary folder \"" + _tempFolderPath + "\" already exists.\n\nPlease delete it or change your file name before saving again.";
+        QMessageBox::information(
+            nullptr,
+            "Temporary Save Folder already exists",
+            warningtext,
+            QMessageBox::Ok);
+        return false;
+    }
+
+    QDir().mkdir(_tempFolderPath);
+    return true;
+}
+int SaveManager::FindFileSeparatorStart(const QByteArray& _data, const int _start)
+{
+    const int separatorlength = separator.length();
+    int possibleStart = _data.indexOf(separator[0], _start);
+    bool inValidation = true;
+
+    while(inValidation && possibleStart != -1)
+    {
+        bool ok = true;
+        for (int i = 0; i < separatorlength; i++)
+        {
+            if (separator[i] != _data[i+possibleStart])
+            {
+                ok = false;
+                break;
+            }
+        }
+
+        if (ok)
+        {
+            inValidation = false;
+        }
+        else
+        {
+            possibleStart = _data.indexOf(separator[0], possibleStart + 1);
+        }
+    }
+    return possibleStart;
+}
+int SaveManager::WriteTempFileOnOpen(const QByteArray& _data, const QString& _tempFilePath, int _separatorBegin)
+{
+    const int separatorlength = separator.length();
+    int nextSeparator = FindFileSeparatorStart(_data, _separatorBegin + separatorlength);
+
+    QFile tempEnumFile(_tempFilePath);
+    tempEnumFile.open(QIODevice::WriteOnly);
+    tempEnumFile.write(_data.mid(_separatorBegin + separatorlength, nextSeparator - _separatorBegin - separatorlength));
+    tempEnumFile.close();
+
+    return nextSeparator;
 }
 void SaveManager::SaveFile(const QString& _saveFilePath)
 {
@@ -54,18 +121,11 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
-    QStringList tempFileList = QStringList();
-    if (QFileInfo::exists(tempFolderPath))
+    if (!TryMakeTempFolder(tempFolderPath))
     {
-        QString warningtext = "Needed temporary folder \"" + tempFolderPath + "\" already exists.\n\nPlease delete it or change your file name before saving again.";
-        QMessageBox::information(
-            nullptr,
-            "Temporary Save Folder already exists",
-            warningtext,
-            QMessageBox::Ok);
         return;
     }
-    QDir().mkdir(tempFolderPath);
+    QStringList tempFileList = QStringList();
 
 
 
@@ -77,7 +137,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     {
         languageCodeMap.insert(l, SStringHelper::GetLanguageCD((SStringHelper::SStringLanguages)l));
     }
-    QString stringFilePath = tempFolderPath + "ST.csv";
+    QString stringFilePath = tempFolderPath + fileEndString;
     tempFileList << stringFilePath;
     std::ofstream csvStringFile(stringFilePath.toStdString());
     if (!csvStringFile)
@@ -103,7 +163,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // II. Save enums
 
     const int enumCount = dbManager.GetEnumCount();
-    QString enumFilePath = tempFolderPath + "EN.csv";
+    QString enumFilePath = tempFolderPath + fileEndEnum;
     tempFileList << enumFilePath;
     std::ofstream csvEnumFile(enumFilePath.toStdString());
     if (!csvEnumFile)
@@ -123,7 +183,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // III. Save structure templates
 
     const int structTableCount = dbManager.GetStructuresCount();
-    QString templFilePath = tempFolderPath + "TP.csv";
+    QString templFilePath = tempFolderPath + fileEndTemplate;
     tempFileList << templFilePath;
     std::ofstream csvTemplFile(templFilePath.toStdString());
     if (!csvTemplFile)
@@ -142,7 +202,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     // IV. Save structure datas
 
-    QString structFilePath = tempFolderPath + "DT.csv";
+    QString structFilePath = tempFolderPath + fileEndData;
     tempFileList << structFilePath;
     std::ofstream csvStructFile(structFilePath.toStdString());
     if (!csvStructFile)
@@ -162,7 +222,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     // V. Save Project Infos
 
-    QString projectFilePath = tempFolderPath + "PR.csv";
+    QString projectFilePath = tempFolderPath + fileEndPro;
     tempFileList << projectFilePath;
     std::ofstream csvProFile(projectFilePath.toStdString());
     if (!csvProFile)
@@ -184,17 +244,20 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::WriteOnly);
     QByteArray uncompressedData;
-    std::string separator = "%$%$%$%$%\n";
     for (const auto& file : tempFileList)
     {
-        uncompressedData.append(QByteArray::fromStdString(separator));
+        uncompressedData.append(separator);
         QFile infile(file);
         infile.open(QIODevice::ReadOnly);
         uncompressedData.append(infile.readAll());
         infile.close();
     }
+#ifdef WITH_COMPRESSION
     QByteArray compressedData = qCompress(uncompressedData,9);
     saveFile.write(compressedData);
+#else
+    saveFile.write(uncompressedData);
+#endif
     saveFile.close();
 
 
@@ -204,10 +267,9 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
 }
-
 void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 {
-    // Unzip save file
+    // Unzip all
     // Use Project infos
     // Import String Tables
     // Import Enums
@@ -216,4 +278,318 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     // Fill all the values
         // For reference attr, dont set the value but put it in the myDelayedReferenceValues map
     // Once every structure has been created, set all the reference attributes
+
+
+
+    // 0. Preparation
+
+    DB_Manager& dbManager = DB_Manager::GetDB_Manager();
+    const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
+    if (!TryMakeTempFolder(tempFolderPath))
+    {
+        return;
+    }
+
+
+
+    // I. Unzip save file
+
+    QFile saveFile(_saveFilePath);
+    saveFile.open(QIODevice::ReadOnly);
+#ifdef WITH_COMPRESSION
+    QByteArray compressedData = saveFile.readAll();
+    QByteArray uncompressedData = qUncompress(compressedData);
+#else
+    QByteArray uncompressedData = saveFile.readAll();
+#endif
+    saveFile.close();
+
+
+
+    // II. Read Bytes in separate temporary files
+
+    int firstSeparator = FindFileSeparatorStart(uncompressedData, 0);
+    int secondSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndString, firstSeparator);
+    int thirdSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndEnum, secondSeparator);
+    int fourthSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndTemplate, thirdSeparator);
+    int fithSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndData, fourthSeparator);
+    WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndPro, fithSeparator);
+
+
+
+    // III. Project Info
+
+    ProcessProjTempFile(tempFolderPath, dbManager);
+
+
+    // IV. String Table
+
+    ProcessStringTempFile(tempFolderPath);
+
+
+    // V. Enums
+
+    ProcessEnumTempFile(tempFolderPath, dbManager);
+
+
+    // VI. Struct Templ
+
+    ProcessTemplTempFile(tempFolderPath, dbManager);
+
+
+    // VII. Fill Data except refs
+
+    ProcessDataTempFile(tempFolderPath, dbManager);
+
+
+    // VIII. Fill Refs
+
+    ProcessDelayedRef();
+
+
+    // IX. Clean Up
+
+    QDir tempDir(tempFolderPath);
+    tempDir.removeRecursively();
+}
+
+
+void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+    QFile projectFile(_tempFolderPath + fileEndPro);
+    bool openProCheck = projectFile.open(QIODevice::ReadOnly);
+    Q_ASSERT(openProCheck);
+    QTextStream proIn(&projectFile);
+    QString proFirstLine = proIn.readLine();
+    Q_ASSERT(proFirstLine == "###PROJECT_FOLDER###");
+    _dbManager.SetProjectContentFolderPath(proIn.readLine());
+
+    Q_ASSERT(proIn.atEnd());
+}
+void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath)
+{
+    QMap<QString, SStringImporter> importerMap;
+
+    QFile file(_tempFolderPath + fileEndString);
+    bool openCheck = file.open(QIODevice::ReadOnly);
+    Q_ASSERT(openCheck);
+    QTextStream in(&file);
+
+
+    QString currentLine;
+
+    QFile* currentFile = nullptr;
+    QTextStream* curentFileStream = nullptr;
+
+    while (!in.atEnd())
+    {
+        currentLine = in.readLine();
+
+        if (currentLine.first(3) == "###" && currentLine.last(3) == "###")
+        {
+            int separatorStart = currentLine.indexOf("-");
+            QString currentLangg = currentLine.mid(3, separatorStart - 3);
+            QString currentTable = currentLine.mid(separatorStart + 3, currentLine.length() - 6 - separatorStart);
+
+            QString currentFilePath = _tempFolderPath + currentTable + currentLangg + fileEndString;
+
+
+            if (currentFile != nullptr)
+            {
+                currentFile->close();
+                delete currentFile;
+                delete curentFileStream;
+                currentFile = nullptr;
+                curentFileStream = nullptr;
+            }
+
+            currentFile = new QFile(currentFilePath);
+            currentFile->open(QIODevice::WriteOnly);
+            curentFileStream = new QTextStream(currentFile);
+
+            if (!importerMap.contains(currentTable))
+            {
+                importerMap.insert(currentTable, SStringImporter());
+            }
+
+            importerMap[currentTable].RegisterLanguageFile(SStringHelper::GetLanguageFromCD(currentLangg), currentFilePath);
+        }
+
+        if (curentFileStream != nullptr)
+        {
+            *curentFileStream << currentLine << '\n';
+        }
+    }
+
+    if (currentFile != nullptr)
+    {
+        currentFile->close();
+        delete currentFile;
+        delete curentFileStream;
+        currentFile = nullptr;
+        curentFileStream = nullptr;
+    }
+
+
+
+
+    auto stringTableNames = importerMap.keys();
+    for (const auto& tableName : stringTableNames)
+    {
+        importerMap[tableName].PerformImport(-1, 0, tableName);
+    }
+}
+void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+    QFile file(_tempFolderPath + fileEndEnum);
+    bool openCheck = file.open(QIODevice::ReadOnly);
+    Q_ASSERT(openCheck);
+    QTextStream in(&file);
+
+    Enumerator currentEnum = Enumerator("");
+    QString currentLine;
+    bool firstLine = true;
+    bool useColor = false;
+    while (!in.atEnd())
+    {
+        currentLine = in.readLine();
+        if (currentLine[0] == '#')
+        {
+            if (firstLine)
+            {
+                firstLine = false;
+            }
+            else
+            {
+                _dbManager.AddEnum(currentEnum);
+            }
+
+            currentEnum = Enumerator(currentLine.remove('#'));
+
+            continue;
+        }
+
+        int indexOfSeparator = currentLine.indexOf('|');
+        if (indexOfSeparator < 0)
+        {
+            useColor = currentLine.last(4) == "TRUE";
+            continue;
+        }
+
+        if (useColor)
+        {
+            QColor color = QColor(currentLine.last(7));
+            currentEnum.AddValue(currentLine.first(indexOfSeparator), &color);
+        }
+        else
+        {
+            currentEnum.AddValue(currentLine.first(indexOfSeparator));
+        }
+    }
+
+    if (!firstLine)
+    {
+        _dbManager.AddEnum(currentEnum);
+    }
+}
+void SaveManager::ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{    
+    struct TempTemplateStruct
+    {
+        QString myTemplateName;
+        QString myTemplateAbbrev;
+        QColor myTemplateColor;
+        QList<QString> myTemplateAttributes;
+    };
+
+    QFile file(_tempFolderPath + fileEndTemplate);
+    bool openCheck = file.open(QIODevice::ReadOnly);
+    Q_ASSERT(openCheck);
+    QTextStream in(&file);
+    QString currentLine;
+    int currentTemplate = -1;
+    QList<TempTemplateStruct> tempTemplates;
+
+    while (!in.atEnd())
+    {
+        currentLine = in.readLine();
+        if (currentLine.first(3) != "###" || currentLine.last(3) != "###")
+        {
+            Q_ASSERT(currentTemplate != -1);
+            tempTemplates[currentTemplate].myTemplateAttributes.push_back(currentLine);
+            continue;
+        }
+
+        currentTemplate++;
+        TempTemplateStruct newTemplate;
+        int firstSeparator = currentLine.indexOf('-');
+        int secondSeparator = currentLine.indexOf('-', firstSeparator +3);
+        Q_ASSERT(firstSeparator != -1 && secondSeparator != -1);
+
+        newTemplate.myTemplateName = currentLine.mid(3, firstSeparator - 3);
+        newTemplate.myTemplateAbbrev = currentLine.mid(firstSeparator + 3, secondSeparator - firstSeparator - 3);
+        newTemplate.myTemplateColor = QColor(currentLine.last(10).first(7));
+
+        tempTemplates.push_back(newTemplate);
+    }
+
+    for (const auto& tempTempl : tempTemplates)
+    {
+        _dbManager.AddStructureDB(TemplateStructure{
+                                      tempTempl.myTemplateName,
+                                      tempTempl.myTemplateAbbrev,
+                                      tempTempl.myTemplateColor
+                                  });
+    }
+
+    const int structCount = tempTemplates.count();
+    for (int i = 0; i < structCount; i++)
+    {
+        _dbManager.SetAttributeTemplatesFromStringList(i, tempTemplates[i].myTemplateAttributes, myRefMap);
+    }
+}
+void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+    QFile file(_tempFolderPath + fileEndData);
+    bool openCheck = file.open(QIODevice::ReadOnly);
+    Q_ASSERT(openCheck);
+    QTextStream in(&file);
+    QString currentLine;
+
+    StructureDB* currentStructTable = nullptr;
+
+    while (!in.atEnd())
+    {
+        currentLine = in.readLine();
+
+        // Start of a new Struct table
+        if (currentLine.first(3) == "###" && currentLine.last(3) == "###")
+        {
+            currentStructTable = _dbManager.GetStructureTable(currentLine.remove('#'));
+            Q_ASSERT(currentStructTable != nullptr);
+            continue;
+        }
+
+        // Header line, useless
+        if (currentLine.first(3) == "---")
+        {
+            continue;
+        }
+
+        Q_ASSERT(currentStructTable != nullptr);
+        QStringList fields;
+        bool decompose = StructureImportHelper::DecomposeCSVString(currentLine, currentStructTable->GetTemplate().GetAttributesCount() + 1, fields, true);
+        Q_ASSERT(decompose);
+        currentStructTable->AddValue_CSV_TableWithDelayedReference(fields, myRefMap);
+    }
+}
+void SaveManager::ProcessDelayedRef()
+{
+    auto refAttributes = myRefMap.keys();
+    for (auto* aref : refAttributes)
+    {
+        aref->ReadValue_CSV(myRefMap[aref]);
+    }
+
+    myRefMap.clear();
 }

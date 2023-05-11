@@ -335,28 +335,54 @@ void MainWindow::OnResetView()
 
     CleanTabWidget(myTabStruct);
     CleanTabWidget(myTabString);
+
+    const int stringTableCount = myManager.GetStringTableCount();
+    for (int i = 0; i < stringTableCount; i++)
+    {
+        OnStringTableAdded(i);
+    }
+    const int structTableCount = myManager.GetStructuresCount();
+    for (int i = 0; i < structTableCount; i++)
+    {
+        OnStructTableAdded(i);
+        OnStructItemChanged(i);
+    }
 }
 
 
 
 // ================       File Methods       ================
 
-void MainWindow::OnNewDB()
+bool MainWindow::OnNewDB()
 {
+    QMessageBox::StandardButton btn = QMessageBox::question(this, "Save ?", "Save project before proceeding ?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+    if (btn == QMessageBox::Cancel)
+    {
+        return false;
+    }
+    else if (btn == QMessageBox::Yes)
+    {
+        bool saveComplete = OnSaveDB();
+        if (!saveComplete)
+            return false;
+    }
+
     //myStructWidget->OnElementSelected(-1);
     myStructWidget->UnselectItem();
     //myTabStruct->currentWidget()->setFocus();
     DB_Manager::GetDB_Manager().Reset();
+
+    return true;
 }
-void MainWindow::OnSaveDB()
+bool MainWindow::OnSaveDB()
 {
-    OnSaveDB_Internal(false);
+    return OnSaveDB_Internal(false);
 }
 void MainWindow::OnSaveAsDB()
 {
     OnSaveDB_Internal(true);
 }
-void MainWindow::OnSaveDB_Internal(bool _saveAs)
+bool MainWindow::OnSaveDB_Internal(bool _saveAs)
 {
     const QString& fileExt = SaveManager::GetSaveFileExtension();
     QString filePath = myCurrentlyOpenedFile;
@@ -372,17 +398,58 @@ void MainWindow::OnSaveDB_Internal(bool _saveAs)
         filePath = QFileDialog::getSaveFileName(this, "Save DataBase",
                                                    filePath,
                                                    "Unreal Anima Database (*." + fileExt + ")");
+        if (filePath.isEmpty())
+            return false;
     }
     //else : check if any change ? Or do nothing ?
 
     qDebug() << filePath;
 
     SaveManager::SaveFile(filePath);
+    return true;
 }
 void MainWindow::OnOpenDB()
 {
-    qWarning() << "Isn't implemented yet";
+    // Choose FilePath
+
+    const QString& fileExt = SaveManager::GetSaveFileExtension();
+    QString filePath = myCurrentlyOpenedFile;
+
+    if (filePath.isEmpty())
+    {
+        filePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    }
+    filePath = QFileDialog::getOpenFileName(this, "Open DataBase",
+                                               filePath,
+                                               "Unreal Anima Database (*." + fileExt + ")");
+    if (filePath.isEmpty())
+    {
+        return;
+    }
+    if (myCurrentlyOpenedFile == filePath)
+    {
+        QMessageBox::StandardButton btn = QMessageBox::question(this, "Refresh opened", "The Database you asked to open is already opened.\nDo you want to reopen it ?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (btn == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
+    qDebug() << filePath;
+    Q_ASSERT(QFileInfo::exists(filePath));
+
+
+    // New
+    OnNewDB();
+
+    // OpenInternal
+    myManager.blockSignals(true);
+    SaveManager::OpenFile(filePath);
+    myManager.blockSignals(false);
+    OnResetView();
+
     // set myCurrentlyOpenedFile et the end of the process
+    myCurrentlyOpenedFile = filePath;
 }
 
 // ================      Export Methods      ================

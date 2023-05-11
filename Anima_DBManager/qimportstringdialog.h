@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include "sstringhelper.h"
-#include "sstringtable.h"
+#include "sstringimporter.h"
 #include "qpanelstring.h"
 
 class QImportStringDialog : public QDialog
@@ -14,13 +14,11 @@ class QImportStringDialog : public QDialog
     Q_OBJECT
 
 private:
-    QMap<SStringHelper::SStringLanguages, QString> myCSVMap;
+    SStringImporter myImporter;
     QComboBox* myTableComboBox;
     QComboBox* myOverrideComboBox;
     QLineEdit* myNewTableName;
     QPanelString* myStringWidget;
-
-    void PerformImport(SStringTable* _stringTable, int _overrideChoice);
 
 public:
     QImportStringDialog(QPanelString* _stringWidget, QWidget* _parent = nullptr);

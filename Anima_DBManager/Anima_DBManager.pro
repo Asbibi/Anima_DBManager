@@ -62,10 +62,12 @@ SOURCES += \
     qtemplatestructure.cpp \
     savemanager.cpp \
     sstringhelper.cpp \
+    sstringimporter.cpp \
     sstringitem.cpp \
     sstringtable.cpp \
     structure.cpp \
     structuredb.cpp \
+    structureimporthelper.cpp \
     templateattribute.cpp \
     templatestructure.cpp
 
@@ -121,10 +123,12 @@ HEADERS += \
     qtemplatestructure.h \
     savemanager.h \
     sstringhelper.h \
+    sstringimporter.h \
     sstringitem.h \
     sstringtable.h \
     structure.h \
     structuredb.h \
+    structureimporthelper.h \
     templateattribute.h \
     templatestructure.h
 
