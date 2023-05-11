@@ -56,7 +56,6 @@ int SaveManager::FindFileSeparatorStart(const QByteArray& _data, const int _star
 
     while(inValidation && possibleStart != -1)
     {
-        possibleStart = _data.indexOf(separator[0], possibleStart);
         bool ok = true;
         for (int i = 0; i < separatorlength; i++)
         {
@@ -66,9 +65,14 @@ int SaveManager::FindFileSeparatorStart(const QByteArray& _data, const int _star
                 break;
             }
         }
+
         if (ok)
         {
             inValidation = false;
+        }
+        else
+        {
+            possibleStart = _data.indexOf(separator[0], possibleStart + 1);
         }
     }
     return possibleStart;
