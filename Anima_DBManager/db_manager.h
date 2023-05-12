@@ -41,7 +41,7 @@ public:
     void Reset();
 
     bool SetProjectContentFolderPath(const QString& _path);
-    const QString& GetProjectContentFolderPath() const;
+    const QString& GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
     bool IsProjectContentFolderPathValid() const;
 
     int GetEnumCount() const;

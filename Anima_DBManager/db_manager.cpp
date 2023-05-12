@@ -42,8 +42,8 @@ bool DB_Manager::SetProjectContentFolderPath(const QString& _path)
     myProjectPathIsValid = QDir(myProjectContentFolderPath).exists();
     return myProjectPathIsValid;
 }
-const QString& DB_Manager::GetProjectContentFolderPath() const {
-    return myProjectPathIsValid ? myProjectContentFolderPath : myHomePath;
+const QString& DB_Manager::GetProjectContentFolderPath(bool _homePathIfUnvalid) const {
+    return myProjectPathIsValid || !_homePathIfUnvalid ? myProjectContentFolderPath : myHomePath;
 }
 bool DB_Manager::IsProjectContentFolderPathValid() const
 {

@@ -125,7 +125,8 @@ void AAsset::ReadValue_CSV(const QString& text)
 
     // restoring the extension
     const int pointIndex = assetPath.lastIndexOf('.');
-    assetPath = assetPath.left(pointIndex);
+    Q_ASSERT(pointIndex != -1);
+    assetPath = assetPath.left(pointIndex + 1);
     assetPath.append(GetAssetFileExtension());
 
     SetValueFromText(assetPath);
