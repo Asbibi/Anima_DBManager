@@ -3,7 +3,7 @@
 
 #include <QPointer>
 
-class Attribute;
+class TemplateAttribute;
 class StructureDB;
 class Enumerator;
 
@@ -23,8 +23,8 @@ struct AttributeParam
                                                     // and arrays in general
     float min_f = 0;
     float max_f = -1;                               // Max are inclusive for float
-    Attribute* templateAtt = nullptr;               // Used for AArray only;
-    StructureDB* structTable = nullptr;             // Used for AReference only;         //QPointer<>
+    TemplateAttribute* templateAtt = nullptr;       // Used for AArray only;
+    StructureDB* structTable = nullptr;             // Used for AReference only;
 
     // Only for Enum Attributes
     int enumeratorIndex = -1;      // Used for AEnumerator only;    When changed, need to update all enum attribute, template attribute & qtemplateattribute

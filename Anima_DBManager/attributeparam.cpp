@@ -1,6 +1,6 @@
 #include "attributeparam.h"
 
-#include "attribute.h"
+#include "templateattribute.h"
 #include "db_manager.h"
 #include "enumerator.h"
 
@@ -15,10 +15,14 @@ AttributeParam::AttributeParam(const AttributeParam& _another) :
     max_i {_another.max_i },
     min_f {_another.min_f },
     max_f {_another.max_f },
-    templateAtt {_another.templateAtt },    // new () ?
+    templateAtt { nullptr },
     structTable {_another.structTable },
     enumeratorIndex {_another.enumeratorIndex }
 {
+    if (_another.templateAtt != nullptr)
+    {
+        templateAtt = new TemplateAttribute(*_another.templateAtt);
+    }
     DB_Manager::GetDB_Manager().RegisterAttributeParam(this);
 }
 AttributeParam::AttributeParam(const QString& _csvString) :

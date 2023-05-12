@@ -1,36 +1,33 @@
 #include "aarray.h"
+
+#include "templateattribute.h"
 #include <QDebug>
 
 AArray::AArray(const AttributeParam& _sharedParam) :
-    AArray(_sharedParam, nullptr)
+    Attribute(_sharedParam)
 {
      if (_sharedParam.templateAtt == nullptr)
         qFatal("\n\nNull Template Attribute given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
 }
-AArray::AArray(const AttributeParam& _sharedParam, const std::vector<Attribute*>* _values) :
-    Attribute(_sharedParam)
-{
-    if (_sharedParam.templateAtt == nullptr)
-        qFatal("\n\nNull Template Attribute given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
-    else if (_values != nullptr && _values->size() != 0)
+AArray::AArray(const AttributeParam& _sharedParam, const QList<Attribute*>& _values) :
+    AArray(_sharedParam)
+{    
+    myValues.reserve(_values.count());
+    for(const auto* _val : _values)
     {
-        values.reserve(_values->size());
-        for(const auto& _val : *_values)
-        {
-            values.push_back(_val->CreateDuplica());
-        }
+        myValues.push_back(_val->CreateDuplica());
     }
 }
 AArray::~AArray()
 {
-    for(const auto& val : values)
+    for(const auto& val : myValues)
         delete(val);
 }
 
 
 Attribute* AArray::CreateDuplica() const
 {
-    return new AArray(mySharedParam, &values);
+    return new AArray(mySharedParam, myValues);
 }
 QString AArray::GetDisplayedText(bool complete) const
 {
@@ -38,11 +35,11 @@ QString AArray::GetDisplayedText(bool complete) const
         return "[ARRAY]";
 
     QString _text = "[";
-    for (int i = 0; i < (int)(values.size()); i++)
+    for (int i = 0; i < (int)(myValues.size()); i++)
     {
         if (i > 0)
             _text.append(',');
-        _text.append(values[i]->GetDisplayedText(true));
+        _text.append(myValues[i]->GetDisplayedText(true));
     }
     _text.append(']');
     return _text;
@@ -51,11 +48,11 @@ void AArray::WriteValue_CSV(std::ofstream& file) const
 {
     file << "(";
 
-    for (int i = 0; i < (int)(values.size()); i++)
+    for (int i = 0; i < (int)(myValues.size()); i++)
     {
         if (i > 0)
             file << ",";
-        values[i]->WriteValue_CSV(file);
+        myValues[i]->WriteValue_CSV(file);
     }
 
     file << ")";
@@ -123,7 +120,7 @@ void AArray::SetValueFromText(const QString& text)
         qFatal("\n\nError in '{' and '[' closing while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
         return;
     }
-    if (finalList.size() != values.size())
+    if (finalList.size() != myValues.size())
     {
         qFatal("\n\nNot a text value per attribute while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
         return;
@@ -132,7 +129,7 @@ void AArray::SetValueFromText(const QString& text)
 
     // Apply all the strings in the finalList to their attribute
     for(int i =0; i < (int)(finalList.size()); i++)
-        values[i]->SetValueFromText(finalList[i]);
+        myValues[i]->SetValueFromText(finalList[i]);
 }
 void AArray::CopyValueFromOther(const Attribute* _other)
 {
@@ -140,37 +137,41 @@ void AArray::CopyValueFromOther(const Attribute* _other)
     if (!other_AA || mySharedParam.templateAtt != other_AA->mySharedParam.templateAtt)
         return;
 
-    qDebug("TODO: Rework it to use a QList instead");
-    while (values.size() > 0)
+    while (myValues.size() > 0)
         RemoveRow(0);
 
-    for (const auto* attr : other_AA->values)
-        values.push_back(attr->CreateDuplica());
+    for (const auto* attr : other_AA->myValues)
+        myValues.push_back(attr->CreateDuplica());
+}
+void AArray::ReadValue_CSV(const QString& text)
+{
+    qFatal("TODO");
 }
 
-std::vector<QString> AArray::GetDisplayedTexts() const
-{
-    int _count = (int)values.size();
-    std::vector<QString> strings = std::vector<QString>();
-    strings.reserve(_count);
 
-    for (int i = 0; i< _count; i++)
-        strings.push_back(values[i]->GetDisplayedText());
+
+QStringList AArray::GetDisplayedTexts() const
+{
+    int count = (int)myValues.size();
+    QStringList strings = QStringList();
+    strings.reserve(count);
+
+    for (const auto* val : myValues)
+    {
+        strings.push_back(val->GetDisplayedText());
+    }
 
     return strings;
 }
 void AArray::AddRow()
 {
-    qDebug("TODO: Rework it to use a QList instead");
-    values.push_back(mySharedParam.templateAtt->CreateDuplica());
+    myValues.push_back(mySharedParam.templateAtt->GenerateAttribute());
 }
 void AArray::RemoveRow(int _index)
 {
-    if (_index < -1 || _index >= (int)(values.size()))
+    if (_index < 0 || _index >= myValues.count())
         return;
 
-    qDebug("TODO: Rework it to use a QList instead");
-    Attribute* removed = values[_index];
-    values.erase(values.begin() + _index);
+    Attribute* removed = myValues.takeAt(_index);
     delete(removed);
 }
