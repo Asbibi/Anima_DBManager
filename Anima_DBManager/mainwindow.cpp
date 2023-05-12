@@ -589,5 +589,13 @@ void MainWindow::OnProjectSettings()
 {
     auto* dialog = new QProjectDialog(this);
     dialog->exec();
+    int res = dialog->result();
     delete dialog;
+
+    if (res != QDialog::Accepted)
+    {
+        return;
+    }
+
+    myManager.UpdateAAssetIsDirty();
 }

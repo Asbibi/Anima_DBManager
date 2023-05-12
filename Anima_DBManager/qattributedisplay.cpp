@@ -56,6 +56,8 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
     setForeground(QColorConstants::Black);
     setIcon(QIcon());
 
+    QString textDisplayed = myCurrentValue;
+
     switch (myCurrentType)
     {
         case AttributeTypeHelper::Type::Bool:
@@ -107,6 +109,7 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
             else if (castedAttribute->IsDirty())
             {
                 colorToUse = invalidColor;
+                textDisplayed.remove(0,1);
             }
             setBackground(colorToUse);
             break;
@@ -114,7 +117,7 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
         default:
         {}
     }
-    setText(myCurrentValue);
+    setText(textDisplayed);
 }
 
 QTableWidgetItem* QAttributeDisplay::clone() const
