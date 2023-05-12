@@ -1,5 +1,8 @@
 #include "structuredb.h"
 
+#include "aasset.h"
+
+
 StructureDB::StructureDB(const TemplateStructure& _structureTemplate):
     myTemplate(_structureTemplate)
 {}
@@ -171,6 +174,39 @@ void StructureDB::SetAttributesFromList(const QList<QString>& _stringList, QHash
     // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
     Q_ASSERT(myStructures.count() == 0);
     myTemplate.SetAttributeFromList(_stringList, _outRefMap);
+}
+bool StructureDB::UpdateMyAAssetIsDirty()
+{
+    QList<int> aassetIndexes = QList<int>();
+
+    const int attrCount = myTemplate.GetAttributesCount();
+    for (int i = 0; i < attrCount; i++)
+    {
+        if (AttributeTypeHelper::IsAssetType(myTemplate.GetAttributeType(i)))
+        {
+            aassetIndexes.push_back(i);
+        }
+    }
+
+    if (aassetIndexes.isEmpty())
+    {
+        return false;
+    }
+
+    bool hasChanged = false;
+    const int rowCount = myStructures.count();
+    for (int row = 0; row < rowCount; row++)
+    {
+        auto* structure = myStructures[row];
+        for (const int& i : aassetIndexes)
+        {
+            AAsset* attr = dynamic_cast<AAsset*>(structure->GetAttribute(i));
+            Q_ASSERT(attr != nullptr);
+            hasChanged = attr->UpdateIsDirty() || hasChanged;
+        }
+    }
+
+    return hasChanged;
 }
 
 

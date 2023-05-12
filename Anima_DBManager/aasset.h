@@ -16,6 +16,7 @@ public:
     bool IsDirty() const;
     bool IsEmpty() const;
     const QString& GetFilePath() const;
+    bool UpdateIsDirty();   // return if myIsDirty has changed
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::UAsset; };
     virtual Attribute* CreateDuplica()                          const override;

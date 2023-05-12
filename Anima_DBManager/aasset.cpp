@@ -26,6 +26,13 @@ const QString& AAsset::GetFilePath() const
 {
     return myFilePath;
 }
+bool AAsset::UpdateIsDirty()
+{
+    bool newDirty = IsDirty(myFilePath);
+    bool changed = (newDirty != myIsDirty);
+    myIsDirty = newDirty;
+    return changed;
+}
 
 Attribute* AAsset::CreateDuplica() const
 {
@@ -35,7 +42,7 @@ Attribute* AAsset::CreateDuplica() const
 QString AAsset::GetDisplayedText(bool complete) const
 {
     if (complete)
-        return myFilePath;
+        return myIsDirty && !myFilePath.isEmpty() ? '!' + myFilePath : myFilePath;
 
     return GetFilePathForDisplay(myFilePath, myIsDirty);
 }
@@ -125,7 +132,8 @@ void AAsset::ReadValue_CSV(const QString& text)
 
     // restoring the extension
     const int pointIndex = assetPath.lastIndexOf('.');
-    assetPath = assetPath.left(pointIndex);
+    Q_ASSERT(pointIndex != -1);
+    assetPath = assetPath.left(pointIndex + 1);
     assetPath.append(GetAssetFileExtension());
 
     SetValueFromText(assetPath);

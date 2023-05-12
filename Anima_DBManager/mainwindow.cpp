@@ -8,9 +8,11 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QSplitter>
 #include <QTextEdit>
 #include <QVBoxLayout>
+#include <QWidgetAction>
 
 #include "sstringhelper.h"
 #include "savemanager.h"
@@ -19,6 +21,7 @@
 #include "qsstringtable.h"
 #include "qimportstringdialog.h"
 #include "qimportstructdialog.h"
+#include "qprojectdialog.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -31,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     myMenuBar = new QMenuBar(this);
     QMenu* fileMenu = myMenuBar->addMenu("File");
     QMenu* exportImportMenu = myMenuBar->addMenu("Export/Import");
-    QMenu* displayMenu = myMenuBar->addMenu("Display");
+    QAction* projSettings = myMenuBar->addAction("Project Settings");
     setMenuBar(myMenuBar);
 
     auto* newDB = fileMenu->addAction("New");
@@ -75,8 +78,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(exportAllStringAllLanguage, &QAction::triggered, this, [this]{OnExportAllStringTables(SStringHelper::SStringLanguages::Count);});
 
 
-    displayMenu->addAction("Update Current Table");
-    displayMenu->addAction("Update All Tables");
+    QObject::connect(projSettings, &QAction::triggered, this, &MainWindow::OnProjectSettings);
+
 
 
     //---------
@@ -581,4 +584,18 @@ void MainWindow::OnImportStuctTable()
     }
 
     delete dialog;
+}
+void MainWindow::OnProjectSettings()
+{
+    auto* dialog = new QProjectDialog(this);
+    dialog->exec();
+    int res = dialog->result();
+    delete dialog;
+
+    if (res != QDialog::Accepted)
+    {
+        return;
+    }
+
+    myManager.UpdateAAssetIsDirty();
 }

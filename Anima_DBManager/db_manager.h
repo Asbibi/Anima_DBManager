@@ -41,7 +41,7 @@ public:
     void Reset();
 
     bool SetProjectContentFolderPath(const QString& _path);
-    const QString& GetProjectContentFolderPath() const;
+    const QString& GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
     bool IsProjectContentFolderPathValid() const;
 
     int GetEnumCount() const;
@@ -85,6 +85,7 @@ public:
     void DuplicateStructureRow(const int _tableIndex, const int _position, const int _originalIndex);
     void RemoveStructureRow(const int _tableIndex, const int _position);
     void MoveStructureRow(const int _tableIndex, const int _positionFrom, int& _positionTo);
+    void UpdateAAssetIsDirty();
 
     int GetStringTableCount() const;
     const SStringTable* GetStringTable(int _index) const;

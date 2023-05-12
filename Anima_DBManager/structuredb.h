@@ -43,6 +43,8 @@ public:
     void RemoveAttribute(int _position);
     void SetAttributesFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap);
 
+    bool UpdateMyAAssetIsDirty();
+
 
     const QString& GetTemplateName() const;
     const QString& GetTemplateAbbrev() const;

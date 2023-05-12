@@ -32,6 +32,7 @@ enum class Type
 QString TypeToString(const Type _type);
 Type StringToType(const QString& _typeString);
 bool AreParamValid(const Type _type, const AttributeParam& _param);
+bool IsAssetType(const Type _type);
 
 }
 

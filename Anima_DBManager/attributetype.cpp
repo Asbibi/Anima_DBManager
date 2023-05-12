@@ -85,4 +85,10 @@ bool AreParamValid(const Type _type, const AttributeParam& _param)
     return true;
 }
 
+
+bool IsAssetType(const Type _type)
+{
+    return (int)_type >= (int)Type::UAsset;
+}
+
 }

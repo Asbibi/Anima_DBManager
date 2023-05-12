@@ -72,5 +72,7 @@ public slots:
 
     void OnImportStringTable();
     void OnImportStuctTable();
+
+    void OnProjectSettings();
 };
 #endif // MAINWINDOW_H

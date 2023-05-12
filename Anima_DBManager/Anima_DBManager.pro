@@ -52,6 +52,7 @@ SOURCES += \
     qpanelenum.cpp \
     qpanelstring.cpp \
     qpanelstruct.cpp \
+    qprojectdialog.cpp \
     qrefdialog.cpp \
     qreflabel.cpp \
     qsstring.cpp \
@@ -113,6 +114,7 @@ HEADERS += \
     qpanelenum.h \
     qpanelstring.h \
     qpanelstruct.h \
+    qprojectdialog.h \
     qrefdialog.h \
     qreflabel.h \
     qsstring.h \
