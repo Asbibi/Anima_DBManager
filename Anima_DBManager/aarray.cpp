@@ -32,17 +32,9 @@ Attribute* AArray::CreateDuplica() const
 QString AArray::GetDisplayedText(bool complete) const
 {
     if (!complete)
-        return "[ARRAY]";
+        return GetShortDisplayedString(myValues.count());
 
-    QString _text = "[";
-    for (int i = 0; i < (int)(myValues.size()); i++)
-    {
-        if (i > 0)
-            _text.append(',');
-        _text.append(myValues[i]->GetDisplayedText(true));
-    }
-    _text.append(']');
-    return _text;
+    return GetStructureStringFromList(GetDisplayedTexts());
 }
 void AArray::WriteValue_CSV(std::ofstream& file) const
 {
@@ -150,6 +142,12 @@ void AArray::ReadValue_CSV(const QString& text)
 
 
 
+
+
+TemplateAttribute* AArray::GetArrayElementTemplate() const
+{
+    return mySharedParam.templateAtt;
+}
 QStringList AArray::GetDisplayedTexts() const
 {
     int count = (int)myValues.size();
@@ -158,14 +156,24 @@ QStringList AArray::GetDisplayedTexts() const
 
     for (const auto* val : myValues)
     {
-        strings.push_back(val->GetDisplayedText());
+        strings.push_back(val->GetDisplayedText(true));
     }
 
     return strings;
 }
-void AArray::AddRow()
+void AArray::AddRow(int _index)
 {
-    myValues.push_back(mySharedParam.templateAtt->GenerateAttribute());
+    if (_index < 0 || _index > myValues.count())
+        _index = myValues.count();
+
+    myValues.insert(_index, mySharedParam.templateAtt->GenerateAttribute());
+}
+void AArray::DuplicateRow(int _index)
+{
+    if (_index < 0 || _index >= myValues.count())
+        _index = myValues.count() - 1;
+
+    myValues.insert(_index +1, myValues[_index]->CreateDuplica());
 }
 void AArray::RemoveRow(int _index)
 {
@@ -174,4 +182,37 @@ void AArray::RemoveRow(int _index)
 
     Attribute* removed = myValues.takeAt(_index);
     delete(removed);
+}
+void AArray::MoveRow(int _originalIndex, int _targetIndex)
+{
+    const int valuesCount = myValues.count();
+    if (_originalIndex < 0 || _originalIndex >= valuesCount)
+        _originalIndex = valuesCount -1;
+    if (_targetIndex < 0 || _targetIndex >= valuesCount)
+        _targetIndex = valuesCount -1;
+
+    if (_originalIndex == _targetIndex)
+        return;
+
+    auto* row = myValues.takeAt(_originalIndex);
+    if (_originalIndex < _targetIndex)
+        _targetIndex--;
+    myValues.insert(_targetIndex, row);
+}
+
+QString AArray::GetShortDisplayedString(int _count)
+{
+    return QString("[ARRAY:%1]").arg(_count);
+}
+QString AArray::GetStructureStringFromList(const QStringList& _listString)
+{
+    QString _text = "[";
+    for (int i = 0; i < _listString.count(); i++)
+    {
+        if (i > 0)
+            _text.append(',');
+        _text.append(_listString[i]);
+    }
+    _text.append(']');
+    return _text;
 }

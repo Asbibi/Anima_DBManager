@@ -1,4 +1,4 @@
-#ifndef AARRAY_H
+﻿#ifndef AARRAY_H
 #define AARRAY_H
 
 #include "attribute.h"
@@ -21,9 +21,15 @@ public:
     virtual void CopyValueFromOther(const Attribute* _other)          override;
     virtual void ReadValue_CSV(const QString& text)                   override;
 
+    TemplateAttribute* GetArrayElementTemplate() const;
     QStringList GetDisplayedTexts() const;
-    void AddRow();
+    void AddRow(int _index);
+    void DuplicateRow(int _index);
     void RemoveRow(int _index);
+    void MoveRow(int _originalIndex, int _targetIndex);
+
+    static QString GetShortDisplayedString(int _count);
+    static QString GetStructureStringFromList(const QStringList& _listString);
 };
 
 #endif // AARRAY_H

@@ -61,7 +61,7 @@ void AttributeParam::operator=(const AttributeParam& _another)
     }
 
     if (_another.templateAtt)
-        templateAtt = _another.templateAtt->CreateDuplica();
+        templateAtt = new TemplateAttribute(*_another.templateAtt);
     else
         templateAtt = nullptr;
 }
