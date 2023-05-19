@@ -23,6 +23,7 @@ public:
 
     TemplateAttribute* GetArrayElementTemplate() const;
     QStringList GetDisplayedTexts() const;
+    const QList<Attribute*>& GetAttributes() const;
     void AddRow(int _index);
     void DuplicateRow(int _index);
     void RemoveRow(int _index);

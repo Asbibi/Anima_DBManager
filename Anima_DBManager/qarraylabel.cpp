@@ -1,6 +1,6 @@
 #include "qarraylabel.h"
 
-#include "aarray.h"
+#include "qarraydialog.h"
 
 
 QArrayLabel::QArrayLabel(QWidget* _parent) :
@@ -9,7 +9,29 @@ QArrayLabel::QArrayLabel(QWidget* _parent) :
     setMinimumWidth(110);
 }
 
-void QArrayLabel::SetValue(TemplateAttribute* _template, const QStringList& _attrStringList)
+void QArrayLabel::SetValue(const AArray* _arrayAttr)
 {
-    setText(AArray::GetShortDisplayedString(_attrStringList.count()));
+    myArrayAttribute = _arrayAttr;
+    setText(myArrayAttribute->GetDisplayedText());
+}
+QString QArrayLabel::GetValue() const
+{
+    qFatal("TODO");
+    return "";
+}
+
+void QArrayLabel::EditValue()
+{
+    auto* dialog = new QArrayDialog(myArrayAttribute->GetArrayElementTemplate(),
+                                    myArrayAttribute->GetAttributes(),
+                                    this);
+    dialog->exec();
+    int res = dialog->result();
+    if (res == QDialog::Accepted)
+    {
+        // a value to change
+        //emit OnValueEdited();
+        qDebug() << "TODO : export dialog attribute list as QString and emit signal";
+    }
+    delete dialog;
 }

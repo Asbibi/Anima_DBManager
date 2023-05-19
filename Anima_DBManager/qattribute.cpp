@@ -243,7 +243,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
                 return;
             }
 
-            qarray->SetValue(arrayAttribute->GetArrayElementTemplate(), arrayAttribute->GetDisplayedTexts());
+            qarray->SetValue(arrayAttribute);
             break;
         }
         case AttributeTypeHelper::Type::Structure :

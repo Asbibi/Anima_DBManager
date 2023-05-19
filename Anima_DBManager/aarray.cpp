@@ -161,6 +161,10 @@ QStringList AArray::GetDisplayedTexts() const
 
     return strings;
 }
+const QList<Attribute*>& AArray::GetAttributes() const
+{
+    return myValues;
+}
 void AArray::AddRow(int _index)
 {
     if (_index < 0 || _index > myValues.count())

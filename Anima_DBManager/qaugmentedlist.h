@@ -24,9 +24,11 @@ private:
 public:
     explicit QAugmentedList(bool _unique, const QString& _defValue, QWidget *_parent = nullptr);
     void SetDisableRemoveLast(bool _can) { myDisableRemoveLast = _can; }
+    void SetItemEditable(bool _editable);
     int Count() const;
     int GetCurrent(QString* _outValue = nullptr) const;
     const QString GetItemValue(const int _index) const;
+    void SetItemValue(const int _index, const QString& _value, bool _emitEditedSignal = true);
 
     void SelectItemAt(const int _index);
     void SelectItem(const QString& _text);

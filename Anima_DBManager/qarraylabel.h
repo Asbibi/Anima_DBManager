@@ -3,17 +3,21 @@
 
 #include <QLabel>
 
-#include "templateattribute.h"
+#include "aarray.h"
 
 
 class QArrayLabel : public QLabel
 {    
     Q_OBJECT
 
+private:
+    const AArray* myArrayAttribute;
+
 public:
     QArrayLabel(QWidget* _parent);
 
-    void SetValue(TemplateAttribute* _template, const QStringList& _attrStringList);
+    void SetValue(const AArray* _arrayAttr);
+    QString GetValue() const;
 
 signals:
     void OnValueEdited();
