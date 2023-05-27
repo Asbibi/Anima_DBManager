@@ -137,8 +137,10 @@ void DB_Manager::Init()
     tempRefParam.structTable = GetStructureTable(0);
     ChangeAttributeTemplate(1, 3, AttributeTypeHelper::Type::Reference, tempRefParam, true);
     AttributeParam tempArrayParam = AttributeParam();
-    tempArrayParam.templateAtt = new TemplateAttribute("", AttributeTypeHelper::Type::Int, AttributeParam());
-    ChangeAttributeTemplate(1, 4, AttributeTypeHelper::Type::Array, tempArrayParam, true);
+    tempArrayParam.templateAtt = new TemplateAttribute("", AttributeTypeHelper::Type::Int, AttributeParam());    
+    AttributeParam tempArrayArrayParam = AttributeParam();
+    tempArrayArrayParam.templateAtt = new TemplateAttribute("", AttributeTypeHelper::Type::Array, tempArrayParam);
+    ChangeAttributeTemplate(1, 4, AttributeTypeHelper::Type::Array, tempArrayArrayParam, true);
     name = "IntAttr";
     RenameStructureAttribute(1,0, name);
     name = "FloatAttr";

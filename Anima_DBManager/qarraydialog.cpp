@@ -9,14 +9,6 @@ QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attri
     QDialog(_parent),
     myTemplateAttribute (_template)
 {
-    // ------ Values & propeties ------
-
-    for (auto* attr : _attributeList)
-    {
-        myAttributes.push_back(attr->CreateDuplica());
-    }
-
-
     // ------ UI ------
 
     setWindowTitle("Edit Array Attribute Values");
@@ -45,13 +37,25 @@ QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attri
     vLayout->addLayout(hLayoutBtn);
 
 
-    // Connect
+    // ------ Values & propeties ------
+
+    for (auto* attr : _attributeList)
+    {
+        myAttributes.push_back(attr->CreateDuplica());
+        myQListAttributes->AddItemAt(attr->GetDisplayedText(true));
+    }
+
+
+    // ------ Connect ------
+
     QObject::connect(myQListAttributes, &QAugmentedList::SelectionChanged, this, &QArrayDialog::UpdateQAttribute);
     QObject::connect(myQListAttributes, &QAugmentedList::ItemAdded, this, &QArrayDialog::OnValueAdded);
     QObject::connect(myQListAttributes, &QAugmentedList::ItemDuplicated, this, &QArrayDialog::OnValueDuplicated);
     QObject::connect(myQListAttributes, &QAugmentedList::ItemMoved, this, &QArrayDialog::OnValueMoved);
     QObject::connect(myQListAttributes, &QAugmentedList::ItemRemoved, this, &QArrayDialog::OnValueRemoved);
 
+
+    // ------ Init ------
 
     UpdateQAttribute(0);
 }
@@ -66,6 +70,10 @@ void QArrayDialog::CleanAttributes()
         delete attr;
     }
     myAttributes.clear();
+}
+const QList<Attribute*>& QArrayDialog::GetAttributes() const
+{
+    return myAttributes;
 }
 
 

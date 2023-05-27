@@ -25,6 +25,8 @@ public:
     QArrayDialog(const TemplateAttribute* _template, const QList<Attribute*>& _attributeList, QWidget* _parent = nullptr);
     ~QArrayDialog();
 
+    const QList<Attribute*>& GetAttributes() const;
+
 public slots:
     void UpdateQAttribute(const int _index);
 

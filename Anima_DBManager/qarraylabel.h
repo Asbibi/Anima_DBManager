@@ -12,6 +12,9 @@ class QArrayLabel : public QLabel
 
 private:
     const AArray* myArrayAttribute;
+    QString myValue;
+
+    void ComputeMyValue(const QList<Attribute*>& _attributes);
 
 public:
     QArrayLabel(QWidget* _parent);

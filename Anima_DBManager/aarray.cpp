@@ -67,56 +67,68 @@ void AArray::SetValueFromText(const QString& text)
 
 
     // Read the text
-    std::vector<QString> finalList = std::vector<QString>();
-    std::vector<bool> openBrackets = std::vector<bool>();
-        //  ->  add "true" to indicate an open "{", a false for an open "[", and remove it when closed
-    QString currentString = "";
-
-    for (const QChar& chr : contentText)
+    QList<QString> finalList = QList<QString>();
+    if (!contentText.isEmpty())
     {
-        int currentBracketCount = (int)openBrackets.size();
-        if (chr == ',' && currentBracketCount == 0)
-        {
-            finalList.push_back(currentString);
-            currentString = "";
-            continue;
-        }
+        QList<bool> openBrackets = QList<bool>();
+            //  ->  add "true" to indicate an open "{", a false for an open "[", and remove it when closed
+        QString currentString = "";
 
-        currentString.append(chr);
-        if (chr == '{')
-            openBrackets.push_back(true);
-        else if (chr == '[')
-            openBrackets.push_back(false);
-        else if (currentBracketCount != 0)
+        for (const QChar& chr : contentText)
         {
-            if (openBrackets[currentBracketCount - 1] && chr == '}')
-                openBrackets.pop_back();
-            else if (!openBrackets[currentBracketCount - 1] && chr == ']')
-                openBrackets.pop_back();
-        }
-        else
-        {
-            if (chr == '}'|| chr == ']')
+            int currentBracketCount = (int)openBrackets.size();
+            if (chr == ',' && currentBracketCount == 0)
             {
-                qFatal("\n\nA '}' or ']' found with nothing opened while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-                return;
+                finalList.push_back(currentString);
+                currentString = "";
+                continue;
+            }
+
+            currentString.append(chr);
+            if (chr == '{')
+                openBrackets.push_back(true);
+            else if (chr == '[')
+                openBrackets.push_back(false);
+            else if (currentBracketCount != 0)
+            {
+                if (openBrackets[currentBracketCount - 1] && chr == '}')
+                    openBrackets.pop_back();
+                else if (!openBrackets[currentBracketCount - 1] && chr == ']')
+                    openBrackets.pop_back();
+            }
+            else
+            {
+                if (chr == '}'|| chr == ']')
+                {
+                    qFatal("\n\nA '}' or ']' found with nothing opened while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
+                    return;
+                }
             }
         }
+        finalList.push_back(currentString);
+        Q_ASSERT(openBrackets.size() == 0);
     }
-    finalList.push_back(currentString);
 
 
-    // Checks
-    if (openBrackets.size() != 0)
+    const int finalSize = finalList.size();
+    const int currentSize = myValues.size();
+    if (currentSize < finalSize)
     {
-        qFatal("\n\nError in '{' and '[' closing while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-        return;
+        const int diff = finalSize - currentSize;
+        for (int i = 0; i < diff; i++)
+        {
+            AddRow(-1);
+        }
     }
-    if (finalList.size() != myValues.size())
+    else if (currentSize > finalSize)
     {
-        qFatal("\n\nNot a text value per attribute while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-        return;
+        const int diff = currentSize - finalSize;
+        for (int i = 0; i < diff; i++)
+        {
+            RemoveRow(0);
+        }
     }
+    Q_ASSERT(finalSize == myValues.size());
 
 
     // Apply all the strings in the finalList to their attribute

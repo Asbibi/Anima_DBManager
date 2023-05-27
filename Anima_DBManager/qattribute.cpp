@@ -415,14 +415,25 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
 
 void QAttribute::ContentStateChanged()
 {
-    qDebug() << "Attribute update with type " << (int)myType;
+    qDebug() << "Attribute update with type " << AttributeTypeHelper::TypeToString(myType) << " (" << (int)myType << ')';
 
     QString valueString;
     switch(myType)
     {
         case AttributeTypeHelper::Type::Array :
+        {
+            auto* arrayLabel = dynamic_cast<QArrayLabel*>(myContent);
+            if(!arrayLabel)
+            {
+                LogErrorCast();
+                return;
+            }
+            valueString = arrayLabel->GetValue();
+            break;
+        }
         case AttributeTypeHelper::Type::Structure :
         {
+            valueString = {};
             break;
         }
         case AttributeTypeHelper::Type::Bool :
