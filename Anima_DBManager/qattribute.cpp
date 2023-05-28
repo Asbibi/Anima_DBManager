@@ -536,3 +536,10 @@ void QAttribute::ContentStateChanged()
 
     emit OnWidgetValueChanged(valueString);
 }
+void QAttribute::EmptyArrayAttribute()
+{
+    if (myType != AttributeTypeHelper::Type::Array)
+        return;
+
+    emit OnWidgetValueChanged("[]");
+}

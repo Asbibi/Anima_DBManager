@@ -152,11 +152,29 @@ bool TemplateAttribute::HasValidSharedParam() const
 }
 
 
+bool IsSameArrayType(const AttributeParam& _firstParam, const AttributeParam& _secondParam)
+{
+    Q_ASSERT(_firstParam.templateAtt && _secondParam.templateAtt);
+    AttributeTypeHelper::Type firstType = _firstParam.templateAtt->GetType();
+    AttributeTypeHelper::Type secondType = _secondParam.templateAtt->GetType();
 
+    if (firstType != secondType)
+        return false;
+    if (firstType != AttributeTypeHelper::Type::Array)
+        return true;
+
+    return IsSameArrayType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
+}
 void TemplateAttribute::SetNewValues(AttributeTypeHelper::Type _type, const AttributeParam& _param)
 {
+    bool softChange = GetType() == _type;
+    if (softChange && _type == AttributeTypeHelper::Type::Array)
+    {
+        softChange = IsSameArrayType(mySharedParam, _param);
+    }
+
     mySharedParam = _param;
-    if (GetType() == _type)
+    if (softChange)
         return;
 
     InitDefaultAttribute(_type);
