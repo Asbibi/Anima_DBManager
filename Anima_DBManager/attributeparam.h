@@ -3,6 +3,7 @@
 
 #include <QPointer>
 
+class AReference;
 class TemplateAttribute;
 class StructureDB;
 class Enumerator;
@@ -11,7 +12,7 @@ struct AttributeParam
 {
     AttributeParam();
     AttributeParam(const AttributeParam& _another);
-    AttributeParam(const QString& _csvString);
+    AttributeParam(const QString& _csvString, QHash<AReference*, QString>& _outRefMap);
     ~AttributeParam();
     void operator=(const AttributeParam& _another);
 
@@ -31,6 +32,9 @@ struct AttributeParam
     const Enumerator* GetEnum() const;
 
     void SaveParams_CSV(std::ofstream& file) const;
+    QString GetParamsAsCSV() const;
+
+    static QString CleanTemplateStringCSV(const QString& _csv);
 };
 
 #endif // ATTRIBUTEPARAM_H

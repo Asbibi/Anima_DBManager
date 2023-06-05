@@ -6,6 +6,7 @@
 #include "attributeparam.h"
 #include <QString>
 
+class AReference;
 class TemplateStructure;
 
 class TemplateAttribute
@@ -45,6 +46,8 @@ public:
     Attribute* GenerateAttribute() const;
 
     void SaveTemplate_CSV(std::ofstream& file) const;
+    QString GetTemplateAsCSV() const;
+    static TemplateAttribute* NewAttribute_CSV(const QString& _csvLine, QHash<AReference*, QString>& _outRefMap);
 };
 
 #endif // TEMPLATEATTRIBUTE_H

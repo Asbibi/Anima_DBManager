@@ -42,10 +42,11 @@ QString AReference::GetDisplayedText(bool complete) const
 
     return mySharedParam.structTable->GetStructureRowName(myStructureRef);
 }
-void AReference::WriteValue_CSV(std::ofstream& file) const
+QString AReference::GetAttributeAsCSV() const
 {
-    if(mySharedParam.structTable && myStructureRef)
-        file << mySharedParam.structTable->GetStructureRowName(myStructureRef).toStdString();
+    return (mySharedParam.structTable && myStructureRef) ?
+        mySharedParam.structTable->GetStructureRowName(myStructureRef) :
+        "";
 }
 void AReference::SetValueFromText(const QString& text)
 {

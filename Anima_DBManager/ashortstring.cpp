@@ -23,9 +23,9 @@ QString AShortString::GetDisplayedText(bool complete) const
     else
         return complete ? value : value.left(mySharedParam.max_i);
 }
-void AShortString::WriteValue_CSV(std::ofstream& file) const
+QString AShortString::GetAttributeAsCSV() const
 {
-    file << GetDisplayedText().toStdString();
+    return GetDisplayedText(false);
 }
 void AShortString::SetValueFromText(const QString& text)
 {

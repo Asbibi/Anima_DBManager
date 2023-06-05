@@ -20,9 +20,9 @@ QString AInt::GetDisplayedText(bool complete) const
 {
     return QString::number(complete ? value : GetValue());
 }
-void AInt::WriteValue_CSV(std::ofstream& file) const
+QString AInt::GetAttributeAsCSV() const
 {
-    file << GetValue();
+    return QString::number(GetValue());
 }
 void AInt::SetValueFromText(const QString& text)
 {

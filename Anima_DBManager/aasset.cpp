@@ -47,7 +47,7 @@ QString AAsset::GetDisplayedText(bool complete) const
     return GetFilePathForDisplay(myFilePath, myIsDirty);
 }
 
-void AAsset::WriteValue_CSV(std::ofstream& file) const
+QString AAsset::GetAttributeAsCSV() const
 {
     if (myFilePath.isEmpty() || myIsDirty)
     {
@@ -55,8 +55,7 @@ void AAsset::WriteValue_CSV(std::ofstream& file) const
         {
             qWarning("Asset ignored because dirty");
         }
-        file << "\'\'";
-        return;
+        return "\'\'";
     }
 
     QString editedPath = myFilePath;
@@ -67,12 +66,9 @@ void AAsset::WriteValue_CSV(std::ofstream& file) const
     const int size = editedPath.length();
     QString assetName = editedPath.right(size - lastSepIndex - 1);
 
-    file << GetAssetClassNameForCSV().toStdString();
-    file << '\'';
-    file << editedPath.toStdString();
-    file << '.';
-    file << assetName.toStdString();
-    file << '\'';
+    return GetAssetClassNameForCSV() + '\''
+            + editedPath + '.'
+            + assetName + '\'';
 }
 
 void AAsset::SetValueFromText(const QString& text)

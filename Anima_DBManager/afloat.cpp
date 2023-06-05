@@ -19,9 +19,9 @@ QString AFloat::GetDisplayedText(bool complete) const
 {
     return QString::number(complete ? value : GetValue());
 }
-void AFloat::WriteValue_CSV(std::ofstream& file) const
+QString AFloat::GetAttributeAsCSV() const
 {
-    file << GetValue();
+    return QString::number(GetValue());
 }
 void AFloat::SetValueFromText(const QString& text)
 {

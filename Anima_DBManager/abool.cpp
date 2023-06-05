@@ -16,17 +16,11 @@ Attribute* ABool::CreateDuplica() const
 }
 QString ABool::GetDisplayedText(bool) const
 {
-    if (value)
-        return "TRUE";
-    else
-        return "FALSE";
+    return value ? "TRUE" : "FALSE";
 }
-void ABool::WriteValue_CSV(std::ofstream& file) const
+QString ABool::GetAttributeAsCSV() const
 {
-    if (value)
-        file << "True";
-    else
-        file << "False";
+    return value ? "True" : "False";
 }
 void ABool::SetValueFromText(const QString& text)
 {

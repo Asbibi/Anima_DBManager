@@ -36,18 +36,18 @@ QString AArray::GetDisplayedText(bool complete) const
 
     return GetStructureStringFromList(GetDisplayedTexts());
 }
-void AArray::WriteValue_CSV(std::ofstream& file) const
+QString AArray::GetAttributeAsCSV() const
 {
-    file << "(";
+    QString arrayAsCSV = "(";
 
     for (int i = 0; i < (int)(myValues.size()); i++)
     {
         if (i > 0)
-            file << ",";
-        myValues[i]->WriteValue_CSV(file);
+            arrayAsCSV += ',';
+        arrayAsCSV += myValues[i]->GetAttributeAsCSV();
     }
 
-    file << ")";
+    return arrayAsCSV + ')';
 }
 void AArray::SetValueFromText(const QString& text)
 {
@@ -149,7 +149,13 @@ void AArray::CopyValueFromOther(const Attribute* _other)
 }
 void AArray::ReadValue_CSV(const QString& text)
 {
-    qFatal("TODO");
+    Q_ASSERT(text.length() > 1 && text[0] == '(');
+    QString editedText = text.sliced(1, text.length() -2);
+
+    bool hasSubArray = mySharedParam.templateAtt->GetType() == AttributeTypeHelper::Type::Array;
+
+    // To complete...
+    qDebug("Todo");
 }
 
 

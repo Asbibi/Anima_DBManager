@@ -22,10 +22,9 @@ QString AEnumerator::GetDisplayedText(bool _complete) const
 {
     return CheckEnumIsValid() ? mySharedParam.GetEnum()->GetValue(value_index) : (_complete ? "Ø" : "<font color=\"darkred\">!!! NULL ENUM !!!</font>");
 }
-void AEnumerator::WriteValue_CSV(std::ofstream& file) const
+QString AEnumerator::GetAttributeAsCSV() const
 {
-    if (CheckEnumIsValid())
-        file << GetDisplayedText().toStdString();
+    return CheckEnumIsValid() ? GetDisplayedText() : "";
 }
 void AEnumerator::SetValueFromText(const QString& text)
 {

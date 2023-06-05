@@ -20,9 +20,9 @@ QString ATableString::GetDisplayedText(bool complete) const
     auto& DB = DB_Manager::GetDB_Manager();
     return DB.GetStringForDisplay(myTableName, myStringIdentifier, complete);
 }
-void ATableString::WriteValue_CSV(std::ofstream& file) const
+QString ATableString::GetAttributeAsCSV() const
 {
-    file << "(myTable=" << myTableName.toStdString() << ",myKey=\"" << myStringIdentifier.toStdString() << "\")";
+    return "(myTable=" + myTableName + ",myKey=\"" + myStringIdentifier+ "\")";
 }
 void ATableString::SetValueFromText(const QString& text)
 {
