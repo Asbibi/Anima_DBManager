@@ -152,10 +152,55 @@ void AArray::ReadValue_CSV(const QString& text)
     Q_ASSERT(text.length() > 1 && text[0] == '(');
     QString editedText = text.sliced(1, text.length() -2);
 
-    bool hasSubArray = mySharedParam.templateAtt->GetType() == AttributeTypeHelper::Type::Array;
+    int currentElementIndex = 0;
+    int level = 0;
+    // NOTE : this piece of code is there to make the short string array able to handle any char in the shortstring,
+    //          however this requires the shortstring values to be between " ", which is currently not the case
+    //          (but might be if Unreal accepts it in its CSV parsing, need to check later)
 
-    // To complete...
-    qDebug("Todo");
+    //bool inText = false;
+    int start = 0;
+    int count = 0;
+
+    const int textLength = editedText.length();
+    for (int i = 0; i < textLength; i++)
+    {
+        const QChar& iChar = editedText[i];
+        /*if (iChar == '"')
+        {
+            inText = !inText;
+        }
+
+        if (!inText)
+        {*/
+            if (iChar == '(')
+            {
+                level++;
+            }
+            else if (iChar == ')')
+            {
+                Q_ASSERT(level > 0);
+                level--;
+            }
+            else if (iChar == ',' && level == 0)
+            {
+                AddRow(currentElementIndex);
+                myValues[currentElementIndex]->ReadValue_CSV(editedText.mid(start, count));
+                currentElementIndex++;
+                start += count + 1;
+                count = 0;
+                continue;
+            }
+        //}
+
+        count++;
+    }
+
+    if (count !=0 && level == 0)
+    {
+        AddRow(currentElementIndex);
+        myValues[currentElementIndex]->ReadValue_CSV(editedText.mid(start, count));
+    }
 }
 
 
