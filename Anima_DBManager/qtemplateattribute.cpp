@@ -5,15 +5,22 @@
 
 #include <QHBoxLayout>
 
-QTemplateAttribute::QTemplateAttribute(QWidget *parent)
+QTemplateAttribute::QTemplateAttribute(bool _withNameField, QWidget *parent)
     : QWidget{parent}
 {
     myFormLayout = new QFormLayout();
     setLayout(myFormLayout);
 
     myName = new QLineEdit();
-    myFormLayout->addRow("Name:", myName);
-    QObject::connect(myName, &QLineEdit::editingFinished, this, &QTemplateAttribute::OnNameEdited);
+    if (_withNameField)
+    {
+        myFormLayout->addRow("Name:", myName);
+        QObject::connect(myName, &QLineEdit::editingFinished, this, &QTemplateAttribute::OnNameEdited);
+    }
+    else
+    {
+        myName->hide();
+    }
 
     myTypeComboBox = new QComboBox();
     myFormLayout->addRow("Type:", myTypeComboBox);
@@ -51,7 +58,7 @@ QTemplateAttribute::QTemplateAttribute(QWidget *parent)
     QHBoxLayout* defaultLayout = new QHBoxLayout();
     myDefAttribute = new QAttribute();
     myResetAllToDefault = new QPushButton("Reset All To Default");
-    myResetAllToDefault->setStyleSheet("QPushButton { color: #DAA520; }");
+    myResetAllToDefault->setStyleSheet("QPushButton { color: #DAA520; }");    
     QObject::connect(myResetAllToDefault, &QPushButton::clicked, this, &QTemplateAttribute::OnApplyDefaultToAll);
     myDefAttributeUnavailable = new QLabel("<font color=\"darkred\">Apply or Revert to edit the default value.</font>");
     myDefAttributeUnavailable->setAlignment(Qt::AlignCenter);
@@ -84,26 +91,70 @@ void QTemplateAttribute::UpdateContent(const TemplateAttribute& _attr)
         ShowDefaultWidgets(false);
     }
     myDefAttribute->UpdateAttribute(_attr.GetDefaultAttribute());
+
+    if (_attr.GetType() == AttributeTypeHelper::Type::Array)
+    {
+        Q_ASSERT(myArrayTemplate != nullptr);
+        Q_ASSERT(_attr.GetSharedParam().templateAtt != nullptr);
+        myArrayTemplate->ConnectDefaultBtnToAttribute(_attr.GetSharedParam().templateAtt->GetDefaultAttribute());
+    }
 }
 
 
 void QTemplateAttribute::UpdateContent(AttributeTypeHelper::Type _type)
 {
-    while (myFormLayout->rowCount() > 4)
+    const int rowToAdd = myName->isHidden() ? 1 : 2;
+    while (myFormLayout->rowCount() > 2 + rowToAdd)
     {
-        myFormLayout->removeRow(2);
+        myFormLayout->removeRow(rowToAdd);
     }
 
     QObject::disconnect(myTypeComboBox, nullptr, this, nullptr);
     myTypeComboBox->setCurrentText(AttributeTypeHelper::TypeToString(_type));
     QObject::connect(myTypeComboBox, &QComboBox::currentTextChanged, this, &QTemplateAttribute::OnParamChanged_Type);
 
+    if (_type != AttributeTypeHelper::Type::Array)
+    {
+        if ( myParam.templateAtt != nullptr)
+        {
+            delete myParam.templateAtt;
+            myParam.templateAtt = nullptr;
+        }
+        if (myArrayTemplate != nullptr)
+        {
+            myFormLayout->removeRow(myArrayTemplate);
+            myArrayTemplate = nullptr;
+        }
+    }
+    else if (myParam.templateAtt == nullptr)    // implicitly : && _type == AttributeTypeHelper::Type::Array
+    {
+        myParam.templateAtt = new TemplateAttribute();
+    }
+
     switch(_type)
     {
         case AttributeTypeHelper::Type::Array:
         {
-            // Base Attribute
-            // Max Count
+            Q_ASSERT(myParam.templateAtt != nullptr);
+            myArrayTemplate = new QTemplateAttribute(false);
+            myFormLayout->insertRow(rowToAdd, "Template:", myArrayTemplate);
+            myArrayTemplate->UpdateContent(*myParam.templateAtt);
+            QObject::connect(myArrayTemplate, &QTemplateAttribute::Applied, this, &QTemplateAttribute::OnParamChanged_Template);
+            QObject::connect(myArrayTemplate, &QTemplateAttribute::Reverted, this, &QTemplateAttribute::OnParamReverted_Template);
+            QObject::connect(myArrayTemplate, &QTemplateAttribute::AppliedDefaultToAll, this, &QTemplateAttribute::OnParamAppliedDef_Template);
+
+            /*
+            QOptionalValue_Int* minValue = new QOptionalValue_Int();
+            QOptionalValue_Int* maxValue = new QOptionalValue_Int();
+            minValue->SetValues(!myParam.ignoreMin, myParam.min_i);
+            maxValue->SetValues(!myParam.ignoreMax, myParam.max_i);
+            myFormLayout->insertRow(rowToAdd + 1, "Min:", minValue);
+            myFormLayout->insertRow(rowToAdd + 2, "Max:", maxValue);
+            QObject::connect(minValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMin);
+            QObject::connect(minValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttribute::OnParamChanged_MinInt);
+            QObject::connect(maxValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMax);
+            QObject::connect(maxValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttribute::OnParamChanged_MaxInt);
+            */
             break;
         }
         case AttributeTypeHelper::Type::Enum:
@@ -117,7 +168,7 @@ void QTemplateAttribute::UpdateContent(AttributeTypeHelper::Type _type)
                 enumComboBox->addItem(DB.GetEnum(i)->GetName());
             }
             enumComboBox->setCurrentIndex(myParam.enumeratorIndex + 1);
-            myFormLayout->insertRow(2, "Enumerator:", enumComboBox);
+            myFormLayout->insertRow(rowToAdd, "Enumerator:", enumComboBox);
             QObject::connect(enumComboBox, &QComboBox::currentIndexChanged, this, &QTemplateAttribute::OnParamChanged_Enum);
             break;
         }
@@ -127,8 +178,8 @@ void QTemplateAttribute::UpdateContent(AttributeTypeHelper::Type _type)
             QOptionalValue_Float* maxValue = new QOptionalValue_Float();
             minValue->SetValues(!myParam.ignoreMin, myParam.min_f);
             maxValue->SetValues(!myParam.ignoreMax, myParam.max_f);
-            myFormLayout->insertRow(2, "Min:", minValue);
-            myFormLayout->insertRow(3, "Max:", maxValue);
+            myFormLayout->insertRow(rowToAdd, "Min:", minValue);
+            myFormLayout->insertRow(rowToAdd + 1, "Max:", maxValue);
             QObject::connect(minValue, &QOptionalValue_Float::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMin);
             QObject::connect(minValue, &QOptionalValue_Float::OnValueChanged, this, &QTemplateAttribute::OnParamChanged_MinFloat);
             QObject::connect(maxValue, &QOptionalValue_Float::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMax);
@@ -141,8 +192,8 @@ void QTemplateAttribute::UpdateContent(AttributeTypeHelper::Type _type)
             QOptionalValue_Int* maxValue = new QOptionalValue_Int();
             minValue->SetValues(!myParam.ignoreMin, myParam.min_i);
             maxValue->SetValues(!myParam.ignoreMax, myParam.max_i);
-            myFormLayout->insertRow(2, "Min:", minValue);
-            myFormLayout->insertRow(3, "Max:", maxValue);
+            myFormLayout->insertRow(rowToAdd, "Min:", minValue);
+            myFormLayout->insertRow(rowToAdd + 1, "Max:", maxValue);
             QObject::connect(minValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMin);
             QObject::connect(minValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttribute::OnParamChanged_MinInt);
             QObject::connect(maxValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMax);
@@ -160,7 +211,7 @@ void QTemplateAttribute::UpdateContent(AttributeTypeHelper::Type _type)
                 structDBComboBox->addItem(DB.GetStructureTable(i)->GetTemplateName());
             }
             structDBComboBox->setCurrentText(myParam.structTable ? myParam.structTable->GetTemplateName() : "---");
-            myFormLayout->insertRow(2, "Struct DB:", structDBComboBox);
+            myFormLayout->insertRow(rowToAdd, "Struct DB:", structDBComboBox);
             QObject::connect(structDBComboBox, &QComboBox::currentTextChanged, this, &QTemplateAttribute::OnParamChanged_StructDB);
             break;
         }
@@ -169,7 +220,7 @@ void QTemplateAttribute::UpdateContent(AttributeTypeHelper::Type _type)
             QOptionalValue_Int* maxValue = new QOptionalValue_Int();
             maxValue->SetValues(!myParam.ignoreMax, myParam.max_i);
             maxValue->SetMinimum(1);
-            myFormLayout->insertRow(2, "Max Lenght:", maxValue);
+            myFormLayout->insertRow(rowToAdd, "Max Lenght:", maxValue);
             QObject::connect(maxValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMax);
             QObject::connect(maxValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttribute::OnParamChanged_MaxInt);
             break;
@@ -268,6 +319,27 @@ void QTemplateAttribute::OnParamChanged_Enum(int _enumIndex)
     myParamHasCriticalChanged = true;
     OnParamEdited();
 }
+void QTemplateAttribute::OnParamChanged_Template(const QString& _name, AttributeTypeHelper::Type _newType, const AttributeParam& _param)
+{
+    myDefAttribute->EmptyArrayAttribute();
+    myParam.templateAtt->SetNewValues(_newType, _param);
+    myParamHasCriticalChanged = true;
+    OnParamEdited();
+}
+void QTemplateAttribute::OnParamReverted_Template()
+{
+    Q_ASSERT(myArrayTemplate != nullptr);
+    myArrayTemplate->UpdateContent(*myParam.templateAtt);
+}
+void QTemplateAttribute::OnParamAppliedDef_Template()
+{
+    qDebug() << "TODO";
+}
+void QTemplateAttribute::ConnectDefaultBtnToAttribute(const Attribute* _attribute)
+{
+    QObject::connect(myDefAttribute, &QAttribute::OnWidgetValueChanged, _attribute, &Attribute::SetValueFromText);
+}
+
 
 
 

@@ -22,9 +22,10 @@ public:
     virtual AttributeTypeHelper::Type GetType()             const = 0;
     virtual Attribute* CreateDuplica()                      const = 0;
     virtual QString GetDisplayedText(bool complete = false) const = 0;
-    virtual void WriteValue_CSV(std::ofstream& file)        const = 0;
+    virtual QString GetAttributeAsCSV()                     const = 0;
     virtual void CopyValueFromOther(const Attribute* _other)      = 0;
     virtual void ReadValue_CSV(const QString& text);
+    void WriteValue_CSV(std::ofstream& file) const;
 
 signals:
     void OnValueChanged(const Attribute* _this);    // arg given during emit()

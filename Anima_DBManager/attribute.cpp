@@ -19,3 +19,7 @@ void Attribute::ReadValue_CSV(const QString& text)
     // By default simply use the standard set from text method
     SetValueFromText(text);
 }
+void Attribute::WriteValue_CSV(std::ofstream& file) const
+{
+    file << GetAttributeAsCSV().toStdString();
+}

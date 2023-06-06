@@ -95,7 +95,7 @@ void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList, 
         const QString& stringAttr = _stringList[i];
 
         AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(stringAttr.section('|', 1, 1));
-        AttributeParam param = AttributeParam(stringAttr.section('|', 2, 2));
+        AttributeParam param = AttributeParam(stringAttr.section('|', 2, -2), _outRefMap);
         AddAttributeTemplate(type, stringAttr.section('|', 0, 0), param, i);
 
         // Reference attribute initalisation is deleguated to the map owner
@@ -103,11 +103,11 @@ void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList, 
         {
             AReference* aref = dynamic_cast<AReference*>(myAttributeTemplates[i]->GetDefaultAttributeW());
             Q_ASSERT(aref != nullptr);
-            _outRefMap.insert(aref, stringAttr.section('|', 3, 3));
+            _outRefMap.insert(aref, stringAttr.section('|', -1, -1));
         }
         else
         {
-            myAttributeTemplates[i]->GetDefaultAttributeW()->ReadValue_CSV(stringAttr.section('|', 3, 3));
+            myAttributeTemplates[i]->GetDefaultAttributeW()->ReadValue_CSV(stringAttr.section('|', -1, -1));
         }
     }
 }

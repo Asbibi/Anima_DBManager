@@ -1,64 +1,53 @@
 #include "aarray.h"
+
+#include "templateattribute.h"
 #include <QDebug>
 
 AArray::AArray(const AttributeParam& _sharedParam) :
-    AArray(_sharedParam, nullptr)
+    Attribute(_sharedParam)
 {
      if (_sharedParam.templateAtt == nullptr)
         qFatal("\n\nNull Template Attribute given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
 }
-AArray::AArray(const AttributeParam& _sharedParam, const std::vector<Attribute*>* _values) :
-    Attribute(_sharedParam)
-{
-    if (_sharedParam.templateAtt == nullptr)
-        qFatal("\n\nNull Template Attribute given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
-    else if (_values != nullptr && _values->size() != 0)
+AArray::AArray(const AttributeParam& _sharedParam, const QList<Attribute*>& _values) :
+    AArray(_sharedParam)
+{    
+    myValues.reserve(_values.count());
+    for(const auto* _val : _values)
     {
-        values.reserve(_values->size());
-        for(const auto& _val : *_values)
-        {
-            values.push_back(_val->CreateDuplica());
-        }
+        myValues.push_back(_val->CreateDuplica());
     }
 }
 AArray::~AArray()
 {
-    for(const auto& val : values)
+    for(const auto& val : myValues)
         delete(val);
 }
 
 
 Attribute* AArray::CreateDuplica() const
 {
-    return new AArray(mySharedParam, &values);
+    return new AArray(mySharedParam, myValues);
 }
 QString AArray::GetDisplayedText(bool complete) const
 {
     if (!complete)
-        return "[ARRAY]";
+        return GetShortDisplayedString(myValues.count());
 
-    QString _text = "[";
-    for (int i = 0; i < (int)(values.size()); i++)
-    {
-        if (i > 0)
-            _text.append(',');
-        _text.append(values[i]->GetDisplayedText(true));
-    }
-    _text.append(']');
-    return _text;
+    return GetStructureStringFromList(GetDisplayedTexts());
 }
-void AArray::WriteValue_CSV(std::ofstream& file) const
+QString AArray::GetAttributeAsCSV() const
 {
-    file << "(";
+    QString arrayAsCSV = "(";
 
-    for (int i = 0; i < (int)(values.size()); i++)
+    for (int i = 0; i < (int)(myValues.size()); i++)
     {
         if (i > 0)
-            file << ",";
-        values[i]->WriteValue_CSV(file);
+            arrayAsCSV += ',';
+        arrayAsCSV += myValues[i]->GetAttributeAsCSV();
     }
 
-    file << ")";
+    return arrayAsCSV + ')';
 }
 void AArray::SetValueFromText(const QString& text)
 {
@@ -78,61 +67,73 @@ void AArray::SetValueFromText(const QString& text)
 
 
     // Read the text
-    std::vector<QString> finalList = std::vector<QString>();
-    std::vector<bool> openBrackets = std::vector<bool>();
-        //  ->  add "true" to indicate an open "{", a false for an open "[", and remove it when closed
-    QString currentString = "";
-
-    for (const QChar& chr : contentText)
+    QList<QString> finalList = QList<QString>();
+    if (!contentText.isEmpty())
     {
-        int currentBracketCount = (int)openBrackets.size();
-        if (chr == ',' && currentBracketCount == 0)
-        {
-            finalList.push_back(currentString);
-            currentString = "";
-            continue;
-        }
+        QList<bool> openBrackets = QList<bool>();
+            //  ->  add "true" to indicate an open "{", a false for an open "[", and remove it when closed
+        QString currentString = "";
 
-        currentString.append(chr);
-        if (chr == '{')
-            openBrackets.push_back(true);
-        else if (chr == '[')
-            openBrackets.push_back(false);
-        else if (currentBracketCount != 0)
+        for (const QChar& chr : contentText)
         {
-            if (openBrackets[currentBracketCount - 1] && chr == '}')
-                openBrackets.pop_back();
-            else if (!openBrackets[currentBracketCount - 1] && chr == ']')
-                openBrackets.pop_back();
-        }
-        else
-        {
-            if (chr == '}'|| chr == ']')
+            int currentBracketCount = (int)openBrackets.size();
+            if (chr == ',' && currentBracketCount == 0)
             {
-                qFatal("\n\nA '}' or ']' found with nothing opened while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-                return;
+                finalList.push_back(currentString);
+                currentString = "";
+                continue;
+            }
+
+            currentString.append(chr);
+            if (chr == '{')
+                openBrackets.push_back(true);
+            else if (chr == '[')
+                openBrackets.push_back(false);
+            else if (currentBracketCount != 0)
+            {
+                if (openBrackets[currentBracketCount - 1] && chr == '}')
+                    openBrackets.pop_back();
+                else if (!openBrackets[currentBracketCount - 1] && chr == ']')
+                    openBrackets.pop_back();
+            }
+            else
+            {
+                if (chr == '}'|| chr == ']')
+                {
+                    qFatal("\n\nA '}' or ']' found with nothing opened while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
+                    return;
+                }
             }
         }
+        finalList.push_back(currentString);
+        Q_ASSERT(openBrackets.size() == 0);
     }
-    finalList.push_back(currentString);
 
 
-    // Checks
-    if (openBrackets.size() != 0)
+    const int finalSize = finalList.size();
+    const int currentSize = myValues.size();
+    if (currentSize < finalSize)
     {
-        qFatal("\n\nError in '{' and '[' closing while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-        return;
+        const int diff = finalSize - currentSize;
+        for (int i = 0; i < diff; i++)
+        {
+            AddRow(-1);
+        }
     }
-    if (finalList.size() != values.size())
+    else if (currentSize > finalSize)
     {
-        qFatal("\n\nNot a text value per attribute while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-        return;
+        const int diff = currentSize - finalSize;
+        for (int i = 0; i < diff; i++)
+        {
+            RemoveRow(0);
+        }
     }
+    Q_ASSERT(finalSize == myValues.size());
 
 
     // Apply all the strings in the finalList to their attribute
     for(int i =0; i < (int)(finalList.size()); i++)
-        values[i]->SetValueFromText(finalList[i]);
+        myValues[i]->SetValueFromText(finalList[i]);
 }
 void AArray::CopyValueFromOther(const Attribute* _other)
 {
@@ -140,37 +141,145 @@ void AArray::CopyValueFromOther(const Attribute* _other)
     if (!other_AA || mySharedParam.templateAtt != other_AA->mySharedParam.templateAtt)
         return;
 
-    qDebug("TODO: Rework it to use a QList instead");
-    while (values.size() > 0)
+    while (myValues.size() > 0)
         RemoveRow(0);
 
-    for (const auto* attr : other_AA->values)
-        values.push_back(attr->CreateDuplica());
+    for (const auto* attr : other_AA->myValues)
+        myValues.push_back(attr->CreateDuplica());
+}
+void AArray::ReadValue_CSV(const QString& text)
+{
+    Q_ASSERT(text.length() > 1 && text[0] == '(');
+    QString editedText = text.sliced(1, text.length() -2);
+
+    int currentElementIndex = 0;
+    int level = 0;
+    // NOTE : this piece of code is there to make the short string array able to handle any char in the shortstring,
+    //          however this requires the shortstring values to be between " ", which is currently not the case
+    //          (but might be if Unreal accepts it in its CSV parsing, need to check later)
+
+    //bool inText = false;
+    int start = 0;
+    int count = 0;
+
+    const int textLength = editedText.length();
+    for (int i = 0; i < textLength; i++)
+    {
+        const QChar& iChar = editedText[i];
+        /*if (iChar == '"')
+        {
+            inText = !inText;
+        }
+
+        if (!inText)
+        {*/
+            if (iChar == '(')
+            {
+                level++;
+            }
+            else if (iChar == ')')
+            {
+                Q_ASSERT(level > 0);
+                level--;
+            }
+            else if (iChar == ',' && level == 0)
+            {
+                AddRow(currentElementIndex);
+                myValues[currentElementIndex]->ReadValue_CSV(editedText.mid(start, count));
+                currentElementIndex++;
+                start += count + 1;
+                count = 0;
+                continue;
+            }
+        //}
+
+        count++;
+    }
+
+    if (count !=0 && level == 0)
+    {
+        AddRow(currentElementIndex);
+        myValues[currentElementIndex]->ReadValue_CSV(editedText.mid(start, count));
+    }
 }
 
-std::vector<QString> AArray::GetDisplayedTexts() const
-{
-    int _count = (int)values.size();
-    std::vector<QString> strings = std::vector<QString>();
-    strings.reserve(_count);
 
-    for (int i = 0; i< _count; i++)
-        strings.push_back(values[i]->GetDisplayedText());
+
+
+
+TemplateAttribute* AArray::GetArrayElementTemplate() const
+{
+    return mySharedParam.templateAtt;
+}
+QStringList AArray::GetDisplayedTexts() const
+{
+    int count = (int)myValues.size();
+    QStringList strings = QStringList();
+    strings.reserve(count);
+
+    for (const auto* val : myValues)
+    {
+        strings.push_back(val->GetDisplayedText(true));
+    }
 
     return strings;
 }
-void AArray::AddRow()
+const QList<Attribute*>& AArray::GetAttributes() const
 {
-    qDebug("TODO: Rework it to use a QList instead");
-    values.push_back(mySharedParam.templateAtt->CreateDuplica());
+    return myValues;
+}
+void AArray::AddRow(int _index)
+{
+    if (_index < 0 || _index > myValues.count())
+        _index = myValues.count();
+
+    myValues.insert(_index, mySharedParam.templateAtt->GenerateAttribute());
+}
+void AArray::DuplicateRow(int _index)
+{
+    if (_index < 0 || _index >= myValues.count())
+        _index = myValues.count() - 1;
+
+    myValues.insert(_index +1, myValues[_index]->CreateDuplica());
 }
 void AArray::RemoveRow(int _index)
 {
-    if (_index < -1 || _index >= (int)(values.size()))
+    if (_index < 0 || _index >= myValues.count())
         return;
 
-    qDebug("TODO: Rework it to use a QList instead");
-    Attribute* removed = values[_index];
-    values.erase(values.begin() + _index);
+    Attribute* removed = myValues.takeAt(_index);
     delete(removed);
+}
+void AArray::MoveRow(int _originalIndex, int _targetIndex)
+{
+    const int valuesCount = myValues.count();
+    if (_originalIndex < 0 || _originalIndex >= valuesCount)
+        _originalIndex = valuesCount -1;
+    if (_targetIndex < 0 || _targetIndex >= valuesCount)
+        _targetIndex = valuesCount -1;
+
+    if (_originalIndex == _targetIndex)
+        return;
+
+    auto* row = myValues.takeAt(_originalIndex);
+    if (_originalIndex < _targetIndex)
+        _targetIndex--;
+    myValues.insert(_targetIndex, row);
+}
+
+QString AArray::GetShortDisplayedString(int _count)
+{
+    return QString("[ARRAY:%1]").arg(_count);
+}
+QString AArray::GetStructureStringFromList(const QStringList& _listString)
+{
+    QString _text = "[";
+    for (int i = 0; i < _listString.count(); i++)
+    {
+        if (i > 0)
+            _text.append(',');
+        _text.append(_listString[i]);
+    }
+    _text.append(']');
+    return _text;
 }

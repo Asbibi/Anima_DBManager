@@ -20,6 +20,7 @@ private:
     QLineEdit* myName;
     QString myNameCached;
     QComboBox* myTypeComboBox;
+    QTemplateAttribute* myArrayTemplate = nullptr;
 
     QPushButton* myApplyBtn;
     QPushButton* myRevertBtn;
@@ -36,10 +37,11 @@ private:
     void ShowDefaultWidgets(bool _show);
 
 public:
-    explicit QTemplateAttribute(QWidget* _parent = nullptr);
+    explicit QTemplateAttribute(bool _withNameField = true, QWidget* _parent = nullptr);
 
     void UpdateContent(const TemplateAttribute& _attr);
     void UpdateContent(AttributeTypeHelper::Type _type);
+    void ConnectDefaultBtnToAttribute(const Attribute* _attribute); // for AArray edit propagation due to copies
 
 signals:
     void NameChanged(const QString& _previousName, QString& _newName);
@@ -56,9 +58,11 @@ public slots:
     void OnParamChanged_MaxInt(int _max);
     void OnParamChanged_MinFloat(float _min);
     void OnParamChanged_MaxFloat(float _max);
-    //void OnParamChanged_AttribTempl(???);
     void OnParamChanged_StructDB(const QString& _SDBName);
     void OnParamChanged_Enum(int _enumIndex);
+    void OnParamChanged_Template(const QString& _name, AttributeTypeHelper::Type _newType, const AttributeParam& _param);
+    void OnParamReverted_Template();
+    void OnParamAppliedDef_Template();
 
     void OnNameEdited();
     void OnApply();

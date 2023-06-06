@@ -27,9 +27,11 @@ QString AStructure::GetDisplayedText(bool complete) const
     _text.append('}');
     return _text;
 }
-void AStructure::WriteValue_CSV(std::ofstream& file) const
+QString AStructure::GetAttributeAsCSV() const
 {
-    value.WriteValue_CSV(file);
+    qWarning("TODO");
+    //value.WriteValue_CSV(file);
+    return "";
 }
 void AStructure::SetValueFromText(const QString& text)
 {

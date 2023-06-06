@@ -35,6 +35,8 @@ SOURCES += \
     qapmesh.cpp \
     qapsound.cpp \
     qaptexture.cpp \
+    qarraydialog.cpp \
+    qarraylabel.cpp \
     qassetlabel.cpp \
     qassetpreview.cpp \
     qassetpreviewdialog.cpp \
@@ -97,6 +99,8 @@ HEADERS += \
     qapmesh.h \
     qapsound.h \
     qaptexture.h \
+    qarraydialog.h \
+    qarraylabel.h \
     qassetlabel.h \
     qassetpreview.h \
     qassetpreviewdialog.h \

@@ -1,5 +1,6 @@
 #include "qattribute.h"
 
+#include "aarray.h"
 #include "aasset.h"
 #include "aamesh.h"
 #include "aaniagara.h"
@@ -12,6 +13,7 @@
 #include "atablestring.h"
 #include "areference.h"
 #include "qsstring.h"
+#include "qarraylabel.h"
 #include "qassetlabel.h"
 #include "qassettexture.h"
 #include "qreflabel.h"
@@ -90,8 +92,14 @@ void QAttribute::RebuildWidgetFromType(const AttributeTypeHelper::Type _type)
     {
         case AttributeTypeHelper::Type::Array :
         {
-            QLabel* content = new QLabel(this);
+            QArrayLabel* content = new QArrayLabel(this);
+            QObject::connect(content, &QArrayLabel::OnValueEdited,
+                                 this, &QAttribute::ContentStateChanged);
             myContent = content;
+
+            BuildMoreButton();
+            QObject::connect(myEditButton, &QPushButton::clicked,
+                                 content, &QArrayLabel::EditValue);
             break;
         }
         case AttributeTypeHelper::Type::Bool :
@@ -226,8 +234,21 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
     switch(myType)
     {
         case AttributeTypeHelper::Type::Array :
+        {
+            auto* qarray = dynamic_cast<QArrayLabel*>(myContent);
+            const AArray* arrayAttribute = dynamic_cast<const AArray*>(_attribute);
+            if(!qarray || !arrayAttribute)
+            {
+                LogErrorCast();
+                return;
+            }
+
+            qarray->SetValue(arrayAttribute);
+            break;
+        }
         case AttributeTypeHelper::Type::Structure :
         {
+            qDebug() << "TODO";
             auto* label = dynamic_cast<QLabel*>(myContent);
             if(!label)
             {
@@ -394,14 +415,25 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
 
 void QAttribute::ContentStateChanged()
 {
-    qDebug() << "Attribute update with type " << (int)myType;
+    qDebug() << "Attribute update with type " << AttributeTypeHelper::TypeToString(myType) << " (" << (int)myType << ')';
 
     QString valueString;
     switch(myType)
     {
         case AttributeTypeHelper::Type::Array :
+        {
+            auto* arrayLabel = dynamic_cast<QArrayLabel*>(myContent);
+            if(!arrayLabel)
+            {
+                LogErrorCast();
+                return;
+            }
+            valueString = arrayLabel->GetValue();
+            break;
+        }
         case AttributeTypeHelper::Type::Structure :
         {
+            valueString = {};
             break;
         }
         case AttributeTypeHelper::Type::Bool :
@@ -503,4 +535,11 @@ void QAttribute::ContentStateChanged()
     }
 
     emit OnWidgetValueChanged(valueString);
+}
+void QAttribute::EmptyArrayAttribute()
+{
+    if (myType != AttributeTypeHelper::Type::Array)
+        return;
+
+    emit OnWidgetValueChanged("[]");
 }

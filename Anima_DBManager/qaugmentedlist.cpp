@@ -52,6 +52,13 @@ QAugmentedList::QAugmentedList(bool _unique, const QString& _defValue, QWidget *
 
 
 
+void QAugmentedList::SetItemEditable(bool _editable)
+{
+    if (_editable)
+        myList->setEditTriggers(QAbstractItemView::DoubleClicked);
+    else
+        myList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
 int QAugmentedList::Count() const
 {
     return myList->count();
@@ -71,6 +78,15 @@ const QString QAugmentedList::GetItemValue(const int _index) const
         return "";
 
     return myList->item(_index)->text();
+}
+void QAugmentedList::SetItemValue(const int _index, const QString& _value, bool _emitEditedSignal)
+{
+    if (_index < 0 || _index >= myList->count())
+        return;
+
+    myList->item(_index)->setText(_value);
+    if (_emitEditedSignal)
+        emit ItemEdited(_index, _value);
 }
 
 

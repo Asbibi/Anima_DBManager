@@ -31,6 +31,8 @@ public:
     explicit QAttribute(QWidget* parent = nullptr);
     ~QAttribute();
 
+    void EmptyArrayAttribute();
+
 signals:
     void OnWidgetValueChanged(const QString& _thisQAttribute);    // arg given during emit()
 
