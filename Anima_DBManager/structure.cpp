@@ -59,6 +59,10 @@ Structure::~Structure()
 
 
 
+const TemplateStructure& Structure::GetTemplate() const
+{
+    return myTemplate;
+}
 int Structure::GetAttributeCount() const
 {
     return (int)myAttributes.size();

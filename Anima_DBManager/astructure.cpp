@@ -2,20 +2,30 @@
 
 #include<QDebug>
 
-AStructure::AStructure(const AttributeParam& _sharedParam, TemplateStructure& structureTemplate) :
-    Attribute(_sharedParam),
-    value(structureTemplate)
+AStructure::AStructure(const AttributeParam& _sharedParam) :
+    AStructure(_sharedParam, nullptr)
 {}
-AStructure::AStructure(const AttributeParam& _sharedParam, const Structure& _value) :
+AStructure::AStructure(const AttributeParam& _sharedParam, const Structure* _value) :
     Attribute(_sharedParam),
-    value(_value)
-{}
+    myValue(nullptr)
+{
+    Q_ASSERT(mySharedParam.templateStruct != nullptr);
+    if (_value == nullptr)
+    {
+        myValue = new Structure(*mySharedParam.templateStruct);
+    }
+    else
+    {
+        Q_ASSERT(mySharedParam.templateStruct == &_value->GetTemplate());
+        myValue = new Structure(*_value, true);
+    }
+}
 
 
 
 Attribute* AStructure::CreateDuplica() const
 {
-    return new AStructure(mySharedParam, value);
+    return new AStructure(mySharedParam, myValue);
 }
 QString AStructure::GetDisplayedText(bool complete) const
 {
@@ -23,7 +33,7 @@ QString AStructure::GetDisplayedText(bool complete) const
         return "{STRUCT}";
 
     QString _text = "{";
-    value.GetAttributesDisplayedText(_text);
+    myValue->GetAttributesDisplayedText(_text);
     _text.append('}');
     return _text;
 }
@@ -51,8 +61,8 @@ void AStructure::SetValueFromText(const QString& text)
 
 
     // Read the text
-    std::vector<QString> finalList = std::vector<QString>();
-    std::vector<bool> openBrackets = std::vector<bool>();
+    QList<QString> finalList = QList<QString>();
+    QList<bool> openBrackets = QList<bool>();
         //  ->  add "true" to indicate an open "{", a false for an open "[", and remove it when closed
     QString currentString = "";
 
@@ -96,7 +106,7 @@ void AStructure::SetValueFromText(const QString& text)
         qFatal("\n\nError in '{' and '[' closing while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
         return;
     }
-    if ((int)finalList.size() != value.GetAttributeCount())
+    if ((int)finalList.size() != myValue->GetAttributeCount())
     {
         qFatal("\n\nNot a text value per attribute while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
         return;
@@ -105,7 +115,7 @@ void AStructure::SetValueFromText(const QString& text)
 
     // Apply all the strings in the finalList to their attribute
     for(int i =0; i < (int)finalList.size(); i++)
-        value.SetAttributeValueFromText(i, finalList[i]);
+        myValue->SetAttributeValueFromText(i, finalList[i]);
 }
 void AStructure::CopyValueFromOther(const Attribute* _other)
 {
@@ -113,17 +123,17 @@ void AStructure::CopyValueFromOther(const Attribute* _other)
     if (!other_AS)
         return;
 
-    value = other_AS->value;
+    myValue = other_AS->myValue;
 }
 
 
-std::vector<QString> AStructure::GetDisplayedTexts() const
+QList<QString> AStructure::GetDisplayedTexts() const
 {
-    int _count = value.GetAttributeCount();
-    std::vector<QString> strings = std::vector<QString>();
+    int _count = myValue->GetAttributeCount();
+    QList<QString> strings = QList<QString>();
     strings.reserve(_count);
     for (int i = 0; i< _count; i++)
-        strings.push_back(value.GetAttribute(i)->GetDisplayedText());
+        strings.push_back(myValue->GetAttribute(i)->GetDisplayedText());
 
     return strings;
 }

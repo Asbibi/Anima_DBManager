@@ -25,6 +25,7 @@ public:
     ~Structure();
 
 
+    const TemplateStructure& GetTemplate() const;
     int GetAttributeCount() const;
     const Attribute* GetAttribute(int _attIndex) const;
     const Attribute* GetAttribute(const QString& _attName) const;
