@@ -29,13 +29,7 @@ Attribute* AStructure::CreateDuplica() const
 }
 QString AStructure::GetDisplayedText(bool complete) const
 {
-    if (!complete)
-        return "{STRUCT}";
-
-    QString _text = "{";
-    myValue->GetAttributesDisplayedText(_text);
-    _text.append('}');
-    return _text;
+    return complete ? GetDisplayTextFromAttributes(myValue->GetAttributes()) : "{STRUCT}";
 }
 QString AStructure::GetAttributeAsCSV() const
 {
@@ -136,4 +130,20 @@ QList<QString> AStructure::GetDisplayedTexts() const
         strings.push_back(myValue->GetAttribute(i)->GetDisplayedText());
 
     return strings;
+}
+const QList<Attribute*>& AStructure::GetAttributes() const
+{
+    Q_ASSERT(myValue != nullptr);
+    return myValue->GetAttributes();
+}
+QString AStructure::GetDisplayTextFromAttributes(const QList<Attribute*>& _attributes)
+{
+    QString _text = "{";
+    const int attrCount = _attributes.count();
+    for (int i = 0; i < attrCount; i++)
+    {
+        _text += _attributes[i]->GetDisplayedText(true) + ',';
+    }
+    _text.replace(_text.length() -1, 1, '}');
+    return _text;
 }

@@ -72,7 +72,7 @@ void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
         CASE_INIT_TEMPLATE(Int);
         CASE_INIT_TEMPLATE(ShortString);
         CASE_INIT_TEMPLATE(Array);
-        //CASE_INIT_TEMPLATE(Structure);
+        CASE_INIT_TEMPLATE(Structure);
         CASE_INIT_TEMPLATE(Reference);
         CASE_INIT_TEMPLATE(TableString);
         CASE_INIT_TEMPLATE_WITH_CLASS(UAsset, AAsset);

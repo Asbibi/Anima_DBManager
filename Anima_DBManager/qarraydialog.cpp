@@ -11,7 +11,7 @@ QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attri
 {
     // ------ UI ------
 
-    setWindowTitle("Edit Array Attribute Values");
+    setWindowTitle("Edit Array Attribute");
     setModal(true);
 
     QVBoxLayout* vLayout = new QVBoxLayout(this);

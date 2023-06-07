@@ -20,6 +20,9 @@ public:
     virtual void CopyValueFromOther(const Attribute* _other)          override;
 
     QList<QString> GetDisplayedTexts() const;
+    const QList<Attribute*>& GetAttributes() const;
+
+    static QString GetDisplayTextFromAttributes(const QList<Attribute*>& _attributes);
 };
 
 #endif // ASTRUCTURE_H

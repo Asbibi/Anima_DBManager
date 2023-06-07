@@ -85,6 +85,10 @@ Attribute* Structure::GetAttribute(int _attIndex)
 
     return myAttributes[_attIndex];
 }
+const QList<Attribute*>& Structure::GetAttributes() const
+{
+    return myAttributes;
+}
 void Structure::SetAttributeValueFromText(int _attIndex, QString _valueText)
 {
     if (_attIndex < 0 || _attIndex >= myAttributes.size())
@@ -130,7 +134,8 @@ void Structure::RemoveAttribute(int _position)
 
 void Structure::GetAttributesDisplayedText(QString& _text) const
 {
-    for (int i = 0; i < myAttributes.size(); i++)
+    const int attrCount = myAttributes.count();
+    for (int i = 0; i < attrCount; i++)
     {
         if (i > 0)
             _text.append(',');
