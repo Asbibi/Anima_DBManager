@@ -64,6 +64,7 @@ SOURCES += \
     qstructuredialog.cpp \
     qstructuretable.cpp \
     qtemplateattribute.cpp \
+    qtemplateattributecore.cpp \
     qtemplatestructure.cpp \
     savemanager.cpp \
     sstringhelper.cpp \
@@ -130,6 +131,7 @@ HEADERS += \
     qstructuredialog.h \
     qstructuretable.h \
     qtemplateattribute.h \
+    qtemplateattributecore.h \
     qtemplatestructure.h \
     savemanager.h \
     sstringhelper.h \

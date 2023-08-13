@@ -3,12 +3,9 @@
 
 #include <QWidget>
 
-#include "attributeparam.h"
 #include "templateattribute.h"
-#include "qattribute.h"
-#include <QComboBox>
-#include <QFormLayout>
-#include <QLabel>
+#include "qtemplateattributecore.h"
+
 #include <QLineEdit>
 #include <QPushButton>
 
@@ -16,32 +13,26 @@ class QTemplateAttribute : public QWidget
 {
     Q_OBJECT
 private:
+    TemplateAttribute myTemplateCopy;
+
     QFormLayout* myFormLayout;
     QLineEdit* myName;
     QString myNameCached;
-    QComboBox* myTypeComboBox;
-    QTemplateAttribute* myArrayTemplate = nullptr;
+    QTemplateAttributeCore* myCoreEditor;
 
     QPushButton* myApplyBtn;
     QPushButton* myRevertBtn;
-
-    QAttribute* myDefAttribute;
     QPushButton* myResetAllToDefault;
-    QLabel* myDefAttributeUnavailable;
 
+    bool myCriticalChanges;
 
-    bool myParamHasCriticalChanged;
-    AttributeParam myParam;
-
-    void OnParamEdited();
-    void ShowDefaultWidgets(bool _show);
+    void ShowDefaultWidget(bool _show);
 
 public:
-    explicit QTemplateAttribute(bool _withNameField = true, QWidget* _parent = nullptr);
+    explicit QTemplateAttribute(QWidget* _parent = nullptr);
 
-    void UpdateContent(const TemplateAttribute& _attr);
-    void UpdateContent(AttributeTypeHelper::Type _type);
-    void ConnectDefaultBtnToAttribute(const Attribute* _attribute); // for AArray edit propagation due to copies
+    void UpdateTemplateAttribute(const TemplateAttribute* _attr);
+
 
 signals:
     void NameChanged(const QString& _previousName, QString& _newName);
@@ -50,19 +41,7 @@ signals:
     void AppliedDefaultToAll(const QString& _name);
 
 public slots:
-    void OnParamChanged_Type(const QString& _typeStr);
-
-    void OnParamChanged_IgnoreMin(bool _use);
-    void OnParamChanged_IgnoreMax(int _use);
-    void OnParamChanged_MinInt(int _min);
-    void OnParamChanged_MaxInt(int _max);
-    void OnParamChanged_MinFloat(float _min);
-    void OnParamChanged_MaxFloat(float _max);
-    void OnParamChanged_StructDB(const QString& _SDBName);
-    void OnParamChanged_Enum(int _enumIndex);
-    void OnParamChanged_Template(const QString& _name, AttributeTypeHelper::Type _newType, const AttributeParam& _param);
-    void OnParamReverted_Template();
-    void OnParamAppliedDef_Template();
+    void OnParamEdited(bool _withCriticalChange = false);
 
     void OnNameEdited();
     void OnApply();

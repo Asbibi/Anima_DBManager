@@ -89,7 +89,7 @@ void QTemplateStructure::UpdateContent()
     {
         QTemplateAttribute* qattr = new QTemplateAttribute();
         myAttributeNames.push_back(attr->GetName());
-        qattr->UpdateContent(*attr);
+        qattr->UpdateTemplateAttribute(attr);
         myTabWidget->addTab(qattr, tabNameBase.arg(attr->GetName(), AttributeTypeHelper::TypeToString(attr->GetType())));
         QObject::connect(qattr, &QTemplateAttribute::NameChanged, this, &QTemplateStructure::OnNameChanged);
         QObject::connect(qattr, &QTemplateAttribute::Applied, this, &QTemplateStructure::OnApply);
@@ -138,7 +138,7 @@ void QTemplateStructure::OnRevert(const QString& _attrName)
     if (!qattr)
         return;
 
-    qattr->UpdateContent(*(myStructureDB->GetTemplate().GetAttributeTemplate(index)));
+    qattr->UpdateTemplateAttribute(myStructureDB->GetTemplate().GetAttributeTemplate(index));
 }
 void QTemplateStructure::OnApplyDefaultToAll(const QString& _attrName)
 {
