@@ -12,8 +12,10 @@
 #include "aint.h"
 #include "atablestring.h"
 #include "areference.h"
+#include "astructure.h"
 #include "qsstring.h"
 #include "qarraylabel.h"
+#include "qastructurelabel.h"
 #include "qassetlabel.h"
 #include "qassettexture.h"
 #include "qreflabel.h"
@@ -156,8 +158,14 @@ void QAttribute::RebuildWidgetFromType(const AttributeTypeHelper::Type _type)
         }
         case AttributeTypeHelper::Type::Structure :
         {
-            QLabel* content = new QLabel(this);
+            QAStructureLabel* content = new QAStructureLabel(this);
+            QObject::connect(content, &QAStructureLabel::OnValueEdited,
+                                 this, &QAttribute::ContentStateChanged);
             myContent = content;
+
+            BuildMoreButton();
+            QObject::connect(myEditButton, &QPushButton::clicked,
+                                 content, &QAStructureLabel::EditValue);
             break;
         }
         case AttributeTypeHelper::Type::Texture :
@@ -248,15 +256,15 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         }
         case AttributeTypeHelper::Type::Structure :
         {
-            qDebug() << "TODO";
-            auto* label = dynamic_cast<QLabel*>(myContent);
-            if(!label)
+            auto* qastructure = dynamic_cast<QAStructureLabel*>(myContent);
+            const AStructure* structAttribute = dynamic_cast<const AStructure*>(_attribute);
+            if(!qastructure || !structAttribute)
             {
                 LogErrorCast();
                 return;
             }
 
-            label->setText(_attribute->GetDisplayedText());
+            qastructure->SetValue(structAttribute->GetAttributes());
             break;
         }
         case AttributeTypeHelper::Type::Bool :
@@ -433,7 +441,13 @@ void QAttribute::ContentStateChanged()
         }
         case AttributeTypeHelper::Type::Structure :
         {
-            valueString = {};
+            auto* structLabel = dynamic_cast<QAStructureLabel*>(myContent);
+            if(!structLabel)
+            {
+                LogErrorCast();
+                return;
+            }
+            valueString = structLabel->GetValue();
             break;
         }
         case AttributeTypeHelper::Type::Bool :

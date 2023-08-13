@@ -1,6 +1,7 @@
 #include "attributeparam.h"
 
 #include "templateattribute.h"
+#include "templatestructure.h"
 #include "db_manager.h"
 #include "enumerator.h"
 #include "areference.h"
@@ -17,12 +18,17 @@ AttributeParam::AttributeParam(const AttributeParam& _another) :
     min_f {_another.min_f },
     max_f {_another.max_f },
     templateAtt { nullptr },
+    templateStruct{ nullptr },
     structTable {_another.structTable },
     enumeratorIndex {_another.enumeratorIndex }
 {
     if (_another.templateAtt != nullptr)
     {
         templateAtt = new TemplateAttribute(*_another.templateAtt);
+    }
+    if (_another.templateStruct != nullptr)
+    {
+        templateStruct = new TemplateStructure(*_another.templateStruct);
     }
     DB_Manager::GetDB_Manager().RegisterAttributeParam(this);
 }
@@ -34,6 +40,7 @@ AttributeParam::AttributeParam(const QString& _csvString, QHash<AReference*, QSt
     min_f { _csvString.section(',',4,4).toFloat() },
     max_f { _csvString.section(',',5,5).toFloat() },
     templateAtt { TemplateAttribute::NewAttribute_CSV(CleanTemplateStringCSV(_csvString.section(',',6,6)), _outRefMap) },
+    templateStruct{ nullptr }, // TODO
     structTable { DB_Manager::GetDB_Manager().GetStructureTable(_csvString.section(',',7,7).toInt()) },
     enumeratorIndex { _csvString.section(',',8,8).toInt() }
 {}
@@ -42,10 +49,27 @@ AttributeParam::~AttributeParam()
     if (templateAtt != nullptr)
         delete(templateAtt);
 
+    if (templateStruct != nullptr)
+        delete(templateStruct);
+
     DB_Manager::GetDB_Manager().UnregisterAttributeParam(this);
 }
 void AttributeParam::operator=(const AttributeParam& _another)
 {
+    // Clean Up
+    if (templateAtt != nullptr)
+    {
+        delete(templateAtt);
+        templateAtt = nullptr;
+    }
+    if (templateStruct != nullptr)
+    {
+        delete(templateStruct);
+        templateStruct = nullptr;
+    }
+
+
+    // Copy
     ignoreMin = _another.ignoreMin;
     ignoreMax = _another.ignoreMax;
     min_i = _another.min_i;
@@ -55,16 +79,15 @@ void AttributeParam::operator=(const AttributeParam& _another)
     structTable = _another.structTable;
     enumeratorIndex = _another.enumeratorIndex;
 
-    if (templateAtt != nullptr)
-    {
-        delete(templateAtt);
-        templateAtt = nullptr;
-    }
-
     if (_another.templateAtt)
         templateAtt = new TemplateAttribute(*_another.templateAtt);
     else
         templateAtt = nullptr;
+
+    if (_another.templateStruct)
+        templateStruct = new TemplateStructure(*_another.templateStruct);
+    else
+        templateStruct = nullptr;
 }
 
 
@@ -88,6 +111,12 @@ QString AttributeParam::GetParamsAsCSV() const
     if (templateAtt != nullptr)
     {
         paramAsCSV += '[' + templateAtt->GetTemplateAsCSV().replace(',', ';') + ']';
+    }
+    paramAsCSV += ',';
+    if (templateStruct != nullptr)
+    {
+        //paramAsCSV += '{' + templateStruct->GetTemplateAsCSV().replace(',', ';') + '}';
+        qWarning("TODO'");
     }
 
     return paramAsCSV + ','

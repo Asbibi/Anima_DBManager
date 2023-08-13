@@ -5,6 +5,7 @@
 
 class AReference;
 class TemplateAttribute;
+class TemplateStructure;
 class StructureDB;
 class Enumerator;
 
@@ -25,6 +26,7 @@ struct AttributeParam
     float min_f = 0;
     float max_f = -1;                               // Max are inclusive for float
     TemplateAttribute* templateAtt = nullptr;       // Used for AArray only;
+    TemplateStructure* templateStruct = nullptr;    // Used for AStructure only;
     StructureDB* structTable = nullptr;             // Used for AReference only;
 
     // Only for Enum Attributes

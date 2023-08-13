@@ -7,10 +7,10 @@
 class AStructure : public Attribute
 {
 public:
-    Structure value;
+    Structure* myValue;
 
-    AStructure(const AttributeParam& _sharedParam, TemplateStructure& structureTemplate);
-    AStructure(const AttributeParam& _sharedParam, const Structure& _value);
+    AStructure(const AttributeParam& _sharedParam);
+    AStructure(const AttributeParam& _sharedParam, const Structure* _value);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Structure; };
     virtual Attribute* CreateDuplica()                          const override;
@@ -19,7 +19,10 @@ public:
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
 
-    std::vector<QString> GetDisplayedTexts() const;
+    QList<QString> GetDisplayedTexts() const;
+    const QList<Attribute*>& GetAttributes() const;
+
+    static QString GetDisplayTextFromAttributes(const QList<Attribute*>& _attributes);
 };
 
 #endif // ASTRUCTURE_H

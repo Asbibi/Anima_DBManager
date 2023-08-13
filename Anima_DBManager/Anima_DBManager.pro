@@ -41,6 +41,7 @@ SOURCES += \
     qassetpreview.cpp \
     qassetpreviewdialog.cpp \
     qassettexture.cpp \
+    qastructurelabel.cpp \
     qattribute.cpp \
     qattributedisplay.cpp \
     qaugmentedlist.cpp \
@@ -60,6 +61,7 @@ SOURCES += \
     qsstring.cpp \
     qsstringdialog.cpp \
     qsstringtable.cpp \
+    qstructuredialog.cpp \
     qstructuretable.cpp \
     qtemplateattribute.cpp \
     qtemplatestructure.cpp \
@@ -105,6 +107,7 @@ HEADERS += \
     qassetpreview.h \
     qassetpreviewdialog.h \
     qassettexture.h \
+    qastructurelabel.h \
     qattribute.h \
     qattributedisplay.h \
     qaugmentedlist.h \
@@ -124,6 +127,7 @@ HEADERS += \
     qsstring.h \
     qsstringdialog.h \
     qsstringtable.h \
+    qstructuredialog.h \
     qstructuretable.h \
     qtemplateattribute.h \
     qtemplatestructure.h \
