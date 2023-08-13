@@ -93,7 +93,7 @@ void DB_Manager::Init()
     emit StringTableAdded(0);
     emit StringTableAdded(1);
 
-
+    /*
     // Struct Tables;
     AddStructureDB({"BasicStruct", QColorConstants::DarkRed}, 0);
     AddAttributeTemplate(0, 0, false);
@@ -163,6 +163,12 @@ void DB_Manager::Init()
 
     AddStructureRow(1,0);
     AddStructureRow(1,0);
+
+    */
+
+    AddStructureDB({"ArrayStruct", QColorConstants::DarkCyan}, 0);
+    AddAttributeTemplate(0, 0, false);
+    AddStructureRow(0,0);
 
 #else
 

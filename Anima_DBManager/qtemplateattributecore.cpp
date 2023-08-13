@@ -9,10 +9,9 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
 QTemplateAttributeCore::QTemplateAttributeCore(AttributeParam& _param, Attribute* _defAttribute, QWidget* _parent) :
     QWidget{_parent},
     myParam{_param},
-    myDefAttribute{_defAttribute == nullptr ? nullptr : AttributeTypeHelper::NewAttributeFromType(_defAttribute->GetType(), myParam)}
+    myDefAttribute{_defAttribute}
 {
     Q_ASSERT(myDefAttribute != nullptr);
-    myDefAttribute->SetValueFromText(_defAttribute->GetValueAsText());
     AttributeTypeHelper::Type currentType = myDefAttribute->GetType();
 
     myFormLayout = new QFormLayout();
@@ -41,6 +40,7 @@ QTemplateAttributeCore::QTemplateAttributeCore(AttributeParam& _param, Attribute
     QHBoxLayout* defaultLayout = new QHBoxLayout();
     myDefAttributeEditor = new QAttribute();
     myDefAttributeEditor->UpdateAttribute(myDefAttribute);
+    QObject::connect(myDefAttributeEditor, &QAttribute::OnWidgetValueChanged, this, &QTemplateAttributeCore::OnDefaultAttributeEdited);
     myDefAttributeUnavailable = new QLabel("<font color=\"darkred\">Current Configuration is impossible.</font>");
     myDefAttributeUnavailable->setAlignment(Qt::AlignCenter);
     defaultLayout->addWidget(myDefAttributeEditor);
@@ -50,12 +50,23 @@ QTemplateAttributeCore::QTemplateAttributeCore(AttributeParam& _param, Attribute
     UpdateLayout(currentType);
     ShowDefaultWidget(true);
 }
-QTemplateAttributeCore::~QTemplateAttributeCore()
-{
-    Q_ASSERT(myDefAttribute != nullptr);
-    delete myDefAttribute;
-}
 
+void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type)
+{
+    if (_type == AttributeTypeHelper::Type::Array)
+    {
+        if (myParam.templateAtt == nullptr)
+        {
+            myParam.templateAtt = new TemplateAttribute();
+        }
+    }
+    else if (myParam.templateAtt != nullptr)
+    {
+        delete myParam.templateAtt;
+        myParam.templateAtt = nullptr;
+        myArrayTemplate = nullptr;
+    }
+}
 void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 {
     const int rowToAdd = 1;
@@ -64,53 +75,31 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
         myFormLayout->removeRow(rowToAdd);
     }
 
-    /*
-    if (_type != AttributeTypeHelper::Type::Array)
-    {
-        if ( myParam.templateAtt != nullptr)
-        {
-            delete myParam.templateAtt;
-            myParam.templateAtt = nullptr;
-        }
-        if (myArrayTemplate != nullptr)
-        {
-            myFormLayout->removeRow(myArrayTemplate);
-            myArrayTemplate = nullptr;
-        }
-    }
-    else if (myParam.templateAtt == nullptr)    // implicitly : && _type == AttributeTypeHelper::Type::Array
-    {
-        myParam.templateAtt = new TemplateAttribute();
-    }*/
+    PerformTypeSpecificPreparation(_type);
 
     switch(_type)
     {
         case AttributeTypeHelper::Type::Array:
         {
-            /*
-            Q_ASSERT(myParam.templateAtt != nullptr);
-            myArrayTemplate = new QTemplateAttribute(false);
-            myFormLayout->insertRow(rowToAdd, "Template:", myArrayTemplate);
-            myArrayTemplate->UpdateContent(*myParam.templateAtt);
-            QObject::connect(myArrayTemplate, &QTemplateAttribute::Applied, this, &QTemplateAttribute::OnParamChanged_Template);
-            QObject::connect(myArrayTemplate, &QTemplateAttribute::Reverted, this, &QTemplateAttribute::OnParamReverted_Template);
-            QObject::connect(myArrayTemplate, &QTemplateAttribute::AppliedDefaultToAll, this, &QTemplateAttribute::OnParamAppliedDef_Template);
-            */
 
-            /*
+            Q_ASSERT(myParam.templateAtt != nullptr);
+            myArrayTemplate = new QTemplateAttributeCore(*myParam.templateAtt);
+            myFormLayout->insertRow(rowToAdd, "Template:", myArrayTemplate);
+            QObject::connect(myArrayTemplate, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttributeCore::OnParamChanged_ArrayTemplate);
+
+#ifdef LIMITS_ON_AARRAYS
             QOptionalValue_Int* minValue = new QOptionalValue_Int();
             QOptionalValue_Int* maxValue = new QOptionalValue_Int();
             minValue->SetValues(!myParam.ignoreMin, myParam.min_i);
             maxValue->SetValues(!myParam.ignoreMax, myParam.max_i);
             myFormLayout->insertRow(rowToAdd + 1, "Min:", minValue);
             myFormLayout->insertRow(rowToAdd + 2, "Max:", maxValue);
-            QObject::connect(minValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMin);
-            QObject::connect(minValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttribute::OnParamChanged_MinInt);
-            QObject::connect(maxValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttribute::OnParamChanged_IgnoreMax);
-            QObject::connect(maxValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttribute::OnParamChanged_MaxInt);
-            */
+            QObject::connect(minValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttributeCore::OnParamChanged_IgnoreMin);
+            QObject::connect(minValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttributeCore::OnParamChanged_MinInt);
+            QObject::connect(maxValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttributeCore::OnParamChanged_IgnoreMax);
+            QObject::connect(maxValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttributeCore::OnParamChanged_MaxInt);
+#endif
 
-            // QObject::connect(myDefAttribute, &QAttribute::OnWidgetValueChanged, _attribute, &Attribute::SetValueFromText);
             break;
         }
         case AttributeTypeHelper::Type::Enum:
@@ -283,7 +272,8 @@ void QTemplateAttributeCore::OnParamChanged_ArrayTemplate(bool _withCriticalChan
     emit ParamEdited(_withCriticalChange);
 }
 
-void QTemplateAttributeCore::OnDefaultAttributeEdited()
+void QTemplateAttributeCore::OnDefaultAttributeEdited(const QString& _attributeValueAsText)
 {
+    myDefAttribute->SetValueFromText(_attributeValueAsText);
     emit ParamEdited(true);
 }

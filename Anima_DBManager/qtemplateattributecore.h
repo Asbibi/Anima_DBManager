@@ -16,7 +16,7 @@ class QTemplateAttributeCore : public QWidget
     Q_OBJECT
 private:
     AttributeParam& myParam;
-    Attribute* myDefAttribute;
+    Attribute* myDefAttribute; // Not the owner, it is the TemplateAttribute indirectly represented that is
 
     QFormLayout* myFormLayout;
     QComboBox* myTypeComboBox;
@@ -24,12 +24,12 @@ private:
     QTemplateAttributeCore* myArrayTemplate = nullptr;
     QLabel* myDefAttributeUnavailable;
 
+    QTemplateAttributeCore(AttributeParam& _param, Attribute* _defAttribute, QWidget* _parent = nullptr);
     void UpdateLayout(AttributeTypeHelper::Type _type);
+    void PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type);
 
 public:
     QTemplateAttributeCore(TemplateAttribute& _templateAttribute, QWidget* _parent = nullptr);
-    QTemplateAttributeCore(AttributeParam& _param, Attribute* _defAttribute, QWidget* _parent = nullptr);
-    ~QTemplateAttributeCore();
 
     AttributeTypeHelper::Type GetType() const;
     bool HasConfigValid() const;
@@ -52,7 +52,7 @@ public slots:
     void OnParamChanged_Enum(int _enumIndex);
     void OnParamChanged_ArrayTemplate(bool _withCriticalChange);
 
-    void OnDefaultAttributeEdited();
+    void OnDefaultAttributeEdited(const QString& _attributeValueAsText);
 };
 
 #endif // QTEMPLATEATTRIBUTECORE_H
