@@ -16,16 +16,20 @@ Attribute* AShortString::CreateDuplica() const
 {
     return new AShortString(mySharedParam, value);
 }
-QString AShortString::GetDisplayedText(bool complete) const
+QString AShortString::GetDisplayedText() const
 {
     if (mySharedParam.ignoreMax)
         return value;
     else
-        return complete ? value : value.left(mySharedParam.max_i);
+        return value.left(mySharedParam.max_i);
+}
+QString AShortString::GetValueAsText() const
+{
+    return value;
 }
 QString AShortString::GetAttributeAsCSV() const
 {
-    return GetDisplayedText(false);
+    return GetDisplayedText();
 }
 void AShortString::SetValueFromText(const QString& text)
 {

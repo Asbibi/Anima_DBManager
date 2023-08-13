@@ -18,9 +18,13 @@ Attribute* AEnumerator::CreateDuplica() const
 {
     return new AEnumerator(mySharedParam, value_index);
 }
-QString AEnumerator::GetDisplayedText(bool _complete) const
+QString AEnumerator::GetDisplayedText() const
 {
-    return CheckEnumIsValid() ? mySharedParam.GetEnum()->GetValue(value_index) : (_complete ? "Ø" : "<font color=\"darkred\">!!! NULL ENUM !!!</font>");
+    return CheckEnumIsValid() ? mySharedParam.GetEnum()->GetValue(value_index) : "<font color=\"darkred\">!!! NULL ENUM !!!</font>";
+}
+QString AEnumerator::GetValueAsText() const
+{
+    return CheckEnumIsValid() ? mySharedParam.GetEnum()->GetValue(value_index) : "Ø";
 }
 QString AEnumerator::GetAttributeAsCSV() const
 {

@@ -25,22 +25,26 @@ Attribute* AReference::CreateDuplica() const
 {
     return new AReference(mySharedParam, myStructureRef);
 }
-QString AReference::GetDisplayedText(bool complete) const
+QString AReference::GetDisplayedText() const
 {
     if(!mySharedParam.structTable || !myStructureRef)
-        return complete ? "Ø" : "<font color=\"darkred\">Ø</font>";
+        return "<font color=\"darkred\">Ø</font>";
 
-    else if (complete)
-    {
-        QString structString = "";
-        if (myStructureRef->IsOneOfMyAttributes(this))
-            structString = "this";
-        else
-            myStructureRef->GetAttributesDisplayedText(structString);
-        return "&{ " + structString + " }";
-    }
+    QString structString = "";
+    if (myStructureRef->IsOneOfMyAttributes(this))
+        structString = "this";
+    else
+        // return mySharedParam.structTable->GetStructureRowName(myStructureRef) ?
+        myStructureRef->GetAttributesDisplayedText(structString);
+    return "&{ " + structString + " }";
 
-    return mySharedParam.structTable->GetStructureRowName(myStructureRef);
+}
+QString AReference::GetValueAsText() const
+{
+    return '&'
+        + QString((mySharedParam.structTable && myStructureRef) ?
+            QString::number(mySharedParam.structTable->GetStructureIndex(myStructureRef)) :
+            "Ø");
 }
 QString AReference::GetAttributeAsCSV() const
 {
@@ -58,14 +62,13 @@ void AReference::SetValueFromText(const QString& text)
     }
     bool ok;
     int structIndex = (contentText.remove('&')).toInt(&ok);
-    if (!ok)
+    if (!ok || !mySharedParam.structTable || structIndex < 0)
     {
         SetReference(nullptr);
         return;
     }
 
-    if (mySharedParam.structTable && structIndex > -1)
-        SetReference(mySharedParam.structTable->GetStructureAt(structIndex));
+    SetReference(mySharedParam.structTable->GetStructureAt(structIndex));
 }
 void AReference::CopyValueFromOther(const Attribute* _other)
 {

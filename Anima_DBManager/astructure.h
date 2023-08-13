@@ -14,7 +14,8 @@ public:
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Structure; };
     virtual Attribute* CreateDuplica()                          const override;
-    virtual QString GetDisplayedText(bool complete = false)     const override;
+    virtual QString GetDisplayedText()                          const override;
+    virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
@@ -22,7 +23,7 @@ public:
     QList<QString> GetDisplayedTexts() const;
     const QList<Attribute*>& GetAttributes() const;
 
-    static QString GetDisplayTextFromAttributes(const QList<Attribute*>& _attributes);
+    static QString GetValueAsTextFromAttributes(const QList<Attribute*>& _attributes);
 };
 
 #endif // ASTRUCTURE_H

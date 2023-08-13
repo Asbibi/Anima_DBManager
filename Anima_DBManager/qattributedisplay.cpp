@@ -31,7 +31,7 @@ bool QAttributeDisplay::AskUpdateContent(const Attribute* _attribute)
     }
 
     const AttributeTypeHelper::Type type = _attribute->GetType();
-    const QString& value = _attribute->GetDisplayedText(true);
+    const QString& value = _attribute->GetValueAsText();
     if (type == myCurrentType && value == myCurrentValue)
     {
         return false;
@@ -92,7 +92,7 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
         {
             const AATexture* castedAttribute = dynamic_cast<const AATexture*>(_attribute);
             Q_ASSERT(castedAttribute);
-            setIcon(QIcon(AATexture::GetPixmapFromAssetPath(castedAttribute->GetDisplayedText(true))));
+            setIcon(QIcon(AATexture::GetPixmapFromAssetPath(castedAttribute->GetValueAsText())));
         }
         case AttributeTypeHelper::Type::Mesh:
         case AttributeTypeHelper::Type::Niagara:

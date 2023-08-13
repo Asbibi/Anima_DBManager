@@ -15,10 +15,14 @@ Attribute* ATableString::CreateDuplica() const
 {
     return new ATableString(mySharedParam, myTableName, myStringIdentifier);
 }
-QString ATableString::GetDisplayedText(bool complete) const
+QString ATableString::GetDisplayedText() const
 {
     auto& DB = DB_Manager::GetDB_Manager();
-    return DB.GetStringForDisplay(myTableName, myStringIdentifier, complete);
+    return DB.GetStringForDisplay(myTableName, myStringIdentifier, false);
+}
+QString ATableString::GetValueAsText() const
+{
+    return '#' + myTableName + '#' + myStringIdentifier;
 }
 QString ATableString::GetAttributeAsCSV() const
 {

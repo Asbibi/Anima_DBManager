@@ -18,7 +18,7 @@ QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attri
     setLayout(vLayout);
 
     vLayout->addWidget(new QLabel("Array:"));
-    myQListAttributes = new QAugmentedList(false, _template->GetDefaultAttribute()->GetDisplayedText(true), this);
+    myQListAttributes = new QAugmentedList(false, _template->GetDefaultAttribute()->GetValueAsText(), this);
     myQListAttributes->SetItemEditable(false);
     vLayout->addWidget(myQListAttributes);
     // + count label ?
@@ -42,7 +42,7 @@ QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attri
     for (auto* attr : _attributeList)
     {
         myAttributes.push_back(attr->CreateDuplica());
-        myQListAttributes->AddItemAt(attr->GetDisplayedText(true));
+        myQListAttributes->AddItemAt(attr->GetValueAsText());
     }
 
 
@@ -123,5 +123,5 @@ void QArrayDialog::OnSelectedValueEdited()
 {
     int current = myQListAttributes->GetCurrent();
     Q_ASSERT(current >= 0 &&  current < myAttributes.count());
-    myQListAttributes->SetItemValue(current, myAttributes[current]->GetDisplayedText(true), false);
+    myQListAttributes->SetItemValue(current, myAttributes[current]->GetValueAsText(), false);
 }

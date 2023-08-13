@@ -14,9 +14,13 @@ Attribute* ABool::CreateDuplica() const
 {
     return new ABool(mySharedParam, value);
 }
-QString ABool::GetDisplayedText(bool) const
+QString ABool::GetDisplayedText() const
 {
     return value ? "TRUE" : "FALSE";
+}
+QString ABool::GetValueAsText() const
+{
+    return value ? "true" : "false";
 }
 QString ABool::GetAttributeAsCSV() const
 {

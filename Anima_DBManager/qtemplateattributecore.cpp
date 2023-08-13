@@ -12,7 +12,7 @@ QTemplateAttributeCore::QTemplateAttributeCore(AttributeParam& _param, Attribute
     myDefAttribute{_defAttribute == nullptr ? nullptr : AttributeTypeHelper::NewAttributeFromType(_defAttribute->GetType(), myParam)}
 {
     Q_ASSERT(myDefAttribute != nullptr);
-    myDefAttribute->SetValueFromText(_defAttribute->GetDisplayedText(true));
+    myDefAttribute->SetValueFromText(_defAttribute->GetValueAsText());
     AttributeTypeHelper::Type currentType = myDefAttribute->GetType();
 
     myFormLayout = new QFormLayout();

@@ -29,12 +29,13 @@ Attribute* AArray::CreateDuplica() const
 {
     return new AArray(mySharedParam, myValues);
 }
-QString AArray::GetDisplayedText(bool complete) const
+QString AArray::GetDisplayedText() const
 {
-    if (!complete)
-        return GetShortDisplayedString(myValues.count());
-
-    return GetStructureStringFromList(GetDisplayedTexts());
+    return GetShortDisplayedString(myValues.count());
+}
+QString AArray::GetValueAsText() const
+{
+    return GetStructureStringFromList(GetValuesAsTexts());
 }
 QString AArray::GetAttributeAsCSV() const
 {
@@ -211,7 +212,7 @@ TemplateAttribute* AArray::GetArrayElementTemplate() const
 {
     return mySharedParam.templateAtt;
 }
-QStringList AArray::GetDisplayedTexts() const
+QStringList AArray::GetValuesAsTexts() const
 {
     int count = (int)myValues.size();
     QStringList strings = QStringList();
@@ -219,7 +220,7 @@ QStringList AArray::GetDisplayedTexts() const
 
     for (const auto* val : myValues)
     {
-        strings.push_back(val->GetDisplayedText(true));
+        strings.push_back(val->GetValueAsText());
     }
 
     return strings;

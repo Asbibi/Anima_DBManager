@@ -39,14 +39,14 @@ Attribute* AAsset::CreateDuplica() const
     return new AAsset(mySharedParam, myFilePath);
 }
 
-QString AAsset::GetDisplayedText(bool complete) const
+QString AAsset::GetDisplayedText() const
 {
-    if (complete)
-        return myIsDirty && !myFilePath.isEmpty() ? '!' + myFilePath : myFilePath;
-
     return GetFilePathForDisplay(myFilePath, myIsDirty);
 }
-
+QString AAsset::GetValueAsText() const
+{
+    return (myIsDirty && !myFilePath.isEmpty()) ? '!' + myFilePath : myFilePath;
+}
 QString AAsset::GetAttributeAsCSV() const
 {
     if (myFilePath.isEmpty() || myIsDirty)
@@ -75,7 +75,7 @@ void AAsset::SetValueFromText(const QString& text)
 {
     if (text.isEmpty())
     {
-        myFilePath = text;
+        myFilePath = "";
         myIsDirty = false;
         return;
     }

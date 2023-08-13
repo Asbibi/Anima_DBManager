@@ -14,7 +14,7 @@ void QArrayLabel::ComputeMyValue(const QList<Attribute*>& _attributes)
     myValue = "[";
     for (const auto* attr : _attributes)
     {
-        myValue += attr->GetDisplayedText(true);
+        myValue += attr->GetValueAsText();
         myValue += ',';
     }
     const int strLenght = myValue.count();

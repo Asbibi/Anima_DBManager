@@ -16,9 +16,13 @@ Attribute* AInt::CreateDuplica() const
 {
     return new AInt(mySharedParam, value);
 }
-QString AInt::GetDisplayedText(bool complete) const
+QString AInt::GetDisplayedText() const
 {
-    return QString::number(complete ? value : GetValue());
+    return QString::number(GetValue());
+}
+QString AInt::GetValueAsText() const
+{
+    return QString::number(value);
 }
 QString AInt::GetAttributeAsCSV() const
 {
