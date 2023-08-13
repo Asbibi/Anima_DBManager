@@ -56,17 +56,6 @@ void QTemplateAttribute::UpdateTemplateAttribute(const TemplateAttribute* _attr)
     QObject::connect(myCoreEditor, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttribute::OnParamEdited);
 
     Q_ASSERT(myCoreEditor->HasConfigValid());
-
-
-    /*
-    myDefAttribute->UpdateAttribute(_attr.GetDefaultAttribute());
-
-    if (_attr.GetType() == AttributeTypeHelper::Type::Array)
-    {
-        Q_ASSERT(myArrayTemplate != nullptr);
-        Q_ASSERT(_attr.GetSharedParam().templateAtt != nullptr);
-        myArrayTemplate->ConnectDefaultBtnToAttribute(_attr.GetSharedParam().templateAtt->GetDefaultAttribute());
-    }*/
 }
 
 void QTemplateAttribute::OnParamEdited(bool withCriticalChange)
@@ -77,15 +66,16 @@ void QTemplateAttribute::OnParamEdited(bool withCriticalChange)
     myApplyBtn->setEnabled(true);
     myRevertBtn->setEnabled(true);
 
-    bool configValid = myCoreEditor->HasConfigValid();
-    myCoreEditor->ShowDefaultWidget(configValid);
+    const bool oldInvalid = myInvalidChanges;
+    myInvalidChanges = !myCoreEditor->HasConfigValid();
+    myCoreEditor->ShowDefaultWidget(myInvalidChanges);
 
-    if (!configValid)
+    if (myInvalidChanges)
     {
         myApplyBtn->setStyleSheet("QPushButton { color: #DC143C; }");
         myApplyBtn->setEnabled(false);
     }
-    else if (oldCritical != myCriticalChanges){
+    else if (oldCritical != myCriticalChanges || oldInvalid){
         myApplyBtn->setStyleSheet(myCriticalChanges ?
             "QPushButton { color: #DAA520; }" :
             "QPushButton { color: black; }");
@@ -119,6 +109,7 @@ void QTemplateAttribute::OnApply()
 }
 void QTemplateAttribute::OnRevert()
 {
+    ShowDefaultWidget(true);
     emit Reverted(myNameCached);
 }
 void QTemplateAttribute::OnApplyDefaultToAll()

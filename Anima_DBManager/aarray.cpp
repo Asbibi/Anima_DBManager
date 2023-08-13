@@ -251,6 +251,14 @@ void AArray::RemoveRow(int _index)
     Attribute* removed = myValues.takeAt(_index);
     delete(removed);
 }
+void AArray::Empty()
+{
+    for (auto* elem : myValues)
+    {
+        delete elem;
+    }
+    myValues.clear();
+}
 void AArray::MoveRow(int _originalIndex, int _targetIndex)
 {
     const int valuesCount = myValues.count();

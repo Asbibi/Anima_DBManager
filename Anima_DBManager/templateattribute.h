@@ -8,10 +8,12 @@
 
 class AReference;
 class TemplateStructure;
+class QTemplateAttributeCore;
 
 class TemplateAttribute
 {
     //friend TemplateStructure;
+    friend QTemplateAttributeCore;
 
 private:
     QString myAttrName = "";

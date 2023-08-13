@@ -25,6 +25,7 @@ private:
     QPushButton* myResetAllToDefault;
 
     bool myCriticalChanges;
+    bool myInvalidChanges;
 
     void ShowDefaultWidget(bool _show);
 

@@ -15,8 +15,7 @@ class QTemplateAttributeCore : public QWidget
 {
     Q_OBJECT
 private:
-    AttributeParam& myParam;
-    Attribute* myDefAttribute; // Not the owner, it is the TemplateAttribute indirectly represented that is
+    TemplateAttribute& myTemplateAttribute;
 
     QFormLayout* myFormLayout;
     QComboBox* myTypeComboBox;
@@ -24,9 +23,9 @@ private:
     QTemplateAttributeCore* myArrayTemplate = nullptr;
     QLabel* myDefAttributeUnavailable;
 
-    QTemplateAttributeCore(AttributeParam& _param, Attribute* _defAttribute, QWidget* _parent = nullptr);
     void UpdateLayout(AttributeTypeHelper::Type _type);
     void PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type);
+    void RefreshDefaultAttributeWidget();
 
 public:
     QTemplateAttributeCore(TemplateAttribute& _templateAttribute, QWidget* _parent = nullptr);
