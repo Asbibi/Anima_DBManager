@@ -4,7 +4,7 @@
 #include <QHBoxLayout>
 
 QTemplateAttribute::QTemplateAttribute(QWidget *parent)
-    : QWidget{parent}
+    : QWidget{parent}, myCoreEditor{nullptr}
 {
     myFormLayout = new QFormLayout();
     setLayout(myFormLayout);
@@ -31,7 +31,7 @@ QTemplateAttribute::QTemplateAttribute(QWidget *parent)
     QObject::connect(myResetAllToDefault, &QPushButton::clicked, this, &QTemplateAttribute::OnApplyDefaultToAll);
     myFormLayout->addRow("Default:", myResetAllToDefault);
 
-    ShowDefaultWidget(false);
+    ShowDefaultWidget(true);
 }
 
 void QTemplateAttribute::UpdateTemplateAttribute(const TemplateAttribute* _attr)
@@ -47,11 +47,15 @@ void QTemplateAttribute::UpdateTemplateAttribute(const TemplateAttribute* _attr)
     myName->setText(myNameCached);
 
 
-    myFormLayout->removeWidget(myCoreEditor);
+    if (myCoreEditor != nullptr) {
+        myCoreEditor->disconnect();
+        myFormLayout->removeRow(1);
+    }
     myCoreEditor = new QTemplateAttributeCore(myTemplateCopy.GetSharedParam(),
                                               myTemplateCopy.GetDefaultAttributeW(),
                                               this);
     myFormLayout->insertRow(1, "", myCoreEditor);
+    QObject::connect(myCoreEditor, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttribute::OnParamEdited);
 
     Q_ASSERT(myCoreEditor->HasConfigValid());
 
@@ -69,7 +73,8 @@ void QTemplateAttribute::UpdateTemplateAttribute(const TemplateAttribute* _attr)
 
 void QTemplateAttribute::OnParamEdited(bool withCriticalChange)
 {
-    myCriticalChanges = myCriticalChanges && withCriticalChange;
+    const bool oldCritical = myCriticalChanges;
+    myCriticalChanges = myCriticalChanges || withCriticalChange;
 
     myApplyBtn->setEnabled(true);
     myRevertBtn->setEnabled(true);
@@ -82,27 +87,17 @@ void QTemplateAttribute::OnParamEdited(bool withCriticalChange)
         myApplyBtn->setStyleSheet("QPushButton { color: #DC143C; }");
         myApplyBtn->setEnabled(false);
     }
-    else if (myCriticalChanges)
-    {
-        myApplyBtn->setStyleSheet("QPushButton { color: #DAA520; }");
+    else if (oldCritical != myCriticalChanges){
+        myApplyBtn->setStyleSheet(myCriticalChanges ?
+            "QPushButton { color: #DAA520; }" :
+            "QPushButton { color: black; }");
+        ShowDefaultWidget(false);
     }
-    else
-    {
-        myApplyBtn->setStyleSheet("QPushButton { color: black; }");
-    }
-    ShowDefaultWidget(false);
 }
 
 void QTemplateAttribute::ShowDefaultWidget(bool _show)
 {
-    if (_show)
-    {
-        myResetAllToDefault->show();
-    }
-    else
-    {
-        myResetAllToDefault->hide();
-    }
+    myResetAllToDefault->setEnabled(_show);
 }
 
 

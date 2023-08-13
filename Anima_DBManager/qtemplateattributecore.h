@@ -29,6 +29,7 @@ private:
 public:
     QTemplateAttributeCore(TemplateAttribute& _templateAttribute, QWidget* _parent = nullptr);
     QTemplateAttributeCore(AttributeParam& _param, Attribute* _defAttribute, QWidget* _parent = nullptr);
+    ~QTemplateAttributeCore();
 
     AttributeTypeHelper::Type GetType() const;
     bool HasConfigValid() const;
@@ -50,6 +51,8 @@ public slots:
     void OnParamChanged_StructDB(const QString& _SDBName);
     void OnParamChanged_Enum(int _enumIndex);
     void OnParamChanged_ArrayTemplate(bool _withCriticalChange);
+
+    void OnDefaultAttributeEdited();
 };
 
 #endif // QTEMPLATEATTRIBUTECORE_H

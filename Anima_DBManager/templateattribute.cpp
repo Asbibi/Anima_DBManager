@@ -1,21 +1,7 @@
 #include "templateattribute.h"
 
 #include "abool.h"
-#include "aenumerator.h"
-#include "afloat.h"
-#include "aint.h"
-#include "ashortstring.h"
-
-#include "aarray.h"
-#include "astructure.h"
 #include "areference.h"
-#include "atablestring.h"
-
-#include "aasset.h"
-#include "aamesh.h"
-#include "aaniagara.h"
-#include "aasound.h"
-#include "aatexture.h"
 
 #include <QDebug>
 
@@ -54,36 +40,12 @@ void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
         myDefaultAttribute = nullptr;
     }
 
-#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case AttributeTypeHelper::Type::TYPE: { myDefaultAttribute = new CLASS(mySharedParam); return; }
-#define CASE_INIT_TEMPLATE(TYPE) CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, A##TYPE)
-
-    switch (_type)
+    myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, mySharedParam);
+    if (myDefaultAttribute == nullptr)
     {
-        default:
-        case AttributeTypeHelper::Type::Invalid:
-        {
-            qFatal("Initialized a Template Attribute with INVALID type !");
-            return;
-        }
-
-        CASE_INIT_TEMPLATE(Bool);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Enum, AEnumerator);
-        CASE_INIT_TEMPLATE(Float);
-        CASE_INIT_TEMPLATE(Int);
-        CASE_INIT_TEMPLATE(ShortString);
-        CASE_INIT_TEMPLATE(Array);
-        CASE_INIT_TEMPLATE(Structure);
-        CASE_INIT_TEMPLATE(Reference);
-        CASE_INIT_TEMPLATE(TableString);
-        CASE_INIT_TEMPLATE_WITH_CLASS(UAsset, AAsset);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Mesh, AAMesh);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Niagara, AANiagara);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Sound, AASound);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Texture, AATexture);
+        qFatal("Initialized a Template Attribute with INVALID type !");
+        return;
     }
-
-#undef CASE_INIT_TEMPLATE
-#undef CASE_INIT_TEMPLATE_WITH_CLASS
 }
 void TemplateAttribute::ResetUselessParam(AttributeTypeHelper::Type _type)
 {
