@@ -34,7 +34,7 @@ public slots:
 
     void OnTabMoved(int _indexFrom, int _indexTo);
     void OnNameChanged(const QString& _previousName, QString& _newName);
-    void OnApply(const QString& _attrName, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _hasCriticalChanges);
+    void OnApply(const QString& _attrName,  const TemplateAttribute& _editedTemplateCopy, bool _hasCriticalChanges);
     void OnRevert(const QString& _attrName);
     void OnApplyDefaultToAll(const QString& _attrName);
 

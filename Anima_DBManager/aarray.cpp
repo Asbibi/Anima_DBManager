@@ -139,14 +139,24 @@ void AArray::SetValueFromText(const QString& text)
 void AArray::CopyValueFromOther(const Attribute* _other)
 {
     const AArray* other_AA = dynamic_cast<const AArray*>(_other);
-    if (!other_AA || mySharedParam.templateAtt != other_AA->mySharedParam.templateAtt)
+    if (!other_AA)
         return;
 
-    while (myValues.size() > 0)
+    if (mySharedParam.templateAtt != other_AA->mySharedParam.templateAtt)
+    {
+        SetValueFromText(other_AA->GetValueAsText());
+        return;
+    }
+
+    const int otherCount = other_AA->myValues.size();
+    while (myValues.size() > otherCount)
         RemoveRow(0);
 
-    for (const auto* attr : other_AA->myValues)
-        myValues.push_back(attr->CreateDuplica());
+    const int myCount = myValues.size();
+    for (int i=0; i < myCount; i++)
+        myValues[i]->CopyValueFromOther(other_AA->myValues[i]);
+    for (int i=myCount; i < otherCount; i++)
+        myValues.push_back(other_AA->myValues[i]->CreateDuplica());
 }
 void AArray::ReadValue_CSV(const QString& text)
 {

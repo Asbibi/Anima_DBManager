@@ -498,15 +498,15 @@ void DB_Manager::ResetAttributesToDefaultValue(const QString& _tableName, int _a
 {
     ResetAttributesToDefaultValue(GetStructureTableIndex(_tableName), _attributeIndex);
 }
-void DB_Manager::ChangeAttributeTemplate(int _tableIndex, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue)
+void DB_Manager::ChangeAttributeTemplate(int _tableIndex, int _attrIndex, const TemplateAttribute& _templateToCopy, bool _needResetValue)
 {
     const int count = myStructures.count();
     if (_tableIndex < 0 || _tableIndex > count)
         return;
 
     AttributeTypeHelper::Type previousType = myStructures[_tableIndex]->GetAttributeTemplateType(_attrIndex);
-    myStructures[_tableIndex]->ChangeAttributeTemplate(_attrIndex, _newType, _param);
-    if (previousType != _newType)
+    myStructures[_tableIndex]->ChangeAttributeTemplate(_attrIndex, _templateToCopy);
+    if (previousType != _templateToCopy.GetType())
     {
         myStructures[_tableIndex]->FixAttributesTypeToDefault(_attrIndex);
         emit StructItemChanged(_tableIndex);
@@ -520,9 +520,9 @@ void DB_Manager::ChangeAttributeTemplate(int _tableIndex, int _attrIndex, Attrib
         emit StructItemChanged(_tableIndex);
     }
 }
-void DB_Manager::ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue)
+void DB_Manager::ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, const TemplateAttribute& _templateToCopy, bool _needResetValue)
 {
-    ChangeAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex, _newType, _param, _needResetValue);
+    ChangeAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex, _templateToCopy, _needResetValue);
 }
 void DB_Manager::AddAttributeTemplate(int _tableIndex, int _attrIndex, bool _copyFromPrevious)
 {

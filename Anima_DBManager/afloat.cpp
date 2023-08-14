@@ -72,11 +72,11 @@ void AFloat::CopyValueFromOther(const Attribute* _other)
 
 bool AFloat::FitsMinParam() const
 {
-    return mySharedParam.ignoreMin || value < mySharedParam.min_f;
+    return mySharedParam.ignoreMin || value >= mySharedParam.min_f;
 }
 bool AFloat::FitsMaxParam() const
 {
-    return mySharedParam.ignoreMax || value > mySharedParam.max_f;
+    return mySharedParam.ignoreMax || value <= mySharedParam.max_f;
 }
 float AFloat::GetValue(bool _validated) const
 {

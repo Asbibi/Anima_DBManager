@@ -68,7 +68,7 @@ void QTemplateAttribute::OnParamEdited(bool withCriticalChange)
 
     const bool oldInvalid = myInvalidChanges;
     myInvalidChanges = !myCoreEditor->HasConfigValid();
-    myCoreEditor->ShowDefaultWidget(myInvalidChanges);
+    myCoreEditor->ShowDefaultWidget(!myInvalidChanges);
 
     if (myInvalidChanges)
     {
@@ -103,14 +103,13 @@ void QTemplateAttribute::OnNameEdited()
 }
 void QTemplateAttribute::OnApply()
 {
-    qWarning("Apply Template, may need rework here for AArray:AStructure");
-    emit Applied(myNameCached, myCoreEditor->GetType(), myTemplateCopy.GetSharedParam(), myCriticalChanges);
-    // TODO : Pass myTemplateCopy directly ? Probably for AArray & AStructure
+    emit Applied(myNameCached, myTemplateCopy, myCriticalChanges);
+    ShowDefaultWidget(true);
 }
 void QTemplateAttribute::OnRevert()
 {
-    ShowDefaultWidget(true);
     emit Reverted(myNameCached);
+    ShowDefaultWidget(true);
 }
 void QTemplateAttribute::OnApplyDefaultToAll()
 {

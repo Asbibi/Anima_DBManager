@@ -65,7 +65,7 @@ void TemplateStructure::AddAttributeTemplateInternal(TemplateAttribute* _attTemp
     if (_newName)
         myAttributeTemplates[_index]->SetName(*_newName);
 }
-void TemplateStructure::RemoveAttribute(const int& _index)
+void TemplateStructure::RemoveAttribute(int _index)
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return;
@@ -111,7 +111,10 @@ void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList, 
         }
     }
 }
-
+void TemplateStructure::ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy)
+{
+    GetAttributeTemplate(_attrIndex)->SetNewValues(_templateToCopy);
+}
 
 
 void TemplateStructure::RenameAttributeTemplate(int _index, QString& _newName)

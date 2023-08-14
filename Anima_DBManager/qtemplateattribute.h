@@ -37,7 +37,7 @@ public:
 
 signals:
     void NameChanged(const QString& _previousName, QString& _newName);
-    void Applied(const QString& _name, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _hasCriticalChanges);
+    void Applied(const QString& _name, const TemplateAttribute& _editedTemplateCopy, bool _hasCriticalChanges);
     void Reverted(const QString& _name);
     void AppliedDefaultToAll(const QString& _name);
 

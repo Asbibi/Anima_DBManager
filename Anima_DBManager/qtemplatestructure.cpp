@@ -116,13 +116,13 @@ void QTemplateStructure::OnNameChanged(const QString& _previousName, QString& _n
     myAttributeNames[index] = _newName;
     UpdateAttributeTabText(index);
 }
-void QTemplateStructure::OnApply(const QString& _attrName, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _hasCriticalChanges)
+void QTemplateStructure::OnApply(const QString& _attrName,  const TemplateAttribute& _editedTemplateCopy, bool _hasCriticalChanges)
 {
     int index = myAttributeNames.indexOf(_attrName);
     if (index < 0)
         return;
 
-    DB_Manager::GetDB_Manager().ChangeAttributeTemplate(myStructureDB->GetTemplateName(), index, _newType, _param, _hasCriticalChanges);
+    DB_Manager::GetDB_Manager().ChangeAttributeTemplate(myStructureDB->GetTemplateName(), index, _editedTemplateCopy, _hasCriticalChanges);
     OnRevert(_attrName);
 
     if (_hasCriticalChanges)

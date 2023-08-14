@@ -37,7 +37,7 @@ public:
 
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attrIndex);
-    void ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param);
+    void ChangeAttributeTemplate(int _attrIndex, const TemplateAttribute& _templateToCopy);
     void FixAttributesTypeToDefault(int _attIndex);
     void AddAttribute(int _position, bool _copyFromPrevious);
     void RemoveAttribute(int _position);

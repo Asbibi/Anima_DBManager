@@ -74,8 +74,8 @@ public:
     void RenameStructureAttribute(const QString& _tableName, int _attributeIndex, QString& _attributeName);
     void ResetAttributesToDefaultValue(int _tableIndex, int _attributeIndex);
     void ResetAttributesToDefaultValue(const QString& _tableName, int _attributeIndex);
-    void ChangeAttributeTemplate(int _tableIndex, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
-    void ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param, bool _needResetValue);
+    void ChangeAttributeTemplate(int _tableIndex, int _attrIndex, const TemplateAttribute& _templateToCopy, bool _needResetValue);
+    void ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, const TemplateAttribute& _templateToCopy, bool _needResetValue);
     void AddAttributeTemplate(int _tableIndex, int _attrIndex, bool _copyFromPrevious);
     void AddAttributeTemplate(const QString& _tableName, int _attrIndex, bool _copyFromPrevious);
     void RemoveAttributeTemplate(int _tableIndex, int _attrIndex);

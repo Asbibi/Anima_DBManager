@@ -77,11 +77,11 @@ void AInt::CopyValueFromOther(const Attribute* _other)
 
 bool AInt::FitsMinParam() const
 {
-    return mySharedParam.ignoreMin || value < mySharedParam.min_i;
+    return mySharedParam.ignoreMin || value >= mySharedParam.min_i;
 }
 bool AInt::FitsMaxParam() const
 {
-    return mySharedParam.ignoreMax || value > mySharedParam.max_i;
+    return mySharedParam.ignoreMax || value <= mySharedParam.max_i;
 }
 int AInt::GetValue(bool _validated) const
 {

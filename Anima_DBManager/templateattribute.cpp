@@ -127,20 +127,24 @@ bool IsSameArrayType(const AttributeParam& _firstParam, const AttributeParam& _s
 
     return IsSameArrayType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
 }
-void TemplateAttribute::SetNewValues(AttributeTypeHelper::Type _type, const AttributeParam& _param)
+void TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
 {
-    bool softChange = GetType() == _type;
-    if (softChange && _type == AttributeTypeHelper::Type::Array)
+    const AttributeTypeHelper::Type newType = _templateToCopy.GetType();
+    const AttributeParam& newParamToCopy = _templateToCopy.mySharedParam;
+    bool softChange = GetType() == newType;
+    if (softChange && newType == AttributeTypeHelper::Type::Array)
     {
-        softChange = IsSameArrayType(mySharedParam, _param);
+        softChange = IsSameArrayType(mySharedParam, newParamToCopy);
     }
 
-    mySharedParam = _param;
-    if (softChange)
-        return;
+    mySharedParam = newParamToCopy;
+    if (!softChange)
+    {
+        InitDefaultAttribute(newType);
+        ResetUselessParam(newType);
+    }
 
-    InitDefaultAttribute(_type);
-    ResetUselessParam(_type);
+    myDefaultAttribute->SetValueFromText(_templateToCopy.myDefaultAttribute->GetValueAsText());
 }
 void TemplateAttribute::SetDefaultValue(const QString& _valueAsText)
 {
