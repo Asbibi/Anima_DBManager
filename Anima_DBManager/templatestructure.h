@@ -38,10 +38,11 @@ public:
     void AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& _attName, int _index = -1);
     void AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& _attName, const AttributeParam& _attParam, int _index = -1);
     void AddAttributeTemplate(const TemplateAttribute& _attTemplateToCopy, const QString* _newName = nullptr, int _index = -1);
-    void RemoveAttribute(const int& _index);
+    void RemoveAttribute(int _index);
     void RemoveAttribute(const QString& _attName);
     void MoveAttribute(int _indexFrom, int _indexTo);
     void SetAttributeFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap);
+    void ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy);
 
     void RenameAttributeTemplate(int _index, QString& _newName);
     void SetAttributeDefaultValue(int _index, const QString& _value);

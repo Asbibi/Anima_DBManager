@@ -15,9 +15,13 @@ Attribute* AFloat::CreateDuplica() const
 {
     return new AFloat(mySharedParam, value);
 }
-QString AFloat::GetDisplayedText(bool complete) const
+QString AFloat::GetDisplayedText() const
 {
-    return QString::number(complete ? value : GetValue());
+    return QString::number(GetValue());
+}
+QString AFloat::GetValueAsText() const
+{
+    return QString::number(value);
 }
 QString AFloat::GetAttributeAsCSV() const
 {
@@ -68,11 +72,11 @@ void AFloat::CopyValueFromOther(const Attribute* _other)
 
 bool AFloat::FitsMinParam() const
 {
-    return mySharedParam.ignoreMin || value < mySharedParam.min_f;
+    return mySharedParam.ignoreMin || value >= mySharedParam.min_f;
 }
 bool AFloat::FitsMaxParam() const
 {
-    return mySharedParam.ignoreMax || value > mySharedParam.max_f;
+    return mySharedParam.ignoreMax || value <= mySharedParam.max_f;
 }
 float AFloat::GetValue(bool _validated) const
 {

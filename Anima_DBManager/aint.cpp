@@ -16,9 +16,13 @@ Attribute* AInt::CreateDuplica() const
 {
     return new AInt(mySharedParam, value);
 }
-QString AInt::GetDisplayedText(bool complete) const
+QString AInt::GetDisplayedText() const
 {
-    return QString::number(complete ? value : GetValue());
+    return QString::number(GetValue());
+}
+QString AInt::GetValueAsText() const
+{
+    return QString::number(value);
 }
 QString AInt::GetAttributeAsCSV() const
 {
@@ -73,11 +77,11 @@ void AInt::CopyValueFromOther(const Attribute* _other)
 
 bool AInt::FitsMinParam() const
 {
-    return mySharedParam.ignoreMin || value < mySharedParam.min_i;
+    return mySharedParam.ignoreMin || value >= mySharedParam.min_i;
 }
 bool AInt::FitsMaxParam() const
 {
-    return mySharedParam.ignoreMax || value > mySharedParam.max_i;
+    return mySharedParam.ignoreMax || value <= mySharedParam.max_i;
 }
 int AInt::GetValue(bool _validated) const
 {

@@ -37,7 +37,7 @@ public:
 
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attrIndex);
-    void ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param);
+    void ChangeAttributeTemplate(int _attrIndex, const TemplateAttribute& _templateToCopy);
     void FixAttributesTypeToDefault(int _attIndex);
     void AddAttribute(int _position, bool _copyFromPrevious);
     void RemoveAttribute(int _position);
@@ -57,6 +57,7 @@ public:
     int GetStructureCount() const;
     const QString GetStructureRowName(int index) const;
     const QString GetStructureRowName(const Structure* _structure) const;
+    int GetStructureIndex(const Structure* _structure) const;
 
     void WriteValue_CSV_Table(std::ofstream& file) const;
     void ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy);

@@ -139,7 +139,7 @@ void Structure::GetAttributesDisplayedText(QString& _text) const
     {
         if (i > 0)
             _text.append(',');
-        _text.append(myAttributes[i]->GetDisplayedText(true));
+        _text.append(myAttributes[i]->GetValueAsText());
     }
 }
 void Structure::WriteValue_CSV(std::ofstream& file) const
@@ -177,7 +177,7 @@ QString Structure::GetDisplayText() const
     const int nAttr = attributeTemplates.count();
     for (int i = 0; i < nAttr; i++)
     {
-        text += attributeTemplates[i]->GetName() + " \t = " + GetAttribute(i)->GetDisplayedText(true) + "\n";
+        text += attributeTemplates[i]->GetName() + " \t = " + GetAttribute(i)->GetValueAsText() + "\n";
     }
     return text;
 }

@@ -116,9 +116,9 @@ void StructureDB::ResetAttributeToDefault(int _attrIndex)
         structure->ResetAttributeToDefault(_attrIndex);
     }
 }
-void StructureDB::ChangeAttributeTemplate(int _attrIndex, AttributeTypeHelper::Type _newType, const AttributeParam& _param)
+void StructureDB::ChangeAttributeTemplate(int _attrIndex, const TemplateAttribute& _templateToCopy)
 {
-    myTemplate.GetAttributeTemplate(_attrIndex)->SetNewValues(_newType, _param);
+    myTemplate.ChangeAttribute(_attrIndex, _templateToCopy);
 }
 void StructureDB::FixAttributesTypeToDefault(int _attIndex)
 {
@@ -268,8 +268,13 @@ const QString StructureDB::GetStructureRowName(int index) const
 }
 const QString StructureDB::GetStructureRowName(const Structure* _structure) const
 {
+    const int i = GetStructureIndex(_structure);
+    return GetStructureRowName(i);
+}
+int StructureDB::GetStructureIndex(const Structure* _structure) const
+{
     if (!_structure)
-        return "";
+        return -1;
 
     const int count = GetStructureCount();
     int i = 0;
@@ -278,7 +283,7 @@ const QString StructureDB::GetStructureRowName(const Structure* _structure) cons
         if (_structure == myStructures[i])
             break;
     }
-    return GetStructureRowName(i);
+    return i;
 }
 
 void StructureDB::WriteValue_CSV_Table(std::ofstream& file) const

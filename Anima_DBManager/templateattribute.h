@@ -8,10 +8,12 @@
 
 class AReference;
 class TemplateStructure;
+class QTemplateAttributeCore;
 
 class TemplateAttribute
 {
     //friend TemplateStructure;
+    friend QTemplateAttributeCore;
 
 private:
     QString myAttrName = "";
@@ -26,7 +28,7 @@ public:
     TemplateAttribute(const AttributeParam& _sharedParamToCopy);
     TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy);
     TemplateAttribute(const TemplateAttribute& _another);
-    void operator=(const TemplateAttribute& _another);      // !!! Pass the ownership of myDefaultAttribute from _another to this
+    void operator=(const TemplateAttribute& _another);      // !!! Pass the ownership of myDefaultAttribute from _another to this -> issue with default attribute not refering the correct sharedparam ?
     ~TemplateAttribute();
 
 
@@ -38,7 +40,7 @@ public:
     Attribute* GetDefaultAttributeW();
     bool HasValidSharedParam() const;
 
-    void SetNewValues(AttributeTypeHelper::Type _type, const AttributeParam& _param);
+    void SetNewValues(const TemplateAttribute& _templateToCopy);
     void SetDefaultValue(const QString& _valueAsText);
     void SetName(const QString& _name) {myAttrName = _name;}
 

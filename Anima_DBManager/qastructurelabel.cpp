@@ -13,7 +13,7 @@ QAStructureLabel::QAStructureLabel(QWidget* _parent) :
 void QAStructureLabel::SetValue(const QList<Attribute*>& _structureAttrPtr)
 {
     myAttributesPtr = _structureAttrPtr;
-    setText(AStructure::GetDisplayTextFromAttributes(myAttributesPtr));
+    setText(AStructure::GetValueAsTextFromAttributes(myAttributesPtr));
 }
 QString QAStructureLabel::GetValue() const
 {

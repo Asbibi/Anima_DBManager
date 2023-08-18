@@ -36,7 +36,7 @@ QStructureDialog::QStructureDialog(const QList<Attribute*>& _attributeList, QWid
     for (auto* attr : _attributeList)
     {
         myAttributes.push_back(attr->CreateDuplica());
-        myList->addItem(attr->GetDisplayedText(true));
+        myList->addItem(attr->GetValueAsText());
     }
 
 
@@ -52,7 +52,7 @@ QStructureDialog::~QStructureDialog()
 
 QString QStructureDialog::GetValue() const
 {
-    return AStructure::GetDisplayTextFromAttributes(myAttributes);
+    return AStructure::GetValueAsTextFromAttributes(myAttributes);
 }
 
 void QStructureDialog::OnSelectItem(QListWidgetItem* _current, QListWidgetItem* _previous)
@@ -63,7 +63,7 @@ void QStructureDialog::OnSelectItem(QListWidgetItem* _current, QListWidgetItem* 
         QObject::disconnect(myCurrentAttributeEditor);
         delete myCurrentAttributeEditor;
         myCurrentAttributeEditor = nullptr;
-        _previous->setText(myAttributes[myList->row(_previous)]->GetDisplayedText(true));
+        _previous->setText(myAttributes[myList->row(_previous)]->GetValueAsText());
     }
 
     myCurrentAttributeEditor = new QAttribute();

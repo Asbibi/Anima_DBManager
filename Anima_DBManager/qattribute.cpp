@@ -382,7 +382,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
                 return;
             }
 
-            qassetTexture->SetValue(_attribute->GetDisplayedText(true));
+            qassetTexture->SetValue(_attribute->GetValueAsText());
             break;
         }
         case AttributeTypeHelper::Type::UAsset :
@@ -397,7 +397,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
                 return;
             }
 
-            qasset->SetValue(_attribute->GetDisplayedText(true));
+            qasset->SetValue(_attribute->GetValueAsText());
             break;
         }
         case AttributeTypeHelper::Type::Reference :

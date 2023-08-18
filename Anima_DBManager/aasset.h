@@ -20,7 +20,8 @@ public:
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::UAsset; };
     virtual Attribute* CreateDuplica()                          const override;
-    virtual QString GetDisplayedText(bool complete = false)     const override;
+    virtual QString GetDisplayedText()                          const override;
+    virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;

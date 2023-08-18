@@ -1,5 +1,22 @@
 #include "attributetype.h"
 
+#include "abool.h"
+#include "aenumerator.h"
+#include "afloat.h"
+#include "aint.h"
+#include "ashortstring.h"
+
+#include "aarray.h"
+#include "astructure.h"
+#include "areference.h"
+#include "atablestring.h"
+
+#include "aasset.h"
+#include "aamesh.h"
+#include "aaniagara.h"
+#include "aasound.h"
+#include "aatexture.h"
+
 
 namespace AttributeTypeHelper {
 
@@ -89,6 +106,40 @@ bool AreParamValid(const Type _type, const AttributeParam& _param)
 bool IsAssetType(const Type _type)
 {
     return (int)_type >= (int)Type::UAsset;
+}
+
+Attribute* NewAttributeFromType(const Type _type, AttributeParam& _sharedParam)
+{
+#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case AttributeTypeHelper::Type::TYPE: { return new CLASS(_sharedParam); }
+#define CASE_INIT_TEMPLATE(TYPE) CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, A##TYPE)
+
+    switch (_type)
+    {
+        default:
+        case AttributeTypeHelper::Type::Invalid:
+        {
+            qWarning("Ask Generation of an Attribute from Invalid Type");
+            return nullptr;
+        }
+
+        CASE_INIT_TEMPLATE(Bool);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Enum, AEnumerator);
+        CASE_INIT_TEMPLATE(Float);
+        CASE_INIT_TEMPLATE(Int);
+        CASE_INIT_TEMPLATE(ShortString);
+        CASE_INIT_TEMPLATE(Array);
+        CASE_INIT_TEMPLATE(Structure);
+        CASE_INIT_TEMPLATE(Reference);
+        CASE_INIT_TEMPLATE(TableString);
+        CASE_INIT_TEMPLATE_WITH_CLASS(UAsset, AAsset);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Mesh, AAMesh);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Niagara, AANiagara);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Sound, AASound);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Texture, AATexture);
+    }
+
+#undef CASE_INIT_TEMPLATE
+#undef CASE_INIT_TEMPLATE_WITH_CLASS
 }
 
 }
