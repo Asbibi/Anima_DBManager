@@ -116,9 +116,9 @@ void StructureDB::ResetAttributeToDefault(int _attrIndex)
         structure->ResetAttributeToDefault(_attrIndex);
     }
 }
-void StructureDB::ChangeAttributeTemplate(int _attrIndex, const TemplateAttribute& _templateToCopy)
+bool StructureDB::ChangeAttributeTemplate(int _attrIndex, const TemplateAttribute& _templateToCopy)
 {
-    myTemplate.ChangeAttribute(_attrIndex, _templateToCopy);
+    return myTemplate.ChangeAttribute(_attrIndex, _templateToCopy);
 }
 void StructureDB::FixAttributesTypeToDefault(int _attIndex)
 {

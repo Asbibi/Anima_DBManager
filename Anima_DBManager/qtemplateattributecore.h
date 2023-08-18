@@ -6,6 +6,7 @@
 #include "attributeparam.h"
 #include "attribute.h"
 #include "qattribute.h"
+#include "qtemplatestructurecore.h"
 
 #include <QComboBox>
 #include <QFormLayout>
@@ -21,11 +22,13 @@ private:
     QComboBox* myTypeComboBox;
     QAttribute* myDefAttributeEditor;
     QTemplateAttributeCore* myArrayTemplate = nullptr;
+    QTemplateStructureCore* myStructureTemplate = nullptr;
     QLabel* myDefAttributeUnavailable;
 
     void UpdateLayout(AttributeTypeHelper::Type _type);
     void PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type);
     void RefreshDefaultAttributeWidget();
+    void ReConstructDefaultAttribute(AttributeTypeHelper::Type _type);
 
 public:
     QTemplateAttributeCore(TemplateAttribute& _templateAttribute, QWidget* _parent = nullptr);
@@ -50,6 +53,7 @@ public slots:
     void OnParamChanged_StructDB(const QString& _SDBName);
     void OnParamChanged_Enum(int _enumIndex);
     void OnParamChanged_ArrayTemplate(bool _withCriticalChange);
+    void OnParamChanged_StructureTemplate(bool _withCriticalChange);
 
     void OnDefaultAttributeEdited(const QString& _attributeValueAsText);
 };

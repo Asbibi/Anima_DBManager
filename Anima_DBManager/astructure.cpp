@@ -16,7 +16,7 @@ AStructure::AStructure(const AttributeParam& _sharedParam, const Structure* _val
     }
     else
     {
-        Q_ASSERT(mySharedParam.templateStruct == &_value->GetTemplate());
+        Q_ASSERT(mySharedParam.templateStruct == &(_value->GetTemplate()));
         myValue = new Structure(*_value, true);
     }
 }
@@ -143,6 +143,11 @@ const QList<Attribute*>& AStructure::GetAttributes() const
 }
 QString AStructure::GetValueAsTextFromAttributes(const QList<Attribute*>& _attributes)
 {
+    if (_attributes.length() == 0)
+    {
+        return "{}";
+    }
+
     QString _text = "{";
     const int attrCount = _attributes.count();
     for (int i = 0; i < attrCount; i++)

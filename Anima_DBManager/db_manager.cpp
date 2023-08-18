@@ -504,9 +504,9 @@ void DB_Manager::ChangeAttributeTemplate(int _tableIndex, int _attrIndex, const 
     if (_tableIndex < 0 || _tableIndex > count)
         return;
 
-    AttributeTypeHelper::Type previousType = myStructures[_tableIndex]->GetAttributeTemplateType(_attrIndex);
-    myStructures[_tableIndex]->ChangeAttributeTemplate(_attrIndex, _templateToCopy);
-    if (previousType != _templateToCopy.GetType())
+    //AttributeTypeHelper::Type previousType = myStructures[_tableIndex]->GetAttributeTemplateType(_attrIndex);
+    bool softChange = myStructures[_tableIndex]->ChangeAttributeTemplate(_attrIndex, _templateToCopy);
+    if (!softChange)
     {
         myStructures[_tableIndex]->FixAttributesTypeToDefault(_attrIndex);
         emit StructItemChanged(_tableIndex);

@@ -81,13 +81,9 @@ void AttributeParam::operator=(const AttributeParam& _another)
 
     if (_another.templateAtt)
         templateAtt = new TemplateAttribute(*_another.templateAtt);
-    else
-        templateAtt = nullptr;
 
     if (_another.templateStruct)
         templateStruct = new TemplateStructure(*_another.templateStruct);
-    else
-        templateStruct = nullptr;
 }
 
 

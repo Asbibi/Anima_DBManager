@@ -66,6 +66,8 @@ SOURCES += \
     qtemplateattribute.cpp \
     qtemplateattributecore.cpp \
     qtemplatestructure.cpp \
+    qtemplatestructurebase.cpp \
+    qtemplatestructurecore.cpp \
     savemanager.cpp \
     sstringhelper.cpp \
     sstringimporter.cpp \
@@ -133,6 +135,8 @@ HEADERS += \
     qtemplateattribute.h \
     qtemplateattributecore.h \
     qtemplatestructure.h \
+    qtemplatestructurebase.h \
+    qtemplatestructurecore.h \
     savemanager.h \
     sstringhelper.h \
     sstringimporter.h \

@@ -23,6 +23,9 @@ private:
     void InitDefaultAttribute(AttributeTypeHelper::Type _type);
     void ResetUselessParam(AttributeTypeHelper::Type _type);
 
+    static bool IsSameArrayType(const AttributeParam& _firstParam, const AttributeParam& _secondParam);
+    static bool IsSameStructType(const AttributeParam& _firstParam, const AttributeParam& _secondParam);
+
 public:
     TemplateAttribute();
     TemplateAttribute(const AttributeParam& _sharedParamToCopy);
@@ -40,7 +43,7 @@ public:
     Attribute* GetDefaultAttributeW();
     bool HasValidSharedParam() const;
 
-    void SetNewValues(const TemplateAttribute& _templateToCopy);
+    bool SetNewValues(const TemplateAttribute& _templateToCopy);
     void SetDefaultValue(const QString& _valueAsText);
     void SetName(const QString& _name) {myAttrName = _name;}
 

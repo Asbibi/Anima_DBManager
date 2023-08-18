@@ -111,9 +111,9 @@ void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList, 
         }
     }
 }
-void TemplateStructure::ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy)
+bool TemplateStructure::ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy)
 {
-    GetAttributeTemplate(_attrIndex)->SetNewValues(_templateToCopy);
+    return GetAttributeTemplate(_attrIndex)->SetNewValues(_templateToCopy);
 }
 
 

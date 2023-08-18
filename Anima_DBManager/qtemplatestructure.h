@@ -1,27 +1,25 @@
 #ifndef QTEMPLATESTRUCTURE_H
 #define QTEMPLATESTRUCTURE_H
 
-#include <QWidget>
-
 #include "structuredb.h"
 #include "qtemplateattribute.h"
+#include "qtemplatestructurebase.h"
 
 #include <QList>
 #include <QPushButton>
 #include <QTabWidget>
 
-class QTemplateStructure : public QWidget
+class QTemplateStructure : public QtemplateStructureBase
 {
     Q_OBJECT
 private:
     StructureDB* myStructureDB;
-
-    QTabWidget* myTabWidget;
     QList<QString> myAttributeNames;
-    QList<QPushButton*> myPushBtns;
 
     void UpdateAttributeTabText(int index);
-    void AddAttribute(int _position, bool _duplicatePrevious = false);
+
+protected:
+    virtual void AddAttribute(int _position, bool _duplicatePrevious = false) override;
 
 public:
     explicit QTemplateStructure(QWidget *parent = nullptr);
@@ -30,18 +28,18 @@ public:
 
 signals:
 public slots:
-    void UpdateContent();
+    virtual void UpdateContent() override final;
 
-    void OnTabMoved(int _indexFrom, int _indexTo);
+    virtual void OnTabMoved(int _indexFrom, int _indexTo) override;
+    virtual void OnAddBefore() override;
+    virtual void OnAddAfter() override;
+    virtual void OnDuplicate() override;
+    virtual void OnRemove() override;
+
     void OnNameChanged(const QString& _previousName, QString& _newName);
     void OnApply(const QString& _attrName,  const TemplateAttribute& _editedTemplateCopy, bool _hasCriticalChanges);
     void OnRevert(const QString& _attrName);
     void OnApplyDefaultToAll(const QString& _attrName);
-
-    void OnAddBefore();
-    void OnAddAfter();
-    void OnDuplicate();
-    void OnRemove();
 };
 
 #endif // QTEMPLATESTRUCTURE_H

@@ -42,7 +42,7 @@ public:
     void RemoveAttribute(const QString& _attName);
     void MoveAttribute(int _indexFrom, int _indexTo);
     void SetAttributeFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap);
-    void ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy);
+    bool ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy);
 
     void RenameAttributeTemplate(int _index, QString& _newName);
     void SetAttributeDefaultValue(int _index, const QString& _value);
@@ -57,6 +57,7 @@ public:
     int GetAttributesCount() const { return (int)(myAttributeTemplates.count()); }
 
     const QList<TemplateAttribute*>& GetAttributes() const { return myAttributeTemplates; }
+    QList<TemplateAttribute*>& GetAttributesW() { return myAttributeTemplates; }
 
     void SaveTemplate_CSV(std::ofstream& file) const;
 };
