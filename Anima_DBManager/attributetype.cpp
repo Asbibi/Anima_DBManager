@@ -108,7 +108,7 @@ bool IsAssetType(const Type _type)
     return (int)_type >= (int)Type::UAsset;
 }
 
-Attribute* NewAttributeFromType(const Type _type, AttributeParam& _sharedParam)
+Attribute* NewAttributeFromType(const Type _type, const AttributeParam& _sharedParam)
 {
 #define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case AttributeTypeHelper::Type::TYPE: { return new CLASS(_sharedParam); }
 #define CASE_INIT_TEMPLATE(TYPE) CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, A##TYPE)

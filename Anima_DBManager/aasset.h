@@ -19,7 +19,6 @@ public:
     bool UpdateIsDirty();   // return if myIsDirty has changed
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::UAsset; };
-    virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;

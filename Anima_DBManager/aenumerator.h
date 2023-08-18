@@ -14,7 +14,6 @@ public:
     AEnumerator(const AttributeParam& _sharedParam, int _valueIndex = 0);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Enum; };
-    virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;

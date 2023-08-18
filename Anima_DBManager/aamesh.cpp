@@ -11,11 +11,6 @@ AAMesh::AAMesh(const AttributeParam& _sharedParam, QString _filePath, bool _isSk
 {}
 
 
-Attribute* AAMesh::CreateDuplica() const
-{
-    return new AAMesh(mySharedParam, myFilePath, isSkeletal);
-}
-
 const QString& AAMesh::GetAssetClassNameForCSV() const
 {
     static QString staticName = "/Script/Engine.StaticMesh";

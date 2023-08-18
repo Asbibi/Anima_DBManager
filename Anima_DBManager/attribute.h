@@ -17,10 +17,10 @@ protected:
 
 public:
     Attribute(const AttributeParam& _sharedParam);
+    Attribute* CreateDuplica() const;
     virtual ~Attribute();
 
     virtual AttributeTypeHelper::Type GetType()             const = 0;
-    virtual Attribute* CreateDuplica()                      const = 0;
     virtual QString GetDisplayedText()                      const = 0;
     virtual QString GetValueAsText()                        const = 0;
     virtual QString GetAttributeAsCSV()                     const = 0;

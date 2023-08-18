@@ -11,11 +11,6 @@ AInt::AInt(const AttributeParam& _sharedParam, int _value) :
 {}
 
 
-
-Attribute* AInt::CreateDuplica() const
-{
-    return new AInt(mySharedParam, value);
-}
 QString AInt::GetDisplayedText() const
 {
     return QString::number(GetValue());

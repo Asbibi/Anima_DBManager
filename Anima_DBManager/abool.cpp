@@ -9,11 +9,6 @@ ABool::ABool(const AttributeParam& _sharedParam, bool _value) :
 {}
 
 
-
-Attribute* ABool::CreateDuplica() const
-{
-    return new ABool(mySharedParam, value);
-}
 QString ABool::GetDisplayedText() const
 {
     return value ? "TRUE" : "FALSE";

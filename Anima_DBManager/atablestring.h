@@ -14,7 +14,6 @@ public:
     ATableString(const AttributeParam& _sharedParam, const QString& _tableName, const QString& _stringIdentifier);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::TableString; };
-    virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;

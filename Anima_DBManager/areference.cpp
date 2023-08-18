@@ -20,11 +20,6 @@ AReference::AReference(const AttributeParam& _sharedParam, QPointer<const Struct
 }
 
 
-
-Attribute* AReference::CreateDuplica() const
-{
-    return new AReference(mySharedParam, myStructureRef);
-}
 QString AReference::GetDisplayedText() const
 {
     if(!mySharedParam.structTable || !myStructureRef)

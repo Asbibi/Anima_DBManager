@@ -11,10 +11,7 @@ ATableString::ATableString(const AttributeParam& _sharedParam, const QString& _t
     myStringIdentifier(_stringIdentifier)
 {}
 
-Attribute* ATableString::CreateDuplica() const
-{
-    return new ATableString(mySharedParam, myTableName, myStringIdentifier);
-}
+
 QString ATableString::GetDisplayedText() const
 {
     auto& DB = DB_Manager::GetDB_Manager();

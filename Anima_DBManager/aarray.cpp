@@ -25,10 +25,6 @@ AArray::~AArray()
 }
 
 
-Attribute* AArray::CreateDuplica() const
-{
-    return new AArray(mySharedParam, myValues);
-}
 QString AArray::GetDisplayedText() const
 {
     return GetShortDisplayedString(myValues.count());

@@ -10,11 +10,6 @@ AFloat::AFloat(const AttributeParam& _sharedParam, float _value) :
 {}
 
 
-
-Attribute* AFloat::CreateDuplica() const
-{
-    return new AFloat(mySharedParam, value);
-}
 QString AFloat::GetDisplayedText() const
 {
     return QString::number(GetValue());

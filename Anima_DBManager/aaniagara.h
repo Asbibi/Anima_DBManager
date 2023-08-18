@@ -10,7 +10,6 @@ public:
     AANiagara(const AttributeParam& _sharedParam, QString _filePath);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Niagara; };
-    virtual Attribute* CreateDuplica()                          const override;
     virtual const QString& GetAssetClassNameForCSV()            const override;
 };
 

@@ -12,10 +12,6 @@ AShortString::AShortString(const AttributeParam& _sharedParam, QString _value) :
 {}
 
 
-Attribute* AShortString::CreateDuplica() const
-{
-    return new AShortString(mySharedParam, value);
-}
 QString AShortString::GetDisplayedText() const
 {
     if (mySharedParam.ignoreMax)

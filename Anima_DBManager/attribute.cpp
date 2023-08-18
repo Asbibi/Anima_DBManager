@@ -5,6 +5,12 @@
 Attribute::Attribute(const AttributeParam& _sharedParam) :
     mySharedParam(_sharedParam)
 {}
+Attribute* Attribute::CreateDuplica() const
+{
+    auto* duplica = AttributeTypeHelper::NewAttributeFromType(GetType(), mySharedParam);
+    duplica->SetValueFromText(GetValueAsText());
+    return duplica;
+}
 
 Attribute::~Attribute()
 {}

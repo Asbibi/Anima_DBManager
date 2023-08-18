@@ -22,11 +22,6 @@ AStructure::AStructure(const AttributeParam& _sharedParam, const Structure* _val
 }
 
 
-
-Attribute* AStructure::CreateDuplica() const
-{
-    return new AStructure(mySharedParam, myValue);
-}
 QString AStructure::GetDisplayedText() const
 {
     // return GetValueAsText() ?

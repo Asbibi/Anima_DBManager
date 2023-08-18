@@ -9,12 +9,6 @@ AATexture::AATexture(const AttributeParam& _sharedParam, QString _filePath) :
 {}
 
 
-Attribute* AATexture::CreateDuplica() const
-{
-    return new AATexture(mySharedParam, myFilePath);
-}
-
-
 const QString& AATexture::GetAssetClassNameForCSV() const
 {
     static QString className = "/Script/Engine.Texture2D";

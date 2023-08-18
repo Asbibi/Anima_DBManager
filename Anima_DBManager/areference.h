@@ -18,7 +18,6 @@ public:
     AReference(const AttributeParam& _sharedParam, QPointer<const Structure> _structureRef);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Reference; };
-    virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;

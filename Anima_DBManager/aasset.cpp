@@ -34,10 +34,6 @@ bool AAsset::UpdateIsDirty()
     return changed;
 }
 
-Attribute* AAsset::CreateDuplica() const
-{
-    return new AAsset(mySharedParam, myFilePath);
-}
 
 QString AAsset::GetDisplayedText() const
 {
