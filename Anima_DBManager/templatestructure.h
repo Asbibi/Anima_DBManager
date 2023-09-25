@@ -23,7 +23,6 @@ public:
     TemplateStructure(const QString& _structName, const QColor& _structColor);
     TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor);
     TemplateStructure(const TemplateStructure& _other);
-    void operator=(const TemplateStructure& _another);
     ~TemplateStructure();
 
     const QColor& GetStructColor() const { return myStructColor; }

@@ -9,8 +9,8 @@ class AStructure : public Attribute
 public:
     Structure* myValue;
 
-    AStructure(const AttributeParam& _sharedParam);
-    AStructure(const AttributeParam& _sharedParam, const Structure* _value);
+    AStructure(TemplateAttribute& _template);
+    AStructure(TemplateAttribute& _template, const Structure* _value);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Structure; };
     virtual QString GetDisplayedText()                          const override;

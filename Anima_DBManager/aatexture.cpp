@@ -1,11 +1,11 @@
 #include "aatexture.h"
 
-AATexture::AATexture(const AttributeParam& _sharedParam) :
-    AAsset(_sharedParam)
+AATexture::AATexture(TemplateAttribute& _template) :
+    AAsset(_template)
 {}
 
-AATexture::AATexture(const AttributeParam& _sharedParam, QString _filePath) :
-    AAsset(_sharedParam, _filePath)
+AATexture::AATexture(TemplateAttribute& _template, QString _filePath) :
+    AAsset(_template, _filePath)
 {}
 
 

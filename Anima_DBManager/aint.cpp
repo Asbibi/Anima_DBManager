@@ -1,12 +1,13 @@
 #include "aint.h"
 #include "afloat.h"
+#include "templateattribute.h"
 
 
-AInt::AInt(const AttributeParam& _sharedParam) :
-    AInt(_sharedParam, 0)
+AInt::AInt(TemplateAttribute& _template) :
+    AInt(_template, 0)
 {}
-AInt::AInt(const AttributeParam& _sharedParam, int _value) :
-    Attribute(_sharedParam),
+AInt::AInt(TemplateAttribute& _template, int _value) :
+    Attribute(_template),
     value(_value)
 {}
 
@@ -64,19 +65,19 @@ void AInt::CopyValueFromOther(const Attribute* _other)
 
     value = otherValue;
     if (!FitsMinParam())
-        value = mySharedParam.min_i;
+        value = MY_SHARED_PARAM.min_i;
     else if (!FitsMaxParam())
-            value = mySharedParam.max_i;
+            value = MY_SHARED_PARAM.max_i;
 }
 
 
 bool AInt::FitsMinParam() const
 {
-    return mySharedParam.ignoreMin || value >= mySharedParam.min_i;
+    return MY_SHARED_PARAM.ignoreMin || value >= MY_SHARED_PARAM.min_i;
 }
 bool AInt::FitsMaxParam() const
 {
-    return mySharedParam.ignoreMax || value <= mySharedParam.max_i;
+    return MY_SHARED_PARAM.ignoreMax || value <= MY_SHARED_PARAM.max_i;
 }
 int AInt::GetValue(bool _validated) const
 {
@@ -85,19 +86,19 @@ int AInt::GetValue(bool _validated) const
 
     int v = value;
     if (!FitsMinParam())
-        v = mySharedParam.min_i;
+        v = MY_SHARED_PARAM.min_i;
     else if (!FitsMaxParam())
-        v = mySharedParam.max_i;
+        v = MY_SHARED_PARAM.max_i;
     return v;
 }
 
 int AInt::GetMax(bool& useIt) const
 {
-    useIt = !mySharedParam.ignoreMax;
-    return mySharedParam.max_i;
+    useIt = !MY_SHARED_PARAM.ignoreMax;
+    return MY_SHARED_PARAM.max_i;
 }
 int AInt::GetMin(bool& useIt) const
 {
-    useIt = !mySharedParam.ignoreMin;
-    return mySharedParam.min_i;
+    useIt = !MY_SHARED_PARAM.ignoreMin;
+    return MY_SHARED_PARAM.min_i;
 }

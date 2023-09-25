@@ -35,25 +35,13 @@ Structure::Structure(const Structure& _other, TemplateStructure& _newTemplate) :
         myAttributes.push_back(newAttr);
     }
 }
-void Structure::operator=(const Structure& _other)
-{
-    // Why it happens ? => do we want a shallow ptr copy or a deep data copy ?
-
-    myAttributes.clear();
-    myTemplate = _other.myTemplate;
-
-    const int myAttrCount = myTemplate.GetAttributesCount();
-    for (int i = 0; i < myAttrCount; i++)
-    {
-        auto* newAttr = myTemplate.GetAttributeTemplate(i)->GenerateAttribute();
-        newAttr->CopyValueFromOther(_other.GetAttribute(i));
-        myAttributes.push_back(newAttr);
-    }
-}
 Structure::~Structure()
 {
     for(auto const& att : myAttributes)
+    {
+        att->PreManualDelete();
         delete(att);
+    }
 }
 
 
@@ -116,8 +104,12 @@ void Structure::ResetAttributeToDefault(int _attindex)
 }
 void Structure::FixAttributeTypeToDefault(int _attIndex)
 {
+    // Replace the attribute with another that has to correct class considering its type
     auto* attr = myAttributes[_attIndex];
     myAttributes[_attIndex] = myTemplate.GetAttributeTemplate(_attIndex)->GenerateAttribute();
+
+    // Delete the old invalid one
+    attr->PreManualDelete();
     delete attr;
 }
 void Structure::AddAttribute(int _position, bool _copyFromPrevious)
@@ -128,7 +120,9 @@ void Structure::AddAttribute(int _position, bool _copyFromPrevious)
 }
 void Structure::RemoveAttribute(int _position)
 {
-    delete myAttributes.takeAt(_position);
+    auto* removedAttr = myAttributes.takeAt(_position);
+    removedAttr->PreManualDelete();
+    delete removedAttr;
 }
 
 

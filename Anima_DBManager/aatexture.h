@@ -7,8 +7,8 @@
 class AATexture : public AAsset
 {
 public:
-    AATexture(const AttributeParam& _sharedParam);
-    AATexture(const AttributeParam& _sharedParam, QString _filePath);
+    AATexture(TemplateAttribute& _template);
+    AATexture(TemplateAttribute& _template, QString _filePath);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Texture; };
     virtual const QString& GetAssetClassNameForCSV()            const override;

@@ -54,7 +54,7 @@ AttributeParam::~AttributeParam()
 
     DB_Manager::GetDB_Manager().UnregisterAttributeParam(this);
 }
-void AttributeParam::operator=(const AttributeParam& _another)
+/*void AttributeParam::operator=(const AttributeParam& _another)
 {
     // Clean Up
     if (templateAtt != nullptr)
@@ -84,7 +84,7 @@ void AttributeParam::operator=(const AttributeParam& _another)
 
     if (_another.templateStruct)
         templateStruct = new TemplateStructure(*_another.templateStruct);
-}
+}*/
 
 
 const Enumerator* AttributeParam::GetEnum() const

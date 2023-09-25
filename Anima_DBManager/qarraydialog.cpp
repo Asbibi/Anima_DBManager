@@ -67,6 +67,7 @@ void QArrayDialog::CleanAttributes()
 {
     for (auto* attr : myAttributes)
     {
+        attr->PreManualDelete();
         delete attr;
     }
     myAttributes.clear();
@@ -117,7 +118,9 @@ void QArrayDialog::OnValueMoved(const int _indexFrom, const int _indexTo)
 void QArrayDialog::OnValueRemoved(const int _index)
 {
     Q_ASSERT(_index >= 0 &&  _index < myAttributes.count());
-    delete myAttributes.takeAt(_index);
+    auto* removedAttr = myAttributes.takeAt(_index);
+    removedAttr->PreManualDelete();
+    delete removedAttr;
 }
 void QArrayDialog::OnSelectedValueEdited()
 {

@@ -1,5 +1,8 @@
 #include "attributetype.h"
 
+#include "attributeparam.h"
+#include "templateattribute.h"
+
 #include "abool.h"
 #include "aenumerator.h"
 #include "afloat.h"
@@ -108,9 +111,9 @@ bool IsAssetType(const Type _type)
     return (int)_type >= (int)Type::UAsset;
 }
 
-Attribute* NewAttributeFromType(const Type _type, const AttributeParam& _sharedParam)
+Attribute* NewAttributeFromType(const Type _type, TemplateAttribute& _template)
 {
-#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case AttributeTypeHelper::Type::TYPE: { return new CLASS(_sharedParam); }
+#define CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, CLASS) case AttributeTypeHelper::Type::TYPE: { return new CLASS(_template); }
 #define CASE_INIT_TEMPLATE(TYPE) CASE_INIT_TEMPLATE_WITH_CLASS(TYPE, A##TYPE)
 
     switch (_type)
@@ -140,6 +143,33 @@ Attribute* NewAttributeFromType(const Type _type, const AttributeParam& _sharedP
 
 #undef CASE_INIT_TEMPLATE
 #undef CASE_INIT_TEMPLATE_WITH_CLASS
+}
+void ResetUselessAttributesForType(const Type _type, AttributeParam& _param)
+{
+    if (_type != AttributeTypeHelper::Type::Enum)
+    {
+        _param.enumeratorIndex = -1;
+    }
+    if (_type != AttributeTypeHelper::Type::Reference)
+    {
+        _param.structTable = nullptr;
+    }
+    if (_type != AttributeTypeHelper::Type::Array)
+    {
+        if (_param.templateAtt != nullptr)
+        {
+            delete _param.templateAtt;
+            _param.templateAtt = nullptr;
+        }
+    }
+    if (_type != AttributeTypeHelper::Type::Structure)
+    {
+        if (_param.templateStruct != nullptr)
+        {
+            delete _param.templateStruct;
+            _param.templateStruct = nullptr;
+        }
+    }
 }
 
 }

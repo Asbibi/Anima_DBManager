@@ -1,17 +1,24 @@
 #include "attribute.h"
+
 #include "qattribute.h"
+#include "templateattribute.h"
 
 
-Attribute::Attribute(const AttributeParam& _sharedParam) :
-    mySharedParam(_sharedParam)
-{}
+Attribute::Attribute(TemplateAttribute& _template) :
+    myTemplate(_template)
+{
+    myTemplate.RegisterAttribute(this);
+}
 Attribute* Attribute::CreateDuplica() const
 {
-    auto* duplica = AttributeTypeHelper::NewAttributeFromType(GetType(), mySharedParam);
+    auto* duplica = AttributeTypeHelper::NewAttributeFromType(GetType(), myTemplate);
     duplica->SetValueFromText(GetValueAsText());
     return duplica;
 }
-
+void Attribute::PreManualDelete()
+{
+    myTemplate.UnregisterAttribute(this);
+}
 Attribute::~Attribute()
 {}
 
@@ -28,4 +35,13 @@ void Attribute::ReadValue_CSV(const QString& text)
 void Attribute::WriteValue_CSV(std::ofstream& file) const
 {
     file << GetAttributeAsCSV().toStdString();
+}
+
+const TemplateAttribute* Attribute::GetTemplate() const
+{
+    return &myTemplate;
+}
+const AttributeParam& Attribute::GetTemplateParam() const
+{
+    return GetTemplate()->GetSharedParam();
 }

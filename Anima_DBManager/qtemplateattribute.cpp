@@ -4,7 +4,7 @@
 #include <QHBoxLayout>
 
 QTemplateAttribute::QTemplateAttribute(QWidget *parent)
-    : QWidget{parent}, myCoreEditor{nullptr}
+    : QWidget{parent}, myTemplateCopy{nullptr}, myCoreEditor{nullptr}
 {
     myFormLayout = new QFormLayout();
     setLayout(myFormLayout);
@@ -33,17 +33,30 @@ QTemplateAttribute::QTemplateAttribute(QWidget *parent)
 
     ShowDefaultWidget(true);
 }
+QTemplateAttribute::~QTemplateAttribute()
+{
+    DeleteTemplateIfExists();
+}
+void QTemplateAttribute::DeleteTemplateIfExists()
+{
+    if (myTemplateCopy == nullptr)
+        return;
+
+    delete myTemplateCopy;
+    myTemplateCopy = nullptr;
+}
 
 void QTemplateAttribute::UpdateTemplateAttribute(const TemplateAttribute* _attr)
 {
-    myTemplateCopy = *_attr;
+    DeleteTemplateIfExists();
+    myTemplateCopy = new TemplateAttribute(*_attr);
 
     myApplyBtn->setEnabled(false);
     myApplyBtn->setStyleSheet("");
     myRevertBtn->setEnabled(false);
     myCriticalChanges = false;
 
-    myNameCached = myTemplateCopy.GetName();
+    myNameCached = myTemplateCopy->GetName();
     myName->setText(myNameCached);
 
 
@@ -51,7 +64,7 @@ void QTemplateAttribute::UpdateTemplateAttribute(const TemplateAttribute* _attr)
         myCoreEditor->disconnect();
         myFormLayout->removeRow(1);
     }
-    myCoreEditor = new QTemplateAttributeCore(myTemplateCopy, this);
+    myCoreEditor = new QTemplateAttributeCore(*myTemplateCopy, this);
     myFormLayout->insertRow(1, "", myCoreEditor);
     QObject::connect(myCoreEditor, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttribute::OnParamEdited);
 
@@ -103,7 +116,8 @@ void QTemplateAttribute::OnNameEdited()
 }
 void QTemplateAttribute::OnApply()
 {
-    emit Applied(myNameCached, myTemplateCopy, myCriticalChanges);
+    Q_ASSERT(myTemplateCopy != nullptr);
+    emit Applied(myNameCached, *myTemplateCopy, myCriticalChanges);
     ShowDefaultWidget(true);
 }
 void QTemplateAttribute::OnRevert()

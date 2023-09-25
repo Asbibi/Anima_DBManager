@@ -6,8 +6,8 @@
 class AANiagara : public AAsset
 {
 public:
-    AANiagara(const AttributeParam& _sharedParam);
-    AANiagara(const AttributeParam& _sharedParam, QString _filePath);
+    AANiagara(TemplateAttribute& _template);
+    AANiagara(TemplateAttribute& _template, QString _filePath);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Niagara; };
     virtual const QString& GetAssetClassNameForCSV()            const override;

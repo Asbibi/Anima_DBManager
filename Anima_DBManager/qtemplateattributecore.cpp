@@ -203,8 +203,9 @@ void QTemplateAttributeCore::RefreshDefaultAttributeWidget()
 }
 void QTemplateAttributeCore::ReConstructDefaultAttribute(AttributeTypeHelper::Type _type)
 {
+    myTemplateAttribute.myDefaultAttribute->PreManualDelete();
     delete myTemplateAttribute.myDefaultAttribute;
-    myTemplateAttribute.myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, myTemplateAttribute.mySharedParam);
+    myTemplateAttribute.myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, myTemplateAttribute);
     RefreshDefaultAttributeWidget();
 }
 

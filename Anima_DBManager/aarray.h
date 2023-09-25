@@ -9,8 +9,8 @@ private:
     QList<Attribute*> myValues;
 
 public:
-    AArray(const AttributeParam& _sharedParam);
-    AArray(const AttributeParam& _sharedParam, const QList<Attribute*>& _values);
+    AArray(TemplateAttribute& _template);
+    AArray(TemplateAttribute& _template, const QList<Attribute*>& _values);
     ~AArray();
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Array; };

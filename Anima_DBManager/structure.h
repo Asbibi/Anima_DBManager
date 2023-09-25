@@ -21,7 +21,6 @@ public:
     Structure(TemplateStructure& _structureTemplate);
     Structure(const Structure& _other, bool _attrDeepCopy = false);
     Structure(const Structure& _other, TemplateStructure& _newTemplate);
-    void operator=(const Structure& _other);
     ~Structure();
 
 

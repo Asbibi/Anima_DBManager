@@ -14,8 +14,8 @@ private:
     QPointer<const Structure> myStructureRef;
 
 public:
-    AReference(const AttributeParam& _sharedParam);
-    AReference(const AttributeParam& _sharedParam, QPointer<const Structure> _structureRef);
+    AReference(TemplateAttribute& _template);
+    AReference(TemplateAttribute& _template, QPointer<const Structure> _structureRef);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Reference; };
     virtual QString GetDisplayedText()                          const override;

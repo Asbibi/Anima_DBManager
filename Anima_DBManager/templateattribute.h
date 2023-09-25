@@ -4,7 +4,9 @@
 #include "attributetype.h"
 #include "attribute.h"
 #include "attributeparam.h"
+#include "constants.h"
 #include <QString>
+#include <QSet>
 
 class AReference;
 class TemplateStructure;
@@ -19,6 +21,7 @@ private:
     QString myAttrName = "";
     AttributeParam mySharedParam;
     Attribute* myDefaultAttribute = nullptr;
+    QSet<Attribute*> myAttributes;
 
     void InitDefaultAttribute(AttributeTypeHelper::Type _type);
     void ResetUselessParam(AttributeTypeHelper::Type _type);
@@ -28,12 +31,14 @@ private:
 
 public:
     TemplateAttribute();
-    TemplateAttribute(const AttributeParam& _sharedParamToCopy);
+#ifdef TEST_VALUES
     TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy);
+#endif
     TemplateAttribute(const TemplateAttribute& _another);
-    void operator=(const TemplateAttribute& _another);      // !!! Pass the ownership of myDefaultAttribute from _another to this -> issue with default attribute not refering the correct sharedparam ?
     ~TemplateAttribute();
 
+    void RegisterAttribute(Attribute* _attr);
+    void UnregisterAttribute(Attribute* _attr);
 
     const QString& GetName() const;
     AttributeTypeHelper::Type GetType() const;

@@ -98,6 +98,7 @@ HEADERS += \
     attributeparam.h \
     attributetype.h \
     attributetype.h \
+    constants.h \
     db_manager.h \
     enumerator.h \
     mainwindow.h \

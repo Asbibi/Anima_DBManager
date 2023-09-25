@@ -23,7 +23,6 @@ private:
 public:
     StructureDB(const TemplateStructure& _structureTemplate);
     StructureDB(const StructureDB& _another);
-    void operator=(const StructureDB& _another);
     ~StructureDB();
 
     void SetTemplateName(const QString& _name);

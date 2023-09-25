@@ -6,8 +6,8 @@
 class AASound : public AAsset
 {
 public:
-    AASound(const AttributeParam& _sharedParam);
-    AASound(const AttributeParam& _sharedParam, QString _filePath);
+    AASound(TemplateAttribute& _template);
+    AASound(TemplateAttribute& _template, QString _filePath);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Sound; };
     virtual const QString& GetAssetClassNameForCSV()            const override;

@@ -9,8 +9,8 @@ private:
     bool isSkeletal;
 
 public:
-    AAMesh(const AttributeParam& _sharedParam, bool _isSkeletal = true);
-    AAMesh(const AttributeParam& _sharedParam, QString _filePath, bool _isSkeletal = true);
+    AAMesh(TemplateAttribute& _template, bool _isSkeletal = true);
+    AAMesh(TemplateAttribute& _template, QString _filePath, bool _isSkeletal = true);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Mesh; };
     virtual const QString& GetAssetClassNameForCSV()            const override;

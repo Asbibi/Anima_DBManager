@@ -46,6 +46,7 @@ QStructureDialog::~QStructureDialog()
 {
     for (auto* attr : myAttributes)
     {
+        attr->PreManualDelete();
         delete attr;
     }
 }

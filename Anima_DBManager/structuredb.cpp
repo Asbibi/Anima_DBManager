@@ -14,15 +14,6 @@ StructureDB::StructureDB(const StructureDB& _another) :
         myStructures.push_back(new Structure(*otherStruct, myTemplate));
     }
 }
-void StructureDB::operator=(const StructureDB& _another)
-{
-    myStructures.clear();
-    myTemplate = _another.myTemplate;
-    for (const auto& otherStruct : _another.myStructures)
-    {
-        myStructures.push_back(otherStruct);
-    }
-}
 StructureDB::~StructureDB()
 {
     ClearStructures();

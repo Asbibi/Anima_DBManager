@@ -11,23 +11,23 @@ TemplateAttribute::TemplateAttribute() :
     myAttrName(""),
     mySharedParam()
 {
-    myDefaultAttribute = new ABool(mySharedParam);
+    InitDefaultAttribute(AttributeTypeHelper::Type::Bool);
 }
-TemplateAttribute::TemplateAttribute(const AttributeParam& _sharedParamToCopy) :
-    myAttrName(""),
-    mySharedParam(_sharedParamToCopy)
-{
-    myDefaultAttribute = new ABool(mySharedParam);
-}
+#ifdef TEST_VALUES
 TemplateAttribute::TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy) :
     myAttrName(_name),
     mySharedParam(_sharedParamToCopy)
 {
+    qDebug() << "Template Constructed via Test Constructor";
     InitDefaultAttribute(_type);
 }
+#endif
 TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
-    TemplateAttribute(_another.myAttrName, _another.GetType(), _another.mySharedParam)
+    myAttrName(_another.myAttrName),
+    mySharedParam(_another.mySharedParam)
 {
+    InitDefaultAttribute(_another.GetType());
+
     Q_ASSERT(myDefaultAttribute != nullptr && _another.myDefaultAttribute != nullptr);
     Q_ASSERT(myDefaultAttribute->GetType() == _another.myDefaultAttribute->GetType());
 
@@ -37,57 +37,36 @@ void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
 {
     if (myDefaultAttribute != nullptr)
     {
+        UnregisterAttribute(myDefaultAttribute);
         delete myDefaultAttribute;
         myDefaultAttribute = nullptr;
     }
 
-    myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, mySharedParam);
-    if (myDefaultAttribute == nullptr)
-    {
-        qFatal("Initialized a Template Attribute with INVALID type !");
-        return;
-    }
+    myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, *this);
+    Q_ASSERT(myDefaultAttribute != nullptr);
 }
 void TemplateAttribute::ResetUselessParam(AttributeTypeHelper::Type _type)
 {
-    if (_type != AttributeTypeHelper::Type::Enum)
-    {
-        mySharedParam.enumeratorIndex = -1;
-    }
-    if (_type != AttributeTypeHelper::Type::Reference)
-    {
-        mySharedParam.structTable = nullptr;
-    }
-    if (_type != AttributeTypeHelper::Type::Array)
-    {
-        if (mySharedParam.templateAtt != nullptr)
-        {
-            delete mySharedParam.templateAtt;
-            mySharedParam.templateAtt = nullptr;
-        }
-    }
-    if (_type != AttributeTypeHelper::Type::Structure)
-    {
-        if (mySharedParam.templateStruct != nullptr)
-        {
-            delete mySharedParam.templateStruct;
-            mySharedParam.templateStruct = nullptr;
-        }
-    }
+    AttributeTypeHelper::ResetUselessAttributesForType(_type, mySharedParam);
 }
-void TemplateAttribute::operator=(const TemplateAttribute& _another)
-{
-    myAttrName = _another.myAttrName;
-    mySharedParam = _another.mySharedParam;
-
-    InitDefaultAttribute(_another.myDefaultAttribute->GetType());
-    myDefaultAttribute->CopyValueFromOther(_another.myDefaultAttribute);
-}
-
 TemplateAttribute::~TemplateAttribute()
 {
-    Q_ASSERT(myDefaultAttribute);
-    delete myDefaultAttribute;
+    Q_ASSERT(myAttributes.contains(myDefaultAttribute));
+    for (auto* relatedAttr : myAttributes)
+    {
+        delete relatedAttr;
+    }
+}
+
+void TemplateAttribute::RegisterAttribute(Attribute* _attr)
+{
+    Q_ASSERT(_attr != nullptr && _attr->GetTemplate() == this && !myAttributes.contains(_attr));
+    myAttributes.insert(_attr);
+}
+void TemplateAttribute::UnregisterAttribute(Attribute* _attr)
+{
+    Q_ASSERT(myAttributes.contains(_attr));
+    myAttributes.remove(_attr);
 }
 
 

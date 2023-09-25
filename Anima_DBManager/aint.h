@@ -9,8 +9,8 @@ private:
     int value;
 
 public:
-    AInt(const AttributeParam& _sharedParam);
-    AInt(const AttributeParam& _sharedParam, int _value);
+    AInt(TemplateAttribute& _template);
+    AInt(TemplateAttribute& _template, int _value);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Int; };
     virtual QString GetDisplayedText()                          const override;

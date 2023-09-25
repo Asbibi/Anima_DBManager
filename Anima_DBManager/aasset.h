@@ -10,8 +10,8 @@ protected:
     bool myIsDirty = false;
 
 public:
-    AAsset(const AttributeParam& _sharedParam);
-    AAsset(const AttributeParam& _sharedParam, QString _filePath);
+    AAsset(TemplateAttribute& _template);
+    AAsset(TemplateAttribute& _template, QString _filePath);
 
     bool IsDirty() const;
     bool IsEmpty() const;

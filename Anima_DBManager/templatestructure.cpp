@@ -18,16 +18,6 @@ TemplateStructure::TemplateStructure(const TemplateStructure& _other) :
     for (const auto& otherTemplAttr : _other.myAttributeTemplates)
         myAttributeTemplates.append(new TemplateAttribute(*otherTemplAttr));
 }
-void TemplateStructure::operator=(const TemplateStructure& _another)
-{
-    myStructColor = _another.myStructColor;
-    myStructName = _another.myStructName;
-    myStructAbbrev = _another.myStructAbbrev;
-
-    myAttributeTemplates.clear();
-    for (const auto& otherTemplAttr : _another.myAttributeTemplates)
-        myAttributeTemplates.push_back(otherTemplAttr);
-}
 TemplateStructure::~TemplateStructure()
 {
     while (!myAttributeTemplates.isEmpty())

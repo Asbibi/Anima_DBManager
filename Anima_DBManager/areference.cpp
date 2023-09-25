@@ -5,31 +5,27 @@
 
 #include <QDebug>
 
-AReference::AReference(const AttributeParam& _sharedParam) :
-    Attribute(_sharedParam)
-{
-    if (_sharedParam.structTable == nullptr)
-        qFatal("\n\nNull StructureDB Attribute given when instancing <REFERENCE> Attribute:\n\n\t===== Not allowed =====\n\n");
-}
-AReference::AReference(const AttributeParam& _sharedParam, QPointer<const Structure> _structureRef) :
-    Attribute(_sharedParam),
+AReference::AReference(TemplateAttribute& _template) :
+    AReference(_template, nullptr)
+{}
+AReference::AReference(TemplateAttribute& _template, QPointer<const Structure> _structureRef) :
+    Attribute(_template),
     myStructureRef(_structureRef)
 {
-    if (_sharedParam.structTable == nullptr)
-        qFatal("\n\nNull StructureDB Attribute given when instancing <REFERENCE> Attribute:\n\n\t===== Not allowed =====\n\n");
+    Q_ASSERT(MY_SHARED_PARAM.structTable == nullptr);
 }
 
 
 QString AReference::GetDisplayedText() const
 {
-    if(!mySharedParam.structTable || !myStructureRef)
+    if(!MY_SHARED_PARAM.structTable || !myStructureRef)
         return "<font color=\"darkred\">Ø</font>";
 
     QString structString = "";
     if (myStructureRef->IsOneOfMyAttributes(this))
         structString = "this";
     else
-        // return mySharedParam.structTable->GetStructureRowName(myStructureRef) ?
+        // return MY_SHARED_PARAM.structTable->GetStructureRowName(myStructureRef) ?
         myStructureRef->GetAttributesDisplayedText(structString);
     return "&{ " + structString + " }";
 
@@ -37,14 +33,14 @@ QString AReference::GetDisplayedText() const
 QString AReference::GetValueAsText() const
 {
     return '&'
-        + QString((mySharedParam.structTable && myStructureRef) ?
-            QString::number(mySharedParam.structTable->GetStructureIndex(myStructureRef)) :
+        + QString((MY_SHARED_PARAM.structTable && myStructureRef) ?
+            QString::number(MY_SHARED_PARAM.structTable->GetStructureIndex(myStructureRef)) :
             "Ø");
 }
 QString AReference::GetAttributeAsCSV() const
 {
-    return (mySharedParam.structTable && myStructureRef) ?
-        mySharedParam.structTable->GetStructureRowName(myStructureRef) :
+    return (MY_SHARED_PARAM.structTable && myStructureRef) ?
+        MY_SHARED_PARAM.structTable->GetStructureRowName(myStructureRef) :
         "";
 }
 void AReference::SetValueFromText(const QString& text)
@@ -57,25 +53,25 @@ void AReference::SetValueFromText(const QString& text)
     }
     bool ok;
     int structIndex = (contentText.remove('&')).toInt(&ok);
-    if (!ok || !mySharedParam.structTable || structIndex < 0)
+    if (!ok || !MY_SHARED_PARAM.structTable || structIndex < 0)
     {
         SetReference(nullptr);
         return;
     }
 
-    SetReference(mySharedParam.structTable->GetStructureAt(structIndex));
+    SetReference(MY_SHARED_PARAM.structTable->GetStructureAt(structIndex));
 }
 void AReference::CopyValueFromOther(const Attribute* _other)
 {
     const AReference* other_AR = dynamic_cast<const AReference*>(_other);
-    if (!other_AR || mySharedParam.structTable != other_AR->mySharedParam.structTable)
+    if (!other_AR || MY_SHARED_PARAM.structTable != other_AR->MY_SHARED_PARAM.structTable)
         return;
 
     myStructureRef = other_AR->myStructureRef;
 }
 void AReference::ReadValue_CSV(const QString& _text)
 {
-    SetValueFromText('&' + QString(_text).remove(mySharedParam.structTable->GetTemplateAbbrev()));
+    SetValueFromText('&' + QString(_text).remove(MY_SHARED_PARAM.structTable->GetTemplateAbbrev()));
 }
 
 
@@ -96,7 +92,7 @@ const Structure* AReference::GetReference() const
 }
 const StructureDB* AReference::GetStructureDB() const
 {
-    return mySharedParam.structTable;
+    return MY_SHARED_PARAM.structTable;
 }
 int AReference::GetReferenceIndex() const
 {

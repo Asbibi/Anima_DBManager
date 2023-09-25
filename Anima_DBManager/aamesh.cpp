@@ -1,12 +1,12 @@
 #include "aamesh.h"
 
-AAMesh::AAMesh(const AttributeParam& _sharedParam, bool _isSkeletal) :
-    AAsset(_sharedParam),
+AAMesh::AAMesh(TemplateAttribute& _template, bool _isSkeletal) :
+    AAsset(_template),
     isSkeletal(_isSkeletal)
 {}
 
-AAMesh::AAMesh(const AttributeParam& _sharedParam, QString _filePath, bool _isSkeletal) :
-    AAsset(_sharedParam, _filePath),
+AAMesh::AAMesh(TemplateAttribute& _template, QString _filePath, bool _isSkeletal) :
+    AAsset(_template, _filePath),
     isSkeletal(_isSkeletal)
 {}
 
