@@ -21,6 +21,7 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     myLayout->addWidget(editGroupBox);
 
     myTemplateEditor = new QTemplateStructure();
+    QObject::connect(myTemplateEditor, &QTemplateStructure::AttributeChangeApplied, this, &QPanelStruct::OnItemApplied);
     editLayout->addRow("Attributes:", myTemplateEditor);
 
     myElementHandler = new QElementHandler();
@@ -92,6 +93,15 @@ void QPanelStruct::OnItemRemoved(const int _index)
 {
     DB_Manager::GetDB_Manager().RemoveStructureDB(_index);
     OnItemSelected(_index);
+}
+void QPanelStruct::OnItemApplied()
+{
+    int currentIndex = myItemList->GetCurrent();
+    if (currentIndex < 0)
+    {
+        return;
+    }
+    OnItemSelected(currentIndex);
 }
 
 

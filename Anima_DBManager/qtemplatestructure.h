@@ -13,7 +13,7 @@ class QTemplateStructure : public QtemplateStructureBase
 {
     Q_OBJECT
 private:
-    StructureDB* myStructureDB;
+    TemplateStructure* myTemplateStructureCopy;
     QList<QString> myAttributeNames;
 
     void UpdateAttributeTabText(int index);
@@ -24,9 +24,11 @@ protected:
 public:
     explicit QTemplateStructure(QWidget *parent = nullptr);
 
-    void SetStructureDB(StructureDB* _structureDB);
+    void SetStructureDB(const StructureDB* _structureDB);
 
 signals:
+    void AttributeChangeApplied();
+
 public slots:
     virtual void UpdateContent() override final;
 
