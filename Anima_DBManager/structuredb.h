@@ -47,6 +47,7 @@ public:
 
     const QString& GetTemplateName() const;
     const QString& GetTemplateAbbrev() const;
+    QIcon GetIcon() const;
     QString GetTemplateColorString() const;
     const TemplateStructure& GetTemplate() const;
     AttributeTypeHelper::Type GetAttributeTemplateType(int _attributeIndex) const;

@@ -28,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     myManager(DB_Manager::GetDB_Manager())
 {
-    setWindowIcon(QIcon("../DB_Icon.png"));
+    setWindowIcon(QIcon(IconManager::GetAppIcon()));
     resize(1280,720);
 
     myMenuBar = new QMenuBar(this);
@@ -226,31 +226,9 @@ void MainWindow::OnStructTableAdded(const int _index)
         return;
 
     QStructureTable* stuctureTable = new QStructureTable(*stcTable);
-    myTabStruct->insertTab(_index, stuctureTable, stcTable->GetTemplateName());
-    myTabStruct->setCurrentIndex(_index);
-
-    /*
-    //QString style = QString("QTabBar::tab::selected {  color: %1 }").arg(stcTable->GetTemplateColorString());
-    //QString style = QString("color: %1;").arg(stcTable->GetTemplateColorString());
-    //myTabStruct->setTabsClosable(true);
-    auto* tabBar = myTabStruct->tabBar();
-    tabBar->setStyleSheet("QTabBar::tab {border-bottom: 2px solid black}");
-
-    tabBar->setTabTextColor(0, QColorConstants::Red);
-    QColor col = tabBar->tabTextColor(0);
-    QString str = tabBar->tabText(0);
-    qDebug() << col.name();
-    qDebug() << str;
-    tabBar->tabRect(0);
-
-    auto* tabBtn = tabBar->tabButton(0, QTabBar::RightSide);
-    if (tabBtn)
-        qDebug("HHHHH");
-        //tabBtn->setStyleSheet(style);
-    auto* tabBtn2 = tabBar->tabButton(0, QTabBar::LeftSide);
-    if (tabBtn2)
-        qDebug("AAAAA");
-    */
+    const int insertedIndex = myTabStruct->insertTab(_index, stuctureTable, stcTable->GetTemplateName());
+    OnStructTableIconChanged(insertedIndex, stcTable->GetIcon());
+    myTabStruct->setCurrentIndex(insertedIndex);
 }
 void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
 {
@@ -278,6 +256,10 @@ void MainWindow::OnStructTableRemoved(const int _index)
 void MainWindow::OnStructTableRenamed(const int _index, const QString& _name)
 {
     myTabStruct->setTabText(_index, _name);
+}
+void MainWindow::OnStructTableIconChanged(const int _index, const QIcon& _icon)
+{
+    myTabStruct->setTabIcon(_index, _icon);
 }
 void MainWindow::OnStructTableFocus(const int _tableIndex, const int _itemIndex)
 {

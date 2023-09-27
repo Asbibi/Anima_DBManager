@@ -30,6 +30,7 @@ SOURCES += \
     attributetype.cpp \
     db_manager.cpp \
     enumerator.cpp \
+    iconmanager.cpp \
     main.cpp \
     mainwindow.cpp \
     qapmesh.cpp \
@@ -101,6 +102,7 @@ HEADERS += \
     constants.h \
     db_manager.h \
     enumerator.h \
+    iconmanager.h \
     mainwindow.h \
     qapmesh.h \
     qapsound.h \

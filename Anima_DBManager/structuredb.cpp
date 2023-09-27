@@ -1,6 +1,7 @@
 #include "structuredb.h"
 
 #include "aasset.h"
+#include "iconmanager.h"
 
 
 StructureDB::StructureDB(const TemplateStructure& _structureTemplate):
@@ -222,6 +223,10 @@ const QString& StructureDB::GetTemplateName() const
 const QString& StructureDB::GetTemplateAbbrev() const
 {
     return myTemplate.GetStructAbbrev();
+}
+QIcon StructureDB::GetIcon() const
+{
+    return IconManager::GetSimpleIcon(myTemplate.GetStructIcon(), myTemplate.GetStructColor());
 }
 QString StructureDB::GetTemplateColorString() const
 {

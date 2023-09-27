@@ -168,7 +168,7 @@ void DB_Manager::Init()
 
     */
 
-    AddStructureDB({"ArrayStruct", QColorConstants::DarkCyan}, 0);
+    AddStructureDB({"ArrayStruct", QColorConstants::DarkCyan, IconManager::IconType::StarHollow}, 0);
     AddAttributeTemplate(0, 0, false);
     AddStructureRow(0,0);
 
