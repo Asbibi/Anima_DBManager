@@ -17,6 +17,8 @@ QElementHandler::QElementHandler(QWidget *parent)
     myCurrentLabel = new QLabel();
     selectedLayout->addWidget(myCurrentLabel);
     QSpinBox* selector = new QSpinBox();
+    selector->setMinimum(-1);
+    selector->setValue(-1);
     QObject::connect(selector, &QSpinBox::valueChanged, this, &QElementHandler::SpinBoxSelected);
     selectedLayout->addWidget(selector);
 

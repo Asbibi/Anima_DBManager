@@ -25,7 +25,7 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     editLayout->addRow("Attributes:", myTemplateEditor);
 
     myElementHandler = new QElementHandler();
-    editLayout->addRow("Current:", myElementHandler);
+    editLayout->addRow("Item:", myElementHandler);
     QGridLayout* clearLayout = new QGridLayout();
     clearLayout->addWidget(new QLineEdit(), 0,0);
     clearLayout->addWidget(new QPushButton("Clear Those"), 0,1);

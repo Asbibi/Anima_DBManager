@@ -10,6 +10,7 @@ class StructureDB;
 class QPanelStruct : public QPanelBase
 {
     Q_OBJECT
+
 private:
     QTemplateStructure* myTemplateEditor;
     QElementHandler* myElementHandler;
