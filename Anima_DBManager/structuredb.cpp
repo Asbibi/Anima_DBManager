@@ -74,6 +74,25 @@ void StructureDB::MoveStructureAt(int _indexFrom, int& _indexTo)
     myStructures.insert(_indexTo, strct);
 }
 
+void StructureDB::SetStructureCount(int _count)
+{
+    const int originalCount = GetStructureCount();
+    if (_count < originalCount)
+    {
+        while (_count < GetStructureCount()) {
+            RemoveStructureAt(_count);
+        }
+    }
+    else if (_count > originalCount)
+    {
+        while (_count > GetStructureCount()) {
+            AddStructureAt(_count);
+        }
+    }
+
+    Q_ASSERT(_count == GetStructureCount());
+}
+
 void StructureDB::ClearStructures()
 {
     while (myStructures.count() > 0)

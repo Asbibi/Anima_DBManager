@@ -85,6 +85,7 @@ public:
     void DuplicateStructureRow(const int _tableIndex, const int _position, const int _originalIndex);
     void RemoveStructureRow(const int _tableIndex, const int _position);
     void MoveStructureRow(const int _tableIndex, const int _positionFrom, int& _positionTo);
+    void SetStructureRowCount(const int _tableIndex, const int _count);
     void UpdateAAssetIsDirty();
 
     int GetStringTableCount() const;

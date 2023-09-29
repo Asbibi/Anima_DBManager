@@ -5,6 +5,8 @@
 #include "qtemplatestructure.h"
 #include "qelementhandler.h"
 
+#include <QSpinBox>
+
 class StructureDB;
 
 class QPanelStruct : public QPanelBase
@@ -14,11 +16,13 @@ class QPanelStruct : public QPanelBase
 private:
     QTemplateStructure* myTemplateEditor;
     QElementHandler* myElementHandler;
+    QSpinBox* myRowCountSpinner;
 
     StructureDB* GetMyStructureDB();
 
 public:
     QPanelStruct(QWidget* parent = nullptr);
+    void RefreshItemCount(const int _count);
 
 public slots:
     virtual void UpdateItemList() override;
@@ -36,6 +40,8 @@ public slots:
     void OnElementDuplicated(const int _index, const int _originalIndex);
     void OnElementMoved(const int _indexFrom, const int _indexTo);
     void OnElementRemoved(const int _index);
+
+    void SetItemCount();
 };
 
 #endif // QPANELSTRUCT_H

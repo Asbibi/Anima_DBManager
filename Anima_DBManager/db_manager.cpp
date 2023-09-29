@@ -598,6 +598,15 @@ void DB_Manager::MoveStructureRow(const int _tableIndex, const int _positionFrom
     if (_positionFrom != _positionTo)
         emit StructItemChanged(_tableIndex);
 }
+void DB_Manager::SetStructureRowCount(const int _tableIndex, const int _count)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->SetStructureCount(_count);
+    emit StructItemChanged(_tableIndex);
+}
 void DB_Manager::UpdateAAssetIsDirty()
 {
     const int structDbCount = myStructures.count();

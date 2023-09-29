@@ -32,6 +32,7 @@ public:
     void DuplicateStructureAt(int _index, int _originalIndex);
     void RemoveStructureAt(int _index);
     void MoveStructureAt(int _indexFrom, int& _indexTo);
+    void SetStructureCount(int _count);
     void ClearStructures();
 
     void MoveAttribute(int _indexFrom, int _indexTo);
