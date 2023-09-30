@@ -38,11 +38,18 @@ public slots:
     virtual void OnItemRemoved(const int _index) override;
     void OnItemApplied();
 
+    // Element Handler
     void OnElementSelected(const int _index);
     void OnElementAdded(const int _index);
     void OnElementDuplicated(const int _index, const int _originalIndex);
     void OnElementMoved(const int _indexFrom, const int _indexTo);
     void OnElementRemoved(const int _index);
+
+    // Identity
+    void OnNameEdited(const QString& _name);
+    void OnAbbrevEdited(const QString& _abbrev);
+    void OnIconEdited(const IconManager::IconType _iconType);
+    void OnColorEdited(const QColor& _color);
 
     void SetItemCount();
 };

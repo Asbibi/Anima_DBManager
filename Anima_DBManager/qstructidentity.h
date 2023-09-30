@@ -13,7 +13,7 @@ class QStructIdentity : public QWidget
     Q_OBJECT
 
 private:
-    QLineEdit* myTemplatename;
+    QLineEdit* myTemplateName;
     QLineEdit* myTemplateAbbrev;
     QComboBox* myIconTypeComboBox;
     QColorEditor* myIconColorEditor;
@@ -26,6 +26,16 @@ public:
     void SetValueFromTemplate(const TemplateStructure& _template);
 
 signals:
+    void NameChanged(const QString& _name);
+    void AbbrevChanged(const QString& _abbrev);
+    void IconChanged(const IconManager::IconType _iconType);
+    void ColorChanged(const QColor& _color);
+
+public slots:
+    void OnNameChanged();
+    void OnAbbrevChanged();
+    void OnIconChanged(const int _iconTypeIndex);
+    //void OnColorChanged(const QColor& _color);
 
 };
 

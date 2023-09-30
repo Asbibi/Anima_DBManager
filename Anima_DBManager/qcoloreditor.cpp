@@ -20,6 +20,7 @@ QColorEditor::QColorEditor(QWidget *parent)
     sliderName->setMinimum(0);\
     sliderName->setMaximum(max);\
     QObject::connect(sliderName, &QSlider::sliderMoved, this, &QColorEditor::OnSliderChanged);\
+    QObject::connect(sliderName, &QSlider::sliderReleased, this, &QColorEditor::OnSliderReleased);\
     subLayout->addRow(name, sliderName);
 
     BUILD_SLIDER(myHueSlider, 360, "H");
@@ -61,6 +62,10 @@ void QColorEditor::OnSliderChanged()
     myColor.setHsv(myHueSlider->value(), mySaturationSlider->value(), myValueSlider->value());
     UpdateColorText();
 }
+void QColorEditor::OnSliderReleased()
+{
+    emit ColorChanged(myColor);
+}
 void QColorEditor::OnColorTextChanged()
 {
     const QString& colorHex = myColorText->text();
@@ -71,4 +76,5 @@ void QColorEditor::OnColorTextChanged()
     }
 
     SetColor(QColor(colorHex));
+    emit ColorChanged(myColor);
 }

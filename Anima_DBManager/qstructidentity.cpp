@@ -14,9 +14,9 @@ QStructIdentity::QStructIdentity(QWidget *parent)
     QHBoxLayout* nameLayout = new QHBoxLayout();
     myTemplateAbbrev = new QLineEdit();
     myTemplateAbbrev->setMaximumWidth(90);
-    myTemplatename = new QLineEdit();
+    myTemplateName = new QLineEdit();
     nameLayout->addWidget(myTemplateAbbrev);
-    nameLayout->addWidget(myTemplatename);
+    nameLayout->addWidget(myTemplateName);
     layout->addLayout(nameLayout);
 
     QHBoxLayout* iconLayout = new QHBoxLayout();
@@ -27,6 +27,11 @@ QStructIdentity::QStructIdentity(QWidget *parent)
     iconLayout->addWidget(myIconTypeComboBox);
     iconLayout->addWidget(myIconColorEditor);
     layout->addLayout(iconLayout);
+
+    QObject::connect(myTemplateName, &QLineEdit::editingFinished, this, &QStructIdentity::OnNameChanged);
+    QObject::connect(myTemplateAbbrev, &QLineEdit::editingFinished, this, &QStructIdentity::OnAbbrevChanged);
+    QObject::connect(myIconTypeComboBox, &QComboBox::currentIndexChanged, this, &QStructIdentity::OnIconChanged);
+    QObject::connect(myIconColorEditor, &QColorEditor::ColorChanged, this, &QStructIdentity::ColorChanged);
 }
 void QStructIdentity::InitIconComboBox()
 {
@@ -66,8 +71,27 @@ void QStructIdentity::InitIconComboBox()
 
 void QStructIdentity::SetValueFromTemplate(const TemplateStructure& _template)
 {
-    myTemplatename->setText(_template.GetStructName());
+    blockSignals(true);
+    myTemplateName->setText(_template.GetStructName());
     myTemplateAbbrev->setText(_template.GetStructAbbrev());
     myIconTypeComboBox->setCurrentIndex((int)(_template.GetStructIcon()));
     myIconColorEditor->SetColor(_template.GetStructColor());
+    blockSignals(false);
+}
+
+void QStructIdentity::OnNameChanged()
+{
+    emit NameChanged(myTemplateName->text());
+}
+void QStructIdentity::OnAbbrevChanged()
+{
+    emit AbbrevChanged(myTemplateAbbrev->text());
+}
+void QStructIdentity::OnIconChanged(const int _iconTypeIndex)
+{
+    if (_iconTypeIndex < 0 || _iconTypeIndex >= (int)IconManager::IconType::Count) {
+        qWarning("QStructIdentity -- Invalid IconType index provided on OnIconChanged(..) : ignored");
+    }
+
+    emit IconChanged((IconManager::IconType)_iconTypeIndex);
 }

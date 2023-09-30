@@ -20,6 +20,10 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     myLayout->addWidget(editGroupBox);
 
     myStructIdentity = new QStructIdentity();
+    QObject::connect(myStructIdentity, &QStructIdentity::NameChanged, this, &QPanelStruct::OnNameEdited);
+    QObject::connect(myStructIdentity, &QStructIdentity::AbbrevChanged, this, &QPanelStruct::OnAbbrevEdited);
+    QObject::connect(myStructIdentity, &QStructIdentity::IconChanged, this, &QPanelStruct::OnIconEdited);
+    QObject::connect(myStructIdentity, &QStructIdentity::ColorChanged, this, &QPanelStruct::OnColorEdited);
     editLayout->addRow("Identity:", myStructIdentity);
 
     myTemplateEditor = new QTemplateStructure();
@@ -151,6 +155,24 @@ void QPanelStruct::OnElementRemoved(const int _index)
     DB_Manager::GetDB_Manager().RemoveStructureRow(tableIndex, _index);
     OnElementSelected(_index);
     RefreshItemCount(tableIndex);
+}
+
+
+void QPanelStruct::OnNameEdited(const QString& _name)
+{
+    qDebug() << "Name edited: " << _name;
+}
+void QPanelStruct::OnAbbrevEdited(const QString& _abbrev)
+{
+    qDebug() << "Abbr edited: " << _abbrev;
+}
+void QPanelStruct::OnIconEdited(const IconManager::IconType _iconType)
+{
+    qDebug() << "Icon edited: " << (int)_iconType;
+}
+void QPanelStruct::OnColorEdited(const QColor& _color)
+{
+    qDebug() << "Color edited: " << _color.name();
 }
 
 

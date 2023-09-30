@@ -25,9 +25,11 @@ public:
     const QColor& GetColor() const;
 
 signals:
+    void ColorChanged(const QColor& _color);
 
 public slots:
     void OnSliderChanged();
+    void OnSliderReleased();
     void OnColorTextChanged();
 };
 

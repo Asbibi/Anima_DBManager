@@ -11,7 +11,7 @@ class IconManager
 public:
     enum class IconType
     {
-        Square,
+        Square = 0,
         SquareHollow,
         Circle,
         CircleHollow,
@@ -38,7 +38,8 @@ public:
         Text3,
         Text4,
 
-        None
+        Count,
+        None = Count
     };
 
 private:
