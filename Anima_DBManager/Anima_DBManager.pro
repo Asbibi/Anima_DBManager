@@ -46,6 +46,7 @@ SOURCES += \
     qattribute.cpp \
     qattributedisplay.cpp \
     qaugmentedlist.cpp \
+    qcoloreditor.cpp \
     qdatatable.cpp \
     qelementhandler.cpp \
     qimportstringdialog.cpp \
@@ -62,6 +63,7 @@ SOURCES += \
     qsstring.cpp \
     qsstringdialog.cpp \
     qsstringtable.cpp \
+    qstructidentity.cpp \
     qstructuredialog.cpp \
     qstructuretable.cpp \
     qtemplateattribute.cpp \
@@ -117,6 +119,7 @@ HEADERS += \
     qattribute.h \
     qattributedisplay.h \
     qaugmentedlist.h \
+    qcoloreditor.h \
     qdatatable.h \
     qelementhandler.h \
     qimportstringdialog.h \
@@ -133,6 +136,7 @@ HEADERS += \
     qsstring.h \
     qsstringdialog.h \
     qsstringtable.h \
+    qstructidentity.h \
     qstructuredialog.h \
     qstructuretable.h \
     qtemplateattribute.h \

@@ -19,17 +19,15 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     editGroupBox->setLayout(editLayout);
     myLayout->addWidget(editGroupBox);
 
+    myStructIdentity = new QStructIdentity();
+    editLayout->addRow("Identity:", myStructIdentity);
+
     myTemplateEditor = new QTemplateStructure();
     QObject::connect(myTemplateEditor, &QTemplateStructure::AttributeChangeApplied, this, &QPanelStruct::OnItemApplied);
     editLayout->addRow("Attributes:", myTemplateEditor);
 
     myElementHandler = new QElementHandler();
     editLayout->addRow("Item:", myElementHandler);
-    QGridLayout* clearLayout = new QGridLayout();
-    clearLayout->addWidget(new QLineEdit(), 0,0);
-    clearLayout->addWidget(new QPushButton("Clear Those"), 0,1);
-    clearLayout->addWidget(new QPushButton("Clear All"), 1,1);
-    editLayout->addRow("Clear:", clearLayout);
     QHBoxLayout* numLayout = new QHBoxLayout();
     myRowCountSpinner = new QSpinBox();
     numLayout->addWidget(myRowCountSpinner);
@@ -67,6 +65,7 @@ void QPanelStruct::UpdateItemList()
 void QPanelStruct::OnItemSelected(const int _index)
 {
     StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(_index);
+    myStructIdentity->SetValueFromTemplate(currentStructDB->GetTemplate());
     myTemplateEditor->SetStructureDB(currentStructDB);
     myElementHandler->OnSelectElement(-1, "");
     if (currentStructDB != nullptr)

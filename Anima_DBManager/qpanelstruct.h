@@ -2,8 +2,10 @@
 #define QPANELSTRUCT_H
 
 #include "qpanelbase.h"
-#include "qtemplatestructure.h"
+
 #include "qelementhandler.h"
+#include "qstructidentity.h"
+#include "qtemplatestructure.h"
 
 #include <QSpinBox>
 
@@ -14,6 +16,7 @@ class QPanelStruct : public QPanelBase
     Q_OBJECT
 
 private:
+    QStructIdentity* myStructIdentity;
     QTemplateStructure* myTemplateEditor;
     QElementHandler* myElementHandler;
     QSpinBox* myRowCountSpinner;
