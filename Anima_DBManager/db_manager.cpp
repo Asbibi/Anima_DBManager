@@ -458,6 +458,33 @@ void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
     myStructures[_index]->SetTemplateName(_tableName);
     emit StructTableRenamed(_index, _tableName);
 }
+void DB_Manager::ChangeStructureDBAbbrev(int _index, const QString& _abbrev)
+{
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        return;
+
+    myStructures[_index]->SetTemplateAbbrev(_abbrev);
+    // TODO - Inform the AReference entities so they can update their display text
+}
+void DB_Manager::ChangeStructureDBIconType(int _index, IconManager::IconType _iconType)
+{
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        return;
+
+    myStructures[_index]->SetTemplateIconType(_iconType);
+    emit StructTableIconChanged(_index, myStructures[_index]->GetIcon());
+}
+void DB_Manager::ChangeStructureDBIconColor(int _index, const QColor& _color)
+{
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        return;
+
+    myStructures[_index]->SetTemplateColor(_color);
+    emit StructTableIconChanged(_index, myStructures[_index]->GetIcon());
+}
 void DB_Manager::MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo)
 {
     const int count = myStructures.count();

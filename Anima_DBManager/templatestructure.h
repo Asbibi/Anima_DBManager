@@ -28,7 +28,9 @@ public:
     ~TemplateStructure();
 
     const QColor& GetStructColor() const { return myStructColor; }
+    void SetStructureColor(const QColor& _color) { myStructColor = _color; }
     IconManager::IconType GetStructIcon() const { return myIconType; }
+    void SetStructureIcon(IconManager::IconType _iconType) { myIconType = _iconType; }
 
     const QString& GetStructName() const                            { return myStructName; }
     void RenameStructureTemplate(const QString& _newStructName)     { myStructName = _newStructName; }

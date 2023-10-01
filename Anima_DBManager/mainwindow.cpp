@@ -129,6 +129,7 @@ MainWindow::MainWindow(QWidget *parent) :
     CONNECT_DB(StructTableMoved);
     CONNECT_DB(StructTableRemoved);
     CONNECT_DB(StructTableRenamed);
+    CONNECT_DB(StructTableIconChanged);
     CONNECT_DB(StructTableFocus);
     CONNECT_DB(StructItemFocus);
     CONNECT_DB(StructItemChanged);

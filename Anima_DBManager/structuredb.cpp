@@ -231,6 +231,14 @@ void StructureDB::SetTemplateAbbrev(const QString& _abbrev)
 {
     myTemplate.ReabbrevStructureTemplate(_abbrev);
 }
+void StructureDB::SetTemplateIconType(IconManager::IconType _iconType)
+{
+    myTemplate.SetStructureIcon(_iconType);
+}
+void StructureDB::SetTemplateColor(const QColor& _color)
+{
+    myTemplate.SetStructureColor(_color);
+}
 void StructureDB::SetTemplateAttributeName(int _index, QString& _name)
 {
     myTemplate.RenameAttributeTemplate(_index, _name);

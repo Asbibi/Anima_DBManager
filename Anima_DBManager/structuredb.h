@@ -27,7 +27,10 @@ public:
 
     void SetTemplateName(const QString& _name);
     void SetTemplateAbbrev(const QString& _abbrev);
+    void SetTemplateIconType(IconManager::IconType _iconType);
+    void SetTemplateColor(const QColor& _color);
     void SetTemplateAttributeName(int _index, QString& _name);
+
     void AddStructureAt(int _index);
     void DuplicateStructureAt(int _index, int _originalIndex);
     void RemoveStructureAt(int _index);

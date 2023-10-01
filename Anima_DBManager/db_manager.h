@@ -68,6 +68,9 @@ public:
     void RemoveStructureDB(int _index);
     void RemoveStructureDB(const QString& _tableName);
     void RenameStructureDB(int _index, const QString& _tableName);
+    void ChangeStructureDBAbbrev(int _index, const QString& _abbrev);
+    void ChangeStructureDBIconType(int _index, IconManager::IconType _iconType);
+    void ChangeStructureDBIconColor(int _index, const QColor& _abbrev);
     void MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo);
     void MoveStructureAttribute(const QString& _tableName, int _indexFrom, int _indexTo);
     void RenameStructureAttribute(int _tableIndex, int _attributeIndex, QString& _attributeName);
@@ -121,6 +124,7 @@ signals:
     void StructTableMoved(const int _indexFrom, const int _indexTo);
     void StructTableRemoved(const int _index);
     void StructTableRenamed(const int _index, const QString& _name);
+    void StructTableIconChanged(const int _index, const QIcon& _icon);
     void StructTableFocus(const int _tableIndex, const int _itemIndex);   // For edits or selection done in table widget
     void StructItemFocus(const int _tableIndex, const int _index);
     void StructItemChanged(const int _tableIndex);      // For edits done in panel widget

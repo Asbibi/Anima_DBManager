@@ -160,19 +160,22 @@ void QPanelStruct::OnElementRemoved(const int _index)
 
 void QPanelStruct::OnNameEdited(const QString& _name)
 {
-    qDebug() << "Name edited: " << _name;
+    myItemList->SetItemValue(GetSelectedItem(), _name);
 }
 void QPanelStruct::OnAbbrevEdited(const QString& _abbrev)
 {
-    qDebug() << "Abbr edited: " << _abbrev;
+    const int tableIndex = GetSelectedItem();
+    DB_Manager::GetDB_Manager().ChangeStructureDBAbbrev(tableIndex, _abbrev);
 }
 void QPanelStruct::OnIconEdited(const IconManager::IconType _iconType)
 {
-    qDebug() << "Icon edited: " << (int)_iconType;
+    const int tableIndex = GetSelectedItem();
+    DB_Manager::GetDB_Manager().ChangeStructureDBIconType(tableIndex, _iconType);
 }
 void QPanelStruct::OnColorEdited(const QColor& _color)
 {
-    qDebug() << "Color edited: " << _color.name();
+    const int tableIndex = GetSelectedItem();
+    DB_Manager::GetDB_Manager().ChangeStructureDBIconColor(tableIndex, _color);
 }
 
 
