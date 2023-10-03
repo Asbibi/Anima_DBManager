@@ -102,6 +102,7 @@ public:
     void RemoveStringTable(int _index);
     void RemoveStringTable(const QString& _tableName);
     void RenameStringTable(int _index, const QString& _tableName);
+    void SetStringTableItemCount(const int _index, const int _count);
     bool AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const;
     QString GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete = false) const;
 

@@ -11,7 +11,7 @@
 #include <QSpinBox>
 
 QPanelString::QPanelString(QWidget *parent)
-    : QPanelBase{"String Table", true, parent}
+    : QPanelWithCount{"String Table", true, parent}
 {
     QLayout* myLayout = layout();
 
@@ -23,17 +23,13 @@ QPanelString::QPanelString(QWidget *parent)
     mySearchList = new QListWithSearch(true, "New Identifier");
     mySearchList->SetDisableRemoveLast(true);
     editLayout->addRow("Identifiers:", mySearchList);
+    /*
     QGridLayout* clearLayout = new QGridLayout();
     clearLayout->addWidget(new QLineEdit(), 0,0);
     clearLayout->addWidget(new QPushButton("Clear Those"), 0,1);
     clearLayout->addWidget(new QPushButton("Clear All"), 1,1);
     editLayout->addRow("Clear:", clearLayout);
-    QHBoxLayout* numLayout = new QHBoxLayout();
-    numLayout->addWidget(new QSpinBox());
-    QPushButton* myPushBtn = new QPushButton("Set Item Count");
-    myPushBtn->setMaximumWidth(90);
-    numLayout->addWidget(myPushBtn);
-    editLayout->addRow("Count:", numLayout);
+    */
 
     QObject::connect(mySearchList, &QListWithSearch::SelectionChanged, this, &QPanelString::OnSubItemSelected);
 
@@ -44,6 +40,18 @@ QPanelString::QPanelString(QWidget *parent)
     CONNECT_SUB_ITEM_SIGNAL(ItemMoved);
     CONNECT_SUB_ITEM_SIGNAL(ItemRemoved);
 #undef CONNECT_SUB_ITEM_SIGNAL
+
+
+    InitItemCountWidget(editLayout);
+}
+
+int QPanelString::RefreshItemCount_Internal(const int _tableIndex)
+{
+    return DB_Manager::GetDB_Manager().GetStringTable(_tableIndex)->GetStringItemCount();
+}
+void QPanelString::SetItemCount_Internal(const int _tableIndex, const int _newCount)
+{
+    DB_Manager::GetDB_Manager().SetStringTableItemCount(_tableIndex, _newCount);
 }
 
 
@@ -72,6 +80,8 @@ void QPanelString::OnItemSelected(const int _index)
     {
         mySearchList->AddItemAtEnd_NoEmit(str.GetIdentifier());
     }
+
+    RefreshItemCount(_index);
 }
 void QPanelString::OnItemEdited(const int _index, const QString& _value)
 {
@@ -118,6 +128,7 @@ void QPanelString::OnSubItemAdded(const int _index, const QString& _value)
     GET_CURRENT_STRING_TABLE();
     currentTable->AddStringItem(_index, &_value);
     DB_Manager::GetDB_Manager().AskUpdateOnStringTable(currentTableIndex);
+    RefreshItemCount(currentTableIndex);
 }
 void QPanelString::OnSubItemDuplicated(const int _index, const int _originalIndex)
 {
@@ -134,6 +145,7 @@ void QPanelString::OnSubItemDuplicated(const int _index, const int _originalInde
 
     currentTable->AddStringItemWithTexts(_index, _texts, &original->GetIdentifier());
     DB_Manager::GetDB_Manager().AskUpdateOnStringTable(currentTableIndex);
+    RefreshItemCount(currentTableIndex);
 }
 void QPanelString::OnSubItemMoved(const int _indexFrom, const int _indexTo)
 {
@@ -150,4 +162,5 @@ void QPanelString::OnSubItemRemoved(const int _index)
     if(currentTable->GetStringItemCount() == selectionIndex)
         selectionIndex--;
     DB_Manager::GetDB_Manager().AskFocusOnStringItem(currentTableIndex, selectionIndex);
+    RefreshItemCount(currentTableIndex);
 }

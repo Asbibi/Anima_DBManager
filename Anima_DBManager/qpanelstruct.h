@@ -1,17 +1,15 @@
 #ifndef QPANELSTRUCT_H
 #define QPANELSTRUCT_H
 
-#include "qpanelbase.h"
+#include "qpanelwithcount.h"
 
 #include "qelementhandler.h"
 #include "qstructidentity.h"
 #include "qtemplatestructure.h"
 
-#include <QSpinBox>
-
 class StructureDB;
 
-class QPanelStruct : public QPanelBase
+class QPanelStruct : public QPanelWithCount
 {
     Q_OBJECT
 
@@ -19,13 +17,15 @@ private:
     QStructIdentity* myStructIdentity;
     QTemplateStructure* myTemplateEditor;
     QElementHandler* myElementHandler;
-    QSpinBox* myRowCountSpinner;
 
     StructureDB* GetMyStructureDB();
 
+protected:
+    virtual int RefreshItemCount_Internal(const int _tableIndex) override;
+    virtual void SetItemCount_Internal(const int _tableIndex, const int _newCount) override;
+
 public:
     QPanelStruct(QWidget* parent = nullptr);
-    void RefreshItemCount(const int _count);
 
 public slots:
     virtual void UpdateItemList() override;
@@ -51,7 +51,6 @@ public slots:
     void OnIconEdited(const IconManager::IconType _iconType);
     void OnColorEdited(const QColor& _color);
 
-    void SetItemCount();
 };
 
 #endif // QPANELSTRUCT_H

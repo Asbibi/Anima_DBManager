@@ -774,7 +774,12 @@ void DB_Manager::RenameStringTable(int _index, const QString& _tableName)
 
      // TODO (?) : update all attributes using this table
 }
-
+void DB_Manager::SetStringTableItemCount(const int _index, const int _count)
+{
+    GetStringTable(_index)->SetStringItemCount(_count);
+    AskUpdateOnStringTable(_index);
+    AskUpdateOnStringPanel(_index);
+}
 bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const
 {
     const auto* stringTable = GetStringTable(_tableId);
@@ -798,6 +803,7 @@ QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& 
 
     return (myStr->length() > 15) ? (myStr->left(15) + "<font color=\"blue\">[...]</font>") : *myStr;  //<font color=\"blue\">Hello</font> //"[...]"
 }
+
 
 void DB_Manager::AskFocusOnStringItem(const int _tableIndex, const int _stringIndex)
 {

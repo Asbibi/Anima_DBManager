@@ -1,14 +1,18 @@
 #ifndef QPANELSTRING_H
 #define QPANELSTRING_H
 
-#include "qpanelbase.h"
+#include "qpanelwithcount.h"
 #include "qlistwithsearch.h"
 
-class QPanelString : public QPanelBase
+class QPanelString : public QPanelWithCount
 {
     Q_OBJECT
 private:
     QListWithSearch* mySearchList;
+
+protected:
+    virtual int RefreshItemCount_Internal(const int _tableIndex) override;
+    virtual void SetItemCount_Internal(const int _tableIndex, const int _newCount) override;
 
 public:
     explicit QPanelString(QWidget *parent = nullptr);

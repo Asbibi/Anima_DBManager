@@ -2,7 +2,6 @@
 
 #include "db_manager.h"
 
-#include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -10,7 +9,7 @@
 #include <QPushButton>
 
 QPanelStruct::QPanelStruct(QWidget* parent)
-    : QPanelBase{"Structure DB", true, parent}
+    : QPanelWithCount{"Structure DB", true, parent}
 {
     QLayout* myLayout = layout();
 
@@ -32,25 +31,28 @@ QPanelStruct::QPanelStruct(QWidget* parent)
 
     myElementHandler = new QElementHandler();
     editLayout->addRow("Item:", myElementHandler);
-    QHBoxLayout* numLayout = new QHBoxLayout();
-    myRowCountSpinner = new QSpinBox();
-    numLayout->addWidget(myRowCountSpinner);
-    QPushButton* myPushBtn = new QPushButton("Set Item Count");
-    myPushBtn->setMaximumWidth(90);
-    numLayout->addWidget(myPushBtn);
-    editLayout->addRow("Count:", numLayout);
     QObject::connect(myElementHandler, &QElementHandler::SpinBoxSelected, this, &QPanelStruct::OnElementSelected);
     QObject::connect(myElementHandler, &QElementHandler::AddRequested, this, &QPanelStruct::OnElementAdded);
     QObject::connect(myElementHandler, &QElementHandler::DuplicateRequested, this, &QPanelStruct::OnElementDuplicated);
     QObject::connect(myElementHandler, &QElementHandler::MoveRequested, this, &QPanelStruct::OnElementMoved);
     QObject::connect(myElementHandler, &QElementHandler::RemoveRequested, this, &QPanelStruct::OnElementRemoved);
-    QObject::connect(myPushBtn, &QPushButton::clicked, this, &QPanelStruct::SetItemCount);
+
+    InitItemCountWidget(editLayout);
 }
 
 
 StructureDB* QPanelStruct::GetMyStructureDB()
 {
     return DB_Manager::GetDB_Manager().GetStructureTable(GetSelectedItem());
+}
+
+int QPanelStruct::RefreshItemCount_Internal(const int _tableIndex)
+{
+    return DB_Manager::GetDB_Manager().GetStructureTable(_tableIndex)->GetStructureCount();
+}
+void QPanelStruct::SetItemCount_Internal(const int _tableIndex, const int _newCount)
+{
+    DB_Manager::GetDB_Manager().SetStructureRowCount(_tableIndex, _newCount);
 }
 
 
@@ -176,16 +178,4 @@ void QPanelStruct::OnColorEdited(const QColor& _color)
 {
     const int tableIndex = GetSelectedItem();
     DB_Manager::GetDB_Manager().ChangeStructureDBIconColor(tableIndex, _color);
-}
-
-
-void QPanelStruct::RefreshItemCount(const int _tableIndex)
-{
-    const int count = DB_Manager::GetDB_Manager().GetStructureTable(_tableIndex)->GetStructureCount();
-    myRowCountSpinner->setValue(count);
-}
-void QPanelStruct::SetItemCount()
-{
-    const int count = myRowCountSpinner->value();
-    DB_Manager::GetDB_Manager().SetStructureRowCount(GetSelectedItem(), count);
 }
