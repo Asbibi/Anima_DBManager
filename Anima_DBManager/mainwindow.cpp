@@ -22,6 +22,7 @@
 #include "qimportstringdialog.h"
 #include "qimportstructdialog.h"
 #include "qprojectdialog.h"
+#include "qpanelsearch.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -107,12 +108,14 @@ MainWindow::MainWindow(QWidget *parent) :
     myEnumWidget = new QPanelEnum();
     myStringWidget = new QPanelString();
     myStructWidget = new QPanelStruct();
+    QPanelSearch* searchPanel = new QPanelSearch();
     myEnumWidget->Init();
     myStringWidget->Init();
     //myStructWidget->Init();
     defToolBox->addItem(myStructWidget, "Structures");
     defToolBox->addItem(myStringWidget, "String Tables");
     defToolBox->addItem(myEnumWidget, "Enumerators");
+    defToolBox->addItem(searchPanel, "Search");
 
     //---------
 #define CONNECT_DB(method)  QObject::connect(&myManager, &DB_Manager::method, this, &MainWindow::On##method)

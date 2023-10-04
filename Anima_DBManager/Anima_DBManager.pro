@@ -55,6 +55,7 @@ SOURCES += \
     qoptionalvalue.cpp \
     qpanelbase.cpp \
     qpanelenum.cpp \
+    qpanelsearch.cpp \
     qpanelstring.cpp \
     qpanelstruct.cpp \
     qpanelwithcount.cpp \
@@ -73,6 +74,7 @@ SOURCES += \
     qtemplatestructurebase.cpp \
     qtemplatestructurecore.cpp \
     savemanager.cpp \
+    searchmanager.cpp \
     sstringhelper.cpp \
     sstringimporter.cpp \
     sstringitem.cpp \
@@ -129,6 +131,7 @@ HEADERS += \
     qoptionalvalue.h \
     qpanelbase.h \
     qpanelenum.h \
+    qpanelsearch.h \
     qpanelstring.h \
     qpanelstruct.h \
     qpanelwithcount.h \
@@ -147,6 +150,7 @@ HEADERS += \
     qtemplatestructurebase.h \
     qtemplatestructurecore.h \
     savemanager.h \
+    searchmanager.h \
     sstringhelper.h \
     sstringimporter.h \
     sstringitem.h \
