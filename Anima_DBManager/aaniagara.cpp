@@ -1,18 +1,13 @@
 #include "aaniagara.h"
 
-AANiagara::AANiagara(const AttributeParam& _sharedParam) :
-    AAsset(_sharedParam)
+AANiagara::AANiagara(TemplateAttribute& _template) :
+    AAsset(_template)
 {}
 
-AANiagara::AANiagara(const AttributeParam& _sharedParam, QString _filePath) :
-    AAsset(_sharedParam, _filePath)
+AANiagara::AANiagara(TemplateAttribute& _template, QString _filePath) :
+    AAsset(_template, _filePath)
 {}
 
-
-Attribute* AANiagara::CreateDuplica() const
-{
-    return new AANiagara(mySharedParam, myFilePath);
-}
 
 const QString& AANiagara::GetAssetClassNameForCSV() const
 {

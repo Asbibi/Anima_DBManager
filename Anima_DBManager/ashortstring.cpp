@@ -1,27 +1,23 @@
 #include "ashortstring.h"
+#include "templateattribute.h"
 
-#include<QDebug>
 
 
-AShortString::AShortString(const AttributeParam& _sharedParam) :
-    AShortString(_sharedParam, "")
+AShortString::AShortString(TemplateAttribute& _template) :
+    AShortString(_template, "")
 {}
-AShortString::AShortString(const AttributeParam& _sharedParam, QString _value) :
-    Attribute(_sharedParam),
+AShortString::AShortString(TemplateAttribute& _template, QString _value) :
+    Attribute(_template),
     value(_value)
 {}
 
 
-Attribute* AShortString::CreateDuplica() const
-{
-    return new AShortString(mySharedParam, value);
-}
 QString AShortString::GetDisplayedText() const
 {
-    if (mySharedParam.ignoreMax)
+    if (MY_SHARED_PARAM.ignoreMax)
         return value;
     else
-        return value.left(mySharedParam.max_i);
+        return value.left(MY_SHARED_PARAM.max_i);
 }
 QString AShortString::GetValueAsText() const
 {
@@ -53,10 +49,10 @@ void AShortString::CopyValueFromOther(const Attribute* _other)
 
 bool AShortString::HasValidSize() const
 {
-    if (mySharedParam.ignoreMax)
+    if (MY_SHARED_PARAM.ignoreMax)
         return true;
     else
-        return value.size() < mySharedParam.max_i;
+        return value.size() < MY_SHARED_PARAM.max_i;
 }
 QString AShortString::GetFullText() const
 {

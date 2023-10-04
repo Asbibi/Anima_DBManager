@@ -18,16 +18,6 @@ TemplateStructure::TemplateStructure(const TemplateStructure& _other) :
     for (const auto& otherTemplAttr : _other.myAttributeTemplates)
         myAttributeTemplates.append(new TemplateAttribute(*otherTemplAttr));
 }
-void TemplateStructure::operator=(const TemplateStructure& _another)
-{
-    myStructColor = _another.myStructColor;
-    myStructName = _another.myStructName;
-    myStructAbbrev = _another.myStructAbbrev;
-
-    myAttributeTemplates.clear();
-    for (const auto& otherTemplAttr : _another.myAttributeTemplates)
-        myAttributeTemplates.push_back(otherTemplAttr);
-}
 TemplateStructure::~TemplateStructure()
 {
     while (!myAttributeTemplates.isEmpty())
@@ -111,9 +101,9 @@ void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList, 
         }
     }
 }
-void TemplateStructure::ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy)
+bool TemplateStructure::ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy)
 {
-    GetAttributeTemplate(_attrIndex)->SetNewValues(_templateToCopy);
+    return GetAttributeTemplate(_attrIndex)->SetNewValues(_templateToCopy);
 }
 
 

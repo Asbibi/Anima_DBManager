@@ -28,6 +28,7 @@ public slots:
     virtual void OnItemDuplicated(const int _index, const int _originalIndex) override;
     virtual void OnItemMoved(const int _indexFrom, int _indexTo) override;
     virtual void OnItemRemoved(const int _index) override;
+    void OnItemApplied();
 
     void OnElementSelected(const int _index);
     void OnElementAdded(const int _index);

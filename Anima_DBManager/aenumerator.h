@@ -11,18 +11,17 @@ private:
     bool CheckEnumIsValid() const;
 
 public:
-    AEnumerator(const AttributeParam& _sharedParam, int _valueIndex = 0);
+    AEnumerator(TemplateAttribute& _template, int _valueIndex = 0);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Enum; };
-    virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
 
-    const Enumerator*   GetEnum()       const { return mySharedParam.GetEnum(); }
-    int                 GetEnumValue()  const { return value_index; }
+    const Enumerator*   GetEnum()       const;
+    int                 GetEnumValue()  const;
     void                SetEnumValue(int _valueIndex);
 };
 

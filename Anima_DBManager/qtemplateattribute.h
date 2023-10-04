@@ -13,7 +13,7 @@ class QTemplateAttribute : public QWidget
 {
     Q_OBJECT
 private:
-    TemplateAttribute myTemplateCopy;
+    TemplateAttribute* myTemplateCopy;
 
     QFormLayout* myFormLayout;
     QLineEdit* myName;
@@ -28,9 +28,11 @@ private:
     bool myInvalidChanges;
 
     void ShowDefaultWidget(bool _show);
+    void DeleteTemplateIfExists();
 
 public:
     explicit QTemplateAttribute(QWidget* _parent = nullptr);
+    ~QTemplateAttribute();
 
     void UpdateTemplateAttribute(const TemplateAttribute* _attr);
 

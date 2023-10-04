@@ -2,69 +2,31 @@
 
 #include "db_manager.h"
 
-#include <QGridLayout>
-#include <QVBoxLayout>
 
 QTemplateStructure::QTemplateStructure(QWidget *parent)
-    : QWidget{parent},
-      myStructureDB{nullptr}
+    : QtemplateStructureBase{parent},
+      myTemplateStructureCopy{nullptr}
 {
-    QVBoxLayout* myLayout = new QVBoxLayout();
-    setLayout(myLayout);
-
-    myTabWidget = new QTabWidget();
-    myLayout->addWidget(myTabWidget);
-    //myTabWidget->setStyleSheet("QTabBar::tab { height: 100px; width: 100px; }");
-    myTabWidget->setStyleSheet("QTabBar::tab { height: 40px; }");
-    myTabWidget->setMovable(true);
-    QTabBar* mTabBar = myTabWidget->tabBar();
-    QObject::connect(mTabBar, &QTabBar::tabMoved, this, &QTemplateStructure::OnTabMoved);
-
-    QGridLayout* myButtonLayout = new QGridLayout();
-    myLayout->addLayout(myButtonLayout);
-    myButtonLayout->setSpacing(3);
-
-#define ADD_BUTTON(row, col, label, callback) { \
-    QPushButton* btn = new QPushButton(label); \
-    myButtonLayout->addWidget(btn, row, col); \
-    QObject::connect(btn, &QPushButton::clicked, this, &QTemplateStructure::callback); \
-    btn->setMaximumWidth(25); \
-    myPushBtns.append(btn);}
-
-    ADD_BUTTON(0, 0, "<+", OnAddBefore);
-    ADD_BUTTON(0, 1, "+>", OnAddAfter);
-    ADD_BUTTON(0, 2, "++", OnDuplicate);
-    ADD_BUTTON(0, 3, "-", OnRemove);
-
-#undef ADD_BUTTON
-
     UpdateContent();
 }
 
 
 void QTemplateStructure::UpdateAttributeTabText(int index)
 {
-    if (!myStructureDB)
+    if (myTemplateStructureCopy == nullptr)
         return;
 
-    const auto* attrTmpl = myStructureDB->GetTemplate().GetAttributeTemplate(index);
-    if (!attrTmpl)
-    {
-        qCritical("No template attribute at this index");
-        return;
-    }
+    const auto* attrTmpl = myTemplateStructureCopy->GetAttributeTemplate(index);
+    Q_ASSERT(attrTmpl);
 
     const QString tabNameBase = "%1\n[%2]";
     myTabWidget->setTabText(index, tabNameBase.arg(attrTmpl->GetName(), AttributeTypeHelper::TypeToString(attrTmpl->GetType())));
     Q_ASSERT(attrTmpl->GetName() == myAttributeNames[index]);
 }
 
-void QTemplateStructure::SetStructureDB(StructureDB* _structureDB)
+void QTemplateStructure::SetStructureDB(const StructureDB* _structureDB)
 {
-    if (myStructureDB == _structureDB)
-        return;
-
-    myStructureDB = _structureDB;
+    myTemplateStructureCopy = new TemplateStructure(_structureDB->GetTemplate());
     UpdateContent();
 }
 
@@ -72,7 +34,7 @@ void QTemplateStructure::UpdateContent()
 {
     myAttributeNames.clear();
     myTabWidget->clear();
-    bool hasStructPtr = myStructureDB;
+    bool hasStructPtr = (myTemplateStructureCopy != nullptr);
     myTabWidget->setEnabled(hasStructPtr);
     for (auto* btn : myPushBtns)
     {
@@ -85,7 +47,7 @@ void QTemplateStructure::UpdateContent()
     }
 
     const QString tabNameBase = "%1\n[%2]";
-    for (const auto* attr : myStructureDB->GetTemplate().GetAttributes())
+    for (const auto* attr : myTemplateStructureCopy->GetAttributes())
     {
         QTemplateAttribute* qattr = new QTemplateAttribute();
         myAttributeNames.push_back(attr->GetName());
@@ -104,7 +66,7 @@ void QTemplateStructure::OnTabMoved(int _indexFrom, int _indexTo)
 {
     auto item = myAttributeNames.takeAt(_indexFrom);
     myAttributeNames.insert(_indexTo, item);
-    DB_Manager::GetDB_Manager().MoveStructureAttribute(myStructureDB->GetTemplateName(), _indexFrom, _indexTo);
+    DB_Manager::GetDB_Manager().MoveStructureAttribute(myTemplateStructureCopy->GetStructName(), _indexFrom, _indexTo);
 }
 void QTemplateStructure::OnNameChanged(const QString& _previousName, QString& _newName)
 {
@@ -112,7 +74,7 @@ void QTemplateStructure::OnNameChanged(const QString& _previousName, QString& _n
     if (index < 0)
         return;
 
-    DB_Manager::GetDB_Manager().RenameStructureAttribute(myStructureDB->GetTemplateName(), index, _newName);
+    DB_Manager::GetDB_Manager().RenameStructureAttribute(myTemplateStructureCopy->GetStructName(), index, _newName);
     myAttributeNames[index] = _newName;
     UpdateAttributeTabText(index);
 }
@@ -122,11 +84,12 @@ void QTemplateStructure::OnApply(const QString& _attrName,  const TemplateAttrib
     if (index < 0)
         return;
 
-    DB_Manager::GetDB_Manager().ChangeAttributeTemplate(myStructureDB->GetTemplateName(), index, _editedTemplateCopy, _hasCriticalChanges);
-    OnRevert(_attrName);
+    DB_Manager::GetDB_Manager().ChangeAttributeTemplate(myTemplateStructureCopy->GetStructName(), index, _editedTemplateCopy, _hasCriticalChanges);
+    /*OnRevert(_attrName);
 
     if (_hasCriticalChanges)
-        UpdateAttributeTabText(index);
+        UpdateAttributeTabText(index);*/
+    emit AttributeChangeApplied();
 }
 void QTemplateStructure::OnRevert(const QString& _attrName)
 {
@@ -138,7 +101,7 @@ void QTemplateStructure::OnRevert(const QString& _attrName)
     if (!qattr)
         return;
 
-    qattr->UpdateTemplateAttribute(myStructureDB->GetTemplate().GetAttributeTemplate(index));
+    qattr->UpdateTemplateAttribute(myTemplateStructureCopy->GetAttributeTemplate(index));
 }
 void QTemplateStructure::OnApplyDefaultToAll(const QString& _attrName)
 {
@@ -146,14 +109,14 @@ void QTemplateStructure::OnApplyDefaultToAll(const QString& _attrName)
     if (index < 0)
         return;
 
-    DB_Manager::GetDB_Manager().ResetAttributesToDefaultValue(myStructureDB->GetTemplateName(), index);
+    DB_Manager::GetDB_Manager().ResetAttributesToDefaultValue(myTemplateStructureCopy->GetStructName(), index);
 }
 
 
 
 void QTemplateStructure::AddAttribute(int _position, bool _duplicatePrevious)
 {
-    DB_Manager::GetDB_Manager().AddAttributeTemplate(myStructureDB->GetTemplateName(), _position, _duplicatePrevious);
+    DB_Manager::GetDB_Manager().AddAttributeTemplate(myTemplateStructureCopy->GetStructName(), _position, _duplicatePrevious);
     UpdateContent();
     myTabWidget->setCurrentIndex(_position);
 }
@@ -183,7 +146,7 @@ void QTemplateStructure::OnRemove()
     if (current < 0)
         return;
 
-    DB_Manager::GetDB_Manager().RemoveAttributeTemplate(myStructureDB->GetTemplateName(), current);
+    DB_Manager::GetDB_Manager().RemoveAttributeTemplate(myTemplateStructureCopy->GetStructName(), current);
     UpdateContent();
     myTabWidget->setCurrentIndex(current);
 }

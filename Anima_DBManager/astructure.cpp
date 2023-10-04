@@ -2,31 +2,26 @@
 
 #include<QDebug>
 
-AStructure::AStructure(const AttributeParam& _sharedParam) :
-    AStructure(_sharedParam, nullptr)
+AStructure::AStructure(TemplateAttribute& _template) :
+    AStructure(_template, nullptr)
 {}
-AStructure::AStructure(const AttributeParam& _sharedParam, const Structure* _value) :
-    Attribute(_sharedParam),
+AStructure::AStructure(TemplateAttribute& _template, const Structure* _value) :
+    Attribute(_template),
     myValue(nullptr)
 {
-    Q_ASSERT(mySharedParam.templateStruct != nullptr);
+    Q_ASSERT(MY_SHARED_PARAM.templateStruct != nullptr);
     if (_value == nullptr)
     {
-        myValue = new Structure(*mySharedParam.templateStruct);
+        myValue = new Structure(*MY_SHARED_PARAM.templateStruct);
     }
     else
     {
-        Q_ASSERT(mySharedParam.templateStruct == &_value->GetTemplate());
+        Q_ASSERT(MY_SHARED_PARAM.templateStruct == &(_value->GetTemplate()));
         myValue = new Structure(*_value, true);
     }
 }
 
 
-
-Attribute* AStructure::CreateDuplica() const
-{
-    return new AStructure(mySharedParam, myValue);
-}
 QString AStructure::GetDisplayedText() const
 {
     // return GetValueAsText() ?
@@ -143,6 +138,11 @@ const QList<Attribute*>& AStructure::GetAttributes() const
 }
 QString AStructure::GetValueAsTextFromAttributes(const QList<Attribute*>& _attributes)
 {
+    if (_attributes.length() == 0)
+    {
+        return "{}";
+    }
+
     QString _text = "{";
     const int attrCount = _attributes.count();
     for (int i = 0; i < attrCount; i++)

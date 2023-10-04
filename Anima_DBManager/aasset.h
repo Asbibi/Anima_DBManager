@@ -10,8 +10,8 @@ protected:
     bool myIsDirty = false;
 
 public:
-    AAsset(const AttributeParam& _sharedParam);
-    AAsset(const AttributeParam& _sharedParam, QString _filePath);
+    AAsset(TemplateAttribute& _template);
+    AAsset(TemplateAttribute& _template, QString _filePath);
 
     bool IsDirty() const;
     bool IsEmpty() const;
@@ -19,7 +19,6 @@ public:
     bool UpdateIsDirty();   // return if myIsDirty has changed
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::UAsset; };
-    virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;

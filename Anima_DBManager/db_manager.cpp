@@ -1,5 +1,7 @@
 #include "db_manager.h"
 
+#include "constants.h"
+
 #include "aarray.h"
 #include "abool.h"
 #include "aenumerator.h"
@@ -20,6 +22,7 @@
 
 #include <QDir>
 #include <qdebug.h>
+
 
 DB_Manager::DB_Manager()
 {}
@@ -53,8 +56,7 @@ bool DB_Manager::IsProjectContentFolderPathValid() const
 
 void DB_Manager::Init()
 {
-#define testValues
-#ifdef testValues
+#ifdef TEST_VALUES
 
     // Project Folder
     SetProjectContentFolderPath("D:/Documents/Unreal/Anima_OLD/Content/");
@@ -504,9 +506,9 @@ void DB_Manager::ChangeAttributeTemplate(int _tableIndex, int _attrIndex, const 
     if (_tableIndex < 0 || _tableIndex > count)
         return;
 
-    AttributeTypeHelper::Type previousType = myStructures[_tableIndex]->GetAttributeTemplateType(_attrIndex);
-    myStructures[_tableIndex]->ChangeAttributeTemplate(_attrIndex, _templateToCopy);
-    if (previousType != _templateToCopy.GetType())
+    //AttributeTypeHelper::Type previousType = myStructures[_tableIndex]->GetAttributeTemplateType(_attrIndex);
+    bool softChange = myStructures[_tableIndex]->ChangeAttributeTemplate(_attrIndex, _templateToCopy);
+    if (!softChange)
     {
         myStructures[_tableIndex]->FixAttributesTypeToDefault(_attrIndex);
         emit StructItemChanged(_tableIndex);

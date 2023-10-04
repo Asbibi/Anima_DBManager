@@ -9,11 +9,10 @@ private:
     bool value;
 
 public:
-    ABool(const AttributeParam& _sharedParam);
-    ABool(const AttributeParam& _sharedParam, bool _value);
+    ABool(TemplateAttribute& _template);
+    ABool(TemplateAttribute& _template, bool _value);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Bool; };
-    virtual Attribute* CreateDuplica()                          const override;
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;

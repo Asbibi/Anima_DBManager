@@ -2,6 +2,7 @@
 
 #include "abool.h"
 #include "areference.h"
+#include "templatestructure.h"
 
 #include <QDebug>
 
@@ -10,23 +11,23 @@ TemplateAttribute::TemplateAttribute() :
     myAttrName(""),
     mySharedParam()
 {
-    myDefaultAttribute = new ABool(mySharedParam);
+    InitDefaultAttribute(AttributeTypeHelper::Type::Bool);
 }
-TemplateAttribute::TemplateAttribute(const AttributeParam& _sharedParamToCopy) :
-    myAttrName(""),
-    mySharedParam(_sharedParamToCopy)
-{
-    myDefaultAttribute = new ABool(mySharedParam);
-}
+#ifdef TEST_VALUES
 TemplateAttribute::TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy) :
     myAttrName(_name),
     mySharedParam(_sharedParamToCopy)
 {
+    qDebug() << "Template Constructed via Test Constructor";
     InitDefaultAttribute(_type);
 }
+#endif
 TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
-    TemplateAttribute(_another.myAttrName, _another.GetType(), _another.mySharedParam)
+    myAttrName(_another.myAttrName),
+    mySharedParam(_another.mySharedParam)
 {
+    InitDefaultAttribute(_another.GetType());
+
     Q_ASSERT(myDefaultAttribute != nullptr && _another.myDefaultAttribute != nullptr);
     Q_ASSERT(myDefaultAttribute->GetType() == _another.myDefaultAttribute->GetType());
 
@@ -36,49 +37,36 @@ void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
 {
     if (myDefaultAttribute != nullptr)
     {
+        UnregisterAttribute(myDefaultAttribute);
         delete myDefaultAttribute;
         myDefaultAttribute = nullptr;
     }
 
-    myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, mySharedParam);
-    if (myDefaultAttribute == nullptr)
-    {
-        qFatal("Initialized a Template Attribute with INVALID type !");
-        return;
-    }
+    myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, *this);
+    Q_ASSERT(myDefaultAttribute != nullptr);
 }
 void TemplateAttribute::ResetUselessParam(AttributeTypeHelper::Type _type)
 {
-    if (_type != AttributeTypeHelper::Type::Enum)
-    {
-        mySharedParam.enumeratorIndex = -1;
-    }
-    if (_type != AttributeTypeHelper::Type::Reference)
-    {
-        mySharedParam.structTable = nullptr;
-    }
-    if (_type != AttributeTypeHelper::Type::Array)
-    {
-        qDebug() << "TODO - reset attribute ptr for array attribute";
-    }
-    if (_type != AttributeTypeHelper::Type::Structure)
-    {
-        qDebug() << "TODO - reset structure template for structure attribute";
-    }
+    AttributeTypeHelper::ResetUselessAttributesForType(_type, mySharedParam);
 }
-void TemplateAttribute::operator=(const TemplateAttribute& _another)
-{
-    myAttrName = _another.myAttrName;
-    mySharedParam = _another.mySharedParam;
-
-    InitDefaultAttribute(_another.myDefaultAttribute->GetType());
-    myDefaultAttribute->CopyValueFromOther(_another.myDefaultAttribute);
-}
-
 TemplateAttribute::~TemplateAttribute()
 {
-    Q_ASSERT(myDefaultAttribute);
-    delete myDefaultAttribute;
+    Q_ASSERT(myAttributes.contains(myDefaultAttribute));
+    for (auto* relatedAttr : myAttributes)
+    {
+        delete relatedAttr;
+    }
+}
+
+void TemplateAttribute::RegisterAttribute(Attribute* _attr)
+{
+    Q_ASSERT(_attr != nullptr && _attr->GetTemplate() == this && !myAttributes.contains(_attr));
+    myAttributes.insert(_attr);
+}
+void TemplateAttribute::UnregisterAttribute(Attribute* _attr)
+{
+    Q_ASSERT(myAttributes.contains(_attr));
+    myAttributes.remove(_attr);
 }
 
 
@@ -113,8 +101,7 @@ bool TemplateAttribute::HasValidSharedParam() const
     return AttributeTypeHelper::AreParamValid(GetType(), mySharedParam);
 }
 
-
-bool IsSameArrayType(const AttributeParam& _firstParam, const AttributeParam& _secondParam)
+bool TemplateAttribute::IsSameArrayType(const AttributeParam& _firstParam, const AttributeParam& _secondParam)
 {
     Q_ASSERT(_firstParam.templateAtt && _secondParam.templateAtt);
     AttributeTypeHelper::Type firstType = _firstParam.templateAtt->GetType();
@@ -122,12 +109,51 @@ bool IsSameArrayType(const AttributeParam& _firstParam, const AttributeParam& _s
 
     if (firstType != secondType)
         return false;
-    if (firstType != AttributeTypeHelper::Type::Array)
+    else if (firstType == AttributeTypeHelper::Type::Array)
+        return IsSameArrayType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
+    else if (firstType != AttributeTypeHelper::Type::Structure)
+        return IsSameStructType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
+    else
         return true;
 
     return IsSameArrayType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
 }
-void TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
+bool TemplateAttribute::IsSameStructType(const AttributeParam& _firstParam, const AttributeParam& _secondParam)
+{
+    Q_ASSERT(_firstParam.templateStruct && _secondParam.templateStruct);
+    const int firstNumAttr = _firstParam.templateStruct->GetAttributesCount();
+    const int secondNumAttr = _secondParam.templateStruct->GetAttributesCount();
+    if (firstNumAttr != secondNumAttr)
+        return false;
+
+    bool allTheSame = true;
+    for (int i = 0; i < firstNumAttr; i++)
+    {
+        const TemplateAttribute* firstAttr =_firstParam.templateStruct->GetAttributeTemplate(i);
+        const TemplateAttribute* secondAttr =_secondParam.templateStruct->GetAttributeTemplate(i);
+        AttributeTypeHelper::Type firstType = firstAttr->GetType();
+        AttributeTypeHelper::Type secondType = secondAttr->GetType();
+
+
+        if (firstType != secondType)
+        {
+            allTheSame = false;
+        }
+        else if (firstType == AttributeTypeHelper::Type::Array)
+        {
+            allTheSame =  IsSameArrayType(firstAttr->GetSharedParam(), secondAttr->GetSharedParam());
+        }
+        else if (firstType == AttributeTypeHelper::Type::Structure)
+        {
+            allTheSame =  IsSameStructType(firstAttr->GetSharedParam(), secondAttr->GetSharedParam());
+        }
+
+        if (!allTheSame)
+            break;
+    }
+    return allTheSame;
+}
+bool TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
 {
     const AttributeTypeHelper::Type newType = _templateToCopy.GetType();
     const AttributeParam& newParamToCopy = _templateToCopy.mySharedParam;
@@ -135,6 +161,10 @@ void TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
     if (softChange && newType == AttributeTypeHelper::Type::Array)
     {
         softChange = IsSameArrayType(mySharedParam, newParamToCopy);
+    }
+    else if (softChange && newType == AttributeTypeHelper::Type::Structure)
+    {
+        softChange = IsSameStructType(mySharedParam, newParamToCopy);
     }
 
     mySharedParam = newParamToCopy;
@@ -144,7 +174,9 @@ void TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
         ResetUselessParam(newType);
     }
 
-    myDefaultAttribute->SetValueFromText(_templateToCopy.myDefaultAttribute->GetValueAsText());
+    SetDefaultValue(_templateToCopy.myDefaultAttribute->GetValueAsText());
+
+    return softChange;
 }
 void TemplateAttribute::SetDefaultValue(const QString& _valueAsText)
 {

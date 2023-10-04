@@ -23,7 +23,6 @@ private:
 public:
     StructureDB(const TemplateStructure& _structureTemplate);
     StructureDB(const StructureDB& _another);
-    void operator=(const StructureDB& _another);
     ~StructureDB();
 
     void SetTemplateName(const QString& _name);
@@ -37,7 +36,7 @@ public:
 
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attrIndex);
-    void ChangeAttributeTemplate(int _attrIndex, const TemplateAttribute& _templateToCopy);
+    bool ChangeAttributeTemplate(int _attrIndex, const TemplateAttribute& _templateToCopy);
     void FixAttributesTypeToDefault(int _attIndex);
     void AddAttribute(int _position, bool _copyFromPrevious);
     void RemoveAttribute(int _position);

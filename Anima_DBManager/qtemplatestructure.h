@@ -1,47 +1,47 @@
 #ifndef QTEMPLATESTRUCTURE_H
 #define QTEMPLATESTRUCTURE_H
 
-#include <QWidget>
-
 #include "structuredb.h"
 #include "qtemplateattribute.h"
+#include "qtemplatestructurebase.h"
 
 #include <QList>
 #include <QPushButton>
 #include <QTabWidget>
 
-class QTemplateStructure : public QWidget
+class QTemplateStructure : public QtemplateStructureBase
 {
     Q_OBJECT
 private:
-    StructureDB* myStructureDB;
-
-    QTabWidget* myTabWidget;
+    TemplateStructure* myTemplateStructureCopy;
     QList<QString> myAttributeNames;
-    QList<QPushButton*> myPushBtns;
 
     void UpdateAttributeTabText(int index);
-    void AddAttribute(int _position, bool _duplicatePrevious = false);
+
+protected:
+    virtual void AddAttribute(int _position, bool _duplicatePrevious = false) override;
 
 public:
     explicit QTemplateStructure(QWidget *parent = nullptr);
 
-    void SetStructureDB(StructureDB* _structureDB);
+    void SetStructureDB(const StructureDB* _structureDB);
 
 signals:
-public slots:
-    void UpdateContent();
+    void AttributeChangeApplied();
 
-    void OnTabMoved(int _indexFrom, int _indexTo);
+public slots:
+    virtual void UpdateContent() override final;
+
+    virtual void OnTabMoved(int _indexFrom, int _indexTo) override;
+    virtual void OnAddBefore() override;
+    virtual void OnAddAfter() override;
+    virtual void OnDuplicate() override;
+    virtual void OnRemove() override;
+
     void OnNameChanged(const QString& _previousName, QString& _newName);
     void OnApply(const QString& _attrName,  const TemplateAttribute& _editedTemplateCopy, bool _hasCriticalChanges);
     void OnRevert(const QString& _attrName);
     void OnApplyDefaultToAll(const QString& _attrName);
-
-    void OnAddBefore();
-    void OnAddAfter();
-    void OnDuplicate();
-    void OnRemove();
 };
 
 #endif // QTEMPLATESTRUCTURE_H

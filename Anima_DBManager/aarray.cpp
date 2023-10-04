@@ -3,14 +3,13 @@
 #include "templateattribute.h"
 #include <QDebug>
 
-AArray::AArray(const AttributeParam& _sharedParam) :
-    Attribute(_sharedParam)
+AArray::AArray(TemplateAttribute& _template) :
+    Attribute(_template)
 {
-     if (_sharedParam.templateAtt == nullptr)
-        qFatal("\n\nNull Template Attribute given when instancing <ARRAY> Attribute:\n\n\t===== Not allowed =====\n\n");
+    Q_ASSERT(myTemplate.GetSharedParam().templateAtt != nullptr);
 }
-AArray::AArray(const AttributeParam& _sharedParam, const QList<Attribute*>& _values) :
-    AArray(_sharedParam)
+AArray::AArray(TemplateAttribute& _template, const QList<Attribute*>& _values) :
+    AArray(_template)
 {    
     myValues.reserve(_values.count());
     for(const auto* _val : _values)
@@ -21,14 +20,13 @@ AArray::AArray(const AttributeParam& _sharedParam, const QList<Attribute*>& _val
 AArray::~AArray()
 {
     for(const auto& val : myValues)
+    {
+        val->PreManualDelete();
         delete(val);
+    }
 }
 
 
-Attribute* AArray::CreateDuplica() const
-{
-    return new AArray(mySharedParam, myValues);
-}
 QString AArray::GetDisplayedText() const
 {
     return GetShortDisplayedString(myValues.count());
@@ -142,7 +140,7 @@ void AArray::CopyValueFromOther(const Attribute* _other)
     if (!other_AA)
         return;
 
-    if (mySharedParam.templateAtt != other_AA->mySharedParam.templateAtt)
+    if (myTemplate.GetSharedParam().templateAtt != other_AA->myTemplate.GetSharedParam().templateAtt)
     {
         SetValueFromText(other_AA->GetValueAsText());
         return;
@@ -220,7 +218,7 @@ void AArray::ReadValue_CSV(const QString& text)
 
 TemplateAttribute* AArray::GetArrayElementTemplate() const
 {
-    return mySharedParam.templateAtt;
+    return myTemplate.GetSharedParam().templateAtt;
 }
 QStringList AArray::GetValuesAsTexts() const
 {
@@ -244,7 +242,7 @@ void AArray::AddRow(int _index)
     if (_index < 0 || _index > myValues.count())
         _index = myValues.count();
 
-    myValues.insert(_index, mySharedParam.templateAtt->GenerateAttribute());
+    myValues.insert(_index, myTemplate.GetSharedParam().templateAtt->GenerateAttribute());
 }
 void AArray::DuplicateRow(int _index)
 {
@@ -259,12 +257,14 @@ void AArray::RemoveRow(int _index)
         return;
 
     Attribute* removed = myValues.takeAt(_index);
+    removed->PreManualDelete();
     delete(removed);
 }
 void AArray::Empty()
 {
     for (auto* elem : myValues)
     {
+        elem->PreManualDelete();
         delete elem;
     }
     myValues.clear();

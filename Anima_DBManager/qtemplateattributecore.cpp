@@ -1,6 +1,7 @@
 #include "qtemplateattributecore.h"
 
 #include "aarray.h"
+#include "astructure.h"
 #include "db_manager.h"
 #include "qoptionalvalue.h"
 
@@ -49,19 +50,18 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
 
 void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 {
+    PerformTypeSpecificPreparation(_type);
+
     const int rowToAdd = 1;
     while (myFormLayout->rowCount() > 2)
     {
         myFormLayout->removeRow(rowToAdd);
     }
 
-    PerformTypeSpecificPreparation(_type);
-
     switch(_type)
     {
         case AttributeTypeHelper::Type::Array:
         {
-
             Q_ASSERT(myTemplateAttribute.mySharedParam.templateAtt != nullptr);
             myArrayTemplate = new QTemplateAttributeCore(*myTemplateAttribute.mySharedParam.templateAtt);
             myFormLayout->insertRow(rowToAdd, "Template:", myArrayTemplate);
@@ -80,6 +80,14 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             QObject::connect(maxValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttributeCore::OnParamChanged_MaxInt);
 #endif
 
+            break;
+        }
+        case AttributeTypeHelper::Type::Structure:
+        {
+            Q_ASSERT(myTemplateAttribute.mySharedParam.templateStruct != nullptr);
+            myStructureTemplate = new QTemplateStructureCore(*myTemplateAttribute.mySharedParam.templateStruct);
+            myFormLayout->insertRow(rowToAdd, "Template:", myStructureTemplate);
+            QObject::connect(myStructureTemplate, &QTemplateStructureCore::StructureChanged, this, &QTemplateAttributeCore::OnParamChanged_StructureTemplate);
             break;
         }
         case AttributeTypeHelper::Type::Enum:
@@ -156,9 +164,7 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 
     if (_type != myTemplateAttribute.GetType())
     {
-        delete myTemplateAttribute.myDefaultAttribute;
-        myTemplateAttribute.myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, myTemplateAttribute.mySharedParam);
-        myDefAttributeEditor->UpdateAttribute(myTemplateAttribute.myDefaultAttribute);
+        ReConstructDefaultAttribute(_type);
     }
 }
 void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type)
@@ -174,12 +180,33 @@ void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper:
     {
         delete myTemplateAttribute.mySharedParam.templateAtt;
         myTemplateAttribute.mySharedParam.templateAtt = nullptr;
-        myArrayTemplate = nullptr;
+        myArrayTemplate = nullptr;      // will be delete and remove from layout at beginning of UpdateLayout()
+    }
+
+    if (_type == AttributeTypeHelper::Type::Structure)
+    {
+        if (myTemplateAttribute.mySharedParam.templateStruct == nullptr)
+        {
+            myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure("", QColorConstants::Black);
+        }
+    }
+    else if (myTemplateAttribute.mySharedParam.templateStruct != nullptr)
+    {
+        delete myTemplateAttribute.mySharedParam.templateStruct;
+        myTemplateAttribute.mySharedParam.templateStruct = nullptr;
+        myStructureTemplate = nullptr;  // will be delete and remove from layout at beginning of UpdateLayout()
     }
 }
 void QTemplateAttributeCore::RefreshDefaultAttributeWidget()
 {
     myDefAttributeEditor->UpdateAttribute(myTemplateAttribute.myDefaultAttribute);
+}
+void QTemplateAttributeCore::ReConstructDefaultAttribute(AttributeTypeHelper::Type _type)
+{
+    myTemplateAttribute.myDefaultAttribute->PreManualDelete();
+    delete myTemplateAttribute.myDefaultAttribute;
+    myTemplateAttribute.myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, myTemplateAttribute);
+    RefreshDefaultAttributeWidget();
 }
 
 void QTemplateAttributeCore::ShowDefaultWidget(bool _show)
@@ -199,7 +226,10 @@ void QTemplateAttributeCore::ShowDefaultWidget(bool _show)
     {
         myArrayTemplate->ShowDefaultWidget(_show);
     }
-    // TODO: if structure template ...
+    if (myStructureTemplate != nullptr)
+    {
+        myStructureTemplate->ShowDefaultWidget(_show);
+    }
 }
 
 
@@ -214,7 +244,10 @@ bool QTemplateAttributeCore::HasConfigValid() const
     {
         validConfig = myArrayTemplate->HasConfigValid();
     }
-    // TODO: if valid && structure template ...
+    if (validConfig && myStructureTemplate != nullptr)
+    {
+        validConfig = myStructureTemplate->HasConfigValid();
+    }
     return validConfig;
 }
 
@@ -272,13 +305,24 @@ void QTemplateAttributeCore::OnParamChanged_Enum(int _enumIndex)
 void QTemplateAttributeCore::OnParamChanged_ArrayTemplate(bool _withCriticalChange)
 {
     Q_ASSERT(myTemplateAttribute.GetType() == AttributeTypeHelper::Type::Array);
-    if (_withCriticalChange) {
+    if (_withCriticalChange)
+    {
         AArray* castedDefAttribute = dynamic_cast<AArray*>(myTemplateAttribute.myDefaultAttribute);
         Q_ASSERT(castedDefAttribute != nullptr);
         castedDefAttribute->Empty();
         RefreshDefaultAttributeWidget();
     }
 
+    emit ParamEdited(_withCriticalChange);
+}
+void QTemplateAttributeCore::OnParamChanged_StructureTemplate(bool _withCriticalChange)
+{
+    Q_ASSERT(myTemplateAttribute.GetType() == AttributeTypeHelper::Type::Structure);
+    if (_withCriticalChange)
+    {
+        ReConstructDefaultAttribute(AttributeTypeHelper::Type::Structure);
+        RefreshDefaultAttributeWidget();
+    }
     emit ParamEdited(_withCriticalChange);
 }
 

@@ -1,20 +1,16 @@
 #include "afloat.h"
 #include "aint.h"
+#include "templateattribute.h"
 
-AFloat::AFloat(const AttributeParam& _sharedParam) :
-    AFloat(_sharedParam, 0)
+AFloat::AFloat(TemplateAttribute& _template) :
+    AFloat(_template, 0)
 {}
-AFloat::AFloat(const AttributeParam& _sharedParam, float _value) :
-    Attribute(_sharedParam),
+AFloat::AFloat(TemplateAttribute& _template, float _value) :
+    Attribute(_template),
     value(_value)
 {}
 
 
-
-Attribute* AFloat::CreateDuplica() const
-{
-    return new AFloat(mySharedParam, value);
-}
 QString AFloat::GetDisplayedText() const
 {
     return QString::number(GetValue());
@@ -63,20 +59,20 @@ void AFloat::CopyValueFromOther(const Attribute* _other)
 
     value = otherValue;
     if (!FitsMinParam())
-        value = mySharedParam.min_f;
+        value = MY_SHARED_PARAM.min_f;
     else if (!FitsMaxParam())
-            value = mySharedParam.max_f;
+            value = MY_SHARED_PARAM.max_f;
 }
 
 
 
 bool AFloat::FitsMinParam() const
 {
-    return mySharedParam.ignoreMin || value >= mySharedParam.min_f;
+    return MY_SHARED_PARAM.ignoreMin || value >= MY_SHARED_PARAM.min_f;
 }
 bool AFloat::FitsMaxParam() const
 {
-    return mySharedParam.ignoreMax || value <= mySharedParam.max_f;
+    return MY_SHARED_PARAM.ignoreMax || value <= MY_SHARED_PARAM.max_f;
 }
 float AFloat::GetValue(bool _validated) const
 {
@@ -85,19 +81,19 @@ float AFloat::GetValue(bool _validated) const
 
     float v = value;
     if (!FitsMinParam())
-        v = mySharedParam.min_f;
+        v = MY_SHARED_PARAM.min_f;
     else if (!FitsMaxParam())
-        v = mySharedParam.max_f;
+        v = MY_SHARED_PARAM.max_f;
     return v;
 }
 
 float AFloat::GetMax(bool& useIt) const
 {
-    useIt = !mySharedParam.ignoreMax;
-    return mySharedParam.max_f;
+    useIt = !MY_SHARED_PARAM.ignoreMax;
+    return MY_SHARED_PARAM.max_f;
 }
 float AFloat::GetMin(bool& useIt) const
 {
-    useIt = !mySharedParam.ignoreMin;
-    return mySharedParam.min_f;
+    useIt = !MY_SHARED_PARAM.ignoreMin;
+    return MY_SHARED_PARAM.min_f;
 }
