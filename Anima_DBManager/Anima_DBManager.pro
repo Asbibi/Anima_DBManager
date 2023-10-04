@@ -30,6 +30,7 @@ SOURCES += \
     attributetype.cpp \
     db_manager.cpp \
     enumerator.cpp \
+    iconmanager.cpp \
     main.cpp \
     mainwindow.cpp \
     qapmesh.cpp \
@@ -45,6 +46,7 @@ SOURCES += \
     qattribute.cpp \
     qattributedisplay.cpp \
     qaugmentedlist.cpp \
+    qcoloreditor.cpp \
     qdatatable.cpp \
     qelementhandler.cpp \
     qimportstringdialog.cpp \
@@ -55,12 +57,14 @@ SOURCES += \
     qpanelenum.cpp \
     qpanelstring.cpp \
     qpanelstruct.cpp \
+    qpanelwithcount.cpp \
     qprojectdialog.cpp \
     qrefdialog.cpp \
     qreflabel.cpp \
     qsstring.cpp \
     qsstringdialog.cpp \
     qsstringtable.cpp \
+    qstructidentity.cpp \
     qstructuredialog.cpp \
     qstructuretable.cpp \
     qtemplateattribute.cpp \
@@ -101,6 +105,7 @@ HEADERS += \
     constants.h \
     db_manager.h \
     enumerator.h \
+    iconmanager.h \
     mainwindow.h \
     qapmesh.h \
     qapsound.h \
@@ -115,6 +120,7 @@ HEADERS += \
     qattribute.h \
     qattributedisplay.h \
     qaugmentedlist.h \
+    qcoloreditor.h \
     qdatatable.h \
     qelementhandler.h \
     qimportstringdialog.h \
@@ -125,12 +131,14 @@ HEADERS += \
     qpanelenum.h \
     qpanelstring.h \
     qpanelstruct.h \
+    qpanelwithcount.h \
     qprojectdialog.h \
     qrefdialog.h \
     qreflabel.h \
     qsstring.h \
     qsstringdialog.h \
     qsstringtable.h \
+    qstructidentity.h \
     qstructuredialog.h \
     qstructuretable.h \
     qtemplateattribute.h \

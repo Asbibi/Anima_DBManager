@@ -68,6 +68,9 @@ public:
     void RemoveStructureDB(int _index);
     void RemoveStructureDB(const QString& _tableName);
     void RenameStructureDB(int _index, const QString& _tableName);
+    void ChangeStructureDBAbbrev(int _index, const QString& _abbrev);
+    void ChangeStructureDBIconType(int _index, IconManager::IconType _iconType);
+    void ChangeStructureDBIconColor(int _index, const QColor& _abbrev);
     void MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo);
     void MoveStructureAttribute(const QString& _tableName, int _indexFrom, int _indexTo);
     void RenameStructureAttribute(int _tableIndex, int _attributeIndex, QString& _attributeName);
@@ -85,6 +88,7 @@ public:
     void DuplicateStructureRow(const int _tableIndex, const int _position, const int _originalIndex);
     void RemoveStructureRow(const int _tableIndex, const int _position);
     void MoveStructureRow(const int _tableIndex, const int _positionFrom, int& _positionTo);
+    void SetStructureRowCount(const int _tableIndex, const int _count);
     void UpdateAAssetIsDirty();
 
     int GetStringTableCount() const;
@@ -98,6 +102,7 @@ public:
     void RemoveStringTable(int _index);
     void RemoveStringTable(const QString& _tableName);
     void RenameStringTable(int _index, const QString& _tableName);
+    void SetStringTableItemCount(const int _index, const int _count);
     bool AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const;
     QString GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete = false) const;
 
@@ -120,6 +125,7 @@ signals:
     void StructTableMoved(const int _indexFrom, const int _indexTo);
     void StructTableRemoved(const int _index);
     void StructTableRenamed(const int _index, const QString& _name);
+    void StructTableIconChanged(const int _index, const QIcon& _icon);
     void StructTableFocus(const int _tableIndex, const int _itemIndex);   // For edits or selection done in table widget
     void StructItemFocus(const int _tableIndex, const int _index);
     void StructItemChanged(const int _tableIndex);      // For edits done in panel widget

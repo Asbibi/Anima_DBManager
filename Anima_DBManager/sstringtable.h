@@ -33,6 +33,7 @@ public:
     const SStringItem* GetStringItem(const QString& _identifier) const;
 
     void SetTableName(const QString& _name);
+    void SetStringItemCount(int _count);
     SStringItem* GetStringItemW(int _index);
     SStringItem* GetStringItemW(const QString& _identifier);
     QString AddStringItem(int _index, const QString* _wantedIdentifier = nullptr); // return the actual identifier

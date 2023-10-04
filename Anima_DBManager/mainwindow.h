@@ -51,6 +51,7 @@ public slots:
     void OnStructTableMoved(const int _indexFrom, const int _indexTo);
     void OnStructTableRemoved(const int _index);
     void OnStructTableRenamed(const int _index, const QString& _name);
+    void OnStructTableIconChanged(const int _index, const QIcon& _color);
     void OnStructTableFocus(const int _tableIndex, const int _itemIndex);
     void OnStructItemFocus(const int _tableIndex, const int _index);
     void OnStructItemChanged(const int _tableIndex);

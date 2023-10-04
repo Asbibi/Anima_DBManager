@@ -1,6 +1,7 @@
 #include "structuredb.h"
 
 #include "aasset.h"
+#include "iconmanager.h"
 
 
 StructureDB::StructureDB(const TemplateStructure& _structureTemplate):
@@ -71,6 +72,25 @@ void StructureDB::MoveStructureAt(int _indexFrom, int& _indexTo)
 
     auto* strct = myStructures.takeAt(_indexFrom);
     myStructures.insert(_indexTo, strct);
+}
+
+void StructureDB::SetStructureCount(int _count)
+{
+    const int originalCount = GetStructureCount();
+    if (_count < originalCount)
+    {
+        while (_count < GetStructureCount()) {
+            RemoveStructureAt(_count);
+        }
+    }
+    else if (_count > originalCount)
+    {
+        while (_count > GetStructureCount()) {
+            AddStructureAt(_count);
+        }
+    }
+
+    Q_ASSERT(_count == GetStructureCount());
 }
 
 void StructureDB::ClearStructures()
@@ -211,6 +231,14 @@ void StructureDB::SetTemplateAbbrev(const QString& _abbrev)
 {
     myTemplate.ReabbrevStructureTemplate(_abbrev);
 }
+void StructureDB::SetTemplateIconType(IconManager::IconType _iconType)
+{
+    myTemplate.SetStructureIcon(_iconType);
+}
+void StructureDB::SetTemplateColor(const QColor& _color)
+{
+    myTemplate.SetStructureColor(_color);
+}
 void StructureDB::SetTemplateAttributeName(int _index, QString& _name)
 {
     myTemplate.RenameAttributeTemplate(_index, _name);
@@ -222,6 +250,10 @@ const QString& StructureDB::GetTemplateName() const
 const QString& StructureDB::GetTemplateAbbrev() const
 {
     return myTemplate.GetStructAbbrev();
+}
+QIcon StructureDB::GetIcon() const
+{
+    return IconManager::GetSimpleIcon(myTemplate.GetStructIcon(), myTemplate.GetStructColor());
 }
 QString StructureDB::GetTemplateColorString() const
 {

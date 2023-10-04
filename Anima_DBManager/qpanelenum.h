@@ -4,6 +4,7 @@
 #include "qpanelbase.h"
 
 #include "qaugmentedlist.h"
+#include "qcoloreditor.h"
 #include <QCheckBox>
 #include <QListWidget>
 #include <QListWidgetItem>
@@ -18,6 +19,7 @@ private:
     QAugmentedList* myEnumValuesList;
     QListWidget* myEnumColorList;
     QCheckBox* myColorCheckbox;
+    QColorEditor* myColorEditor;
 
     QPushButton* myApplyBtn;
     QPushButton* myResetBtn;
@@ -49,6 +51,8 @@ public slots:
     void OnRemovedEnumValue(int _index);
     void OnToggleUseColor(const int _state);
     void OnSelectEnumValue(const int _index);
+    void OnSelectEnumColor(const int _index);
+    void OnColorEdited(const QColor& _color);
 };
 
 #endif // QPANELENUM_H

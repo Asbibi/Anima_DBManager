@@ -82,6 +82,26 @@ void SStringTable::SetTableName(const QString& _name)
 {
     myTableName = _name;
 }
+void SStringTable::SetStringItemCount(int _count)
+{
+    const int originalCount = myStrings.count();
+    if (originalCount < _count)
+    {
+        // TODO : easy but not that useful optimisation here
+        while (myStrings.count() < _count)
+        {
+            AddStringItem(originalCount);
+        }
+    }
+    else if (originalCount > _count)
+    {
+        // TODO : easy but not that useful optimisation here
+        while (myStrings.count() > _count)
+        {
+            RemoveStringItem(_count);
+        }
+    }
+}
 SStringItem* SStringTable::GetStringItemW(int _index)
 {
     if (_index < 0 || _index >= GetStringItemCount())

@@ -27,11 +27,15 @@ public:
 
     void SetTemplateName(const QString& _name);
     void SetTemplateAbbrev(const QString& _abbrev);
+    void SetTemplateIconType(IconManager::IconType _iconType);
+    void SetTemplateColor(const QColor& _color);
     void SetTemplateAttributeName(int _index, QString& _name);
+
     void AddStructureAt(int _index);
     void DuplicateStructureAt(int _index, int _originalIndex);
     void RemoveStructureAt(int _index);
     void MoveStructureAt(int _indexFrom, int& _indexTo);
+    void SetStructureCount(int _count);
     void ClearStructures();
 
     void MoveAttribute(int _indexFrom, int _indexTo);
@@ -47,6 +51,7 @@ public:
 
     const QString& GetTemplateName() const;
     const QString& GetTemplateAbbrev() const;
+    QIcon GetIcon() const;
     QString GetTemplateColorString() const;
     const TemplateStructure& GetTemplate() const;
     AttributeTypeHelper::Type GetAttributeTemplateType(int _attributeIndex) const;

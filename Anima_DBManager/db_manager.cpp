@@ -168,7 +168,7 @@ void DB_Manager::Init()
 
     */
 
-    AddStructureDB({"ArrayStruct", QColorConstants::DarkCyan}, 0);
+    AddStructureDB({"ArrayStruct", QColorConstants::DarkCyan, IconManager::IconType::StarHollow}, 0);
     AddAttributeTemplate(0, 0, false);
     AddStructureRow(0,0);
 
@@ -458,6 +458,33 @@ void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
     myStructures[_index]->SetTemplateName(_tableName);
     emit StructTableRenamed(_index, _tableName);
 }
+void DB_Manager::ChangeStructureDBAbbrev(int _index, const QString& _abbrev)
+{
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        return;
+
+    myStructures[_index]->SetTemplateAbbrev(_abbrev);
+    // TODO - Inform the AReference entities so they can update their display text
+}
+void DB_Manager::ChangeStructureDBIconType(int _index, IconManager::IconType _iconType)
+{
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        return;
+
+    myStructures[_index]->SetTemplateIconType(_iconType);
+    emit StructTableIconChanged(_index, myStructures[_index]->GetIcon());
+}
+void DB_Manager::ChangeStructureDBIconColor(int _index, const QColor& _color)
+{
+    const int count = myStructures.count();
+    if (_index < 0 || _index > count)
+        return;
+
+    myStructures[_index]->SetTemplateColor(_color);
+    emit StructTableIconChanged(_index, myStructures[_index]->GetIcon());
+}
 void DB_Manager::MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo)
 {
     const int count = myStructures.count();
@@ -597,6 +624,15 @@ void DB_Manager::MoveStructureRow(const int _tableIndex, const int _positionFrom
     myStructures[_tableIndex]->MoveStructureAt(_positionFrom, _positionTo);
     if (_positionFrom != _positionTo)
         emit StructItemChanged(_tableIndex);
+}
+void DB_Manager::SetStructureRowCount(const int _tableIndex, const int _count)
+{
+    const int count = myStructures.count();
+    if (_tableIndex < 0 || _tableIndex > count)
+        return;
+
+    myStructures[_tableIndex]->SetStructureCount(_count);
+    emit StructItemChanged(_tableIndex);
 }
 void DB_Manager::UpdateAAssetIsDirty()
 {
@@ -738,7 +774,12 @@ void DB_Manager::RenameStringTable(int _index, const QString& _tableName)
 
      // TODO (?) : update all attributes using this table
 }
-
+void DB_Manager::SetStringTableItemCount(const int _index, const int _count)
+{
+    GetStringTable(_index)->SetStringItemCount(_count);
+    AskUpdateOnStringTable(_index);
+    AskUpdateOnStringPanel(_index);
+}
 bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const
 {
     const auto* stringTable = GetStringTable(_tableId);
@@ -762,6 +803,7 @@ QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& 
 
     return (myStr->length() > 15) ? (myStr->left(15) + "<font color=\"blue\">[...]</font>") : *myStr;  //<font color=\"blue\">Hello</font> //"[...]"
 }
+
 
 void DB_Manager::AskFocusOnStringItem(const int _tableIndex, const int _stringIndex)
 {

@@ -4,16 +4,17 @@
 
 #include "sstringhelper.h"
 
-TemplateStructure::TemplateStructure(const QString& _structName, const QColor& _structColor) :
-    TemplateStructure(_structName, _structName.left(2).toUpper(), _structColor)
+TemplateStructure::TemplateStructure(const QString& _structName, const QColor& _structColor, IconManager::IconType _iconType) :
+    TemplateStructure(_structName, _structName.left(2).toUpper(), _structColor, _iconType)
 {}
-TemplateStructure::TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor) :
+TemplateStructure::TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor, IconManager::IconType _iconType) :
     myStructColor(_structColor),
+    myIconType (_iconType),
     myStructName(_structName),
     myStructAbbrev(_structAbbrev)
 {}
 TemplateStructure::TemplateStructure(const TemplateStructure& _other) :    
-    TemplateStructure(_other.myStructName, _other.myStructAbbrev, _other.myStructColor)
+    TemplateStructure(_other.myStructName, _other.myStructAbbrev, _other.myStructColor, _other.myIconType)
 {
     for (const auto& otherTemplAttr : _other.myAttributeTemplates)
         myAttributeTemplates.append(new TemplateAttribute(*otherTemplAttr));

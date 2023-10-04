@@ -2,6 +2,7 @@
 #define TEMPLATESTRUCTURE_H
 
 #include "attributetype.h"
+#include "iconmanager.h"
 #include "templateattribute.h"
 #include "areference.h"
 #include <QColor>
@@ -14,18 +15,22 @@ private:
     QList<TemplateAttribute*> myAttributeTemplates;
 
     QColor myStructColor;
+    IconManager::IconType myIconType;
     QString myStructName;   // Global Denomination of the struct (ex: "Anima", "Move, "HealingItem"...)
     QString myStructAbbrev; // Abbreviation of the struct name used for the constant part of row names (ex: "A", "M", "IH"...)
 
     void AddAttributeTemplateInternal(TemplateAttribute* _attTemplateToCopy, const QString* _newName, int _index);
 
 public:
-    TemplateStructure(const QString& _structName, const QColor& _structColor);
-    TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor);
+    TemplateStructure(const QString& _structName, const QColor& _structColor, IconManager::IconType _iconType = IconManager::IconType::None);
+    TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor, IconManager::IconType _iconType = IconManager::IconType::None);
     TemplateStructure(const TemplateStructure& _other);
     ~TemplateStructure();
 
     const QColor& GetStructColor() const { return myStructColor; }
+    void SetStructureColor(const QColor& _color) { myStructColor = _color; }
+    IconManager::IconType GetStructIcon() const { return myIconType; }
+    void SetStructureIcon(IconManager::IconType _iconType) { myIconType = _iconType; }
 
     const QString& GetStructName() const                            { return myStructName; }
     void RenameStructureTemplate(const QString& _newStructName)     { myStructName = _newStructName; }
