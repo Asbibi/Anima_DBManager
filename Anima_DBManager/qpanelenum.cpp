@@ -32,10 +32,14 @@ QPanelEnum::QPanelEnum(QWidget *parent)
     useColorLayout->addRow("Use Colors:", myColorCheckbox);
     editLayout->addLayout(useColorLayout, 2, 0);
 
+    myColorEditor = new QColorEditor();
+    editLayout->addWidget(myColorEditor, 3, 0, 1, 2);
+    myColorEditor->hide();
+
     myApplyBtn = new QPushButton("Apply");
     myResetBtn = new QPushButton("Discard");
-    editLayout->addWidget(myApplyBtn, 3, 0);
-    editLayout->addWidget(myResetBtn, 3, 1);
+    editLayout->addWidget(myApplyBtn, 4, 0);
+    editLayout->addWidget(myResetBtn, 4, 1);
 
     QObject::connect(myItemList, &QAugmentedList::ItemRemoveCheck, this, &QPanelEnum::OnItemRemoveCheck);
 
@@ -46,7 +50,11 @@ QPanelEnum::QPanelEnum(QWidget *parent)
     QObject::connect(myEnumValuesList, &QAugmentedList::ItemRemoved, this, &QPanelEnum::OnRemovedEnumValue);
     QObject::connect(myEnumValuesList, &QAugmentedList::SelectionChanged, this, &QPanelEnum::OnSelectEnumValue);
 
+    QObject::connect(myEnumColorList, &QListWidget::currentRowChanged, this, &QPanelEnum::OnSelectEnumColor);
+
     QObject::connect(myColorCheckbox, &QCheckBox::stateChanged, this, &QPanelEnum::OnToggleUseColor);
+
+    QObject::connect(myColorEditor, &QColorEditor::ColorChanged, this, &QPanelEnum::OnColorEdited);
 
     QObject::connect(myApplyBtn, &QPushButton::clicked, this, &QPanelEnum::ApplyEdits);
     QObject::connect(myResetBtn, &QPushButton::clicked, this, &QPanelEnum::RevertEdits);
@@ -227,8 +235,12 @@ void QPanelEnum::OnToggleUseColor(const int _state)
     myEnumColorList->setEnabled(useColor);
     myEnumColorList->clear();
     if (!useColor)
+    {
+        myColorEditor->hide();
         return;
+    }
 
+    myColorEditor->show();
     const int valueCount = myEnumValuesList->Count();
     for (int i = 0; i < valueCount; i++)
     {
@@ -240,5 +252,23 @@ void QPanelEnum::OnSelectEnumValue(const int _index)
     CHECK_USE_COLOR();
 
     myEnumColorList->setCurrentRow(_index);
+}
+void QPanelEnum::OnSelectEnumColor(const int _index)
+{
+    if (_index == -1)
+    {
+        return;
+    }
+
+    CHECK_USE_COLOR();
+
+    QColor color = QColor(myEnumColorList->currentItem()->text());
+    myColorEditor->SetColor(color);
+}
+void QPanelEnum::OnColorEdited(const QColor& _color)
+{
+    CHECK_USE_COLOR();
+
+    myEnumColorList->currentItem()->setText(_color.name());
 }
 #undef CHECK_USE_COLOR

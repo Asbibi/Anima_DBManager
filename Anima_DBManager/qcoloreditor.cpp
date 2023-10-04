@@ -36,6 +36,7 @@ void QColorEditor::UpdateColorText()
 
     QPalette p = myColorText->palette();
     p.setColor(myColorText->backgroundRole(), myColor);
+    p.setColor(myColorText->foregroundRole(), myColor.lightness() < 130 ? QColorConstants::White : QColorConstants::Black);
     myColorText->setPalette(p);
 }
 
