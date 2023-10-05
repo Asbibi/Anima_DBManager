@@ -151,6 +151,7 @@ HEADERS += \
     qtemplatestructurecore.h \
     savemanager.h \
     searchmanager.h \
+    searchparameter.h \
     sstringhelper.h \
     sstringimporter.h \
     sstringitem.h \

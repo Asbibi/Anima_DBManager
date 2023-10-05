@@ -1,6 +1,5 @@
 #include "qpanelsearch.h"
 
-#include "attributetype.h"
 
 #include <QFormLayout>
 #include <QGridLayout>
@@ -24,11 +23,12 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     paramLayout->addWidget(mySearchField);
 
     mySearchOnStruct = new QCheckBox();
-    mySearchOnAttributGroup = new QGroupBox("Attributes");
-    mySearchOnAttributGroup->hide();
-    QGridLayout* attributeGroupLayout = new QGridLayout(mySearchOnAttributGroup);
+    mySearchOnAttributeGroup = new QGroupBox("Attributes");
+    mySearchOnAttributeGroup->hide();
+    QGridLayout* attributeGroupLayout = new QGridLayout(mySearchOnAttributeGroup);
 #define ADD_ATTRIBUTE_CHECKBOX(type, row, col) \
     QCheckBox* checkBox##type = new QCheckBox(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::type)); \
+    QObject::connect(checkBox##type, &QCheckBox::stateChanged, this, [this](int _state){ OnAttributeCheckBoxChanged(_state, AttributeTypeHelper::Type::type); }); \
     checkBox##type->setCheckState(Qt::Checked); \
     attributeGroupLayout->addWidget(checkBox##type, row, col);
 
@@ -44,7 +44,6 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     ADD_ATTRIBUTE_CHECKBOX(Array, 0, 2);
     ADD_ATTRIBUTE_CHECKBOX(Structure, 1, 2);
 
-
     ADD_ATTRIBUTE_CHECKBOX(UAsset, 0, 3);
     ADD_ATTRIBUTE_CHECKBOX(Texture, 1, 3);
     ADD_ATTRIBUTE_CHECKBOX(Mesh, 2, 3);
@@ -54,10 +53,25 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
 #undef ADD_ATTRIBUTE_CHECKBOX
 
     mySearchOnString = new QCheckBox();
+    mySearchOnLanguageGroup = new QGroupBox("Languages");
+    mySearchOnLanguageGroup->hide();
+    QGridLayout* languageGroupLayout = new QGridLayout(mySearchOnLanguageGroup);
+#define ADD_LANGUAGE_CHECKBOX(language, row, col) \
+    QCheckBox* checkBox##language = new QCheckBox(SStringHelper::GetLanguageString(SStringHelper::SStringLanguages::language)); \
+    QObject::connect(checkBox##language, &QCheckBox::stateChanged, this, [this](int _state){ OnLanguageCheckBoxChanged(_state, SStringHelper::SStringLanguages::language); }); \
+    checkBox##language->setCheckState(Qt::Unchecked); \
+    languageGroupLayout->addWidget(checkBox##language, row, col);
+
+    ADD_LANGUAGE_CHECKBOX(French, 0, 0);
+    ADD_LANGUAGE_CHECKBOX(English, 0, 1);
+    checkBoxFrench->setCheckState(Qt::Checked);
+#undef ADD_ATTRIBUTE_CHECKBOX
+
     mySearchOnEnum = new QCheckBox();
     paramLayout->addRow("Search on Structure:", mySearchOnStruct);
-    paramLayout->addWidget(mySearchOnAttributGroup);
+    paramLayout->addWidget(mySearchOnAttributeGroup);
     paramLayout->addRow("Search on Strings:", mySearchOnString);
+    paramLayout->addWidget(mySearchOnLanguageGroup);
     paramLayout->addRow("Search on Enums:", mySearchOnEnum);
     QPushButton* searchBtn = new QPushButton("Search");
     paramLayout->addWidget(searchBtn);
@@ -82,16 +96,43 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
 
 
     QObject::connect(mySearchOnStruct, &QCheckBox::stateChanged, this, &QPanelSearch::OnStructCheckboxChanged);
+    QObject::connect(mySearchOnString, &QCheckBox::stateChanged, this, &QPanelSearch::OnStringCheckboxChanged);
+    QObject::connect(mySearchOnEnum, &QCheckBox::stateChanged, this, &QPanelSearch::OnEnumCheckboxChanged);
 }
 
 void QPanelSearch::OnStructCheckboxChanged(int _state)
 {
-    if (_state == (int)Qt::Unchecked)
+    mySearchParameters.mySearchOnStructs = _state != (int)Qt::Unchecked;
+    if (mySearchParameters.mySearchOnStructs)
     {
-        mySearchOnAttributGroup->hide();
+        mySearchOnAttributeGroup->show();
     }
     else
     {
-        mySearchOnAttributGroup->show();
+        mySearchOnAttributeGroup->hide();
     }
+}
+void QPanelSearch::OnStringCheckboxChanged(int _state)
+{
+    mySearchParameters.mySearchOnStrings = _state != (int)Qt::Unchecked;
+    if (mySearchParameters.mySearchOnStrings)
+    {
+        mySearchOnLanguageGroup->show();
+    }
+    else
+    {
+        mySearchOnLanguageGroup->hide();
+    }
+}
+void QPanelSearch::OnEnumCheckboxChanged(int _state)
+{
+    mySearchParameters.mySearchOnEnum = _state != (int)Qt::Unchecked;
+}
+void QPanelSearch::OnAttributeCheckBoxChanged(int _state, AttributeTypeHelper::Type _type)
+{
+    mySearchParameters.myAttributeIgnoreSearchMap.insert(_type, _state != (int)Qt::Unchecked);
+}
+void QPanelSearch::OnLanguageCheckBoxChanged(int _state, SStringHelper::SStringLanguages _language)
+{
+    mySearchParameters.myLanguageIgnoreSearchMap.insert(_language, _state != (int)Qt::Unchecked);
 }
