@@ -1,6 +1,6 @@
 #include "qpanelsearch.h"
 
-
+#include "searchmanager.h"
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QPushButton>
@@ -18,9 +18,9 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     QFormLayout* paramLayout = new QFormLayout(paramGroupBox);
     layout->addWidget(paramGroupBox);
 
-    mySearchField = new QLineEdit();
-    mySearchField->setPlaceholderText("Search");
-    paramLayout->addWidget(mySearchField);
+    QLineEdit* searchField = new QLineEdit();
+    searchField->setPlaceholderText("Search");
+    paramLayout->addWidget(searchField);
 
     mySearchOnStruct = new QCheckBox();
     mySearchOnAttributeGroup = new QGroupBox("Attributes");
@@ -67,12 +67,16 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     checkBoxFrench->setCheckState(Qt::Checked);
 #undef ADD_ATTRIBUTE_CHECKBOX
 
-    mySearchOnEnum = new QCheckBox();
+    QCheckBox* searchOnEnum = new QCheckBox();
+    QCheckBox* caseSensitive = new QCheckBox();
+    QCheckBox* wholeWord = new QCheckBox();
     paramLayout->addRow("Search on Structure:", mySearchOnStruct);
     paramLayout->addWidget(mySearchOnAttributeGroup);
     paramLayout->addRow("Search on Strings:", mySearchOnString);
     paramLayout->addWidget(mySearchOnLanguageGroup);
-    paramLayout->addRow("Search on Enums:", mySearchOnEnum);
+    paramLayout->addRow("Search on Enums:", searchOnEnum);
+    paramLayout->addRow("Case Sensistive:", caseSensitive);
+    paramLayout->addRow("Whole word:", wholeWord);
     QPushButton* searchBtn = new QPushButton("Search");
     paramLayout->addWidget(searchBtn);
 
@@ -95,11 +99,19 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     resultLayout->addWidget(myResultCount);
 
 
+    QObject::connect(searchField, &QLineEdit::textEdited, this, &QPanelSearch::OnSearchedStringChanged);
     QObject::connect(mySearchOnStruct, &QCheckBox::stateChanged, this, &QPanelSearch::OnStructCheckboxChanged);
     QObject::connect(mySearchOnString, &QCheckBox::stateChanged, this, &QPanelSearch::OnStringCheckboxChanged);
-    QObject::connect(mySearchOnEnum, &QCheckBox::stateChanged, this, &QPanelSearch::OnEnumCheckboxChanged);
+    QObject::connect(searchOnEnum, &QCheckBox::stateChanged, this, &QPanelSearch::OnEnumCheckboxChanged);
+    QObject::connect(caseSensitive, &QCheckBox::stateChanged, this, &QPanelSearch::OnCaseCheckboxChanged);
+    QObject::connect(wholeWord, &QCheckBox::stateChanged, this, &QPanelSearch::OnWholeCheckboxChanged);
+    QObject::connect(searchBtn, &QPushButton::clicked, this, &QPanelSearch::OnSearchRequested);
 }
 
+void QPanelSearch::OnSearchedStringChanged(const QString& _str)
+{
+    mySearchParameters.mySearchedString = _str;
+}
 void QPanelSearch::OnStructCheckboxChanged(int _state)
 {
     mySearchParameters.mySearchOnStructs = _state != (int)Qt::Unchecked;
@@ -135,4 +147,33 @@ void QPanelSearch::OnAttributeCheckBoxChanged(int _state, AttributeTypeHelper::T
 void QPanelSearch::OnLanguageCheckBoxChanged(int _state, SStringHelper::SStringLanguages _language)
 {
     mySearchParameters.myLanguageIgnoreSearchMap.insert(_language, _state != (int)Qt::Unchecked);
+}
+void QPanelSearch::OnCaseCheckboxChanged(int _state)
+{
+    mySearchParameters.myCaseSensitivity = _state != (int)Qt::Unchecked ?  Qt::CaseSensitive : Qt::CaseInsensitive;
+}
+void QPanelSearch::OnWholeCheckboxChanged(int _state)
+{
+    mySearchParameters.myWholeWord = _state != (int)Qt::Unchecked;
+}
+
+void QPanelSearch::OnSearchRequested()
+{
+    if (mySearchParameters.mySearchedString == "" || (mySearchParameters.myWholeWord && mySearchParameters.mySearchedString.contains(' ')))
+    {
+        qDebug() << "Searched with empty string or string that contains spaces with the whole word option active";
+        return;
+    }
+
+    QList<SearchResult> searchResults = SearchManager::GetInstance().Search(mySearchParameters);
+    const int resCount = searchResults.count();
+    myResultTable->setRowCount(resCount);
+    for (int i = 0; i < resCount; i++)
+    {
+        for (int j = 0; j < 5; j++)
+        {
+            QTableWidgetItem* newItem = new QTableWidgetItem(searchResults[i].myDisplayString[j]);
+            myResultTable->setItem(i, j, newItem);
+        }
+    }
 }

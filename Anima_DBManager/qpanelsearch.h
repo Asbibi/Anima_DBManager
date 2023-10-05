@@ -17,12 +17,10 @@ class QPanelSearch : public QWidget
 private:
     static const QString ourCountString;
 
-    QLineEdit* mySearchField;
     QCheckBox* mySearchOnStruct;
     QGroupBox* mySearchOnAttributeGroup;
     QCheckBox* mySearchOnString;
     QGroupBox* mySearchOnLanguageGroup;
-    QCheckBox* mySearchOnEnum;
     QTableWidget* myResultTable;
     QLabel* myResultCount;
 
@@ -33,11 +31,16 @@ public:
     explicit QPanelSearch(QWidget* _parent = nullptr);
 
 public slots:
+    void OnSearchedStringChanged(const QString& _str);
     void OnStructCheckboxChanged(int _state);
     void OnStringCheckboxChanged(int _state);
     void OnEnumCheckboxChanged(int _state);
     void OnAttributeCheckBoxChanged(int _state, AttributeTypeHelper::Type _type);
     void OnLanguageCheckBoxChanged(int _state, SStringHelper::SStringLanguages _language);
+    void OnCaseCheckboxChanged(int _state);
+    void OnWholeCheckboxChanged(int _state);
+
+    void OnSearchRequested();
 };
 
 #endif // QPANELSEARCH_H

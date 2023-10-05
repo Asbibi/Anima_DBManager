@@ -15,6 +15,9 @@ struct SearchParameter
     bool mySearchOnStrings;
     QMap<SStringHelper::SStringLanguages, bool> myLanguageIgnoreSearchMap;
     bool mySearchOnEnum;
+
+    Qt::CaseSensitivity myCaseSensitivity = Qt::CaseInsensitive;
+    bool myWholeWord = false;
 };
 
 #endif // SEARCHPARAMETER_H

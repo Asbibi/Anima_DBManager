@@ -152,6 +152,7 @@ HEADERS += \
     savemanager.h \
     searchmanager.h \
     searchparameter.h \
+    searchresult.h \
     sstringhelper.h \
     sstringimporter.h \
     sstringitem.h \
