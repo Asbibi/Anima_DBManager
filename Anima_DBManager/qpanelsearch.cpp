@@ -2,8 +2,9 @@
 
 #include "searchmanager.h"
 #include <QFormLayout>
+#include <QFuture>
 #include <QGridLayout>
-#include <QPushButton>
+#include <QtConcurrent>
 #include <QVBoxLayout>
 
 const QString QPanelSearch::ourCountString = "ResultCount: %1";
@@ -77,8 +78,11 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     paramLayout->addRow("Search on Enums:", searchOnEnum);
     paramLayout->addRow("Case Sensistive:", caseSensitive);
     paramLayout->addRow("Whole word:", wholeWord);
-    QPushButton* searchBtn = new QPushButton("Search");
-    paramLayout->addWidget(searchBtn);
+
+    mySearchBtn = new QPushButton("Search");
+    paramLayout->addWidget(mySearchBtn);
+
+
 
     QGroupBox* resultGroupBox = new QGroupBox("Search Result");
     QVBoxLayout* resultLayout = new QVBoxLayout(resultGroupBox);
@@ -105,7 +109,7 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     QObject::connect(searchOnEnum, &QCheckBox::stateChanged, this, &QPanelSearch::OnEnumCheckboxChanged);
     QObject::connect(caseSensitive, &QCheckBox::stateChanged, this, &QPanelSearch::OnCaseCheckboxChanged);
     QObject::connect(wholeWord, &QCheckBox::stateChanged, this, &QPanelSearch::OnWholeCheckboxChanged);
-    QObject::connect(searchBtn, &QPushButton::clicked, this, &QPanelSearch::OnSearchRequested);
+    QObject::connect(mySearchBtn, &QPushButton::clicked, this, &QPanelSearch::OnSearchRequested);
 
     //mySearchOnStruct->setCheckState(Qt::Checked);
     mySearchOnString->setCheckState(Qt::Checked);
@@ -171,14 +175,33 @@ void QPanelSearch::OnSearchRequested()
         return;
     }
 
-    QList<SearchResult> searchResults = SearchManager::GetInstance().Search(mySearchParameters);
-    const int resCount = searchResults.count();
+    mySearchBtn->setEnabled(false);
+    mySearchBtn->setText("Searching...");
+
+
+    QFuture<QList<SearchResult>> futureRes = QtConcurrent::run([this] {
+            return SearchManager::GetInstance().Search(mySearchParameters);
+    });
+
+    UpdateWidgetsWithSearchResults(futureRes.result());
+
+    //QList<SearchResult> searchResults = SearchManager::GetInstance().Search(mySearchParameters);
+}
+void QPanelSearch::UpdateWidgetsWithSearchResults(const QList<SearchResult>& _res)
+{
+    mySearchBtn->setEnabled(true);
+    mySearchBtn->setText("Search");
+
+    const int resCount = _res.count();
+
+    myResultCount->setText(ourCountString.arg(resCount));
+
     myResultTable->setRowCount(resCount);
     for (int i = 0; i < resCount; i++)
     {
         for (int j = 0; j < 5; j++)
         {
-            QTableWidgetItem* newItem = new QTableWidgetItem(searchResults[i].myDisplayString[j]);
+            QTableWidgetItem* newItem = new QTableWidgetItem(_res[i].myDisplayString[j]);
             myResultTable->setItem(i, j, newItem);
         }
     }

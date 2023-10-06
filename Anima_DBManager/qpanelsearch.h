@@ -4,10 +4,12 @@
 #include <QWidget>
 
 #include "searchparameter.h"
+#include "searchresult.h"
 #include <QCheckBox>
 #include <QGroupBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QPushButton>
 #include <QTableWidget>
 
 class QPanelSearch : public QWidget
@@ -21,10 +23,13 @@ private:
     QGroupBox* mySearchOnAttributeGroup;
     QCheckBox* mySearchOnString;
     QGroupBox* mySearchOnLanguageGroup;
+    QPushButton* mySearchBtn;
     QTableWidget* myResultTable;
     QLabel* myResultCount;
 
     SearchParameter mySearchParameters;
+
+    void UpdateWidgetsWithSearchResults(const QList<SearchResult>& _res);
 
 
 public:
