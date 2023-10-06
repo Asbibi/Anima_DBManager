@@ -14,14 +14,15 @@ private:
     SearchManager();
     SearchManager(const SearchManager&) = delete;
 
-    void SearchStruct(const SearchParameter& _parameters, QList<SearchResult>& _outResults);
-    void SearchString(const SearchParameter& _parameters, QList<SearchResult>& _outResults);
-    void SearchEnum(const SearchParameter& _parameters, QList<SearchResult>& _outResults);
+    void SearchStruct(const SearchParameter& _parameters, QList<SearchResult>& _outResults) const;
+    void SearchString(const SearchParameter& _parameters, QList<SearchResult>& _outResults) const;
+    void SearchEnum(const SearchParameter& _parameters, QList<SearchResult>& _outResults) const;
+    bool IsStringOk(const QString& _str, const SearchParameter& _parameters) const;
 
 public:
-    static SearchManager& GetInstance();
+    static const SearchManager& GetInstance();
 
-    QList<SearchResult> Search(const SearchParameter& _parameters);
+    QList<SearchResult> Search(const SearchParameter& _parameters) const;
 };
 
 #endif // SEARCHMANAGER_H

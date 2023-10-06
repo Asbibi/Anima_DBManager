@@ -10,14 +10,14 @@ struct SearchParameter
 {
     QString mySearchedString;
 
-    bool mySearchOnStructs;
+    bool mySearchOnStructs                  = false;
     QMap<AttributeTypeHelper::Type, bool> myAttributeIgnoreSearchMap;
-    bool mySearchOnStrings;
+    bool mySearchOnStrings                  = false;
     QMap<SStringHelper::SStringLanguages, bool> myLanguageIgnoreSearchMap;
-    bool mySearchOnEnum;
+    bool mySearchOnEnum                     = false;
 
-    Qt::CaseSensitivity myCaseSensitivity = Qt::CaseInsensitive;
-    bool myWholeWord = false;
+    Qt::CaseSensitivity myCaseSensitivity   = Qt::CaseInsensitive;
+    bool myWholeWord                        = false;
 };
 
 #endif // SEARCHPARAMETER_H

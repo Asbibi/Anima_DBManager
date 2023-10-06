@@ -106,6 +106,12 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     QObject::connect(caseSensitive, &QCheckBox::stateChanged, this, &QPanelSearch::OnCaseCheckboxChanged);
     QObject::connect(wholeWord, &QCheckBox::stateChanged, this, &QPanelSearch::OnWholeCheckboxChanged);
     QObject::connect(searchBtn, &QPushButton::clicked, this, &QPanelSearch::OnSearchRequested);
+
+    //mySearchOnStruct->setCheckState(Qt::Checked);
+    mySearchOnString->setCheckState(Qt::Checked);
+    //searchOnEnum->setCheckState(Qt::Checked);
+    //caseSensitive->setCheckState(Qt::Checked);
+    //wholeWord->setCheckState(Qt::Checked);
 }
 
 void QPanelSearch::OnSearchedStringChanged(const QString& _str)
