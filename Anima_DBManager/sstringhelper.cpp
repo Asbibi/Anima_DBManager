@@ -71,5 +71,11 @@ QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const Q
 
     return identifier;
 }
+void IncrementLanguage(SStringLanguages& _language)
+{
+    int l = _language;
+    l++;
+    _language = (SStringLanguages)l;
+}
 
 }

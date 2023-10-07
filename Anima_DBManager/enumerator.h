@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QColor>
-#include <vector>
+#include <QList>
 #include <fstream>
 
 class QWidget;
@@ -13,22 +13,22 @@ class Enumerator : public QObject
 {
 protected:
     QString                 name;
-    std::vector<QString>    values;
-    std::vector<QColor>     colors;
+    QList<QString>    values;
+    QList<QColor>     colors;
 
 public:
     Enumerator(const QString& _name);
     Enumerator(const QString& _name, const QString* _values, const int _count);
     Enumerator(const QString& _name, const QString* _values, const QColor* _colors, const int _count); // colors and values must have same size
-    Enumerator(const QString& _name, const std::vector<QString>& _values);
-    Enumerator(const QString& _name, const std::vector<QString>& _values, const std::vector<QColor>& _colors);
+    Enumerator(const QString& _name, const QList<QString>& _values);
+    Enumerator(const QString& _name, const QList<QString>& _values, const QList<QColor>& _colors);
     Enumerator(const Enumerator& _another);
 
     void operator=(const Enumerator& _another);
 
-    QString GetName() const;
+    const QString& GetName() const;
     int GetValueCount() const;
-    QString GetValue(int _index) const;
+    const QString& GetValue(int _index) const;
     int GetValueIndex(const QString& _value) const;
 
     bool GetUseColor() const;

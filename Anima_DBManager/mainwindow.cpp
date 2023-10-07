@@ -22,6 +22,7 @@
 #include "qimportstringdialog.h"
 #include "qimportstructdialog.h"
 #include "qprojectdialog.h"
+#include "qpanelsearch.h"
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -90,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //---------
 
-    QToolBox* myTableToolBox = new QToolBox();
+    myTableToolBox = new QToolBox();
     myTableToolBox->setMinimumWidth(600);
     splitter->addWidget(myTableToolBox);
 
@@ -107,12 +108,14 @@ MainWindow::MainWindow(QWidget *parent) :
     myEnumWidget = new QPanelEnum();
     myStringWidget = new QPanelString();
     myStructWidget = new QPanelStruct();
+    QPanelSearch* searchPanel = new QPanelSearch();
     myEnumWidget->Init();
     myStringWidget->Init();
     //myStructWidget->Init();
     defToolBox->addItem(myStructWidget, "Structures");
     defToolBox->addItem(myStringWidget, "String Tables");
     defToolBox->addItem(myEnumWidget, "Enumerators");
+    defToolBox->addItem(searchPanel, "Search");
 
     //---------
 #define CONNECT_DB(method)  QObject::connect(&myManager, &DB_Manager::method, this, &MainWindow::On##method)
@@ -202,13 +205,19 @@ void MainWindow::OnStringTableChanged(const int _tableIndex)
     if (myStringWidget->GetSelectedItem() == _tableIndex)
         myStringWidget->OnItemSelected(_tableIndex);
 }
-void MainWindow::OnStringItemFocus(const int _tableIndex, const int _index)
+void MainWindow::OnStringItemFocus(const int _tableIndex, const int _index, const int _languageIndex, const bool _forceFocus)
 {
     QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->widget(_tableIndex));
     if (!currentTab)
         return;
 
-    currentTab->setCurrentCell(_index, 0);
+    if (_forceFocus)
+    {
+        myTabString->setCurrentIndex(_tableIndex);
+        myTableToolBox->setCurrentIndex(1);
+    }
+
+    currentTab->setCurrentCell(_index, _languageIndex+1);
 }
 void MainWindow::OnStringItemChanged(const int _tableIndex)
 {
@@ -267,13 +276,19 @@ void MainWindow::OnStructTableFocus(const int _tableIndex, const int _itemIndex)
     if (myStructWidget->GetSelectedItem() == _tableIndex)
         myStructWidget->OnElementSelected(_itemIndex);
 }
-void MainWindow::OnStructItemFocus(const int _tableIndex, const int _index)
+void MainWindow::OnStructItemFocus(const int _tableIndex, const int _index, const int _attrIndex, const bool _forceFocus)
 {
     QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->widget(_tableIndex));
     if (!currentTab)
         return;
 
-    currentTab->setCurrentCell(_index, 0);
+    if (_forceFocus)
+    {
+        myTabStruct->setCurrentIndex(_tableIndex);
+        myTableToolBox->setCurrentIndex(0);
+    }
+
+    currentTab->setCurrentCell(_index, _attrIndex);
 }
 void MainWindow::OnStructItemChanged(const int _tableIndex)
 {

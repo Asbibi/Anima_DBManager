@@ -22,17 +22,15 @@ Enumerator::Enumerator(const QString& _name, const QString* _values, const QColo
         }
     }
 }
-Enumerator::Enumerator(const QString& _name, const std::vector<QString>& _values) :
-    name(_name)
-{
-    values.assign(_values.begin(), _values.end());
-}
-Enumerator::Enumerator(const QString& _name, const std::vector<QString>& _values, const std::vector<QColor>& _colors) :
-    name(_name)
-{
-    values.assign(_values.begin(), _values.end());
-    colors.assign(_colors.begin(), _colors.end());
-}
+Enumerator::Enumerator(const QString& _name, const QList<QString>& _values) :
+    name(_name),
+    values(_values)
+{}
+Enumerator::Enumerator(const QString& _name, const QList<QString>& _values, const QList<QColor>& _colors) :
+    name(_name),
+    values(_values),
+    colors(_colors)
+{}
 Enumerator::Enumerator(const Enumerator& _another) :
     Enumerator(_another.name, _another.values, _another.colors)
 {}
@@ -41,12 +39,12 @@ Enumerator::Enumerator(const Enumerator& _another) :
 void Enumerator::operator=(const Enumerator& _another)
 {
     name = _another.name;
-    values.assign(_another.values.begin(), _another.values.end());
-    colors.assign(_another.colors.begin(), _another.colors.end());
+    values = _another.values;
+    colors = _another.colors;
 }
 
 
-QString Enumerator::GetName() const
+const QString& Enumerator::GetName() const
 {
     return name;
 }
@@ -54,7 +52,7 @@ int Enumerator::GetValueCount() const
 {
     return (int)values.size();
 }
-QString Enumerator::GetValue(int _index) const
+const QString& Enumerator::GetValue(int _index) const
 {
     if (_index < 0 || _index >= (int)(values.size()))
         return values.size() > 0 ? values[0] : "";
