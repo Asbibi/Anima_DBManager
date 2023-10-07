@@ -110,6 +110,7 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     QObject::connect(caseSensitive, &QCheckBox::stateChanged, this, &QPanelSearch::OnCaseCheckboxChanged);
     QObject::connect(wholeWord, &QCheckBox::stateChanged, this, &QPanelSearch::OnWholeCheckboxChanged);
     QObject::connect(mySearchBtn, &QPushButton::clicked, this, &QPanelSearch::OnSearchRequested);
+    QObject::connect(myResultTable, &QTableWidget::cellDoubleClicked, this, &QPanelSearch::OnSearchResultDoubleClicked);
 
     //mySearchOnStruct->setCheckState(Qt::Checked);
     mySearchOnString->setCheckState(Qt::Checked);
@@ -180,19 +181,20 @@ void QPanelSearch::OnSearchRequested()
 
 
     QFuture<QList<SearchResult>> futureRes = QtConcurrent::run([this] {
-            return SearchManager::GetInstance().Search(mySearchParameters);
+        return SearchManager::GetInstance().Search(mySearchParameters);
     });
 
-    UpdateWidgetsWithSearchResults(futureRes.result());
+    myCurrentSearchResults = futureRes.result();
+    UpdateWidgetsWithSearchResults();
 
     //QList<SearchResult> searchResults = SearchManager::GetInstance().Search(mySearchParameters);
 }
-void QPanelSearch::UpdateWidgetsWithSearchResults(const QList<SearchResult>& _res)
+void QPanelSearch::UpdateWidgetsWithSearchResults()
 {
     mySearchBtn->setEnabled(true);
     mySearchBtn->setText("Search");
 
-    const int resCount = _res.count();
+    const int resCount = myCurrentSearchResults.count();
 
     myResultCount->setText(ourCountString.arg(resCount));
 
@@ -201,8 +203,35 @@ void QPanelSearch::UpdateWidgetsWithSearchResults(const QList<SearchResult>& _re
     {
         for (int j = 0; j < 5; j++)
         {
-            QTableWidgetItem* newItem = new QTableWidgetItem(_res[i].myDisplayString[j]);
+            QTableWidgetItem* newItem = new QTableWidgetItem(myCurrentSearchResults[i].myDisplayString[j]);
+            newItem->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
             myResultTable->setItem(i, j, newItem);
         }
     }
+}
+
+void QPanelSearch::OnSearchResultDoubleClicked(int _row, int)
+{
+    if (_row >= myCurrentSearchResults.count())
+    {
+        return;
+    }
+
+    const auto& res = myCurrentSearchResults[_row];
+
+    // Struct
+    if (res.myCategory == 0)
+    {
+        DB_Manager::GetDB_Manager().AskFocusOnStructItem(res.myTableIndex, res.myRowIndex, res.myColIndex, true);
+        return;
+    }
+
+    // String
+    else if (res.myCategory == 1)
+    {
+        DB_Manager::GetDB_Manager().AskFocusOnStringItem(res.myTableIndex, res.myRowIndex, res.myColIndex, true);
+        return;
+    }
+
+    // Enum : nothing to do
 }

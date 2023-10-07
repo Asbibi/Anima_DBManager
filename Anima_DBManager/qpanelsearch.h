@@ -28,8 +28,9 @@ private:
     QLabel* myResultCount;
 
     SearchParameter mySearchParameters;
+    QList<SearchResult> myCurrentSearchResults;
 
-    void UpdateWidgetsWithSearchResults(const QList<SearchResult>& _res);
+    void UpdateWidgetsWithSearchResults();
 
 
 public:
@@ -46,6 +47,8 @@ public slots:
     void OnWholeCheckboxChanged(int _state);
 
     void OnSearchRequested();
+
+    void OnSearchResultDoubleClicked(int _row, int _col);
 };
 
 #endif // QPANELSEARCH_H

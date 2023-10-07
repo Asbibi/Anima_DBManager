@@ -59,6 +59,7 @@ void SearchManager::SearchStruct(const SearchParameter& _parameters, QList<Searc
                 {
                     // ADD to results
                     SearchResult result = SearchResult();
+                    result.myCategory = 0;
                     result.myTableIndex = i;
                     result.myRowIndex = j;
                     result.myColIndex = k;
@@ -100,6 +101,7 @@ void SearchManager::SearchString(const SearchParameter& _parameters, QList<Searc
                 {
                     // ADD to results
                     SearchResult result = SearchResult();
+                    result.myCategory = 1;
                     result.myTableIndex = i;
                     result.myRowIndex = j;
                     result.myColIndex = language;
@@ -133,6 +135,7 @@ void SearchManager::SearchEnum(const SearchParameter& _parameters, QList<SearchR
             {
                 // ADD to results
                 SearchResult result = SearchResult();
+                result.myCategory = 2;
                 result.myTableIndex = i;
                 result.myRowIndex = j;
                 result.myDisplayString.append("ENUM");

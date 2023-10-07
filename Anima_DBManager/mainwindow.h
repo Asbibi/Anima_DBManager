@@ -22,6 +22,7 @@ private:
     QString myCurrentlyOpenedFile = "";
 
     QMenuBar* myMenuBar;
+    QToolBox* myTableToolBox;
     QTabWidget* myTabString;
     QTabWidget* myTabStruct;
 
@@ -44,7 +45,7 @@ public slots:
     void OnStringTableRemoved(const int _index);
     void OnStringTableRenamed(const int _index, const QString& _name);
     void OnStringTableChanged(const int _tableIndex);
-    void OnStringItemFocus(const int _tableIndex, const int _index);
+    void OnStringItemFocus(const int _tableIndex, const int _index, const int _languageIndex, const bool _forceFocus);
     void OnStringItemChanged(const int _tableIndex);
 
     void OnStructTableAdded(const int _index);
@@ -53,7 +54,7 @@ public slots:
     void OnStructTableRenamed(const int _index, const QString& _name);
     void OnStructTableIconChanged(const int _index, const QIcon& _color);
     void OnStructTableFocus(const int _tableIndex, const int _itemIndex);
-    void OnStructItemFocus(const int _tableIndex, const int _index);
+    void OnStructItemFocus(const int _tableIndex, const int _index, const int _attrIndex, const bool _forceFocus);
     void OnStructItemChanged(const int _tableIndex);
     void OnStructAttributeNameChanged(const int _tableIndex);
 

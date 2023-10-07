@@ -106,9 +106,10 @@ public:
     bool AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const;
     QString GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete = false) const;
 
-    void AskFocusOnStringItem(const int _tableIndex, const int _stringIndex);
+    void AskFocusOnStringItem(const int _tableIndex, const int _stringIndex, const int _languageIndex = -1, const bool _forceFocus = false);
     void AskUpdateOnStringTable(const int _tableIndex);
     void AskUpdateOnStringPanel(const int _tableIndex);
+    void AskFocusOnStructItem(const int _tableIndex, const int _structIndex, const int _attrIndex = 0, const bool _forceFocus = false);
     void AskFocusOnStructPanel(const int _tableIndex, const int _itemIndex);
     void AskFocusOnStructPanel(const QString& _tableName, const int _itemIndex);
 
@@ -118,7 +119,7 @@ signals:
     void StringTableRemoved(const int _index);
     void StringTableRenamed(const int _index, const QString& _name);
     void StringTableChanged(const int _tableIndex);     // For edits done in table widget
-    void StringItemFocus(const int _tableIndex, const int _index);
+    void StringItemFocus(const int _tableIndex, const int _index, const int _languageIndex, const bool _forceFocus);
     void StringItemChanged(const int _tableIndex);      // For edits done in panel widget
 
     void StructTableAdded(const int _index);
@@ -127,7 +128,7 @@ signals:
     void StructTableRenamed(const int _index, const QString& _name);
     void StructTableIconChanged(const int _index, const QIcon& _icon);
     void StructTableFocus(const int _tableIndex, const int _itemIndex);   // For edits or selection done in table widget
-    void StructItemFocus(const int _tableIndex, const int _index);
+    void StructItemFocus(const int _tableIndex, const int _index, const int _attrIndex, const bool _forceFocus);
     void StructItemChanged(const int _tableIndex);      // For edits done in panel widget
     void StructAttributeNameChanged(const int _tableIndex);
 

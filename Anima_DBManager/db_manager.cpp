@@ -649,6 +649,10 @@ void DB_Manager::UpdateAAssetIsDirty()
 
 
 
+void DB_Manager::AskFocusOnStructItem(const int _tableIndex, const int _structIndex, const int _attrIndex, const bool _forceFocus)
+{
+    emit StructItemFocus(_tableIndex, _structIndex, _attrIndex, _forceFocus);
+}
 void DB_Manager::AskFocusOnStructPanel(const int _tableIndex, const int _itemIndex)
 {
     emit StructTableFocus(_tableIndex, _itemIndex);
@@ -805,9 +809,9 @@ QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& 
 }
 
 
-void DB_Manager::AskFocusOnStringItem(const int _tableIndex, const int _stringIndex)
+void DB_Manager::AskFocusOnStringItem(const int _tableIndex, const int _stringIndex, const int _languageIndex, const bool _forceFocus)
 {
-    emit StringItemFocus(_tableIndex, _stringIndex);
+    emit StringItemFocus(_tableIndex, _stringIndex, _languageIndex, _forceFocus);
 }
 void DB_Manager::AskUpdateOnStringTable(const int _tableIndex)
 {
