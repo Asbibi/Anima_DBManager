@@ -28,6 +28,7 @@ public:
 
 signals:
     void AttributeChangeApplied();
+    void RequestUpdateTemplateCopy();
 
 public slots:
     virtual void UpdateContent() override final;

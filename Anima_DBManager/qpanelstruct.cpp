@@ -37,6 +37,8 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     QObject::connect(myElementHandler, &QElementHandler::MoveRequested, this, &QPanelStruct::OnElementMoved);
     QObject::connect(myElementHandler, &QElementHandler::RemoveRequested, this, &QPanelStruct::OnElementRemoved);
 
+    QObject::connect(myTemplateEditor, &QTemplateStructure::RequestUpdateTemplateCopy, this, &QPanelStruct::OnItemRequestUpdate);
+
     InitItemCountWidget(editLayout);
 }
 
@@ -114,6 +116,12 @@ void QPanelStruct::OnItemApplied()
         return;
     }
     OnItemSelected(currentIndex);
+}
+void QPanelStruct::OnItemRequestUpdate()
+{
+    StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(myItemList->GetCurrent());
+    Q_ASSERT(currentStructDB != nullptr);
+    myTemplateEditor->SetStructureDB(currentStructDB);
 }
 
 
