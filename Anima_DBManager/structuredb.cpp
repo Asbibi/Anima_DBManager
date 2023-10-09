@@ -159,7 +159,7 @@ void StructureDB::AddAttribute(int _position, bool _copyFromPrevious)
     else
     {
         myTemplate.AddAttributeTemplate(_position);
-        QString name = "New Attribute";
+        QString name = "New_Attribute";
         myTemplate.RenameAttributeTemplate(_position, name);
     }
 

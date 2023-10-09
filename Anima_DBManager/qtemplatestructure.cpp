@@ -11,23 +11,15 @@ QTemplateStructure::QTemplateStructure(QWidget *parent)
 }
 
 
-void QTemplateStructure::UpdateAttributeTabText(int index)
-{
-    if (myTemplateStructureCopy == nullptr)
-        return;
-
-    const auto* attrTmpl = myTemplateStructureCopy->GetAttributeTemplate(index);
-    Q_ASSERT(attrTmpl);
-
-    const QString tabNameBase = "%1\n[%2]";
-    myTabWidget->setTabText(index, tabNameBase.arg(attrTmpl->GetName(), AttributeTypeHelper::TypeToString(attrTmpl->GetType())));
-    Q_ASSERT(attrTmpl->GetName() == myAttributeNames[index]);
-}
 
 void QTemplateStructure::SetStructureDB(const StructureDB* _structureDB)
 {
     myTemplateStructureCopy = new TemplateStructure(_structureDB->GetTemplate());
     UpdateContent();
+}
+void QTemplateStructure::FocusAttribute(const int _index)
+{
+    myTabWidget->setCurrentIndex(_index);
 }
 
 void QTemplateStructure::UpdateContent()
@@ -76,7 +68,8 @@ void QTemplateStructure::OnNameChanged(const QString& _previousName, QString& _n
 
     DB_Manager::GetDB_Manager().RenameStructureAttribute(myTemplateStructureCopy->GetStructName(), index, _newName);
     myAttributeNames[index] = _newName;
-    UpdateAttributeTabText(index);
+
+    emit RequestUpdateTemplateCopy(index);
 }
 void QTemplateStructure::OnApply(const QString& _attrName,  const TemplateAttribute& _editedTemplateCopy, bool _hasCriticalChanges)
 {
@@ -85,10 +78,7 @@ void QTemplateStructure::OnApply(const QString& _attrName,  const TemplateAttrib
         return;
 
     DB_Manager::GetDB_Manager().ChangeAttributeTemplate(myTemplateStructureCopy->GetStructName(), index, _editedTemplateCopy, _hasCriticalChanges);
-    /*OnRevert(_attrName);
 
-    if (_hasCriticalChanges)
-        UpdateAttributeTabText(index);*/
     emit AttributeChangeApplied();
 }
 void QTemplateStructure::OnRevert(const QString& _attrName)
@@ -117,8 +107,7 @@ void QTemplateStructure::OnApplyDefaultToAll(const QString& _attrName)
 void QTemplateStructure::AddAttribute(int _position, bool _duplicatePrevious)
 {
     DB_Manager::GetDB_Manager().AddAttributeTemplate(myTemplateStructureCopy->GetStructName(), _position, _duplicatePrevious);
-    emit RequestUpdateTemplateCopy();
-    myTabWidget->setCurrentIndex(_position);
+    emit RequestUpdateTemplateCopy(_position);
 }
 void QTemplateStructure::OnAddBefore()
 {
@@ -147,6 +136,5 @@ void QTemplateStructure::OnRemove()
         return;
 
     DB_Manager::GetDB_Manager().RemoveAttributeTemplate(myTemplateStructureCopy->GetStructName(), current);
-    emit RequestUpdateTemplateCopy();
-    myTabWidget->setCurrentIndex(current);
+    emit RequestUpdateTemplateCopy(current);
 }

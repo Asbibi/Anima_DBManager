@@ -37,7 +37,7 @@ public slots:
     virtual void OnItemMoved(const int _indexFrom, int _indexTo) override;
     virtual void OnItemRemoved(const int _index) override;
     void OnItemApplied();
-    void OnItemRequestUpdate();
+    void OnItemRequestUpdate(const int _attrIndexToFocus);
 
     // Element Handler
     void OnElementSelected(const int _index);

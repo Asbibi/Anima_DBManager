@@ -117,11 +117,12 @@ void QPanelStruct::OnItemApplied()
     }
     OnItemSelected(currentIndex);
 }
-void QPanelStruct::OnItemRequestUpdate()
+void QPanelStruct::OnItemRequestUpdate(const int _attrIndexToFocus)
 {
     StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(myItemList->GetCurrent());
     Q_ASSERT(currentStructDB != nullptr);
     myTemplateEditor->SetStructureDB(currentStructDB);
+    myTemplateEditor->FocusAttribute(_attrIndexToFocus);
 }
 
 
