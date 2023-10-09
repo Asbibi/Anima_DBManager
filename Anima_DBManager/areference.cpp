@@ -6,14 +6,9 @@
 #include <QDebug>
 
 AReference::AReference(TemplateAttribute& _template) :
-    AReference(_template, nullptr)
-{}
-AReference::AReference(TemplateAttribute& _template, QPointer<const Structure> _structureRef) :
     Attribute(_template),
-    myStructureRef(_structureRef)
-{
-    Q_ASSERT(MY_SHARED_PARAM.structTable == nullptr);
-}
+    myStructureRef(nullptr)
+{}
 
 
 QString AReference::GetDisplayedText() const
