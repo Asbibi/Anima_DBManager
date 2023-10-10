@@ -136,6 +136,17 @@ const QList<Attribute*>& AStructure::GetAttributes() const
     Q_ASSERT(myValue != nullptr);
     return myValue->GetAttributes();
 }
+void AStructure::ResetValueToDefaults()
+{
+    int _count = myValue->GetAttributeCount();
+    for (int i = 0; i< _count; i++)
+    {
+        auto* attr = myValue->GetAttribute(i);
+        attr->CopyValueFromOther(attr->GetTemplate()->GetDefaultAttribute());
+    }
+}
+
+
 QString AStructure::GetValueAsTextFromAttributes(const QList<Attribute*>& _attributes)
 {
     if (_attributes.length() == 0)

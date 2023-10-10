@@ -99,8 +99,6 @@ void QPanelEnum::OnItemSelected(const int _index)
     const Enumerator* currentEnum = DB_Manager::GetDB_Manager().GetEnum(_index);
     if (!currentEnum)
     {
-        //myColorCheckbox->setChecked(false);
-        //myEnumColorList->setEnabled(false);
         mySubGroupBox->hide();
         return;
     }

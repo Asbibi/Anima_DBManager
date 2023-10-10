@@ -88,6 +88,10 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             myStructureTemplate = new QTemplateStructureCore(*myTemplateAttribute.mySharedParam.templateStruct);
             myFormLayout->insertRow(rowToAdd, "Template:", myStructureTemplate);
             QObject::connect(myStructureTemplate, &QTemplateStructureCore::StructureChanged, this, &QTemplateAttributeCore::OnParamChanged_StructureTemplate);
+            QPushButton* resetDefaultValuesBtn = new QPushButton("Reset to Attributes' default values");
+            resetDefaultValuesBtn->setMaximumWidth(270);
+            myFormLayout->insertRow(rowToAdd+2, "", resetDefaultValuesBtn);
+            QObject::connect(resetDefaultValuesBtn, &QPushButton::clicked, this, &QTemplateAttributeCore::OnResetAStructureDefault);
             break;
         }
         case AttributeTypeHelper::Type::Enum:
@@ -329,5 +333,13 @@ void QTemplateAttributeCore::OnParamChanged_StructureTemplate(bool _withCritical
 void QTemplateAttributeCore::OnDefaultAttributeEdited(const QString& _attributeValueAsText)
 {
     myTemplateAttribute.myDefaultAttribute->SetValueFromText(_attributeValueAsText);
+    emit ParamEdited(false);
+}
+void QTemplateAttributeCore::OnResetAStructureDefault()
+{
+    Q_ASSERT(myTemplateAttribute.GetType() == AttributeTypeHelper::Type::Structure);
+    AStructure* defaultAsAStructure = dynamic_cast<AStructure*>(myTemplateAttribute.myDefaultAttribute);
+    defaultAsAStructure->ResetValueToDefaults();
+    RefreshDefaultAttributeWidget();
     emit ParamEdited(false);
 }

@@ -56,6 +56,7 @@ public slots:
     void OnParamChanged_StructureTemplate(bool _withCriticalChange);
 
     void OnDefaultAttributeEdited(const QString& _attributeValueAsText);
+    void OnResetAStructureDefault();
 };
 
 #endif // QTEMPLATEATTRIBUTECORE_H
