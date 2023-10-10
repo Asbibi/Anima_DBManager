@@ -74,13 +74,13 @@ void QPanelStruct::OnItemSelected(const int _index)
 {
     StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(_index);
     myElementHandler->OnSelectElement(-1, "");
+    myTemplateEditor->SetStructureDB(currentStructDB);
     if (currentStructDB == nullptr)
     {
         return;
     }
 
     myStructIdentity->SetValueFromTemplate(currentStructDB->GetTemplate());
-    myTemplateEditor->SetStructureDB(currentStructDB);
     RefreshItemCount(_index);
 }
 void QPanelStruct::OnItemEdited(const int _index, const QString& _value)

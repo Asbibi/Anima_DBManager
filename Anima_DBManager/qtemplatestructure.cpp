@@ -13,8 +13,8 @@ QTemplateStructure::QTemplateStructure(QWidget *parent)
 
 
 void QTemplateStructure::SetStructureDB(const StructureDB* _structureDB)
-{
-    myTemplateStructureCopy = new TemplateStructure(_structureDB->GetTemplate());
+{    
+    myTemplateStructureCopy = _structureDB != nullptr ? new TemplateStructure(_structureDB->GetTemplate()) : nullptr;
     UpdateContent();
 }
 void QTemplateStructure::FocusAttribute(const int _index)
