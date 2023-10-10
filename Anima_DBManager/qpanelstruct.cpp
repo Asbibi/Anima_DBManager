@@ -3,7 +3,6 @@
 #include "db_manager.h"
 
 #include <QGridLayout>
-#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -13,10 +12,11 @@ QPanelStruct::QPanelStruct(QWidget* parent)
 {
     QLayout* myLayout = layout();
 
-    QGroupBox* editGroupBox = new QGroupBox("Edit Selected Structure");
+    mySubGroupBox = new QGroupBox("Edit Selected Structure");
     QFormLayout* editLayout = new QFormLayout();
-    editGroupBox->setLayout(editLayout);
-    myLayout->addWidget(editGroupBox);
+    mySubGroupBox->setLayout(editLayout);
+    mySubGroupBox->hide();
+    myLayout->addWidget(mySubGroupBox);
 
     myStructIdentity = new QStructIdentity();
     QObject::connect(myStructIdentity, &QStructIdentity::NameChanged, this, &QPanelStruct::OnNameEdited);
@@ -77,9 +77,11 @@ void QPanelStruct::OnItemSelected(const int _index)
     myTemplateEditor->SetStructureDB(currentStructDB);
     if (currentStructDB == nullptr)
     {
+        mySubGroupBox->hide();
         return;
     }
 
+    mySubGroupBox->show();
     myStructIdentity->SetValueFromTemplate(currentStructDB->GetTemplate());
     RefreshItemCount(_index);
 }

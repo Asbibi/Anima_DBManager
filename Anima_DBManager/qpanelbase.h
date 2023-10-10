@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "qaugmentedlist.h"
+#include <QGroupBox>
 
 class QPanelBase : public QWidget
 {
@@ -11,6 +12,7 @@ class QPanelBase : public QWidget
 
 protected:
     QAugmentedList* myItemList;
+    QGroupBox* mySubGroupBox;
 
 public:
     explicit QPanelBase(const QString& itemBoxName, bool _uniqueNames, QWidget *parent = nullptr);
