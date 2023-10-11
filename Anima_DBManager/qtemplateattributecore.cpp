@@ -260,8 +260,10 @@ bool QTemplateAttributeCore::HasConfigValid() const
 
 void QTemplateAttributeCore::OnParamChanged_Type(const QString& _typeStr)
 {
-    UpdateLayout(AttributeTypeHelper::StringToType(_typeStr));
+    AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(_typeStr);
+    UpdateLayout(type);
     emit ParamEdited(true);
+    emit TypeChanged(type);
 }
 
 void QTemplateAttributeCore::OnParamChanged_IgnoreMin(bool _use)

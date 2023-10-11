@@ -12,6 +12,12 @@ QTemplateStructure::QTemplateStructure(QWidget *parent)
 
 
 
+QString QTemplateStructure::ComputeTabNameForAttribute(const QString& _name, const AttributeTypeHelper::Type& _type)
+{
+    static const QString tabNameBase = "%1\n[%2]";
+    return tabNameBase.arg(_name, AttributeTypeHelper::TypeToString(_type));
+}
+
 void QTemplateStructure::SetStructureDB(const StructureDB* _structureDB)
 {    
     myTemplateStructureCopy = _structureDB != nullptr ? new TemplateStructure(_structureDB->GetTemplate()) : nullptr;
@@ -38,13 +44,12 @@ void QTemplateStructure::UpdateContent()
         return;
     }
 
-    const QString tabNameBase = "%1\n[%2]";
     for (const auto* attr : myTemplateStructureCopy->GetAttributes())
     {
         QTemplateAttribute* qattr = new QTemplateAttribute();
         myAttributeNames.push_back(attr->GetName());
         qattr->UpdateTemplateAttribute(attr);
-        myTabWidget->addTab(qattr, tabNameBase.arg(attr->GetName(), AttributeTypeHelper::TypeToString(attr->GetType())));
+        myTabWidget->addTab(qattr, ComputeTabNameForAttribute(attr->GetName(), attr->GetType()));
         QObject::connect(qattr, &QTemplateAttribute::NameChanged, this, &QTemplateStructure::OnNameChanged);
         QObject::connect(qattr, &QTemplateAttribute::Applied, this, &QTemplateStructure::OnApply);
         QObject::connect(qattr, &QTemplateAttribute::Reverted, this, &QTemplateStructure::OnRevert);

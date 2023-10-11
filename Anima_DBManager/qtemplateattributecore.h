@@ -40,6 +40,7 @@ public:
 
 signals:
     void ParamEdited(bool _withCriticalChange = false);
+    void TypeChanged(const AttributeTypeHelper::Type _type);
 
 public slots:
     void OnParamChanged_Type(const QString& _typeStr);

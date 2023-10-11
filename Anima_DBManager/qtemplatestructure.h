@@ -16,6 +16,7 @@ private:
     TemplateStructure* myTemplateStructureCopy;
     QList<QString> myAttributeNames;
 
+    QString ComputeTabNameForAttribute(const QString& _name, const AttributeTypeHelper::Type& _type);
 
 protected:
     virtual void AddAttribute(int _position, bool _duplicatePrevious = false) override;

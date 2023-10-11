@@ -8,6 +8,14 @@ QTemplateStructureCore::QTemplateStructureCore(TemplateStructure& _templateStruc
 {
     UpdateContent();
 }
+
+
+QString QTemplateStructureCore::ComputeTabNameForAttribute(const AttributeTypeHelper::Type& _type)
+{
+    static const QString tabNameBase = "[%1]";
+    return tabNameBase.arg(AttributeTypeHelper::TypeToString(_type));
+}
+
 bool QTemplateStructureCore::HasConfigValid() const
 {
     for (const auto* qattr : myTemplateAttributeCoreList)
@@ -26,19 +34,25 @@ void QTemplateStructureCore::ShowDefaultWidget(bool _show)
         qattr->ShowDefaultWidget(_show);
     }
 }
-
+void QTemplateStructureCore::OnAttributeTypeChanged(const int _index, const AttributeTypeHelper::Type _type)
+{
+    Q_ASSERT(_index < myTabWidget->count());
+    myTabWidget->setTabText(_index, ComputeTabNameForAttribute(_type));
+}
 
 void QTemplateStructureCore::UpdateContent()
 {
     myTemplateAttributeCoreList.clear();
     myTabWidget->clear();
-    const QString tabNameBase = "[%1]";
+    int i = 0;
     for (auto* attr : myTemplateStruct.GetAttributesW())
     {
         QTemplateAttributeCore* qattr = new QTemplateAttributeCore(*attr);
-        myTabWidget->addTab(qattr, tabNameBase.arg(AttributeTypeHelper::TypeToString(attr->GetType())));
+        myTabWidget->addTab(qattr, ComputeTabNameForAttribute(attr->GetType()));
         QObject::connect(qattr, &QTemplateAttributeCore::ParamEdited, this, &QTemplateStructureCore::OnAttributeEdited);
+        QObject::connect(qattr, &QTemplateAttributeCore::TypeChanged, this, [this, i](const AttributeTypeHelper::Type _type){ OnAttributeTypeChanged(i, _type); });
         myTemplateAttributeCoreList.append(qattr);
+        i++;
     }
 }
 void QTemplateStructureCore::OnTabMoved(int _indexFrom, int _indexTo)
