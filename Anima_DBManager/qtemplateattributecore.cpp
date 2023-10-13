@@ -66,8 +66,6 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             myArrayTemplate = new QTemplateAttributeCore(*myTemplateAttribute.mySharedParam.templateAtt);
             myFormLayout->insertRow(rowToAdd, "Template:", myArrayTemplate);
             QObject::connect(myArrayTemplate, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttributeCore::OnParamChanged_ArrayTemplate);
-
-#ifdef LIMITS_ON_AARRAYS
             QOptionalValue_Int* minValue = new QOptionalValue_Int();
             QOptionalValue_Int* maxValue = new QOptionalValue_Int();
             minValue->SetValues(!myTemplateAttribute.mySharedParam.ignoreMin, myTemplateAttribute.mySharedParam.min_i);
@@ -78,8 +76,6 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             QObject::connect(minValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttributeCore::OnParamChanged_MinInt);
             QObject::connect(maxValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttributeCore::OnParamChanged_IgnoreMax);
             QObject::connect(maxValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttributeCore::OnParamChanged_MaxInt);
-#endif
-
             break;
         }
         case AttributeTypeHelper::Type::Structure:

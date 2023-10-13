@@ -5,7 +5,7 @@
 #include <QLabel>
 
 
-QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attribute*>& _attributeList, QWidget* _parent) :
+QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attribute*>& _attributeList, bool _useMin, int _min, bool _useMax, int _max, QWidget* _parent) :
     QDialog(_parent),
     myTemplateAttribute (_template)
 {
@@ -20,6 +20,7 @@ QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attri
     vLayout->addWidget(new QLabel("Array:"));
     myQListAttributes = new QAugmentedList(false, _template->GetDefaultAttribute()->GetValueAsText(), this);
     myQListAttributes->SetItemEditable(false);
+    myQListAttributes->SetMinMax(_useMin, _min, _useMax, _max);
     vLayout->addWidget(myQListAttributes);
     // + count label ?
 

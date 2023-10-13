@@ -22,7 +22,7 @@ private:
     void CleanAttributes();
 
 public:
-    QArrayDialog(const TemplateAttribute* _template, const QList<Attribute*>& _attributeList, QWidget* _parent = nullptr);
+    QArrayDialog(const TemplateAttribute* _template, const QList<Attribute*>& _attributeList, bool _useMin, int _min, bool _useMax, int _max, QWidget* _parent = nullptr);
     ~QArrayDialog();
 
     const QList<Attribute*>& GetAttributes() const;

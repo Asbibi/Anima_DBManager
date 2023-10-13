@@ -111,7 +111,7 @@ bool TemplateAttribute::IsSameArrayType(const AttributeParam& _firstParam, const
         return false;
     else if (firstType == AttributeTypeHelper::Type::Array)
         return IsSameArrayType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
-    else if (firstType != AttributeTypeHelper::Type::Structure)
+    else if (firstType == AttributeTypeHelper::Type::Structure)
         return IsSameStructType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
     else
         return true;

@@ -239,6 +239,9 @@ const QList<Attribute*>& AArray::GetAttributes() const
 }
 void AArray::AddRow(int _index)
 {
+    if (!myTemplate.GetSharedParam().ignoreMax && myValues.count() >= myTemplate.GetSharedParam().max_i)
+        return;
+
     if (_index < 0 || _index > myValues.count())
         _index = myValues.count();
 
@@ -253,6 +256,9 @@ void AArray::DuplicateRow(int _index)
 }
 void AArray::RemoveRow(int _index)
 {
+    if (!myTemplate.GetSharedParam().ignoreMin && myValues.count() <= myTemplate.GetSharedParam().min_i)
+        return;
+
     if (_index < 0 || _index >= myValues.count())
         return;
 

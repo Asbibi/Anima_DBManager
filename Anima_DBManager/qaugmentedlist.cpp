@@ -25,15 +25,18 @@ QAugmentedList::QAugmentedList(bool _unique, const QString& _defValue, QWidget *
     myLayout->addLayout(btnLayout);
     btnLayout->setSpacing(3);
 
-#define ADD_BUTTON(row, col, label, callback) { \
+#define ADD_BUTTON_NO_BRACES(row, col, label, callback) \
     QPushButton* btn = new QPushButton(label); \
     btnLayout->addWidget(btn, row, col); \
     QObject::connect(btn, &QPushButton::clicked, this, &QAugmentedList::callback); \
-    btn->setMaximumWidth(25);}
+    btn->setMaximumWidth(25);
+#define ADD_ADD_BUTTON(row, col, label, callback) { ADD_BUTTON_NO_BRACES(row, col, label, callback)\
+    myAddButtons.push_back(btn);}
+#define ADD_BUTTON(row, col, label, callback) { ADD_BUTTON_NO_BRACES(row, col, label, callback) }
 
-    ADD_BUTTON(0, 0, "<+", OnAddBefore);
-    ADD_BUTTON(0, 1, "+>", OnAddAfter);
-    ADD_BUTTON(0, 2, "++", OnDuplicate);
+    ADD_ADD_BUTTON(0, 0, "<+", OnAddBefore);
+    ADD_ADD_BUTTON(0, 1, "+>", OnAddAfter);
+    ADD_ADD_BUTTON(0, 2, "++", OnDuplicate);
     {
         myRemoveButton = new QPushButton("-");
         btnLayout->addWidget(myRemoveButton, 0, 3);
@@ -49,6 +52,19 @@ QAugmentedList::QAugmentedList(bool _unique, const QString& _defValue, QWidget *
 #undef ADD_BUTTON
 }
 
+void QAugmentedList::CheckMinMax()
+{
+    const int count = Count();
+    const int actualMin = myUseMin ? myMin : (myDisableRemoveLast ? 1 : 0);
+    const bool canRemove = count > actualMin;
+    const bool canAdd = !(myUseMax && count >= myMax);
+    myRemoveButton->setEnabled(canRemove);
+    for (auto* btn : myAddButtons)
+    {
+        btn->setEnabled(canAdd);
+    }
+}
+
 
 
 
@@ -58,6 +74,14 @@ void QAugmentedList::SetItemEditable(bool _editable)
         myList->setEditTriggers(QAbstractItemView::DoubleClicked);
     else
         myList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+}
+void QAugmentedList::SetMinMax(bool _useMin, int _min, bool _useMax, int _max)
+{
+    myUseMin = _useMin;
+    myMin = _min;
+    myUseMax = _useMax;
+    myMax = _max;
+    CheckMinMax();
 }
 int QAugmentedList::Count() const
 {
@@ -161,6 +185,8 @@ void QAugmentedList::AddItemAt(const QString& _label, int _index, const bool _em
         myRemoveButton->setEnabled(true);
 
     CHANGE_SIGNAL_ENABLE(true);
+
+    CheckMinMax();
 }
 void QAugmentedList::MoveItemAt(const int _indexFrom, const int _indexTo)
 {
@@ -205,6 +231,8 @@ void QAugmentedList::RemoveItemAt(const int _index)
         myRemoveButton->setEnabled(false);
 
     CHANGE_SIGNAL_ENABLE(true);
+
+    CheckMinMax();
 }
 
 #undef CHANGE_SIGNAL_ENABLE

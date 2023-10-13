@@ -40,8 +40,13 @@ QString QArrayLabel::GetValue() const
 
 void QArrayLabel::EditValue()
 {
+    const auto& param = myArrayAttribute->GetTemplateParam();
     auto* dialog = new QArrayDialog(myArrayAttribute->GetArrayElementTemplate(),
                                     myArrayAttribute->GetAttributes(),
+                                    !param.ignoreMin,
+                                    param.min_i,
+                                    !param.ignoreMax,
+                                    param.max_i,
                                     this);
     dialog->exec();
     int res = dialog->result();
