@@ -8,7 +8,7 @@
 QColor QAttributeDisplay::defaultColor = QColorConstants::White;
 QColor QAttributeDisplay::nullColor = QColor(233, 218, 103);
 QColor QAttributeDisplay::invalidColor = QColor(241, 136, 136);
-
+QVariant QAttributeDisplay::noneCheckData = QVariant();
 
 QAttributeDisplay::QAttributeDisplay()
 {
@@ -24,7 +24,6 @@ bool QAttributeDisplay::AskUpdateContent(const Attribute* _attribute)
 {
     if (_attribute == nullptr)
     {
-        qFatal("Null attribute given to display");
         myCurrentType = AttributeTypeHelper::Type::Invalid;
         myCurrentValue = "";
         return true;
@@ -44,10 +43,11 @@ bool QAttributeDisplay::AskUpdateContent(const Attribute* _attribute)
 
 void QAttributeDisplay::SetContentFromAttribute(const Attribute* _attribute)
 {
-    if (AskUpdateContent(_attribute))
+    if (!AskUpdateContent(_attribute))
     {
-        UpdateContent(_attribute);
+        return;
     }
+    UpdateContent(_attribute);
 }
 
 void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
@@ -55,6 +55,7 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
     setBackground(defaultColor);
     setForeground(QColorConstants::Black);
     setIcon(QIcon());
+    setData(Qt::CheckStateRole, noneCheckData);
 
     QString textDisplayed = myCurrentValue;
 

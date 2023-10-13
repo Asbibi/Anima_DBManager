@@ -13,16 +13,19 @@ class QStructureTable : public QTableWidget
 private:
     StructureDB& myStructureDB;
     QAttribute* myCurrentAttributeEditor = nullptr;
+    void Unselect(int _row, int _col);
 
 public:
     explicit QStructureTable(StructureDB& _structureDB);
     virtual ~QStructureTable();
     void ExportStructsToCSV(const QString _directoryPath);
+    void UnselectCurrent();
 
 public slots:
     void UpdateTable();
     void OnSelectItem(int _currentRow, int _currentColumn, int _previousRow, int _previousColumn);
     void OnSelectOrEditItem(int _index);
+    void OnSelectionChanged();
 };
 
 #endif // QSTRUCTURETABLE_H

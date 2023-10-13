@@ -368,9 +368,15 @@ bool MainWindow::OnNewDB()
             return false;
     }
 
-    //myStructWidget->OnElementSelected(-1);
     myStructWidget->UnselectItem();
-    //myTabStruct->currentWidget()->setFocus();
+    const int structTabCount = myTabStruct->count();
+    for (int i = 0; i < structTabCount; i++)
+    {
+        QStructureTable* structTable = dynamic_cast<QStructureTable*>(myTabStruct->widget(i));
+        Q_ASSERT(structTable != nullptr);
+        structTable->UnselectCurrent();
+    }
+
     DB_Manager::GetDB_Manager().Reset();
 
     return true;
