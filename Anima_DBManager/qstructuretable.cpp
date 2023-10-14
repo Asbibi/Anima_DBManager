@@ -67,13 +67,8 @@ void QStructureTable::Unselect(int _row, int _col)
 void QStructureTable::UpdateTable()
 {
     // Reset
-    if (myCurrentAttributeEditor != nullptr)
-    {
-        setCellWidget(currentRow(), currentColumn(), nullptr);
-        QObject::disconnect(myCurrentAttributeEditor);
-        delete myCurrentAttributeEditor;
-        myCurrentAttributeEditor = nullptr;
-    }
+    clearSelection();
+    UnselectCurrent();
 
     // Column number & Headers
     const auto& templ = myStructureDB.GetTemplate();
