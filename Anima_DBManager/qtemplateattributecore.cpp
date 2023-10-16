@@ -48,8 +48,55 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
     ShowDefaultWidget(true);
 }
 
+
+void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type)
+{
+    if (_type == AttributeTypeHelper::Type::Array)
+    {
+        if (myTemplateAttribute.mySharedParam.templateAtt == nullptr)
+        {
+            myTemplateAttribute.mySharedParam.templateAtt = new TemplateAttribute();
+        }
+    }
+    else if (myTemplateAttribute.mySharedParam.templateAtt != nullptr)
+    {
+        delete myTemplateAttribute.mySharedParam.templateAtt;
+        myTemplateAttribute.mySharedParam.templateAtt = nullptr;
+    }
+
+    if (_type == AttributeTypeHelper::Type::Structure)
+    {
+        if (myTemplateAttribute.mySharedParam.templateStruct == nullptr)
+        {
+            myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure("", QColorConstants::Black);
+        }
+    }
+    else if (myTemplateAttribute.mySharedParam.templateStruct != nullptr)
+    {
+        delete myTemplateAttribute.mySharedParam.templateStruct;
+        myTemplateAttribute.mySharedParam.templateStruct = nullptr;
+    }
+}
 void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 {
+    const AttributeTypeHelper::Type currentType = myTemplateAttribute.GetType();
+
+    if (currentType == AttributeTypeHelper::Type::Array)
+    {
+        Q_ASSERT(myArrayTemplate != nullptr);
+        myFormLayout->removeRow(myArrayTemplate);
+        myArrayTemplate = nullptr;
+    }
+    else if (currentType == AttributeTypeHelper::Type::Structure)
+    {
+        Q_ASSERT(myStructureTemplate != nullptr);
+        myFormLayout->removeRow(myStructureTemplate);
+        myStructureTemplate = nullptr;
+    }
+    Q_ASSERT(myArrayTemplate == nullptr);
+    Q_ASSERT(myStructureTemplate == nullptr);
+
+
     PerformTypeSpecificPreparation(_type);
 
     const int rowToAdd = 1;
@@ -162,39 +209,9 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             break;
     }
 
-    if (_type != myTemplateAttribute.GetType())
+    if (_type != currentType)
     {
         ReConstructDefaultAttribute(_type);
-    }
-}
-void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type)
-{
-    if (_type == AttributeTypeHelper::Type::Array)
-    {
-        if (myTemplateAttribute.mySharedParam.templateAtt == nullptr)
-        {
-            myTemplateAttribute.mySharedParam.templateAtt = new TemplateAttribute();
-        }
-    }
-    else if (myTemplateAttribute.mySharedParam.templateAtt != nullptr)
-    {
-        delete myTemplateAttribute.mySharedParam.templateAtt;
-        myTemplateAttribute.mySharedParam.templateAtt = nullptr;
-        myArrayTemplate = nullptr;      // will be delete and remove from layout at beginning of UpdateLayout()
-    }
-
-    if (_type == AttributeTypeHelper::Type::Structure)
-    {
-        if (myTemplateAttribute.mySharedParam.templateStruct == nullptr)
-        {
-            myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure("", QColorConstants::Black);
-        }
-    }
-    else if (myTemplateAttribute.mySharedParam.templateStruct != nullptr)
-    {
-        delete myTemplateAttribute.mySharedParam.templateStruct;
-        myTemplateAttribute.mySharedParam.templateStruct = nullptr;
-        myStructureTemplate = nullptr;  // will be delete and remove from layout at beginning of UpdateLayout()
     }
 }
 void QTemplateAttributeCore::RefreshDefaultAttributeWidget()

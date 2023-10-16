@@ -8,11 +8,28 @@ QAStructureLabel::QAStructureLabel(QWidget* _parent) :
 {
     setMinimumWidth(110);
 }
+QAStructureLabel::~QAStructureLabel()
+{
+    ClearMyAttributes();
+}
+void QAStructureLabel::ClearMyAttributes()
+{
+    for (auto* attr: myAttributesPtr)
+    {
+        attr->PreManualDelete();
+        delete attr;
+    }
+    myAttributesPtr.clear();
+}
 
 
 void QAStructureLabel::SetValue(const QList<Attribute*>& _structureAttrPtr)
 {
-    myAttributesPtr = _structureAttrPtr;
+    ClearMyAttributes();
+    for (const auto* constAttr : _structureAttrPtr)
+    {
+        myAttributesPtr.push_back(constAttr->CreateDuplica());
+    }
     setText(AStructure::GetValueAsTextFromAttributes(myAttributesPtr));
 }
 QString QAStructureLabel::GetValue() const
