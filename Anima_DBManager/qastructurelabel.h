@@ -10,12 +10,10 @@ class QAStructureLabel : public QLabel
     Q_OBJECT
 
 private:
-    QList<Attribute*> myAttributesPtr;
-    void ClearMyAttributes();
+    QList<Attribute*> myAttributesPtr; // ptr to the astructure's actual attributes => !!! NOT THE OWNER !!!
 
 public:
     QAStructureLabel(QWidget* _parent);
-    ~QAStructureLabel();
 
     void SetValue(const QList<Attribute*>& _structureAttrPtr);
     QString GetValue() const;
