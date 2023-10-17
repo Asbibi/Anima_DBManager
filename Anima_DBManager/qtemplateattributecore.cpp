@@ -82,15 +82,13 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
     const AttributeTypeHelper::Type currentType = myTemplateAttribute.GetType();
     const int rowToAdd = 1;
 
-    if (currentType == AttributeTypeHelper::Type::Array)
+    if (currentType == AttributeTypeHelper::Type::Array && myArrayTemplate != nullptr)
     {
-        Q_ASSERT(myArrayTemplate != nullptr);
         myFormLayout->removeRow(myArrayTemplate);
         myArrayTemplate = nullptr;
     }
-    else if (currentType == AttributeTypeHelper::Type::Structure)
+    else if (currentType == AttributeTypeHelper::Type::Structure && myStructureTemplate != nullptr)
     {
-        Q_ASSERT(myStructureTemplate != nullptr);
         myFormLayout->removeRow(rowToAdd+2);    // Remove the QPushButton specific to AStructure here since it is placed after myDefAttributeEditor in layout -> if not removed her, myDefAttributeEditor will be deleted instead => crash
         myFormLayout->removeRow(myStructureTemplate);
         myStructureTemplate = nullptr;
