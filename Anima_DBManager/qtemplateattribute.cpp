@@ -1,7 +1,8 @@
 #include "qtemplateattribute.h"
 
-
 #include <QHBoxLayout>
+#include <QMessageBox>
+
 
 QTemplateAttribute::QTemplateAttribute(QWidget *parent)
     : QWidget{parent}, myTemplateCopy{nullptr}, myCoreEditor{nullptr}
@@ -127,5 +128,15 @@ void QTemplateAttribute::OnRevert()
 }
 void QTemplateAttribute::OnApplyDefaultToAll()
 {
+    QMessageBox::StandardButton btn = QMessageBox::warning(this,
+                                                            "Confirm reset all to default value",
+                                                            "You asked to reset all related attributes to their default values.\nTheir current values will be lost.\n\nReset values ?",
+                                                            QMessageBox::Yes | QMessageBox::No,
+                                                            QMessageBox::Yes);
+
+    if (btn == QMessageBox::No)
+    {
+        return;
+    }
     emit AppliedDefaultToAll(myNameCached);
 }
