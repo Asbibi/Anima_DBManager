@@ -23,6 +23,7 @@ private:
     Attribute* myDefaultAttribute = nullptr;
     QSet<Attribute*> myAttributes;
 
+    void DeleteDefaultAttribute();
     void InitDefaultAttribute(AttributeTypeHelper::Type _type);
     void ResetUselessParam(AttributeTypeHelper::Type _type);
 

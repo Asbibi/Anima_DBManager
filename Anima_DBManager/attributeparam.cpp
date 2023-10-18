@@ -6,6 +6,8 @@
 #include "enumerator.h"
 #include "areference.h"
 
+#include <QDebug>
+
 AttributeParam::AttributeParam()
 {
     DB_Manager::GetDB_Manager().RegisterAttributeParam(this);
@@ -55,21 +57,8 @@ AttributeParam::~AttributeParam()
     DB_Manager::GetDB_Manager().UnregisterAttributeParam(this);
 }
 void AttributeParam::operator=(const AttributeParam& _another)
-{
-    // Clean Up
-    if (templateAtt != nullptr)
-    {
-        delete(templateAtt);
-        templateAtt = nullptr;
-    }
-    if (templateStruct != nullptr)
-    {
-        delete(templateStruct);
-        templateStruct = nullptr;
-    }
-
-
-    // Copy
+{    
+    // Simple fields Copy
     ignoreMin = _another.ignoreMin;
     ignoreMax = _another.ignoreMax;
     min_i = _another.min_i;
@@ -79,11 +68,51 @@ void AttributeParam::operator=(const AttributeParam& _another)
     structTable = _another.structTable;
     enumeratorIndex = _another.enumeratorIndex;
 
-    if (_another.templateAtt)
-        templateAtt = new TemplateAttribute(*_another.templateAtt);
 
+    // templateAtt Copy
+    if (_another.templateAtt)
+    {
+        if (templateAtt != nullptr)
+        {
+            templateAtt->SetNewValues(*_another.templateAtt);
+        }
+        else
+        {
+            templateAtt = new TemplateAttribute(*_another.templateAtt);
+        }
+    }
+    else
+    {
+        if (templateAtt != nullptr)
+        {
+            delete(templateAtt);
+            templateAtt = nullptr;
+        }
+    }
+
+
+    // templateStruct Copy
     if (_another.templateStruct)
-        templateStruct = new TemplateStructure(*_another.templateStruct);
+    {
+        if (templateStruct != nullptr)
+        {
+            //templateAtt->SetNewValues(*_another.templateAtt);
+            //templateStruct->
+            QFatal("IMPLEMENT COPY FOR TEMPLATE STRUCT TO ANTOHER");
+        }
+        else
+        {
+            templateStruct = new TemplateStructure(*_another.templateStruct);
+        }
+    }
+    else
+    {
+        if (templateStruct != nullptr)
+        {
+            delete(templateStruct);
+            templateStruct = nullptr;
+        }
+    }
 }
 
 

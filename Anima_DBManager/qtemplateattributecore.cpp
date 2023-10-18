@@ -51,30 +51,16 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
 
 void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type)
 {
-    if (_type == AttributeTypeHelper::Type::Array)
+    if (_type == AttributeTypeHelper::Type::Array
+            && myTemplateAttribute.mySharedParam.templateAtt == nullptr)
     {
-        if (myTemplateAttribute.mySharedParam.templateAtt == nullptr)
-        {
-            myTemplateAttribute.mySharedParam.templateAtt = new TemplateAttribute();
-        }
-    }
-    else if (myTemplateAttribute.mySharedParam.templateAtt != nullptr)
-    {
-        delete myTemplateAttribute.mySharedParam.templateAtt;
-        myTemplateAttribute.mySharedParam.templateAtt = nullptr;
+        myTemplateAttribute.mySharedParam.templateAtt = new TemplateAttribute();
     }
 
-    if (_type == AttributeTypeHelper::Type::Structure)
+    else if (_type == AttributeTypeHelper::Type::Structure
+            && myTemplateAttribute.mySharedParam.templateStruct == nullptr)
     {
-        if (myTemplateAttribute.mySharedParam.templateStruct == nullptr)
-        {
-            myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure("", QColorConstants::Black);
-        }
-    }
-    else if (myTemplateAttribute.mySharedParam.templateStruct != nullptr)
-    {
-        delete myTemplateAttribute.mySharedParam.templateStruct;
-        myTemplateAttribute.mySharedParam.templateStruct = nullptr;
+        myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure("", QColorConstants::Black);
     }
 }
 void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
@@ -212,6 +198,7 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
     if (_type != currentType)
     {
         ReConstructDefaultAttribute(_type);
+        AttributeTypeHelper::ResetUselessParamsForType(_type, myTemplateAttribute.mySharedParam);
     }
 }
 void QTemplateAttributeCore::RefreshDefaultAttributeWidget()
