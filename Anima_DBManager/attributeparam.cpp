@@ -6,7 +6,6 @@
 #include "enumerator.h"
 #include "areference.h"
 
-#include <QDebug>
 
 AttributeParam::AttributeParam()
 {
@@ -96,9 +95,7 @@ void AttributeParam::operator=(const AttributeParam& _another)
     {
         if (templateStruct != nullptr)
         {
-            //templateAtt->SetNewValues(*_another.templateAtt);
-            //templateStruct->
-            QFatal("IMPLEMENT COPY FOR TEMPLATE STRUCT TO ANTOHER");
+            templateStruct->SetNewValues(*_another.templateStruct);
         }
         else
         {

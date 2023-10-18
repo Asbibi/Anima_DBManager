@@ -27,6 +27,8 @@ public:
     TemplateStructure(const TemplateStructure& _other);
     ~TemplateStructure();
 
+    void SetNewValues(const TemplateStructure& _templateToCopy);
+
     const QColor& GetStructColor() const { return myStructColor; }
     void SetStructureColor(const QColor& _color) { myStructColor = _color; }
     IconManager::IconType GetStructIcon() const { return myIconType; }
