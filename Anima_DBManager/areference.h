@@ -15,7 +15,6 @@ private:
 
 public:
     AReference(TemplateAttribute& _template);
-    AReference(TemplateAttribute& _template, QPointer<const Structure> _structureRef);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Reference; };
     virtual QString GetDisplayedText()                          const override;

@@ -144,7 +144,7 @@ Attribute* NewAttributeFromType(const Type _type, TemplateAttribute& _template)
 #undef CASE_INIT_TEMPLATE
 #undef CASE_INIT_TEMPLATE_WITH_CLASS
 }
-void ResetUselessAttributesForType(const Type _type, AttributeParam& _param)
+void ResetUselessParamsForType(const Type _type, AttributeParam& _param)
 {
     if (_type != AttributeTypeHelper::Type::Enum)
     {

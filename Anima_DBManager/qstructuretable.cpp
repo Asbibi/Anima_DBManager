@@ -9,6 +9,8 @@ QStructureTable::QStructureTable(StructureDB& _structureDB) :
     myStructureDB(_structureDB)
 {
     setItemPrototype(new QAttributeDisplay());
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    QObject::connect(this, &QTableWidget::itemSelectionChanged, this, &QStructureTable::OnSelectionChanged);
     QObject::connect(this, &QTableWidget::currentCellChanged, this, &QStructureTable::OnSelectItem);
 }
 
@@ -34,17 +36,39 @@ void QStructureTable::ExportStructsToCSV(const QString _directoryPath)
 
     csvFile.close();
 }
+void QStructureTable::UnselectCurrent()
+{
+    Unselect(currentRow(), currentColumn());
+}
+void QStructureTable::Unselect(int _row, int _col)
+{
+    if (myCurrentAttributeEditor == nullptr)
+    {
+        return;
+    }
+
+    Q_ASSERT(myCurrentAttributeEditor == cellWidget(_row, _col));
+
+    // Clean previous QAttribute
+    setCellWidget(_row, _col, nullptr);
+    QObject::disconnect(myCurrentAttributeEditor);
+    delete myCurrentAttributeEditor;
+    myCurrentAttributeEditor = nullptr;
+
+    // "Show" the corresponding item
+    QAttributeDisplay* attributeItem = dynamic_cast<QAttributeDisplay*>(item(_row, _col));
+    Q_ASSERT(attributeItem != nullptr);
+    attributeItem->SetContentFromAttribute(myStructureDB.GetStructureAt(_row)->GetAttribute(_col));
+    setItem(_row, _col, attributeItem);
+}
+
+
 
 void QStructureTable::UpdateTable()
 {
     // Reset
-    if (myCurrentAttributeEditor != nullptr)
-    {
-        setCellWidget(currentRow(), currentColumn(), nullptr);
-        QObject::disconnect(myCurrentAttributeEditor);
-        delete myCurrentAttributeEditor;
-        myCurrentAttributeEditor = nullptr;
-    }
+    clearSelection();
+    UnselectCurrent();
 
     // Column number & Headers
     const auto& templ = myStructureDB.GetTemplate();
@@ -102,24 +126,27 @@ void QStructureTable::UpdateTable()
 
 void QStructureTable::OnSelectItem(int _currentRow, int _currentColumn, int _previousRow, int _previousColumn)
 {
-    if (myCurrentAttributeEditor != nullptr)
+    // Unselect previous cell
+    if (_previousRow != -1 && _previousColumn != -1)
     {
-        setCellWidget(_previousRow, _previousColumn, nullptr);
-        QObject::disconnect(myCurrentAttributeEditor);
-        delete myCurrentAttributeEditor;
-        auto * attributeItem = new QAttributeDisplay();
-        attributeItem->SetContentFromAttribute(myStructureDB.GetStructureAt(_previousRow)->GetAttribute(_previousColumn));
-        setItem(_previousRow, _previousColumn, attributeItem);
+        Unselect(_previousRow, _previousColumn);
     }
 
+
+    // "Hiding" without deleting the item (need to be != nullptr for OnSelectionChanged
+    QAttributeDisplay* attributeItem = dynamic_cast<QAttributeDisplay*>(item(_currentRow, _currentColumn));
+    Q_ASSERT(attributeItem != nullptr);
+    attributeItem->SetContentFromAttribute(nullptr);
+
+
+    // Creating a QAttribute to edit the cell
     myCurrentAttributeEditor = new QAttribute();
     myCurrentAttributeEditor->UpdateAttribute(myStructureDB.GetStructureAt(_currentRow)->GetAttribute(_currentColumn));
-    QObject::connect(myCurrentAttributeEditor, &QAttribute::OnWidgetValueChanged, [this, _currentRow](){
+    QObject::connect(myCurrentAttributeEditor, &QAttribute::OnWidgetValueChanged, this, [this, _currentRow](){
                     OnSelectOrEditItem(_currentRow);
                 });
-
-    setItem(_currentRow, _currentColumn, nullptr);
     setCellWidget(_currentRow, _currentColumn, myCurrentAttributeEditor);
+
 
     OnSelectOrEditItem(_currentRow);
 }
@@ -128,4 +155,16 @@ void QStructureTable::OnSelectOrEditItem(int _index)
 {
     // Todo : QAttribute to add on cell, & delete previous
     DB_Manager::GetDB_Manager().AskFocusOnStructPanel(myStructureDB.GetTemplateName(), _index);
+}
+
+void QStructureTable::OnSelectionChanged()
+{
+    if (selectedItems().count() == 0)
+    {
+        UnselectCurrent();
+    }
+    else if (myCurrentAttributeEditor == nullptr)
+    {
+        OnSelectItem(currentRow(), currentColumn(), -1, -1);
+    }
 }

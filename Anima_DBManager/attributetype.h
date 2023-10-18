@@ -37,7 +37,7 @@ Type StringToType(const QString& _typeString);
 bool AreParamValid(const Type _type, const AttributeParam& _param);
 bool IsAssetType(const Type _type);
 Attribute* NewAttributeFromType(const Type _type, TemplateAttribute& _template);
-void ResetUselessAttributesForType(const Type _type, AttributeParam& _param);
+void ResetUselessParamsForType(const Type _type, AttributeParam& _param);
 
 }
 

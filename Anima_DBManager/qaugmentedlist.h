@@ -16,10 +16,16 @@ private:
     bool myOnlyUniqueValues;
     bool myDisableRemoveLast = false;
     QString myDefaultValue;
+    QList<QPushButton*> myAddButtons;
     QPushButton* myRemoveButton;
+    bool myUseMin = false;
+    int myMin;
+    bool myUseMax = false;
+    int myMax;
 
     void MoveItemAt(int _indexFrom, int _indexTo);
     void RemoveItemAt(int _index);
+    void CheckMinMax();
 
 public:
     explicit QAugmentedList(bool _unique, const QString& _defValue, QWidget *_parent = nullptr);
@@ -29,6 +35,7 @@ public:
     int GetCurrent(QString* _outValue = nullptr) const;
     const QString GetItemValue(const int _index) const;
     void SetItemValue(const int _index, const QString& _value, bool _emitEditedSignal = true);
+    void SetMinMax(bool _useMin, int _min, bool _useMax, int _max);
 
     void SelectItemAt(const int _index);
     void SelectItem(const QString& _text);

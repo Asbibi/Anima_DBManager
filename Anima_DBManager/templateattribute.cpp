@@ -33,21 +33,29 @@ TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
 
     myDefaultAttribute->CopyValueFromOther(_another.myDefaultAttribute);
 }
+void TemplateAttribute::DeleteDefaultAttribute()
+{
+    // Should not be called if not meant to be replace immediately after
+
+    if (myDefaultAttribute == nullptr)
+    {
+        return;
+    }
+
+    UnregisterAttribute(myDefaultAttribute);
+    delete myDefaultAttribute;
+    myDefaultAttribute = nullptr;
+}
 void TemplateAttribute::InitDefaultAttribute(AttributeTypeHelper::Type _type)
 {
-    if (myDefaultAttribute != nullptr)
-    {
-        UnregisterAttribute(myDefaultAttribute);
-        delete myDefaultAttribute;
-        myDefaultAttribute = nullptr;
-    }
+    DeleteDefaultAttribute();
 
     myDefaultAttribute = AttributeTypeHelper::NewAttributeFromType(_type, *this);
     Q_ASSERT(myDefaultAttribute != nullptr);
 }
 void TemplateAttribute::ResetUselessParam(AttributeTypeHelper::Type _type)
 {
-    AttributeTypeHelper::ResetUselessAttributesForType(_type, mySharedParam);
+    AttributeTypeHelper::ResetUselessParamsForType(_type, mySharedParam);
 }
 TemplateAttribute::~TemplateAttribute()
 {
@@ -111,7 +119,7 @@ bool TemplateAttribute::IsSameArrayType(const AttributeParam& _firstParam, const
         return false;
     else if (firstType == AttributeTypeHelper::Type::Array)
         return IsSameArrayType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
-    else if (firstType != AttributeTypeHelper::Type::Structure)
+    else if (firstType == AttributeTypeHelper::Type::Structure)
         return IsSameStructType(_firstParam.templateAtt->GetSharedParam(), _secondParam.templateAtt->GetSharedParam());
     else
         return true;
@@ -167,6 +175,12 @@ bool TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
         softChange = IsSameStructType(mySharedParam, newParamToCopy);
     }
 
+
+    if (!softChange)
+    {
+        // Deleting the default attribute in advance to avoid nullptr issues on AArray and AStructure
+        DeleteDefaultAttribute();
+    }
     mySharedParam = newParamToCopy;
     if (!softChange)
     {

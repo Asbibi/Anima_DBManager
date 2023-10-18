@@ -12,7 +12,6 @@ QtemplateStructureBase::QtemplateStructureBase(QWidget* _parent)
 
     myTabWidget = new QTabWidget();
     myLayout->addWidget(myTabWidget);
-    //myTabWidget->setStyleSheet("QTabBar::tab { height: 100px; width: 100px; }");
     myTabWidget->setStyleSheet("QTabBar::tab { height: 40px; }");
     myTabWidget->setMovable(true);
     QTabBar* mTabBar = myTabWidget->tabBar();

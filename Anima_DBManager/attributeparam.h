@@ -17,7 +17,7 @@ struct AttributeParam
     AttributeParam(const AttributeParam& _another);
     AttributeParam(const QString& _csvString, QHash<AReference*, QString>& _outRefMap);
     ~AttributeParam();
-    //void operator=(const AttributeParam& _another);
+    void operator=(const AttributeParam& _another);
 
     bool ignoreMin = true;
     bool ignoreMax = true;

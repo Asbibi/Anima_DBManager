@@ -16,7 +16,7 @@ private:
     TemplateStructure* myTemplateStructureCopy;
     QList<QString> myAttributeNames;
 
-    void UpdateAttributeTabText(int index);
+    QString ComputeTabNameForAttribute(const QString& _name, const AttributeTypeHelper::Type& _type);
 
 protected:
     virtual void AddAttribute(int _position, bool _duplicatePrevious = false) override;
@@ -25,9 +25,11 @@ public:
     explicit QTemplateStructure(QWidget *parent = nullptr);
 
     void SetStructureDB(const StructureDB* _structureDB);
+    void FocusAttribute(const int _index);
 
 signals:
     void AttributeChangeApplied();
+    void RequestUpdateTemplateCopy(const int _attrIndexToFocus);
 
 public slots:
     virtual void UpdateContent() override final;

@@ -60,47 +60,50 @@ void AStructure::SetValueFromText(const QString& text)
         //  ->  add "true" to indicate an open "{", a false for an open "[", and remove it when closed
     QString currentString = "";
 
-    for (const QChar& chr : contentText)
+    if (!contentText.isEmpty())
     {
-        int currentBracketCount = (int)openBrackets.size();
-        if (chr == ',' && currentBracketCount == 0)
+        for (const QChar& chr : contentText)
         {
-            finalList.push_back(currentString);
-            currentString = "";
-            continue;
-        }
-
-        currentString.append(chr);
-        if (chr == '{')
-            openBrackets.push_back(true);
-        else if (chr == '[')
-            openBrackets.push_back(false);
-        else if (currentBracketCount != 0)
-        {
-            if (openBrackets[currentBracketCount - 1] && chr == '}')
-                openBrackets.pop_back();
-            else if (!openBrackets[currentBracketCount - 1] && chr == ']')
-                openBrackets.pop_back();
-        }
-        else
-        {
-            if (chr == '}'|| chr == ']')
+            int currentBracketCount = (int)openBrackets.size();
+            if (chr == ',' && currentBracketCount == 0)
             {
-                qFatal("\n\nA '}' or ']' found with nothing opened while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
-                return;
+                finalList.push_back(currentString);
+                currentString = "";
+                continue;
+            }
+
+            currentString.append(chr);
+            if (chr == '{')
+                openBrackets.push_back(true);
+            else if (chr == '[')
+                openBrackets.push_back(false);
+            else if (currentBracketCount != 0)
+            {
+                if (openBrackets[currentBracketCount - 1] && chr == '}')
+                    openBrackets.pop_back();
+                else if (!openBrackets[currentBracketCount - 1] && chr == ']')
+                    openBrackets.pop_back();
+            }
+            else
+            {
+                if (chr == '}'|| chr == ']')
+                {
+                    qFatal("\n\nA '}' or ']' found with nothing opened while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
+                    return;
+                }
             }
         }
+        finalList.push_back(currentString);
     }
-    finalList.push_back(currentString);
 
 
     // Checks
-    if (openBrackets.size() != 0)
+    if (openBrackets.count() != 0)
     {
         qFatal("\n\nError in '{' and '[' closing while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
         return;
     }
-    if ((int)finalList.size() != myValue->GetAttributeCount())
+    if (finalList.count() != myValue->GetAttributeCount())
     {
         qFatal("\n\nNot a text value per attribute while setting <STRUCTURE> Attribute's value:\n\n\t===== Abort =====\n\n");
         return;
@@ -108,7 +111,7 @@ void AStructure::SetValueFromText(const QString& text)
 
 
     // Apply all the strings in the finalList to their attribute
-    for(int i =0; i < (int)finalList.size(); i++)
+    for(int i =0; i < finalList.count(); i++)
         myValue->SetAttributeValueFromText(i, finalList[i]);
 }
 void AStructure::CopyValueFromOther(const Attribute* _other)
@@ -136,6 +139,17 @@ const QList<Attribute*>& AStructure::GetAttributes() const
     Q_ASSERT(myValue != nullptr);
     return myValue->GetAttributes();
 }
+void AStructure::ResetValueToDefaults()
+{
+    int _count = myValue->GetAttributeCount();
+    for (int i = 0; i< _count; i++)
+    {
+        auto* attr = myValue->GetAttribute(i);
+        attr->CopyValueFromOther(attr->GetTemplate()->GetDefaultAttribute());
+    }
+}
+
+
 QString AStructure::GetValueAsTextFromAttributes(const QList<Attribute*>& _attributes)
 {
     if (_attributes.length() == 0)

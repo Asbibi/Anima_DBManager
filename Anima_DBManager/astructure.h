@@ -21,6 +21,7 @@ public:
 
     QList<QString> GetDisplayedTexts() const;
     const QList<Attribute*>& GetAttributes() const;
+    void ResetValueToDefaults();
 
     static QString GetValueAsTextFromAttributes(const QList<Attribute*>& _attributes);
 };

@@ -40,6 +40,7 @@ public:
 
 signals:
     void ParamEdited(bool _withCriticalChange = false);
+    void TypeChanged(const AttributeTypeHelper::Type _type);
 
 public slots:
     void OnParamChanged_Type(const QString& _typeStr);
@@ -56,6 +57,7 @@ public slots:
     void OnParamChanged_StructureTemplate(bool _withCriticalChange);
 
     void OnDefaultAttributeEdited(const QString& _attributeValueAsText);
+    void OnResetAStructureDefault();
 };
 
 #endif // QTEMPLATEATTRIBUTECORE_H

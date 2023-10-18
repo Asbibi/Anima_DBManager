@@ -429,6 +429,7 @@ void DB_Manager::RemoveStructureDB(int _index)
     {
         if (attrParam->structTable == structDB)
             attrParam->structTable = nullptr;
+        // TODO : for AReference that used it set value to nullptr ?
     }
 
     emit StructTableRemoved(_index);

@@ -3,7 +3,6 @@
 #include "db_manager.h"
 
 #include <QGridLayout>
-#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -13,10 +12,11 @@ QPanelStruct::QPanelStruct(QWidget* parent)
 {
     QLayout* myLayout = layout();
 
-    QGroupBox* editGroupBox = new QGroupBox("Edit Selected Structure");
+    mySubGroupBox = new QGroupBox("Edit Selected Structure");
     QFormLayout* editLayout = new QFormLayout();
-    editGroupBox->setLayout(editLayout);
-    myLayout->addWidget(editGroupBox);
+    mySubGroupBox->setLayout(editLayout);
+    mySubGroupBox->hide();
+    myLayout->addWidget(mySubGroupBox);
 
     myStructIdentity = new QStructIdentity();
     QObject::connect(myStructIdentity, &QStructIdentity::NameChanged, this, &QPanelStruct::OnNameEdited);
@@ -36,6 +36,8 @@ QPanelStruct::QPanelStruct(QWidget* parent)
     QObject::connect(myElementHandler, &QElementHandler::DuplicateRequested, this, &QPanelStruct::OnElementDuplicated);
     QObject::connect(myElementHandler, &QElementHandler::MoveRequested, this, &QPanelStruct::OnElementMoved);
     QObject::connect(myElementHandler, &QElementHandler::RemoveRequested, this, &QPanelStruct::OnElementRemoved);
+
+    QObject::connect(myTemplateEditor, &QTemplateStructure::RequestUpdateTemplateCopy, this, &QPanelStruct::OnItemRequestUpdate);
 
     InitItemCountWidget(editLayout);
 }
@@ -71,13 +73,17 @@ void QPanelStruct::UpdateItemList()
 void QPanelStruct::OnItemSelected(const int _index)
 {
     StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(_index);
-    myStructIdentity->SetValueFromTemplate(currentStructDB->GetTemplate());
-    myTemplateEditor->SetStructureDB(currentStructDB);
     myElementHandler->OnSelectElement(-1, "");
-    if (currentStructDB != nullptr)
+    myTemplateEditor->SetStructureDB(currentStructDB);
+    if (currentStructDB == nullptr)
     {
-        RefreshItemCount(_index);
+        mySubGroupBox->hide();
+        return;
     }
+
+    mySubGroupBox->show();
+    myStructIdentity->SetValueFromTemplate(currentStructDB->GetTemplate());
+    RefreshItemCount(_index);
 }
 void QPanelStruct::OnItemEdited(const int _index, const QString& _value)
 {
@@ -112,6 +118,13 @@ void QPanelStruct::OnItemApplied()
         return;
     }
     OnItemSelected(currentIndex);
+}
+void QPanelStruct::OnItemRequestUpdate(const int _attrIndexToFocus)
+{
+    StructureDB* currentStructDB = DB_Manager::GetDB_Manager().GetStructureTable(myItemList->GetCurrent());
+    Q_ASSERT(currentStructDB != nullptr);
+    myTemplateEditor->SetStructureDB(currentStructDB);
+    myTemplateEditor->FocusAttribute(_attrIndexToFocus);
 }
 
 

@@ -5,7 +5,6 @@
 
 #include <QFormLayout>
 #include <QGridLayout>
-#include <QGroupBox>
 #include <QLabel>
 #include <QVBoxLayout>
 
@@ -14,10 +13,11 @@ QPanelEnum::QPanelEnum(QWidget *parent)
 {
     QLayout* myLayout = layout();
 
-    QGroupBox* editGroupBox = new QGroupBox("Edit Selected Enum");
+    mySubGroupBox = new QGroupBox("Edit Selected Enum");
     QGridLayout* editLayout = new QGridLayout();
-    editGroupBox->setLayout(editLayout);
-    myLayout->addWidget(editGroupBox);
+    mySubGroupBox->setLayout(editLayout);
+    mySubGroupBox->hide();
+    myLayout->addWidget(mySubGroupBox);
 
 
     myEnumValuesList = new QAugmentedList(true, "Case");
@@ -37,7 +37,7 @@ QPanelEnum::QPanelEnum(QWidget *parent)
     myColorEditor->hide();
 
     myApplyBtn = new QPushButton("Apply");
-    myResetBtn = new QPushButton("Discard");
+    myResetBtn = new QPushButton("Reset");
     editLayout->addWidget(myApplyBtn, 4, 0);
     editLayout->addWidget(myResetBtn, 4, 1);
 
@@ -96,20 +96,14 @@ void QPanelEnum::OnItemSelected(const int _index)
 {
     myEnumValuesList->Clear();
     myEnumColorList->clear();
-    if (_index < 0)
-    {
-        myColorCheckbox->setChecked(false);
-        myEnumColorList->setEnabled(false);
-        return;
-    }
-
     const Enumerator* currentEnum = DB_Manager::GetDB_Manager().GetEnum(_index);
     if (!currentEnum)
     {
-        qFatal("Selected inexisting enum at index %d", _index);
+        mySubGroupBox->hide();
         return;
     }
 
+    mySubGroupBox->show();
     const bool useColor = currentEnum->GetUseColor();
     myColorCheckbox->setChecked(useColor);
     myEnumColorList->setEnabled(useColor);

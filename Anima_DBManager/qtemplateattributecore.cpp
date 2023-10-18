@@ -48,15 +48,48 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
     ShowDefaultWidget(true);
 }
 
+
+void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type)
+{
+    if (_type == AttributeTypeHelper::Type::Array
+            && myTemplateAttribute.mySharedParam.templateAtt == nullptr)
+    {
+        myTemplateAttribute.mySharedParam.templateAtt = new TemplateAttribute();
+    }
+
+    else if (_type == AttributeTypeHelper::Type::Structure
+            && myTemplateAttribute.mySharedParam.templateStruct == nullptr)
+    {
+        myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure("", QColorConstants::Black);
+    }
+}
 void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 {
+    const AttributeTypeHelper::Type currentType = myTemplateAttribute.GetType();
+    const int rowToAdd = 1;
+
+    if (currentType == AttributeTypeHelper::Type::Array && myArrayTemplate != nullptr)
+    {
+        myFormLayout->removeRow(myArrayTemplate);
+        myArrayTemplate = nullptr;
+    }
+    else if (currentType == AttributeTypeHelper::Type::Structure && myStructureTemplate != nullptr)
+    {
+        myFormLayout->removeRow(rowToAdd+2);    // Remove the QPushButton specific to AStructure here since it is placed after myDefAttributeEditor in layout -> if not removed her, myDefAttributeEditor will be deleted instead => crash
+        myFormLayout->removeRow(myStructureTemplate);
+        myStructureTemplate = nullptr;
+    }
+    Q_ASSERT(myArrayTemplate == nullptr);
+    Q_ASSERT(myStructureTemplate == nullptr);
+
+
     PerformTypeSpecificPreparation(_type);
 
-    const int rowToAdd = 1;
     while (myFormLayout->rowCount() > 2)
     {
         myFormLayout->removeRow(rowToAdd);
     }
+
 
     switch(_type)
     {
@@ -66,8 +99,6 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             myArrayTemplate = new QTemplateAttributeCore(*myTemplateAttribute.mySharedParam.templateAtt);
             myFormLayout->insertRow(rowToAdd, "Template:", myArrayTemplate);
             QObject::connect(myArrayTemplate, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttributeCore::OnParamChanged_ArrayTemplate);
-
-#ifdef LIMITS_ON_AARRAYS
             QOptionalValue_Int* minValue = new QOptionalValue_Int();
             QOptionalValue_Int* maxValue = new QOptionalValue_Int();
             minValue->SetValues(!myTemplateAttribute.mySharedParam.ignoreMin, myTemplateAttribute.mySharedParam.min_i);
@@ -78,8 +109,6 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             QObject::connect(minValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttributeCore::OnParamChanged_MinInt);
             QObject::connect(maxValue, &QOptionalValue_Int::OnEnableChanged, this, &QTemplateAttributeCore::OnParamChanged_IgnoreMax);
             QObject::connect(maxValue, &QOptionalValue_Int::OnValueChanged, this, &QTemplateAttributeCore::OnParamChanged_MaxInt);
-#endif
-
             break;
         }
         case AttributeTypeHelper::Type::Structure:
@@ -88,6 +117,10 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             myStructureTemplate = new QTemplateStructureCore(*myTemplateAttribute.mySharedParam.templateStruct);
             myFormLayout->insertRow(rowToAdd, "Template:", myStructureTemplate);
             QObject::connect(myStructureTemplate, &QTemplateStructureCore::StructureChanged, this, &QTemplateAttributeCore::OnParamChanged_StructureTemplate);
+            QPushButton* resetDefaultValuesBtn = new QPushButton("Reset to Attributes' default values");
+            resetDefaultValuesBtn->setMaximumWidth(270);
+            myFormLayout->insertRow(rowToAdd+2, "", resetDefaultValuesBtn);
+            QObject::connect(resetDefaultValuesBtn, &QPushButton::clicked, this, &QTemplateAttributeCore::OnResetAStructureDefault);
             break;
         }
         case AttributeTypeHelper::Type::Enum:
@@ -162,39 +195,10 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
             break;
     }
 
-    if (_type != myTemplateAttribute.GetType())
+    if (_type != currentType)
     {
         ReConstructDefaultAttribute(_type);
-    }
-}
-void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper::Type _type)
-{
-    if (_type == AttributeTypeHelper::Type::Array)
-    {
-        if (myTemplateAttribute.mySharedParam.templateAtt == nullptr)
-        {
-            myTemplateAttribute.mySharedParam.templateAtt = new TemplateAttribute();
-        }
-    }
-    else if (myTemplateAttribute.mySharedParam.templateAtt != nullptr)
-    {
-        delete myTemplateAttribute.mySharedParam.templateAtt;
-        myTemplateAttribute.mySharedParam.templateAtt = nullptr;
-        myArrayTemplate = nullptr;      // will be delete and remove from layout at beginning of UpdateLayout()
-    }
-
-    if (_type == AttributeTypeHelper::Type::Structure)
-    {
-        if (myTemplateAttribute.mySharedParam.templateStruct == nullptr)
-        {
-            myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure("", QColorConstants::Black);
-        }
-    }
-    else if (myTemplateAttribute.mySharedParam.templateStruct != nullptr)
-    {
-        delete myTemplateAttribute.mySharedParam.templateStruct;
-        myTemplateAttribute.mySharedParam.templateStruct = nullptr;
-        myStructureTemplate = nullptr;  // will be delete and remove from layout at beginning of UpdateLayout()
+        AttributeTypeHelper::ResetUselessParamsForType(_type, myTemplateAttribute.mySharedParam);
     }
 }
 void QTemplateAttributeCore::RefreshDefaultAttributeWidget()
@@ -256,8 +260,10 @@ bool QTemplateAttributeCore::HasConfigValid() const
 
 void QTemplateAttributeCore::OnParamChanged_Type(const QString& _typeStr)
 {
-    UpdateLayout(AttributeTypeHelper::StringToType(_typeStr));
+    AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(_typeStr);
+    UpdateLayout(type);
     emit ParamEdited(true);
+    emit TypeChanged(type);
 }
 
 void QTemplateAttributeCore::OnParamChanged_IgnoreMin(bool _use)
@@ -329,5 +335,13 @@ void QTemplateAttributeCore::OnParamChanged_StructureTemplate(bool _withCritical
 void QTemplateAttributeCore::OnDefaultAttributeEdited(const QString& _attributeValueAsText)
 {
     myTemplateAttribute.myDefaultAttribute->SetValueFromText(_attributeValueAsText);
+    emit ParamEdited(false);
+}
+void QTemplateAttributeCore::OnResetAStructureDefault()
+{
+    Q_ASSERT(myTemplateAttribute.GetType() == AttributeTypeHelper::Type::Structure);
+    AStructure* defaultAsAStructure = dynamic_cast<AStructure*>(myTemplateAttribute.myDefaultAttribute);
+    defaultAsAStructure->ResetValueToDefaults();
+    RefreshDefaultAttributeWidget();
     emit ParamEdited(false);
 }

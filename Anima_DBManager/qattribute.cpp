@@ -194,7 +194,7 @@ case AttributeTypeHelper::Type::type : \
     break; \
 }
 
-        CASE_ATTRIBUTE(UAsset, "UAsset", "Ureal Assets", *, AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(UAsset, "UAsset", "Unreal Assets", *, AAsset::GetStaticAssetFileExtension());
         CASE_ATTRIBUTE(Mesh, "Mesh", "3D Files", *, AATexture::GetStaticAssetFileExtension());
         CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems", P_*, AAsset::GetStaticAssetFileExtension());
         CASE_ATTRIBUTE(Sound, "Sound", "Sounds", *, AASound::GetStaticAssetFileExtension());

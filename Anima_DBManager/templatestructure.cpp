@@ -28,6 +28,26 @@ TemplateStructure::~TemplateStructure()
 }
 
 
+void TemplateStructure::SetNewValues(const TemplateStructure& _templateToCopy)
+{
+    const int newTemplateCount = _templateToCopy.GetAttributesCount();
+    while (GetAttributesCount() > newTemplateCount)
+    {
+        RemoveAttribute(newTemplateCount);
+    }
+
+    const int currAttributeCount = GetAttributesCount();
+    for (int i = 0; i < currAttributeCount; i++)
+    {
+        myAttributeTemplates[i]->SetNewValues(*_templateToCopy.myAttributeTemplates[i]);
+    }
+    for (int i = currAttributeCount; i < newTemplateCount; i++)
+    {
+        AddAttributeTemplate(*_templateToCopy.myAttributeTemplates[i], nullptr, i);
+    }
+}
+
+
 
 void TemplateStructure::AddAttributeTemplate(int _index)
 {

@@ -6,6 +6,7 @@
 #include "enumerator.h"
 #include "areference.h"
 
+
 AttributeParam::AttributeParam()
 {
     DB_Manager::GetDB_Manager().RegisterAttributeParam(this);
@@ -54,22 +55,9 @@ AttributeParam::~AttributeParam()
 
     DB_Manager::GetDB_Manager().UnregisterAttributeParam(this);
 }
-/*void AttributeParam::operator=(const AttributeParam& _another)
-{
-    // Clean Up
-    if (templateAtt != nullptr)
-    {
-        delete(templateAtt);
-        templateAtt = nullptr;
-    }
-    if (templateStruct != nullptr)
-    {
-        delete(templateStruct);
-        templateStruct = nullptr;
-    }
-
-
-    // Copy
+void AttributeParam::operator=(const AttributeParam& _another)
+{    
+    // Simple fields Copy
     ignoreMin = _another.ignoreMin;
     ignoreMax = _another.ignoreMax;
     min_i = _another.min_i;
@@ -79,12 +67,50 @@ AttributeParam::~AttributeParam()
     structTable = _another.structTable;
     enumeratorIndex = _another.enumeratorIndex;
 
-    if (_another.templateAtt)
-        templateAtt = new TemplateAttribute(*_another.templateAtt);
 
+    // templateAtt Copy
+    if (_another.templateAtt)
+    {
+        if (templateAtt != nullptr)
+        {
+            templateAtt->SetNewValues(*_another.templateAtt);
+        }
+        else
+        {
+            templateAtt = new TemplateAttribute(*_another.templateAtt);
+        }
+    }
+    else
+    {
+        if (templateAtt != nullptr)
+        {
+            delete(templateAtt);
+            templateAtt = nullptr;
+        }
+    }
+
+
+    // templateStruct Copy
     if (_another.templateStruct)
-        templateStruct = new TemplateStructure(*_another.templateStruct);
-}*/
+    {
+        if (templateStruct != nullptr)
+        {
+            templateStruct->SetNewValues(*_another.templateStruct);
+        }
+        else
+        {
+            templateStruct = new TemplateStructure(*_another.templateStruct);
+        }
+    }
+    else
+    {
+        if (templateStruct != nullptr)
+        {
+            delete(templateStruct);
+            templateStruct = nullptr;
+        }
+    }
+}
 
 
 const Enumerator* AttributeParam::GetEnum() const

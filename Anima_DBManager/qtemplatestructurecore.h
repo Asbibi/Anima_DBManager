@@ -15,6 +15,8 @@ private:
     TemplateStructure& myTemplateStruct;
     QList<QTemplateAttributeCore*> myTemplateAttributeCoreList;
 
+    QString ComputeTabNameForAttribute(const AttributeTypeHelper::Type& _type);
+
 protected:
     virtual void AddAttribute(int _position, bool _duplicatePrevious = false) override;
 
@@ -22,6 +24,7 @@ public:
     explicit QTemplateStructureCore(TemplateStructure& _templateStruct, QWidget *parent = nullptr);
     bool HasConfigValid() const;
     void ShowDefaultWidget(bool _show);
+    void OnAttributeTypeChanged(const int _index, const AttributeTypeHelper::Type _type);
 
 signals:
     void StructureChanged(bool _criticalChanges = true);

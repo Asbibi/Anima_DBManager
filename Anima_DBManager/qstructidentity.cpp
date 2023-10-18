@@ -35,6 +35,8 @@ QStructIdentity::QStructIdentity(QWidget *parent)
 }
 void QStructIdentity::InitIconComboBox()
 {
+    myIconTypeComboBox->addItem("None");
+
 #define ADD_ICON_OPTION(Option) myIconTypeComboBox->addItem(IconManager::GetSimpleIcon(IconManager::IconType::Option, QColorConstants::Black), #Option);
 
     ADD_ICON_OPTION(Square);
@@ -74,7 +76,9 @@ void QStructIdentity::SetValueFromTemplate(const TemplateStructure& _template)
     blockSignals(true);
     myTemplateName->setText(_template.GetStructName());
     myTemplateAbbrev->setText(_template.GetStructAbbrev());
-    myIconTypeComboBox->setCurrentIndex((int)(_template.GetStructIcon()));
+    IconManager::IconType iconType = _template.GetStructIcon();
+    int iconIndex = iconType == IconManager::IconType::None ? 0 : (int)(_template.GetStructIcon()) + 1;
+    myIconTypeComboBox->setCurrentIndex(iconIndex);
     myIconColorEditor->SetColor(_template.GetStructColor());
     blockSignals(false);
 }
@@ -89,9 +93,10 @@ void QStructIdentity::OnAbbrevChanged()
 }
 void QStructIdentity::OnIconChanged(const int _iconTypeIndex)
 {
-    if (_iconTypeIndex < 0 || _iconTypeIndex >= (int)IconManager::IconType::Count) {
-        qWarning("QStructIdentity -- Invalid IconType index provided on OnIconChanged(..) : ignored");
+    int iconTypeIndexUsed = _iconTypeIndex - 1;
+    if (iconTypeIndexUsed < 0 || iconTypeIndexUsed >= (int)IconManager::IconType::Count) {
+        iconTypeIndexUsed = (int)IconManager::IconType::None;
     }
 
-    emit IconChanged((IconManager::IconType)_iconTypeIndex);
+    emit IconChanged((IconManager::IconType)iconTypeIndexUsed);
 }

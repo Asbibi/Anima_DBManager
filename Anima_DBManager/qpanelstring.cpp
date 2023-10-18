@@ -4,7 +4,6 @@
 
 #include <QFormLayout>
 #include <QGridLayout>
-#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -15,10 +14,11 @@ QPanelString::QPanelString(QWidget *parent)
 {
     QLayout* myLayout = layout();
 
-    QGroupBox* editGroupBox = new QGroupBox("Edit Selected String Table");
+    mySubGroupBox = new QGroupBox("Edit Selected String Table");
     QFormLayout* editLayout = new QFormLayout();
-    editGroupBox->setLayout(editLayout);
-    myLayout->addWidget(editGroupBox);
+    mySubGroupBox->setLayout(editLayout);
+    mySubGroupBox->hide();
+    myLayout->addWidget(mySubGroupBox);
 
     mySearchList = new QListWithSearch(true, "New Identifier");
     mySearchList->SetDisableRemoveLast(true);
@@ -73,8 +73,12 @@ void QPanelString::OnItemSelected(const int _index)
 
     SStringTable* currentTable = DB_Manager::GetDB_Manager().GetStringTable(_index);
     if (!currentTable)
+    {
+        mySubGroupBox->hide();
         return;
+    }
 
+    mySubGroupBox->show();
     auto strings = currentTable->GetStringItems();
     for (const auto& str : strings)
     {
