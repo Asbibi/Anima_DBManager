@@ -48,7 +48,7 @@ public slots:
 
     // Identity
     void OnNameEdited(const QString& _name);
-    void OnAbbrevEdited(const QString& _abbrev);
+    void OnAbbrevEdited(QString& _abbrev);
     void OnIconEdited(const IconManager::IconType _iconType);
     void OnColorEdited(const QColor& _color);
 

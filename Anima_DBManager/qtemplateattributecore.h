@@ -11,6 +11,7 @@
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
+#include <QLineEdit>
 
 class QTemplateAttributeCore : public QWidget
 {
@@ -18,6 +19,7 @@ class QTemplateAttributeCore : public QWidget
 private:
     TemplateAttribute& myTemplateAttribute;
 
+    QLineEdit* myName = nullptr;
     QFormLayout* myFormLayout;
     QComboBox* myTypeComboBox;
     QAttribute* myDefAttributeEditor;
@@ -31,7 +33,7 @@ private:
     void ReConstructDefaultAttribute(AttributeTypeHelper::Type _type);
 
 public:
-    QTemplateAttributeCore(TemplateAttribute& _templateAttribute, QWidget* _parent = nullptr);
+    QTemplateAttributeCore(TemplateAttribute& _templateAttribute, bool _withNameField = false, QWidget* _parent = nullptr);
 
     AttributeTypeHelper::Type GetType() const;
     bool HasConfigValid() const;
@@ -40,9 +42,11 @@ public:
 
 signals:
     void ParamEdited(bool _withCriticalChange = false);
+    void NameChanged(QString& _name);
     void TypeChanged(const AttributeTypeHelper::Type _type);
 
 public slots:
+    void OnParamChanged_Name();
     void OnParamChanged_Type(const QString& _typeStr);
 
     void OnParamChanged_IgnoreMin(bool _use);

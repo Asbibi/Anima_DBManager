@@ -37,7 +37,7 @@ public:
     const QString& GetStructName() const                            { return myStructName; }
     void RenameStructureTemplate(const QString& _newStructName)     { myStructName = _newStructName; }
     const QString& GetStructAbbrev() const                          { return myStructAbbrev; }
-    void ReabbrevStructureTemplate(const QString& _newStructAbbrev) { myStructAbbrev = _newStructAbbrev; }
+    void ReabbrevStructureTemplate(QString& _newStructAbbrev);
 
 
     void AddAttributeTemplate(int _index = -1);

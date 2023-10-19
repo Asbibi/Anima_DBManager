@@ -68,7 +68,7 @@ public:
     void RemoveStructureDB(int _index);
     void RemoveStructureDB(const QString& _tableName);
     void RenameStructureDB(int _index, const QString& _tableName);
-    void ChangeStructureDBAbbrev(int _index, const QString& _abbrev);
+    void ChangeStructureDBAbbrev(int _index, QString& _abbrev);
     void ChangeStructureDBIconType(int _index, IconManager::IconType _iconType);
     void ChangeStructureDBIconColor(int _index, const QColor& _abbrev);
     void MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo);

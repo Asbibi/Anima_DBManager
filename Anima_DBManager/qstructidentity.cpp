@@ -89,7 +89,9 @@ void QStructIdentity::OnNameChanged()
 }
 void QStructIdentity::OnAbbrevChanged()
 {
-    emit AbbrevChanged(myTemplateAbbrev->text());
+    QString abbrev = myTemplateAbbrev->text();
+    emit AbbrevChanged(abbrev);
+    myTemplateAbbrev->setText(abbrev);
 }
 void QStructIdentity::OnIconChanged(const int _iconTypeIndex)
 {

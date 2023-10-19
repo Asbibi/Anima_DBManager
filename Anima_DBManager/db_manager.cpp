@@ -59,7 +59,7 @@ void DB_Manager::Init()
 #ifdef TEST_VALUES
 
     // Project Folder
-    SetProjectContentFolderPath("D:/Documents/Unreal/Anima_OLD/Content/");
+    SetProjectContentFolderPath("D:/Documents/Unreal/Anima/Content/");
     qDebug() << "Project path is valid : " << myProjectPathIsValid;
 
     // Enums (TODO : remove to instead add automatic creation from loading file)
@@ -459,7 +459,7 @@ void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
     myStructures[_index]->SetTemplateName(_tableName);
     emit StructTableRenamed(_index, _tableName);
 }
-void DB_Manager::ChangeStructureDBAbbrev(int _index, const QString& _abbrev)
+void DB_Manager::ChangeStructureDBAbbrev(int _index, QString& _abbrev)
 {
     const int count = myStructures.count();
     if (_index < 0 || _index > count)

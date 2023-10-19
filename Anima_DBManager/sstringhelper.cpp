@@ -1,5 +1,7 @@
 #include "sstringhelper.h"
 
+#include <QList>
+
 #define CD_FR "FR"
 #define CD_EN "EN"
 
@@ -70,6 +72,38 @@ QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const Q
     }
 
     return identifier;
+}
+void CleanStringForIdentifier(QString& _identifier)
+{
+    static const QList<QChar> bannedChars = {'\"',
+                                             '\'',
+                                             '=',
+                                             '(',
+                                             ')',
+                                             '[',
+                                             ']',
+                                             '{',
+                                             '}',
+                                             '+',
+                                             '-',
+                                             '*',
+                                             '/',
+                                             '!',
+                                             '?',
+                                             ',',
+                                             ';',
+                                             ':',
+                                             '#',
+                                             '%',
+                                             '$',
+                                             '&',
+                                             '<',
+                                             '>'};
+    _identifier.replace(' ','_');
+    for (const auto& bc : bannedChars)
+    {
+        _identifier.remove(bc);
+    }
 }
 void IncrementLanguage(SStringLanguages& _language)
 {

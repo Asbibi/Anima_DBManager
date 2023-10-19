@@ -136,22 +136,23 @@ void Structure::GetAttributesDisplayedText(QString& _text) const
         _text.append(myAttributes[i]->GetValueAsText());
     }
 }
-void Structure::WriteValue_CSV(std::ofstream& file) const
+QString Structure::GetStructureAsCSV() const
 {
-    file << "(";
+    QString structAsCSV = "(";
 
     // === Add all attributes ===
     for (int i = 0; i < myAttributes.size(); i++)
     {
         if (0 < i)
-            file << ",";
-        file << myTemplate.GetAttributeName(i).toStdString();
-        file << "=";
-        myAttributes[i]->WriteValue_CSV(file);
+            structAsCSV.append(",");
+        structAsCSV.append(myTemplate.GetAttributeName(i));
+        structAsCSV.append('=');
+        structAsCSV.append(myAttributes[i]->GetAttributeAsCSV());
     }
     // ==========================
 
-    file << ")";
+    structAsCSV.append(')');
+    return structAsCSV;
 }
 void Structure::WriteValue_CSV_AsRow(std::ofstream& file) const
 {

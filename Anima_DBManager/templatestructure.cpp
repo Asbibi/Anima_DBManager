@@ -47,6 +47,13 @@ void TemplateStructure::SetNewValues(const TemplateStructure& _templateToCopy)
     }
 }
 
+void TemplateStructure::ReabbrevStructureTemplate(QString& _newStructAbbrev)
+{
+    SStringHelper::CleanStringForIdentifier(_newStructAbbrev);
+    _newStructAbbrev = _newStructAbbrev.toUpper();
+    myStructAbbrev = _newStructAbbrev;
+}
+
 
 
 void TemplateStructure::AddAttributeTemplate(int _index)
@@ -132,6 +139,8 @@ void TemplateStructure::RenameAttributeTemplate(int _index, QString& _newName)
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return;
+
+    SStringHelper::CleanStringForIdentifier(_newName);
     if (myAttributeTemplates[_index]->GetName() == _newName)
         return;
 

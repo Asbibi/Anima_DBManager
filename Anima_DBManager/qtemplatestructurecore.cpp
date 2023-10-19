@@ -10,10 +10,10 @@ QTemplateStructureCore::QTemplateStructureCore(TemplateStructure& _templateStruc
 }
 
 
-QString QTemplateStructureCore::ComputeTabNameForAttribute(const AttributeTypeHelper::Type& _type)
+QString QTemplateStructureCore::ComputeTabNameForAttribute(const QString& _name, const AttributeTypeHelper::Type& _type)
 {
-    static const QString tabNameBase = "[%1]";
-    return tabNameBase.arg(AttributeTypeHelper::TypeToString(_type));
+    static const QString tabNameBase = "%1\n[%2]";
+    return tabNameBase.arg(_name, AttributeTypeHelper::TypeToString(_type));
 }
 
 bool QTemplateStructureCore::HasConfigValid() const
@@ -34,11 +34,21 @@ void QTemplateStructureCore::ShowDefaultWidget(bool _show)
         qattr->ShowDefaultWidget(_show);
     }
 }
-void QTemplateStructureCore::OnAttributeTypeChanged(const int _index, const AttributeTypeHelper::Type _type)
+void QTemplateStructureCore::UpdateTabName(const int _index)
 {
-    Q_ASSERT(_index < myTabWidget->count());
-    myTabWidget->setTabText(_index, ComputeTabNameForAttribute(_type));
+    Q_ASSERT(_index < myTabWidget->count() && _index < myTemplateStruct.GetAttributesCount());
+    const auto* templAttr = myTemplateStruct.GetAttributeTemplate(_index);
+    const QString& name = templAttr->GetName();
+    const AttributeTypeHelper::Type type = templAttr->GetType();
+    myTabWidget->setTabText(_index, ComputeTabNameForAttribute(name, type));
 }
+void QTemplateStructureCore::RenameAttribute(const int _index, QString& _name)
+{
+    myTemplateStruct.RenameAttributeTemplate(_index, _name);
+    UpdateTabName(_index);
+}
+
+
 
 void QTemplateStructureCore::UpdateContent()
 {
@@ -47,10 +57,11 @@ void QTemplateStructureCore::UpdateContent()
     int i = 0;
     for (auto* attr : myTemplateStruct.GetAttributesW())
     {
-        QTemplateAttributeCore* qattr = new QTemplateAttributeCore(*attr);
-        myTabWidget->addTab(qattr, ComputeTabNameForAttribute(attr->GetType()));
+        QTemplateAttributeCore* qattr = new QTemplateAttributeCore(*attr, true);
+        myTabWidget->addTab(qattr, ComputeTabNameForAttribute(attr->GetName(), attr->GetType()));
         QObject::connect(qattr, &QTemplateAttributeCore::ParamEdited, this, &QTemplateStructureCore::OnAttributeEdited);
-        QObject::connect(qattr, &QTemplateAttributeCore::TypeChanged, this, [this, i](const AttributeTypeHelper::Type _type){ OnAttributeTypeChanged(i, _type); });
+        QObject::connect(qattr, &QTemplateAttributeCore::NameChanged, this, [this, i](QString& _name){ RenameAttribute(i, _name); });
+        QObject::connect(qattr, &QTemplateAttributeCore::TypeChanged, this, [this, i](){ UpdateTabName(i); });
         myTemplateAttributeCoreList.append(qattr);
         i++;
     }

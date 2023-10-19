@@ -177,7 +177,7 @@ void QPanelStruct::OnNameEdited(const QString& _name)
 {
     myItemList->SetItemValue(GetSelectedItem(), _name);
 }
-void QPanelStruct::OnAbbrevEdited(const QString& _abbrev)
+void QPanelStruct::OnAbbrevEdited(QString& _abbrev)
 {
     const int tableIndex = GetSelectedItem();
     DB_Manager::GetDB_Manager().ChangeStructureDBAbbrev(tableIndex, _abbrev);
