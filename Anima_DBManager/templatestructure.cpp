@@ -79,9 +79,8 @@ void TemplateStructure::AddAttributeTemplateInternal(TemplateAttribute* _attTemp
         _index = count;
 
     myAttributeTemplates.insert(_index, _attTemplateToCopy);
-
-    if (_newName)
-        myAttributeTemplates[_index]->SetName(*_newName);
+    QString newAttributeName = _newName != nullptr ? *_newName : _attTemplateToCopy->GetName();
+    RenameAttributeTemplate(_index, newAttributeName, true);
 }
 void TemplateStructure::RemoveAttribute(int _index)
 {
@@ -135,13 +134,13 @@ bool TemplateStructure::ChangeAttribute(int _attrIndex, const TemplateAttribute&
 }
 
 
-void TemplateStructure::RenameAttributeTemplate(int _index, QString& _newName)
+void TemplateStructure::RenameAttributeTemplate(int _index, QString& _newName, bool _skipSameNameCheck)
 {
     if (_index < 0 || _index >= myAttributeTemplates.count())
         return;
 
     SStringHelper::CleanStringForIdentifier(_newName);
-    if (myAttributeTemplates[_index]->GetName() == _newName)
+    if (!_skipSameNameCheck && myAttributeTemplates[_index]->GetName() == _newName)
         return;
 
     QString baseName = _newName;

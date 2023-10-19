@@ -75,8 +75,7 @@ void QTemplateStructureCore::AddAttribute(int _position, bool _duplicatePrevious
 {
     if (_duplicatePrevious)
     {
-        // --- TODO
-        myTemplateStruct.AddAttributeTemplate(_position);
+        myTemplateStruct.AddAttributeTemplate(*myTemplateStruct.GetAttributes()[_position-1], nullptr, _position);
     }
     else
     {

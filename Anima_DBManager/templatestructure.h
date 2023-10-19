@@ -50,7 +50,7 @@ public:
     void SetAttributeFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap);
     bool ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy);
 
-    void RenameAttributeTemplate(int _index, QString& _newName);
+    void RenameAttributeTemplate(int _index, QString& _newName, bool _skipSameNameCheck = false);
     void SetAttributeDefaultValue(int _index, const QString& _value);
     void SetAttributeDefaultValue(const QString& _attName, const QString& _value);
     int GetAttributeIndex(const QString& _attName) const;
