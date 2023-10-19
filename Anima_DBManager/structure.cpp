@@ -144,10 +144,20 @@ QString Structure::GetStructureAsCSV() const
     for (int i = 0; i < myAttributes.size(); i++)
     {
         if (0 < i)
+        {
             structAsCSV.append(",");
+        }
         structAsCSV.append(myTemplate.GetAttributeName(i));
         structAsCSV.append('=');
-        structAsCSV.append(myAttributes[i]->GetAttributeAsCSV());
+        const auto type = myAttributes[i]->GetType();
+        if (AttributeTypeHelper::ShouldBeWrappedInQuoteInCSV(type))
+        {
+            structAsCSV.append(QString(AttributeTypeHelper::csvDoubleQuoteWrapper).arg(myAttributes[i]->GetAttributeAsCSV()));
+        }
+        else
+        {
+            structAsCSV.append(myAttributes[i]->GetAttributeAsCSV());
+        }
     }
     // ==========================
 

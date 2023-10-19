@@ -37,16 +37,27 @@ QString AArray::GetValueAsText() const
 }
 QString AArray::GetAttributeAsCSV() const
 {
+    const bool shouldWrapInQuote = AttributeTypeHelper::ShouldBeWrappedInQuoteInCSV(myTemplate.GetSharedParam().templateAtt->GetType());
     QString arrayAsCSV = "(";
 
     for (int i = 0; i < (int)(myValues.size()); i++)
     {
         if (i > 0)
-            arrayAsCSV += ',';
-        arrayAsCSV += myValues[i]->GetAttributeAsCSV();
+        {
+            arrayAsCSV.append(',');
+        }
+
+        if (shouldWrapInQuote)
+        {
+            arrayAsCSV.append(QString(AttributeTypeHelper::csvDoubleQuoteWrapper).arg(myValues[i]->GetAttributeAsCSV()));
+        }
+        else
+        {
+            arrayAsCSV.append(myValues[i]->GetAttributeAsCSV());
+        }
     }
 
-    return arrayAsCSV + ')';
+    return arrayAsCSV.append(')');
 }
 void AArray::SetValueFromText(const QString& text)
 {
