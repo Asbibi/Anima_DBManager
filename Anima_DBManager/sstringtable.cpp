@@ -78,8 +78,9 @@ const SStringItem* SStringTable::GetStringItem(const QString& _identifier) const
 
 
 
-void SStringTable::SetTableName(const QString& _name)
+void SStringTable::SetTableName(QString& _name)
 {
+    SStringHelper::CleanStringForIdentifier(_name);
     myTableName = _name;
 }
 void SStringTable::SetStringItemCount(int _count)
