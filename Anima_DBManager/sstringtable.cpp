@@ -268,14 +268,14 @@ void SStringTable::ImportString(SStringHelper::SStringLanguages _language, const
             }
             // else : overwrite existing : like the value is currently empty
         }
-        myStrings[stringIndex].SetString(_language, _text);
+        myStrings[stringIndex].SetString(_language, QString(_text).replace("\\n","\n"));
     }
     else
     {
         // Line doesn't exists yet : need to create it
         stringIndex = GetStringItemCount();
         AddStringItem(-1, &_identifier);
-        myStrings[stringIndex].SetString(_language, _text);
+        myStrings[stringIndex].SetString(_language, QString(_text).replace("\\n","\n"));
     }
 }
 
@@ -285,7 +285,7 @@ void SStringTable::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLa
 {
     for (const auto& stringItem : myStrings)
     {
-        stringItem.WriteValue_CSV(_file, _language);
         _file << '\n';
+        stringItem.WriteValue_CSV(_file, _language);
     }
 }

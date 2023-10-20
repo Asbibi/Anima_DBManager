@@ -2,8 +2,9 @@
 
 #include "sstringhelper.h"
 #include "db_manager.h"
-#include <QMenu>
 #include <QCursor>
+#include <QHeaderView>
+#include <QMenu>
 
 QSStringTable::QSStringTable(int _strTableIndex, QWidget* _parent) :
     QTableWidget(_parent),
@@ -22,6 +23,7 @@ QSStringTable::QSStringTable(int _strTableIndex, QWidget* _parent) :
 
     UpdateTable();
 
+    QObject::connect(this, &QTableWidget::itemDoubleClicked, this, &QSStringTable::OnCellEdit);
     QObject::connect(this, &QTableWidget::cellChanged, this, &QSStringTable::OnCellEdited);
     QObject::connect(this, &QTableWidget::customContextMenuRequested, this, &QSStringTable::HandleContextMenu);
     setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
@@ -38,10 +40,7 @@ void QSStringTable::PrivateUpdate()
 SStringTable& QSStringTable::GetTable()
 {
     auto * table = DB_Manager::GetDB_Manager().GetStringTable(myStringTableIndex);
-    if (!table)
-    {
-        qFatal("No table associated to index %d", myStringTableIndex);
-    }
+    Q_ASSERT(table != nullptr);
     return *table;
 }
 
@@ -65,7 +64,7 @@ void QSStringTable::ExportStringsToCSV(const QString _directoryPath, SStringHelp
         return;
     }
 
-    csvFile << "Key,SourceString\n";
+    csvFile << "Key,SourceString";
     stringTable.WriteValue_CSV(csvFile, _language);
 
     csvFile.close();
@@ -92,21 +91,27 @@ void QSStringTable::UpdateTable()
                 item->setBackground(emptyBrush);
             setItem(i, language + 1, item);
         }
-
-        //QTableWidgetItem* header = verticalHeaderItem(i);
     }
+    verticalHeader()->resizeSections(QHeaderView::ResizeToContents);
 }
 
+
+
+void QSStringTable::OnCellEdit(QTableWidgetItem *item)
+{
+    blockSignals(true);
+    item->setText(item->text().replace('\n', "\\n"));
+    blockSignals(false);
+}
 void QSStringTable::OnCellEdited(int row, int col)
 {
     auto* changedItem = item(row,col);
-    if (!changedItem)
-    {
-        qFatal("Invalid item changed");
-        return;
-    }
+    Q_ASSERT(changedItem != nullptr);
 
-    const QString text = changedItem->text();
+    const QString text = changedItem->text().replace("\\n", "\n");
+    blockSignals(true);
+    changedItem->setText(text);
+    blockSignals(false);
     if (col == 0)
     {
         const QString oldId = GetTable().GetStringItem(row)->GetIdentifier();
@@ -117,6 +122,7 @@ void QSStringTable::OnCellEdited(int row, int col)
     {
         changedItem->setBackground(text.isEmpty() ? emptyBrush : defBrush);
         GetTable().SetItemString(row, (SStringHelper::SStringLanguages)(col -1), text);
+        verticalHeader()->resizeSections(QHeaderView::ResizeToContents);
     }
 }
 
@@ -144,7 +150,7 @@ void QSStringTable::HandleContextMenu(const QPoint& point)
 
     QObject::connect(action_AddB, &QAction::triggered, [this, rowClicked](){ GetTable().AddStringItem(rowClicked); PrivateUpdate(); });
     QObject::connect(action_AddA, &QAction::triggered, [this, rowClicked](){ GetTable().AddStringItem(rowClicked+1); PrivateUpdate(); });
-    QObject::connect(action_Dupl, &QAction::triggered, [this, rowClicked, stringItem](){
+    QObject::connect(action_Dupl, &QAction::triggered, [this, rowClicked, &stringItem](){
         QString _texts[SStringHelper::SStringLanguages::Count];
         for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
         {
