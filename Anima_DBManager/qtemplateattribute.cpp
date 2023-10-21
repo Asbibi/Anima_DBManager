@@ -1,7 +1,9 @@
 #include "qtemplateattribute.h"
 
-
+#include "sstringhelper.h"
 #include <QHBoxLayout>
+#include <QMessageBox>
+
 
 QTemplateAttribute::QTemplateAttribute(QWidget *parent)
     : QWidget{parent}, myTemplateCopy{nullptr}, myCoreEditor{nullptr}
@@ -64,7 +66,7 @@ void QTemplateAttribute::UpdateTemplateAttribute(const TemplateAttribute* _attr)
         myCoreEditor->disconnect();
         myFormLayout->removeRow(1);
     }
-    myCoreEditor = new QTemplateAttributeCore(*myTemplateCopy, this);
+    myCoreEditor = new QTemplateAttributeCore(*myTemplateCopy, false, this);
     myFormLayout->insertRow(1, "", myCoreEditor);
     QObject::connect(myCoreEditor, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttribute::OnParamEdited);
 
@@ -109,7 +111,6 @@ void QTemplateAttribute::ShowDefaultWidget(bool _show)
 void QTemplateAttribute::OnNameEdited()
 {
     QString _newName = myName->text();
-    _newName.replace(' ','_');
     emit NameChanged(myNameCached, _newName);
     myName->setText(_newName);
     myNameCached = _newName;
@@ -127,5 +128,15 @@ void QTemplateAttribute::OnRevert()
 }
 void QTemplateAttribute::OnApplyDefaultToAll()
 {
+    QMessageBox::StandardButton btn = QMessageBox::warning(this,
+                                                            "Confirm reset all to default value",
+                                                            "You asked to reset all related attributes to their default values.\nTheir current values will be lost.\n\nReset values ?",
+                                                            QMessageBox::Yes | QMessageBox::No,
+                                                            QMessageBox::Yes);
+
+    if (btn == QMessageBox::No)
+    {
+        return;
+    }
     emit AppliedDefaultToAll(myNameCached);
 }

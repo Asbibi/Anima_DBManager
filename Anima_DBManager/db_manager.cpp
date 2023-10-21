@@ -59,7 +59,7 @@ void DB_Manager::Init()
 #ifdef TEST_VALUES
 
     // Project Folder
-    SetProjectContentFolderPath("D:/Documents/Unreal/Anima_OLD/Content/");
+    SetProjectContentFolderPath("D:/Documents/Unreal/Anima/Content/");
     qDebug() << "Project path is valid : " << myProjectPathIsValid;
 
     // Enums (TODO : remove to instead add automatic creation from loading file)
@@ -74,7 +74,7 @@ void DB_Manager::Init()
     // String Tables;
     int strIndex = -1;
     AddStringTablePrivate("Ceribou", strIndex);
-    AddStringTablePrivate("Shitty Stuff", strIndex);
+    AddStringTablePrivate("Shitty_Stuff", strIndex);
     QString text1s[] = {"Ceribou (anglais : Cherubi ; japonais : チェリンボ Cherinbo) est un Pokémon de type Plante de la quatrième génération.",
                         "Cherubi (Japanese: チェリンボ Cherinbo) is a Grass-type Pokémon introduced in Generation IV. It evolves into Cherrim starting at level 25."};
     QString text2s[] = {"Palkia shiny de ses morts", ""};
@@ -459,7 +459,7 @@ void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
     myStructures[_index]->SetTemplateName(_tableName);
     emit StructTableRenamed(_index, _tableName);
 }
-void DB_Manager::ChangeStructureDBAbbrev(int _index, const QString& _abbrev)
+void DB_Manager::ChangeStructureDBAbbrev(int _index, QString& _abbrev)
 {
     const int count = myStructures.count();
     if (_index < 0 || _index > count)
@@ -769,15 +769,15 @@ void DB_Manager::RemoveStringTable(const QString& _tableName)
 {
     RemoveStringTable(GetStringTableIndex(_tableName));
 }
-void DB_Manager::RenameStringTable(int _index, const QString& _tableName)
+void DB_Manager::RenameStringTable(int _index, QString& _tableName)
 {
     if (_index < 0 || _index >= GetStringTableCount())
         return;
 
-     myStringTables[_index].SetTableName(_tableName);
-     emit StringTableRenamed(_index, _tableName);
+    myStringTables[_index].SetTableName(_tableName);
+    emit StringTableRenamed(_index, _tableName);
 
-     // TODO (?) : update all attributes using this table
+    // TODO (?) : update all attributes using this table
 }
 void DB_Manager::SetStringTableItemCount(const int _index, const int _count)
 {

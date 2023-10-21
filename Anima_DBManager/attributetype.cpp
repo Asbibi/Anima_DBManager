@@ -171,5 +171,14 @@ void ResetUselessParamsForType(const Type _type, AttributeParam& _param)
         }
     }
 }
+bool ShouldBeWrappedInQuoteInCSV(const Type _type)
+{
+    return !(_type == AttributeTypeHelper::Type::Bool
+            || _type == AttributeTypeHelper::Type::Int
+            || _type == AttributeTypeHelper::Type::Float
+            || _type == AttributeTypeHelper::Type::Enum
+            || _type == AttributeTypeHelper::Type::Array
+            || _type == AttributeTypeHelper::Type::Structure);
+}
 
 }

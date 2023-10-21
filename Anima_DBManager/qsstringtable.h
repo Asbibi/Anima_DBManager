@@ -28,6 +28,7 @@ signals:
     void TableEdited(int _row, int _col, const QString& _text);
 
 public slots:
+    void OnCellEdit(QTableWidgetItem *item);
     void OnCellEdited(int row, int col);
     void UpdateTable();
     void HandleContextMenu(const QPoint& point);

@@ -89,7 +89,9 @@ void QPanelString::OnItemSelected(const int _index)
 }
 void QPanelString::OnItemEdited(const int _index, const QString& _value)
 {
-    DB_Manager::GetDB_Manager().RenameStringTable(_index, _value);
+    QString newName = _value;
+    DB_Manager::GetDB_Manager().RenameStringTable(_index, newName);
+    myItemList->SetItemValue(_index, newName, false);
 }
 void QPanelString::OnItemAdded(const int _index, const QString& _value)
 {

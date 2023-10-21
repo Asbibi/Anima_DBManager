@@ -40,7 +40,7 @@ public:
     void RemoveAttribute(int _position);
 
     void GetAttributesDisplayedText(QString& _text) const;
-    void WriteValue_CSV(std::ofstream& file) const;         // Used for structure as attribute of other structures
+    QString GetStructureAsCSV() const;                      // Used for structure as attribute of other structures
     void WriteValue_CSV_AsRow(std::ofstream& file) const;   // Used to directly save a row structure of a DataTable
     QString GetDisplayText() const;
     bool IsOneOfMyAttributes(const Attribute* _attributePtr) const;

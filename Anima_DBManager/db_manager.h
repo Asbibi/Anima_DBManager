@@ -68,7 +68,7 @@ public:
     void RemoveStructureDB(int _index);
     void RemoveStructureDB(const QString& _tableName);
     void RenameStructureDB(int _index, const QString& _tableName);
-    void ChangeStructureDBAbbrev(int _index, const QString& _abbrev);
+    void ChangeStructureDBAbbrev(int _index, QString& _abbrev);
     void ChangeStructureDBIconType(int _index, IconManager::IconType _iconType);
     void ChangeStructureDBIconColor(int _index, const QColor& _abbrev);
     void MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo);
@@ -101,7 +101,7 @@ public:
     void MoveStringTable(int _indexFrom, int _indexTo);
     void RemoveStringTable(int _index);
     void RemoveStringTable(const QString& _tableName);
-    void RenameStringTable(int _index, const QString& _tableName);
+    void RenameStringTable(int _index, QString& _tableName);
     void SetStringTableItemCount(const int _index, const int _count);
     bool AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const;
     QString GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete = false) const;

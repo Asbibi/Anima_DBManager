@@ -32,7 +32,7 @@ public:
     const SStringItem* GetStringItem(int _index) const;
     const SStringItem* GetStringItem(const QString& _identifier) const;
 
-    void SetTableName(const QString& _name);
+    void SetTableName(QString& _name);
     void SetStringItemCount(int _count);
     SStringItem* GetStringItemW(int _index);
     SStringItem* GetStringItemW(const QString& _identifier);

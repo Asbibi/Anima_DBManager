@@ -38,6 +38,8 @@ bool AreParamValid(const Type _type, const AttributeParam& _param);
 bool IsAssetType(const Type _type);
 Attribute* NewAttributeFromType(const Type _type, TemplateAttribute& _template);
 void ResetUselessParamsForType(const Type _type, AttributeParam& _param);
+bool ShouldBeWrappedInQuoteInCSV(const Type _type);
+const QString csvDoubleQuoteWrapper = "\"\"%1\"\"";
 
 }
 

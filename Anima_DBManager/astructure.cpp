@@ -33,13 +33,11 @@ QString AStructure::GetValueAsText() const
 }
 QString AStructure::GetAttributeAsCSV() const
 {
-    qWarning("TODO");
-    //value.WriteValue_CSV(file);
-    return "";
+    return myValue->GetStructureAsCSV();
 }
 void AStructure::SetValueFromText(const QString& text)
 {
-    // Manage to remove starting '[' and final ']'
+    // Manage to remove starting '{' and final '}'
     QString contentText = text;
     if (contentText[0] != '{')
     {

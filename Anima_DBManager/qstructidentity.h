@@ -27,7 +27,7 @@ public:
 
 signals:
     void NameChanged(const QString& _name);
-    void AbbrevChanged(const QString& _abbrev);
+    void AbbrevChanged(QString& _abbrev);
     void IconChanged(const IconManager::IconType _iconType);
     void ColorChanged(const QColor& _color);
 

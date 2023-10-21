@@ -8,7 +8,7 @@
 
 
 TemplateAttribute::TemplateAttribute() :
-    myAttrName(""),
+    myAttrName("New"),
     mySharedParam()
 {
     InitDefaultAttribute(AttributeTypeHelper::Type::Bool);

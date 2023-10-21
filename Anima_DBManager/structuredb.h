@@ -26,7 +26,7 @@ public:
     ~StructureDB();
 
     void SetTemplateName(const QString& _name);
-    void SetTemplateAbbrev(const QString& _abbrev);
+    void SetTemplateAbbrev(QString& _abbrev);
     void SetTemplateIconType(IconManager::IconType _iconType);
     void SetTemplateColor(const QColor& _color);
     void SetTemplateAttributeName(int _index, QString& _name);

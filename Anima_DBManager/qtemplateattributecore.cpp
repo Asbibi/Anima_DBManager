@@ -5,7 +5,7 @@
 #include "db_manager.h"
 #include "qoptionalvalue.h"
 
-QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttribute, QWidget* _parent) :
+QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttribute, bool _withNameField, QWidget* _parent) :
     QWidget{_parent},
     myTemplateAttribute{_templateAttribute}
 {
@@ -13,6 +13,13 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
 
     myFormLayout = new QFormLayout();
     setLayout(myFormLayout);
+
+    if (_withNameField)
+    {
+        myName = new QLineEdit(_templateAttribute.GetName());
+        myFormLayout->addRow("Name:", myName);
+        QObject::connect(myName, &QLineEdit::editingFinished, this, &QTemplateAttributeCore::OnParamChanged_Name);
+    }
 
     myTypeComboBox = new QComboBox();
     myFormLayout->addRow("Type:", myTypeComboBox);
@@ -66,7 +73,7 @@ void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper:
 void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 {
     const AttributeTypeHelper::Type currentType = myTemplateAttribute.GetType();
-    const int rowToAdd = 1;
+    const int rowToAdd = myName == nullptr ? 1 : 2;
 
     if (currentType == AttributeTypeHelper::Type::Array && myArrayTemplate != nullptr)
     {
@@ -85,7 +92,7 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 
     PerformTypeSpecificPreparation(_type);
 
-    while (myFormLayout->rowCount() > 2)
+    while (myFormLayout->rowCount() > rowToAdd + 1)
     {
         myFormLayout->removeRow(rowToAdd);
     }
@@ -258,6 +265,13 @@ bool QTemplateAttributeCore::HasConfigValid() const
 
 // ------ Slots ------
 
+void QTemplateAttributeCore::OnParamChanged_Name()
+{
+    Q_ASSERT(myName != nullptr);
+    QString newName = myName->text();
+    emit NameChanged(newName);
+    myName->setText(newName);
+}
 void QTemplateAttributeCore::OnParamChanged_Type(const QString& _typeStr)
 {
     AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(_typeStr);

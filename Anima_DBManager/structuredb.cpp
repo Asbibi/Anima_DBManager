@@ -227,7 +227,7 @@ void StructureDB::SetTemplateName(const QString& _name)
 {
     myTemplate.RenameStructureTemplate(_name);
 }
-void StructureDB::SetTemplateAbbrev(const QString& _abbrev)
+void StructureDB::SetTemplateAbbrev(QString& _abbrev)
 {
     myTemplate.ReabbrevStructureTemplate(_abbrev);
 }

@@ -33,7 +33,7 @@ void QPanelWithCount::SetItemCount()
     if (count < myCachedStructureCount)
     {
         QString dialogText = QString("You asked to set the item count to %1, which is less than current %2.\nProceeding will result into data suppression.\n\nProceed ?").arg(count).arg(myCachedStructureCount);
-        QMessageBox::StandardButton btn = QMessageBox::question(this, "Confirm new Item Count", dialogText, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+        QMessageBox::StandardButton btn = QMessageBox::warning(this, "Confirm new Item Count", dialogText, QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
         if (btn == QMessageBox::No)
         {
             return;
