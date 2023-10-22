@@ -47,11 +47,18 @@ MainWindow::MainWindow(QWidget *parent) :
     auto* saveAsDB = fileMenu->addAction("Save As...");
     QObject::connect(saveAsDB, &QAction::triggered, this, &MainWindow::OnSaveAsDB);
 
-    auto* exportCurrentStruct = exportImportMenu->addAction("Export Current Structure Table");
-    QObject::connect(exportCurrentStruct, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable);
-    auto* exportAllStruct = exportImportMenu->addAction("Export All Structure Tables");
-    QObject::connect(exportAllStruct, &QAction::triggered, this, &MainWindow::OnExportAllStructTables);
+    QMenu* exportCurrentStructMenu = exportImportMenu->addMenu("Export Current Structure Table");
+    QMenu* exportAllStructsMenu = exportImportMenu->addMenu("Export All Structure Tables");
+    auto* exportCurrentStructJSON = exportCurrentStructMenu->addAction("Export Current as JSON file");
+    QObject::connect(exportCurrentStructJSON, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable_JSON);
+    auto* exportCurrentStructCSV = exportCurrentStructMenu->addAction("Export Current as CSV file");
+    QObject::connect(exportCurrentStructCSV, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable_CSV);
+    auto* exportAllStructJSON = exportAllStructsMenu->addAction("Export All as JSON file");
+    QObject::connect(exportAllStructJSON, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_JSON);
+    auto* exportAllStructCSV = exportAllStructsMenu->addAction("Export All as CSV file");
+    QObject::connect(exportAllStructCSV, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_CSV);
     exportImportMenu->addSeparator();
+
     QMenu* exportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
     QMenu* exportAllStringsMenu = exportImportMenu->addMenu("Export All String Tables");
     exportImportMenu->addSeparator();
@@ -516,7 +523,23 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
         }
     }
 }
-void MainWindow::OnExportCurrentStructTable()
+void MainWindow::OnExportCurrentStructTable_JSON()
+{
+    ExportCurrentStructTable(true);
+}
+void MainWindow::OnExportAllStructTables_JSON()
+{
+    ExportAllStructTables(true);
+}
+void MainWindow::OnExportCurrentStructTable_CSV()
+{
+    ExportCurrentStructTable(false);
+}
+void MainWindow::OnExportAllStructTables_CSV()
+{
+    ExportAllStructTables(false);
+}
+void MainWindow::ExportCurrentStructTable(bool _JSON)
 {
     QString dir = QFileDialog::getExistingDirectory(this, "Select Struct DataTable Directory",
                                                     myManager.GetProjectContentFolderPath());
@@ -528,9 +551,15 @@ void MainWindow::OnExportCurrentStructTable()
     QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->currentWidget());
     Q_ASSERT(currentTab != nullptr);
 
-    currentTab->ExportStructsToCSV(dir);
+    if (_JSON) {
+
+    }
+    else
+    {
+        currentTab->ExportStructsToCSV(dir);
+    }
 }
-void MainWindow::OnExportAllStructTables()
+void MainWindow::ExportAllStructTables(bool _JSON)
 {
     QString dir = QFileDialog::getExistingDirectory(this, "Select Struct DataTable Directory",
                                                     myManager.GetProjectContentFolderPath());
@@ -548,14 +577,20 @@ void MainWindow::OnExportAllStructTables()
             continue;
         }
 
-        tab->ExportStructsToCSV(dir);
+        if (_JSON) {
+
+        }
+        else
+        {
+            tab->ExportStructsToCSV(dir);
+        }
     }
 }
 void MainWindow::OnExportAll()
 {
     // Todo : change so there is only 1 directory selection for both struct and string exports ?
 
-    OnExportAllStructTables();
+    OnExportAllStructTables_CSV();
     OnExportAllStringTables(SStringHelper::SStringLanguages::Count);
 }
 

@@ -32,6 +32,8 @@ private:
 
     bool OnSaveDB_Internal(bool _saveAs);
     void CleanTabWidget(QTabWidget* _tabWidget);
+    void ExportCurrentStructTable(bool _JSON);
+    void ExportAllStructTables(bool _JSON);
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -68,8 +70,10 @@ public slots:
 
     void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
     void OnExportAllStringTables(SStringHelper::SStringLanguages _language);
-    void OnExportCurrentStructTable();
-    void OnExportAllStructTables();
+    void OnExportCurrentStructTable_JSON();
+    void OnExportAllStructTables_JSON();
+    void OnExportCurrentStructTable_CSV();
+    void OnExportAllStructTables_CSV();
     void OnExportAll();
 
     void OnImportStringTable();
