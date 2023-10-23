@@ -377,8 +377,8 @@ void StructureDB::ReadValue_JSON_Table(const QJsonArray& _structArrayJson, int _
         else if (!exists || _overwritePolicy == 2)
         {
             // Write in a new row
-            structIndex = rowCount;
-            AddStructureAt(structIndex);
+            // -> Add enough lines to meet _index
+            SetStructureCount(structIndex + 1);
         }
         // else (exists && policy=3): overwrite existing
 
@@ -400,8 +400,8 @@ void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, int
     else if (!exists || _overwritePolicy == 2)
     {
         // Write in a new row
-        _index = rowCount;
-        AddStructureAt(_index);
+        // -> Add enough lines to meet _index
+        SetStructureCount(_index + 1);
     }
     // else (exists && policy=3): overwrite existing
 
