@@ -27,6 +27,10 @@ QString AEnumerator::GetAttributeAsCSV() const
 {
     return CheckEnumIsValid() ? GetDisplayedText() : "";
 }
+QJsonValue AEnumerator::GetAttributeAsJSON() const
+{
+    return QJsonValue(GetAttributeAsCSV());
+}
 void AEnumerator::SetValueFromText(const QString& text)
 {
     if (!CheckEnumIsValid())

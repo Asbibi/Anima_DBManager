@@ -309,6 +309,22 @@ int StructureDB::GetStructureIndex(const Structure* _structure) const
     return i;
 }
 
+
+
+QJsonArray StructureDB::WriteValue_JSON_Table() const
+{
+    QJsonArray jsonStructArray = QJsonArray();
+
+    const int count = GetStructureCount();
+    for (int i = 0; i < count; i++)
+    {
+        QJsonObject rowAsJSON = myStructures[i]->WriteValue_JSON_AsRow();
+        rowAsJSON.insert("Name", GetStructureRowName(i));
+        jsonStructArray.append(QJsonValue(rowAsJSON));
+    }
+
+    return jsonStructArray;
+}
 void StructureDB::WriteValue_CSV_Table(std::ofstream& file) const
 {
     file << "---";

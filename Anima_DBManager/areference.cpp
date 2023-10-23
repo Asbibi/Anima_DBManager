@@ -38,6 +38,10 @@ QString AReference::GetAttributeAsCSV() const
         MY_SHARED_PARAM.structTable->GetStructureRowName(myStructureRef) :
         "";
 }
+QJsonValue AReference::GetAttributeAsJSON() const
+{
+    return QJsonValue(GetAttributeAsCSV());
+}
 void AReference::SetValueFromText(const QString& text)
 {
     QString contentText = text;

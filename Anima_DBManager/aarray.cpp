@@ -2,6 +2,7 @@
 
 #include "templateattribute.h"
 #include <QDebug>
+#include <QJsonArray>
 
 AArray::AArray(TemplateAttribute& _template) :
     Attribute(_template)
@@ -58,6 +59,17 @@ QString AArray::GetAttributeAsCSV() const
     }
 
     return arrayAsCSV.append(')');
+}
+QJsonValue AArray::GetAttributeAsJSON() const
+{
+    QJsonArray attributesAsJSON = QJsonArray();
+
+    for (const auto* attr : myValues)
+    {
+        attributesAsJSON.append(attr->GetAttributeAsJSON());
+    }
+
+    return QJsonValue(attributesAsJSON);
 }
 void AArray::SetValueFromText(const QString& text)
 {

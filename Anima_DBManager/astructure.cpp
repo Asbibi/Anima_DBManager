@@ -35,6 +35,10 @@ QString AStructure::GetAttributeAsCSV() const
 {
     return myValue->GetStructureAsCSV();
 }
+QJsonValue AStructure::GetAttributeAsJSON() const
+{
+    return QJsonValue(myValue->WriteValue_JSON_AsRow());
+}
 void AStructure::SetValueFromText(const QString& text)
 {
     // Manage to remove starting '{' and final '}'

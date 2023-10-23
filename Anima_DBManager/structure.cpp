@@ -136,6 +136,30 @@ void Structure::GetAttributesDisplayedText(QString& _text) const
         _text.append(myAttributes[i]->GetValueAsText());
     }
 }
+QJsonObject Structure::WriteValue_JSON_AsRow() const
+{
+    QJsonObject structAsJSON = QJsonObject();
+
+    structAsJSON.insert("Name", QJsonValue());
+
+    for (int i = 0; i < myAttributes.size(); i++)
+    {
+        structAsJSON.insert(myTemplate.GetAttributeName(i), myAttributes[i]->GetAttributeAsJSON());
+    }
+
+    return structAsJSON;
+}
+void Structure::WriteValue_CSV_AsRow(std::ofstream& file) const
+{
+    // Add all attribute values in between ""
+    for (const auto& att : myAttributes)
+    {
+        file << ",\"";
+        att->WriteValue_CSV(file);
+        file << "\"";
+    }
+    file << "\n";
+}
 QString Structure::GetStructureAsCSV() const
 {
     QString structAsCSV = "(";
@@ -163,17 +187,6 @@ QString Structure::GetStructureAsCSV() const
 
     structAsCSV.append(')');
     return structAsCSV;
-}
-void Structure::WriteValue_CSV_AsRow(std::ofstream& file) const
-{
-    // Add all attribute values in between ""
-    for (const auto& att : myAttributes)
-    {
-        file << ",\"";
-        att->WriteValue_CSV(file);
-        file << "\"";
-    }
-    file << "\n";
 }
 QString Structure::GetDisplayText() const
 {

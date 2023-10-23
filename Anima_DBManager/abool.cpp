@@ -21,6 +21,10 @@ QString ABool::GetAttributeAsCSV() const
 {
     return value ? "True" : "False";
 }
+QJsonValue ABool::GetAttributeAsJSON() const
+{
+    return QJsonValue(value);
+}
 void ABool::SetValueFromText(const QString& text)
 {
     SetValue(QString::compare(text, "true", Qt::CaseInsensitive) == 0);

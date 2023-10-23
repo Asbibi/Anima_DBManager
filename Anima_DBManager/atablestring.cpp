@@ -25,6 +25,15 @@ QString ATableString::GetAttributeAsCSV() const
 {
     return "(myTable=" + myTableName + ",myKey=\"" + myStringIdentifier+ "\")";
 }
+QJsonValue ATableString::GetAttributeAsJSON() const
+{
+    QJsonObject stringRefAsJSON = QJsonObject();
+
+    stringRefAsJSON.insert("myTable", myTableName);
+    stringRefAsJSON.insert("myKey", myStringIdentifier);
+
+    return QJsonValue(stringRefAsJSON);
+}
 void ATableString::SetValueFromText(const QString& text)
 {
     if (text.isEmpty() || text == "##")

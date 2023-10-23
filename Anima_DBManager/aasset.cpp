@@ -51,7 +51,7 @@ QString AAsset::GetAttributeAsCSV() const
         {
             qWarning("Asset ignored because dirty");
         }
-        return "\'\'";
+        return "None";
     }
 
     QString editedPath = myFilePath;
@@ -65,6 +65,10 @@ QString AAsset::GetAttributeAsCSV() const
     return GetAssetClassNameForCSV() + '\''
             + editedPath + '.'
             + assetName + '\'';
+}
+QJsonValue AAsset::GetAttributeAsJSON() const
+{
+    return QJsonValue(GetAttributeAsCSV());
 }
 
 void AAsset::SetValueFromText(const QString& text)

@@ -18,6 +18,7 @@ private:
 public:
     explicit QStructureTable(StructureDB& _structureDB);
     virtual ~QStructureTable();
+    void ExportStructsToJSON(const QString _directoryPath);
     void ExportStructsToCSV(const QString _directoryPath);
     void UnselectCurrent();
 

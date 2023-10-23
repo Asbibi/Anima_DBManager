@@ -24,6 +24,10 @@ QString AInt::GetAttributeAsCSV() const
 {
     return QString::number(GetValue());
 }
+QJsonValue AInt::GetAttributeAsJSON() const
+{
+    return QJsonValue(value);
+}
 void AInt::SetValueFromText(const QString& text)
 {
     bool ok;

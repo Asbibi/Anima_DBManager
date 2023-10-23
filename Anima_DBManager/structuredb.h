@@ -1,12 +1,14 @@
 #ifndef STRUCTUREDB_H
 #define STRUCTUREDB_H
 
+#include <QObject>
+
 #include "structure.h"
 #include "templatestructure.h"
 #include "areference.h"
 #include <QList>
 #include <QHash>
-#include <QObject>
+#include <QJsonArray>
 
 class QTemplateStructure;
 
@@ -63,6 +65,7 @@ public:
     const QString GetStructureRowName(const Structure* _structure) const;
     int GetStructureIndex(const Structure* _structure) const;
 
+    QJsonArray WriteValue_JSON_Table() const;
     void WriteValue_CSV_Table(std::ofstream& file) const;
     void ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy);
     void AddValue_CSV_TableWithDelayedReference(const QStringList& fields, QHash<AReference*, QString>& referenceMap);

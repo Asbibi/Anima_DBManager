@@ -27,6 +27,10 @@ QString AShortString::GetAttributeAsCSV() const
 {
     return GetDisplayedText();
 }
+QJsonValue AShortString::GetAttributeAsJSON() const
+{
+    return QJsonValue(value);
+}
 void AShortString::SetValueFromText(const QString& text)
 {
     bool changed = value != text;

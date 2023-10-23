@@ -551,8 +551,9 @@ void MainWindow::ExportCurrentStructTable(bool _JSON)
     QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->currentWidget());
     Q_ASSERT(currentTab != nullptr);
 
-    if (_JSON) {
-
+    if (_JSON)
+    {
+        currentTab->ExportStructsToJSON(dir);
     }
     else
     {
@@ -577,8 +578,9 @@ void MainWindow::ExportAllStructTables(bool _JSON)
             continue;
         }
 
-        if (_JSON) {
-
+        if (_JSON)
+        {
+            tab->ExportStructsToJSON(dir);
         }
         else
         {
@@ -590,7 +592,7 @@ void MainWindow::OnExportAll()
 {
     // Todo : change so there is only 1 directory selection for both struct and string exports ?
 
-    OnExportAllStructTables_CSV();
+    OnExportAllStructTables_JSON();
     OnExportAllStringTables(SStringHelper::SStringLanguages::Count);
 }
 

@@ -20,6 +20,7 @@ public:
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;
+    virtual QJsonValue GetAttributeAsJSON()                     const override;
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
     virtual void ReadValue_CSV(const QString& _text)                  override;

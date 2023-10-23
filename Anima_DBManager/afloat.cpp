@@ -23,6 +23,10 @@ QString AFloat::GetAttributeAsCSV() const
 {
     return QString::number(GetValue());
 }
+QJsonValue AFloat::GetAttributeAsJSON() const
+{
+    return QJsonValue(value);
+}
 void AFloat::SetValueFromText(const QString& text)
 {
     bool ok;
