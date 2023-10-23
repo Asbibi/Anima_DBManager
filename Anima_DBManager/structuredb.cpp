@@ -343,6 +343,49 @@ void StructureDB::WriteValue_CSV_Table(std::ofstream& file) const
         myStructures[i]->WriteValue_CSV_AsRow(file);
     }
 }
+void StructureDB::ReadValue_JSON_Table(const QJsonArray& _structArrayJson, int _overwritePolicy)
+{
+    const int structsJsonCount = _structArrayJson.count();
+    if (structsJsonCount == 0)
+    {
+        return;
+    }
+
+    const QString& myAbbrev = GetTemplateAbbrev();
+    bool parsingOK = true;
+    for (int i = 0; i < structsJsonCount; i++)
+    {
+        const QJsonObject structJson = _structArrayJson[i].toObject();
+
+        int structIndex = structJson.value("Name").toString().remove(myAbbrev).toInt(&parsingOK);
+        if (!parsingOK)
+        {
+            qWarning() << "Struct " << i << " skipped because index couldn't be retrieved : " << structJson;
+            continue;
+        }
+
+
+        int rowCount = GetStructureCount();
+        bool exists = structIndex < rowCount;
+
+        if (exists && _overwritePolicy == 1)
+        {
+            // Keep existing
+            // nothing to do
+            return;
+        }
+        else if (!exists || _overwritePolicy == 2)
+        {
+            // Write in a new row
+            structIndex = rowCount;
+            AddStructureAt(structIndex);
+        }
+        // else (exists && policy=3): overwrite existing
+
+
+        myStructures[structIndex]->ReadValue_JSON(structJson);
+    }
+}
 void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy)
 {
     int rowCount = GetStructureCount();
@@ -358,7 +401,7 @@ void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, int
     {
         // Write in a new row
         _index = rowCount;
-        AddStructureAt(-1);
+        AddStructureAt(_index);
     }
     // else (exists && policy=3): overwrite existing
 

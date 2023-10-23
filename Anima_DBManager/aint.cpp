@@ -73,6 +73,16 @@ void AInt::CopyValueFromOther(const Attribute* _other)
     else if (!FitsMaxParam())
             value = MY_SHARED_PARAM.max_i;
 }
+bool AInt::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isDouble()) // Type Double is used for int in QJsonValue
+    {
+        return false;
+    }
+
+    value = _value.toInt();
+    return true;
+}
 
 
 bool AInt::FitsMinParam() const

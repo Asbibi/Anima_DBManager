@@ -37,6 +37,16 @@ void ABool::CopyValueFromOther(const Attribute* _other)
 
     value = other_AB->value;
 }
+bool ABool::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isBool())
+    {
+        return false;
+    }
+
+    value = _value.toBool();
+    return true;
+}
 
 
 void ABool::SetValue(bool _value)

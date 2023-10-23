@@ -124,6 +124,17 @@ void AStructure::CopyValueFromOther(const Attribute* _other)
 
     myValue = other_AS->myValue;
 }
+bool AStructure::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isObject())
+    {
+        return false;
+    }
+
+    Q_ASSERT(myValue != nullptr);
+    myValue->ReadValue_JSON(_value.toObject());
+    return true;
+}
 
 
 QList<QString> AStructure::GetDisplayedTexts() const

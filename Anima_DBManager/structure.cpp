@@ -87,6 +87,18 @@ void Structure::SetAttributeValueFromText(const QString& _attName, QString _valu
 {
     SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _valueText);
 }
+void Structure::ReadValue_JSON(const QJsonObject& _structAsJson)
+{
+    for (int i = 0; i < myAttributes.size(); i++)
+    {
+        const QString& attrName = myTemplate.GetAttributeName(i);
+        const bool _jsonRead = myAttributes[i]->ReadValue_JSON(_structAsJson.value(attrName));
+        if (!_jsonRead)
+        {
+            qWarning() << _structAsJson.value("Name").toString() << " - Ignored " << attrName << " Attribute value : invalid json type" << _structAsJson.value(attrName);
+        }
+    }
+}
 void Structure::ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue)
 {
     if (_attIndex < 0 || _attIndex >= myAttributes.size())

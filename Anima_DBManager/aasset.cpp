@@ -94,7 +94,16 @@ void AAsset::CopyValueFromOther(const Attribute* _other)
     myFilePath = other_AA->myFilePath;
     myIsDirty = other_AA->myIsDirty;
 }
+bool AAsset::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isString())
+    {
+        return false;
+    }
 
+    ReadValue_CSV(_value.toString());
+    return true;
+}
 void AAsset::ReadValue_CSV(const QString& text)
 {    
     if(text.isEmpty() || text.endsWith("\'\'"))

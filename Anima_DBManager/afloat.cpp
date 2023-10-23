@@ -67,6 +67,16 @@ void AFloat::CopyValueFromOther(const Attribute* _other)
     else if (!FitsMaxParam())
             value = MY_SHARED_PARAM.max_f;
 }
+bool AFloat::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isDouble())
+    {
+        return false;
+    }
+
+    value = _value.toDouble();
+    return true;
+}
 
 
 

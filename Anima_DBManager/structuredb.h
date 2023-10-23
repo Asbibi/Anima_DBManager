@@ -67,6 +67,7 @@ public:
 
     QJsonArray WriteValue_JSON_Table() const;
     void WriteValue_CSV_Table(std::ofstream& file) const;
+    void ReadValue_JSON_Table(const QJsonArray& _structArrayJson, int _overwritePolicy);
     void ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy);
     void AddValue_CSV_TableWithDelayedReference(const QStringList& fields, QHash<AReference*, QString>& referenceMap);
 };

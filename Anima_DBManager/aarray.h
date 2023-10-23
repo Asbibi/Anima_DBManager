@@ -8,6 +8,8 @@ class AArray : public Attribute
 private:
     QList<Attribute*> myValues;
 
+    void SetCount(int _count);
+
 public:
     AArray(TemplateAttribute& _template);
     AArray(TemplateAttribute& _template, const QList<Attribute*>& _values);
@@ -20,6 +22,7 @@ public:
     virtual QJsonValue GetAttributeAsJSON()                     const override;
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
+    virtual bool ReadValue_JSON(const QJsonValue& _value)             override;
     virtual void ReadValue_CSV(const QString& text)                   override;
 
     TemplateAttribute* GetArrayElementTemplate() const;

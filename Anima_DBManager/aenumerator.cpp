@@ -52,6 +52,16 @@ void AEnumerator::CopyValueFromOther(const Attribute* _other)
 
     value_index = other_AE->value_index;
 }
+bool AEnumerator::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isString())
+    {
+        return false;
+    }
+
+    SetValueFromText(_value.toString());
+    return true;
+}
 
 
 

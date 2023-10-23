@@ -49,6 +49,16 @@ void AShortString::CopyValueFromOther(const Attribute* _other)
 
     value = other_ASS->value;
 }
+bool AShortString::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isString())
+    {
+        return false;
+    }
+
+    value = _value.toString();
+    return true;
+}
 
 
 bool AShortString::HasValidSize() const

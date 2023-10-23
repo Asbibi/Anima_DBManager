@@ -23,6 +23,7 @@ public:
     virtual QJsonValue GetAttributeAsJSON()                     const override;
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
+    virtual bool ReadValue_JSON(const QJsonValue& _value)             override;
     virtual void ReadValue_CSV(const QString& _text)                  override;
 
     void SetReference(const Structure* _reference);

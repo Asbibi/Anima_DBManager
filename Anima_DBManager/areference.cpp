@@ -68,6 +68,16 @@ void AReference::CopyValueFromOther(const Attribute* _other)
 
     myStructureRef = other_AR->myStructureRef;
 }
+bool AReference::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isString())
+    {
+        return false;
+    }
+
+    ReadValue_CSV(_value.toString());
+    return true;
+}
 void AReference::ReadValue_CSV(const QString& _text)
 {
     SetValueFromText('&' + QString(_text).remove(MY_SHARED_PARAM.structTable->GetTemplateAbbrev()));

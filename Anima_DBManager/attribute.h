@@ -31,6 +31,7 @@ public:
     virtual QString GetAttributeAsCSV()                     const = 0;
     virtual QJsonValue GetAttributeAsJSON()                 const = 0;
     virtual void CopyValueFromOther(const Attribute* _other)      = 0;
+    virtual bool ReadValue_JSON(const QJsonValue& _value)         = 0;
     virtual void ReadValue_CSV(const QString& text);
     void WriteValue_CSV(std::ofstream& file) const;
 
