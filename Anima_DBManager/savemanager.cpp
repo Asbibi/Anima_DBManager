@@ -3,18 +3,19 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMessageBox>
 
 #include "sstringimporter.h"
 #include "structureimporthelper.h"
 
-//#define WITH_COMPRESSION
 
 const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
 const QString SaveManager::fileEndString = "ST.csv";
 const QString SaveManager::fileEndEnum = "EN.csv";
 const QString SaveManager::fileEndTemplate = "TP.csv";
-const QString SaveManager::fileEndData = "DT.csv";
+const QString SaveManager::fileEndData = "DT.json";
 const QString SaveManager::fileEndPro = "PR.csv";
 
 SaveManager::SaveManager()
@@ -152,8 +153,9 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
         const QString& tableName = table->GetTableName();
         for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
         {
-            csvStringFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###\n";
+            csvStringFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###";
             table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l);
+            csvStringFile << '\n';
         }
     }
     csvStringFile.close();
@@ -204,19 +206,23 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     QString structFilePath = tempFolderPath + fileEndData;
     tempFileList << structFilePath;
-    std::ofstream csvStructFile(structFilePath.toStdString());
-    if (!csvStructFile)
+    //std::ofstream csvStructFile(structFilePath.toStdString());
+    QFile jsonStructFile = QFile(structFilePath);
+    if(!jsonStructFile.open(QIODevice::ReadWrite))
     {
         qCritical() << "ERROR SAVING DB : temp file " << structFilePath << " couldn't be created";
         return;
     }
+    QJsonObject structData = QJsonObject();
     for (int i = 0; i < structTableCount; i++)
     {
         const auto* structTable = dbManager.GetStructureTable(i);
-        csvStructFile << "###" << structTable->GetTemplateName().toStdString() << "###\n";
-        structTable->WriteValue_CSV_Table(csvStructFile);
+        structData.insert(structTable->GetTemplateName(), structTable->WriteValue_JSON_Table());
+        //csvStructFile << "###" << structTable->GetTemplateName().toStdString() << "###\n";
+        //structTable->WriteValue_CSV_Table(csvStructFile);
     }
-    csvStructFile.close();
+    jsonStructFile.write(QJsonDocument(structData).toJson());
+    jsonStructFile.close();
 
 
 
@@ -553,34 +559,14 @@ void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager
     QFile file(_tempFolderPath + fileEndData);
     bool openCheck = file.open(QIODevice::ReadOnly);
     Q_ASSERT(openCheck);
-    QTextStream in(&file);
-    QString currentLine;
 
-    StructureDB* currentStructTable = nullptr;
-
-    while (!in.atEnd())
+    const QJsonObject importedJson = QJsonDocument::fromJson(file.readAll()).object();
+    QStringList structNames = importedJson.keys();
+    for (const auto& strctName : structNames)
     {
-        currentLine = in.readLine();
-
-        // Start of a new Struct table
-        if (currentLine.first(3) == "###" && currentLine.last(3) == "###")
-        {
-            currentStructTable = _dbManager.GetStructureTable(currentLine.remove('#'));
-            Q_ASSERT(currentStructTable != nullptr);
-            continue;
-        }
-
-        // Header line, useless
-        if (currentLine.first(3) == "---")
-        {
-            continue;
-        }
-
+        StructureDB* currentStructTable = _dbManager.GetStructureTable(strctName);
         Q_ASSERT(currentStructTable != nullptr);
-        QStringList fields;
-        bool decompose = StructureImportHelper::DecomposeCSVString(currentLine, currentStructTable->GetTemplate().GetAttributesCount() + 1, fields, true);
-        Q_ASSERT(decompose);
-        currentStructTable->AddValue_CSV_TableWithDelayedReference(fields, myRefMap);
+        currentStructTable->ReadValue_JSON_Table(importedJson.value(strctName).toArray(), 3);
     }
 }
 void SaveManager::ProcessDelayedRef()

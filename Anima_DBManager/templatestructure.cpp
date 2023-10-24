@@ -66,7 +66,7 @@ void TemplateStructure::AddAttributeTemplate(const AttributeTypeHelper::Type _ty
 }
 void TemplateStructure::AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& att_Name, const AttributeParam& _attParam, int _index)
 {
-    AddAttributeTemplateInternal(new TemplateAttribute(att_Name, _type, _attParam), nullptr, _index);
+    AddAttributeTemplateInternal(new TemplateAttribute("", _type, _attParam), &att_Name, _index);
 }
 void TemplateStructure::AddAttributeTemplate(const TemplateAttribute& _attTemplateToCopy, const QString* _newName, int _index)
 {
@@ -113,7 +113,8 @@ void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList, 
 
         AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(stringAttr.section('|', 1, 1));
         AttributeParam param = AttributeParam(stringAttr.section('|', 2, -2), _outRefMap);
-        AddAttributeTemplate(type, stringAttr.section('|', 0, 0), param, i);
+        QString name = stringAttr.section('|', 0, 0);
+        AddAttributeTemplate(type, name, param, i);
 
         // Reference attribute initalisation is deleguated to the map owner
         if (type == AttributeTypeHelper::Type::Reference)
