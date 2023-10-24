@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
     auto* saveAsDB = fileMenu->addAction("Save As...");
     QObject::connect(saveAsDB, &QAction::triggered, this, &MainWindow::OnSaveAsDB);
 
+#ifdef CSV_EXPORT_ENABLED
     QMenu* exportCurrentStructMenu = exportImportMenu->addMenu("Export Current Structure Table");
     QMenu* exportAllStructsMenu = exportImportMenu->addMenu("Export All Structure Tables");
     auto* exportCurrentStructJSON = exportCurrentStructMenu->addAction("Export Current as JSON file");
@@ -57,6 +58,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(exportAllStructJSON, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_JSON);
     auto* exportAllStructCSV = exportAllStructsMenu->addAction("Export All as CSV file");
     QObject::connect(exportAllStructCSV, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_CSV);
+#else
+    auto* exportCurrentStructJSON = exportImportMenu->addAction("Export Current Structure Table");
+    QObject::connect(exportCurrentStructJSON, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable_JSON);
+    auto* exportAllStructJSON = exportImportMenu->addAction("Export All Structure Tables");
+    QObject::connect(exportAllStructJSON, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_JSON);
+#endif
     exportImportMenu->addSeparator();
 
     QMenu* exportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");

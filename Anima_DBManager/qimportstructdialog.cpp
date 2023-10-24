@@ -196,7 +196,11 @@ void QImportStructDialog::OnFileBtnClicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open CSV Struct Table file",
                                                     DB_Manager::GetDB_Manager().GetProjectContentFolderPath(),
-                                                    "JSON (*.json);; CSV (*.csv)");
+#ifdef CSV_EXPORT_ENABLED
+                                                    "All Exports (*.json *.csv);;JSON (*.json);;CSV (*.csv)");
+#else
+                                                    "JSON (*.json)");
+#endif
 
     if (fileName.isEmpty())
     {
