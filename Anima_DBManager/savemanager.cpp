@@ -37,6 +37,11 @@ bool SaveManager::TryMakeTempFolder(const QString& _tempFolderPath)
 {
     if (QFileInfo::exists(_tempFolderPath))
     {
+#ifdef REPLACE_TEMP_SAVE_FOLDER
+        QDir tempDir(_tempFolderPath);
+        tempDir.removeRecursively();
+        qWarning() << "Temp Save Folder alreday exists : deleted and recreated";
+#else
         QString warningtext = "Needed temporary folder \"" + _tempFolderPath + "\" already exists.\n\nPlease delete it or change your file name before saving again.";
         QMessageBox::information(
             nullptr,
@@ -44,6 +49,7 @@ bool SaveManager::TryMakeTempFolder(const QString& _tempFolderPath)
             warningtext,
             QMessageBox::Ok);
         return false;
+#endif
     }
 
     QDir().mkdir(_tempFolderPath);
@@ -258,7 +264,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
         uncompressedData.append(infile.readAll());
         infile.close();
     }
-#ifdef WITH_COMPRESSION
+#ifdef SAVE_WITH_COMPRESSION
     QByteArray compressedData = qCompress(uncompressedData,9);
     saveFile.write(compressedData);
 #else
@@ -302,7 +308,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::ReadOnly);
-#ifdef WITH_COMPRESSION
+#ifdef SAVE_WITH_COMPRESSION
     QByteArray compressedData = saveFile.readAll();
     QByteArray uncompressedData = qUncompress(compressedData);
 #else

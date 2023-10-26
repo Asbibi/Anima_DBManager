@@ -42,8 +42,8 @@ AttributeParam::AttributeParam(const QString& _csvString, QHash<AReference*, QSt
     max_f { _csvString.section(',',5,5).toFloat() },
     templateAtt { TemplateAttribute::NewAttribute_CSV(CleanTemplateStringCSV(_csvString.section(',',6,6)), _outRefMap) },
     templateStruct{ nullptr }, // TODO
-    structTable { DB_Manager::GetDB_Manager().GetStructureTable(_csvString.section(',',7,7).toInt()) },
-    enumeratorIndex { _csvString.section(',',8,8).toInt() }
+    structTable { DB_Manager::GetDB_Manager().GetStructureTable(_csvString.section(',',8,8).toInt()) },
+    enumeratorIndex { _csvString.section(',',9,9).toInt() }
 {}
 AttributeParam::~AttributeParam()
 {
