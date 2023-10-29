@@ -106,6 +106,7 @@ void QStructureTable::UpdateTable()
     // Fill the table
     const int structureCount = myStructureDB.GetStructureCount();
     setRowCount(structureCount);
+    QStringList rowNames;
 
     for (int row = 0; row < structureCount; row++)
     {
@@ -139,7 +140,9 @@ void QStructureTable::UpdateTable()
             Q_ASSERT(attributeItem);
             attributeItem->SetContentFromAttribute(attribute);
         }
+        rowNames.append(myStructureDB.GetStructureRowName(row));
     }
+    setVerticalHeaderLabels(rowNames);
 }
 
 
