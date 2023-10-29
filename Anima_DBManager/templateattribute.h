@@ -5,6 +5,7 @@
 #include "attribute.h"
 #include "attributeparam.h"
 #include "constants.h"
+#include <QJsonObject>
 #include <QString>
 #include <QSet>
 
@@ -56,8 +57,7 @@ public:
 
     Attribute* GenerateAttribute() const;
 
-    void SaveTemplate_CSV(std::ofstream& file) const;
-    QString GetTemplateAsCSV() const;
+    QJsonObject GetAsJson() const;
     static TemplateAttribute* NewAttribute_CSV(const QString& _csvLine, QHash<AReference*, QString>& _outRefMap);
 };
 

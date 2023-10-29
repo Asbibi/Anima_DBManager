@@ -205,15 +205,14 @@ Attribute* TemplateAttribute::GenerateAttribute() const
 }
 
 
-void TemplateAttribute::SaveTemplate_CSV(std::ofstream& file) const
+
+QJsonObject TemplateAttribute::GetAsJson() const
 {
-    file << GetTemplateAsCSV().toStdString();
-}
-QString TemplateAttribute::GetTemplateAsCSV() const
-{
-    return myAttrName + '|'
-            + AttributeTypeHelper::TypeToString(GetType()) + '|'
-            + mySharedParam.GetParamsAsCSV();
+    QJsonObject obj = QJsonObject();
+    obj.insert("name", myAttrName);
+    obj.insert("type", (int)GetType());
+    obj.insert("param", mySharedParam.GetAsJson());
+    return obj;
 }
 TemplateAttribute* TemplateAttribute::NewAttribute_CSV(const QString& _csvLine, QHash<AReference*, QString>& _outRefMap)
 {

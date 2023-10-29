@@ -2,6 +2,7 @@
 #define ATTRIBUTEPARAM_H
 
 #include "attributetype.h"
+#include <QJsonObject>
 #include <QPointer>
 
 
@@ -35,8 +36,7 @@ struct AttributeParam
     int enumeratorIndex = -1;      // Used for AEnumerator only;    When changed, need to update all enum attribute, template attribute & qtemplateattribute
     const Enumerator* GetEnum() const;
 
-    void SaveParams_CSV(std::ofstream& file) const;
-    QString GetParamsAsCSV() const;
+    QJsonObject GetAsJson() const;
 
     static QString CleanTemplateStringCSV(const QString& _csv);
 };

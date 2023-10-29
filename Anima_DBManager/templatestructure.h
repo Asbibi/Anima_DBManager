@@ -6,6 +6,7 @@
 #include "templateattribute.h"
 #include "areference.h"
 #include <QColor>
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QList>
 #include <QHash>
@@ -66,7 +67,7 @@ public:
     const QList<TemplateAttribute*>& GetAttributes() const { return myAttributeTemplates; }
     QList<TemplateAttribute*>& GetAttributesW() { return myAttributeTemplates; }
 
-    void SaveTemplate(std::ofstream& _templateFile, QJsonObject& defaultJson) const;
+    void SaveTemplate(QJsonObject& _templateJson, QJsonObject& _defaultJson) const;
 };
 
 #endif // TEMPLATESTRUCTURE_H

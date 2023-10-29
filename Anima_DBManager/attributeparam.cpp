@@ -118,34 +118,41 @@ const Enumerator* AttributeParam::GetEnum() const
     return DB_Manager::GetDB_Manager().GetEnum(enumeratorIndex);
 }
 
-void AttributeParam::SaveParams_CSV(std::ofstream& file) const
+QJsonObject AttributeParam::GetAsJson() const
 {
-    file << GetParamsAsCSV().toStdString();
-}
-QString AttributeParam::GetParamsAsCSV() const
-{
-    QString paramAsCSV = QString(ignoreMin ? "TRUE" : "FALSE") + ','
-            + (ignoreMax ? "TRUE" : "FALSE") + ','
-            + QString::number(min_i) + ','
-            + QString::number(max_i) + ','
-            + QString::number(min_f) + ','
-            + QString::number(max_f) + ',';
+    QJsonObject param;
+#define JSONIZE_DIRECT(field) param.insert(#field, field)
+
+    JSONIZE_DIRECT(ignoreMin);
+    JSONIZE_DIRECT(ignoreMax);
+    JSONIZE_DIRECT(min_i);
+    JSONIZE_DIRECT(max_i);
+    JSONIZE_DIRECT(min_f);
+    JSONIZE_DIRECT(max_f);
+    JSONIZE_DIRECT(enumeratorIndex);
+
+#undef JSONIZE_DIRECT
+
     if (templateAtt != nullptr)
     {
-        paramAsCSV += '[' + templateAtt->GetTemplateAsCSV().replace(',', ';') + ']';
+        param.insert("templateAtt", templateAtt->GetAsJson());
     }
-    paramAsCSV += ',';
     if (templateStruct != nullptr)
     {
-        //paramAsCSV += '{' + templateStruct->GetTemplateAsCSV().replace(',', ';') + '}';
-        qWarning("TODO'");
+        QJsonArray subStructJson = QJsonArray();
+        for (const auto& templateAttr : templateStruct->GetAttributes())
+        {
+            subStructJson.push_back(templateAttr->GetAsJson());
+        }
+        param.insert("templateStruct", subStructJson);
+    }
+    if (structTable != nullptr)
+    {
+        param.insert("structTable", structTable->GetTemplateName());
     }
 
-    return paramAsCSV + ','
-            + QString::number(structTable != nullptr ? DB_Manager::GetDB_Manager().GetStructureTableIndex(structTable->GetTemplateName()) : -1 ) + ','
-            + QString::number(enumeratorIndex);
+    return param;
 }
-
 
 
 QString AttributeParam::CleanTemplateStringCSV(const QString& _csv)

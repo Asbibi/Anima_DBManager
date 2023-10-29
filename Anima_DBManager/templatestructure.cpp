@@ -1,8 +1,9 @@
 #include "templatestructure.h"
 
+#include "sstringhelper.h"
+
 #include <QDebug>
 
-#include "sstringhelper.h"
 
 TemplateStructure::TemplateStructure(const QString& _structName, const QColor& _structColor, IconManager::IconType _iconType) :
     TemplateStructure(_structName, _structName.left(2).toUpper(), _structColor, _iconType)
@@ -203,19 +204,31 @@ const TemplateAttribute* TemplateStructure::GetAttributeTemplate(const QString& 
 }
 
 
-void TemplateStructure::SaveTemplate(std::ofstream& _templateFile, QJsonObject& defaultJson) const
+void TemplateStructure::SaveTemplate(QJsonObject& _templateJson, QJsonObject& _defaultJson) const
 {
-    _templateFile << "###" << myStructName.toStdString() << "---"
-    << myStructAbbrev.toStdString()  << "---"
-    << myStructColor.name().toStdString() << "###\n";
+    QJsonObject thisAsJson = QJsonObject();
 
+    thisAsJson.insert("Abbrev", myStructAbbrev);
+    thisAsJson.insert("Icon", (int)myIconType);
+    thisAsJson.insert("Color", myStructColor.name());
+
+
+    QJsonArray myAttributesAsJson = QJsonArray();
     QJsonObject myDefaults = QJsonObject();
     for (const auto& templateAttr : myAttributeTemplates)
     {
-        templateAttr->SaveTemplate_CSV(_templateFile);
-        _templateFile << "\n";
+        myAttributesAsJson.push_back(templateAttr->GetAsJson());
 
-        myDefaults.insert(templateAttr->GetName(), templateAttr->GetDefaultAttribute()->GetAttributeAsJSON());
+        QJsonObject attrDefaultJson = QJsonObject();
+        attrDefaultJson.insert("value", templateAttr->GetDefaultAttribute()->GetAttributeAsJSON());
+        if (templateAttr->GetType() == AttributeTypeHelper::Type::Array)
+        {
+            attrDefaultJson.insert("array", templateAttr->GetDefaultAttribute()->GetAttributeAsJSON());
+        }
+        myDefaults.insert(templateAttr->GetName(), attrDefaultJson);
     }
-    defaultJson.insert(myStructName, myDefaults);
+    thisAsJson.insert("Attributes", myAttributesAsJson);
+
+    _templateJson.insert(myStructName, thisAsJson);
+    _defaultJson.insert(myStructName, myDefaults);
 }
