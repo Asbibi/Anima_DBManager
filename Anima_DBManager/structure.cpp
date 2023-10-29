@@ -152,7 +152,7 @@ QJsonObject Structure::WriteValue_JSON_AsRow() const
 {
     QJsonObject structAsJSON = QJsonObject();
 
-    structAsJSON.insert("Name", QJsonValue());
+    //structAsJSON.insert("Name", QJsonValue());
 
     for (int i = 0; i < myAttributes.size(); i++)
     {

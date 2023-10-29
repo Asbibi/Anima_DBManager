@@ -204,7 +204,7 @@ const TemplateAttribute* TemplateStructure::GetAttributeTemplate(const QString& 
 }
 
 
-void TemplateStructure::SaveTemplate(QJsonObject& _templateJson, QJsonObject& _defaultJson) const
+void TemplateStructure::SaveTemplate(QJsonObject& _templateJson) const
 {
     QJsonObject thisAsJson = QJsonObject();
 
@@ -212,23 +212,12 @@ void TemplateStructure::SaveTemplate(QJsonObject& _templateJson, QJsonObject& _d
     thisAsJson.insert("Icon", (int)myIconType);
     thisAsJson.insert("Color", myStructColor.name());
 
-
     QJsonArray myAttributesAsJson = QJsonArray();
-    QJsonObject myDefaults = QJsonObject();
     for (const auto& templateAttr : myAttributeTemplates)
     {
         myAttributesAsJson.push_back(templateAttr->GetAsJson());
-
-        QJsonObject attrDefaultJson = QJsonObject();
-        attrDefaultJson.insert("value", templateAttr->GetDefaultAttribute()->GetAttributeAsJSON());
-        if (templateAttr->GetType() == AttributeTypeHelper::Type::Array)
-        {
-            attrDefaultJson.insert("array", templateAttr->GetDefaultAttribute()->GetAttributeAsJSON());
-        }
-        myDefaults.insert(templateAttr->GetName(), attrDefaultJson);
     }
     thisAsJson.insert("Attributes", myAttributesAsJson);
 
     _templateJson.insert(myStructName, thisAsJson);
-    _defaultJson.insert(myStructName, myDefaults);
 }

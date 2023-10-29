@@ -12,10 +12,9 @@
 
 
 const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
-const QString SaveManager::fileEndString = "0_ST.csv";
-const QString SaveManager::fileEndEnum = "1_EN.csv";
-const QString SaveManager::fileEndTemplate = "2_TP.json";
-const QString SaveManager::fileEndDefault = "3_DF.json";
+const QString SaveManager::fileEndString = "1_ST.csv";
+const QString SaveManager::fileEndEnum = "2_EN.csv";
+const QString SaveManager::fileEndTemplate = "3_TP.json";
 const QString SaveManager::fileEndData = "4_DT.json";
 const QString SaveManager::fileEndPro = "5_PR.csv";
 
@@ -199,11 +198,10 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     const int structTableCount = dbManager.GetStructuresCount();
     QJsonObject templateJson = QJsonObject();
-    QJsonObject defaultJson = QJsonObject();
     for (int i = 0; i < structTableCount; i++)
     {
         const auto& templateStruct = dbManager.GetStructureTable(i)->GetTemplate();
-        templateStruct.SaveTemplate(templateJson, defaultJson);
+        templateStruct.SaveTemplate(templateJson);
     }
 
     QString templateFilePath = tempFolderPath + fileEndTemplate;
@@ -216,18 +214,6 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     }
     jsonTemplateFile.write(QJsonDocument(templateJson).toJson());
     jsonTemplateFile.close();
-
-
-    QString defaultFilePath = tempFolderPath + fileEndDefault;
-    tempFileList << defaultFilePath;
-    QFile jsonDefaultFile = QFile(defaultFilePath);
-    if(!jsonDefaultFile.open(QIODevice::ReadWrite))
-    {
-        qCritical() << "ERROR SAVING DB : default file " << defaultFilePath << " couldn't be created";
-        return;
-    }
-    jsonDefaultFile.write(QJsonDocument(defaultJson).toJson());
-    jsonDefaultFile.close();
 
 
 

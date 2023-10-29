@@ -67,7 +67,7 @@ public:
     const QList<TemplateAttribute*>& GetAttributes() const { return myAttributeTemplates; }
     QList<TemplateAttribute*>& GetAttributesW() { return myAttributeTemplates; }
 
-    void SaveTemplate(QJsonObject& _templateJson, QJsonObject& _defaultJson) const;
+    void SaveTemplate(QJsonObject& _templateJson) const;
 };
 
 #endif // TEMPLATESTRUCTURE_H

@@ -16,7 +16,6 @@ private:
     static const QString fileEndString;
     static const QString fileEndEnum;
     static const QString fileEndTemplate;
-    static const QString fileEndDefault;
     static const QString fileEndData;
     static const QString fileEndPro;
 

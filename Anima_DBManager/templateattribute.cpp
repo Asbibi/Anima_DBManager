@@ -212,6 +212,7 @@ QJsonObject TemplateAttribute::GetAsJson() const
     obj.insert("name", myAttrName);
     obj.insert("type", (int)GetType());
     obj.insert("param", mySharedParam.GetAsJson());
+    obj.insert("default", myDefaultAttribute->GetAttributeAsJSON());
     return obj;
 }
 TemplateAttribute* TemplateAttribute::NewAttribute_CSV(const QString& _csvLine, QHash<AReference*, QString>& _outRefMap)
