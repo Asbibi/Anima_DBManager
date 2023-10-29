@@ -30,6 +30,8 @@ public:
     const Structure* GetReference() const;
     const StructureDB* GetStructureDB() const;
     int GetReferenceIndex() const;
+
+    QString ConvertRowNameToTextValue(const QString& _rowName) const;
 };
 
 #endif // AREFERENCE_H

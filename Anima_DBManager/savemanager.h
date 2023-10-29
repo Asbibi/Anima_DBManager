@@ -19,6 +19,7 @@ private:
     static const QString fileEndData;
     static const QString fileEndPro;
 
+    bool myIsOpening = false;
     QHash<AReference*, QString> myRefMap = QHash<AReference*, QString>();
 
 
@@ -41,6 +42,7 @@ public:
     static const QString& GetSaveFileExtension();
     static void SaveFile(const QString& _saveFilePath);
     static void OpenFile(const QString& _saveFilePath);
+    static bool IsOpeningFile();
 };
 
 #endif // SAVEMANAGER_H

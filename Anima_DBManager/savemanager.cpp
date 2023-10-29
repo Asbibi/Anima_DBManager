@@ -104,6 +104,10 @@ void SaveManager::OpenFile(const QString& _saveFilePath)
 {
     SaveManager::GetSaveManager().OpenFileInternal(_saveFilePath);
 }
+bool SaveManager::IsOpeningFile()
+{
+    return SaveManager::GetSaveManager().myIsOpening;
+}
 
 
 
@@ -126,6 +130,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     // 0. Preparation
 
+    Q_ASSERT(!myIsOpening);
     const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
     if (!TryMakeTempFolder(tempFolderPath))
@@ -295,6 +300,8 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // 0. Preparation
 
+    Q_ASSERT(!myIsOpening);
+    myIsOpening = true;
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
     if (!TryMakeTempFolder(tempFolderPath))
@@ -363,6 +370,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
+    myIsOpening = false;
 }
 
 
