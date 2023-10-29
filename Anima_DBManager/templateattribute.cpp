@@ -213,8 +213,7 @@ QString TemplateAttribute::GetTemplateAsCSV() const
 {
     return myAttrName + '|'
             + AttributeTypeHelper::TypeToString(GetType()) + '|'
-            + mySharedParam.GetParamsAsCSV() + '|'
-            + myDefaultAttribute->GetAttributeAsCSV();
+            + mySharedParam.GetParamsAsCSV();
 }
 TemplateAttribute* TemplateAttribute::NewAttribute_CSV(const QString& _csvLine, QHash<AReference*, QString>& _outRefMap)
 {

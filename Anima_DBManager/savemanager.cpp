@@ -12,11 +12,12 @@
 
 
 const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
-const QString SaveManager::fileEndString = "ST.csv";
-const QString SaveManager::fileEndEnum = "EN.csv";
-const QString SaveManager::fileEndTemplate = "TP.csv";
-const QString SaveManager::fileEndData = "DT.json";
-const QString SaveManager::fileEndPro = "PR.csv";
+const QString SaveManager::fileEndString = "0_ST.csv";
+const QString SaveManager::fileEndEnum = "1_EN.csv";
+const QString SaveManager::fileEndTemplate = "2_TP.csv";
+const QString SaveManager::fileEndDefault = "3_DF.json";
+const QString SaveManager::fileEndData = "4_DT.json";
+const QString SaveManager::fileEndPro = "5_PR.csv";
 
 SaveManager::SaveManager()
 {}
@@ -122,6 +123,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // Save String Tables to a single file (values in CSV format)
     // Save enums
     // Save Structure templates
+    // Save Structure default attributes
     // Save structures as CSV or through the setByTextFormat
     // Save Project infos
     // Zip all files to a single save file
@@ -193,12 +195,13 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
 
 
-    // III. Save structure templates
+    // III. Save structure templates & Structure defaults
 
     const int structTableCount = dbManager.GetStructuresCount();
     QString templFilePath = tempFolderPath + fileEndTemplate;
     tempFileList << templFilePath;
     std::ofstream csvTemplFile(templFilePath.toStdString());
+    QJsonObject defaultJson = QJsonObject();
     if (!csvTemplFile)
     {
         qCritical() << "ERROR SAVING DB : temp file " << templFilePath << " couldn't be created";
@@ -207,9 +210,20 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     for (int i = 0; i < structTableCount; i++)
     {
         const auto& templateStruct = dbManager.GetStructureTable(i)->GetTemplate();
-        templateStruct.SaveTemplate_CSV(csvTemplFile);
+        templateStruct.SaveTemplate(csvTemplFile, defaultJson);
     }
     csvTemplFile.close();
+
+    QString defaultFilePath = tempFolderPath + fileEndDefault;
+    tempFileList << defaultFilePath;
+    QFile jsonDefaultFile = QFile(defaultFilePath);
+    if(!jsonDefaultFile.open(QIODevice::ReadWrite))
+    {
+        qCritical() << "ERROR SAVING DB : default file " << defaultFilePath << " couldn't be created";
+        return;
+    }
+    jsonDefaultFile.write(QJsonDocument(defaultJson).toJson());
+    jsonDefaultFile.close();
 
 
 
@@ -217,7 +231,6 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     QString structFilePath = tempFolderPath + fileEndData;
     tempFileList << structFilePath;
-    //std::ofstream csvStructFile(structFilePath.toStdString());
     QFile jsonStructFile = QFile(structFilePath);
     if(!jsonStructFile.open(QIODevice::ReadWrite))
     {

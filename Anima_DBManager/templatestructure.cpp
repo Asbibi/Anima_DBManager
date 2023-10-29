@@ -203,15 +203,19 @@ const TemplateAttribute* TemplateStructure::GetAttributeTemplate(const QString& 
 }
 
 
-void TemplateStructure::SaveTemplate_CSV(std::ofstream& file) const
+void TemplateStructure::SaveTemplate(std::ofstream& _templateFile, QJsonObject& defaultJson) const
 {
-    file << "###" << myStructName.toStdString() << "---"
+    _templateFile << "###" << myStructName.toStdString() << "---"
     << myStructAbbrev.toStdString()  << "---"
     << myStructColor.name().toStdString() << "###\n";
 
+    QJsonObject myDefaults = QJsonObject();
     for (const auto& templateAttr : myAttributeTemplates)
     {
-        templateAttr->SaveTemplate_CSV(file);
-        file << "\n";
+        templateAttr->SaveTemplate_CSV(_templateFile);
+        _templateFile << "\n";
+
+        myDefaults.insert(templateAttr->GetName(), templateAttr->GetDefaultAttribute()->GetAttributeAsJSON());
     }
+    defaultJson.insert(myStructName, myDefaults);
 }
