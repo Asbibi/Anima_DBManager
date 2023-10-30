@@ -183,8 +183,22 @@ void StructureDB::RemoveAttribute(int _position)
 void StructureDB::SetAttributeTemplatesFromJSON(const QJsonArray& _attributesAsJson)
 {
     // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
-    Q_ASSERT(myStructures.count() == 0);
     myTemplate.LoadTemplateOnlyAttribute(_attributesAsJson);
+    if(myStructures.count() == 0)
+    {
+        return;
+    }
+
+    const int attrCount = myTemplate.GetAttributesCount();
+    for (auto* str : myStructures)
+    {
+        Q_ASSERT(str->GetAttributeCount() == 0);
+        for (int i = 0; i <attrCount; i++)
+        {
+            str->AddAttribute(i, false);
+            str->FixAttributeTypeToDefault(i);
+        }
+    }
 }
 bool StructureDB::UpdateMyAAssetIsDirty()
 {
