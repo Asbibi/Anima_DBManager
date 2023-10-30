@@ -24,6 +24,7 @@ private:
     void AddAttributeTemplateInternal(TemplateAttribute* _attTemplateToCopy, const QString* _newName, int _index);
 
 public:
+    TemplateStructure();
     TemplateStructure(const QString& _structName, const QColor& _structColor, IconManager::IconType _iconType = IconManager::IconType::None);
     TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor, IconManager::IconType _iconType = IconManager::IconType::None);
     TemplateStructure(const TemplateStructure& _other);
@@ -49,7 +50,6 @@ public:
     void RemoveAttribute(int _index);
     void RemoveAttribute(const QString& _attName);
     void MoveAttribute(int _indexFrom, int _indexTo);
-    void SetAttributeFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap);
     bool ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy);
 
     void RenameAttributeTemplate(int _index, QString& _newName, bool _skipSameNameCheck = false);
@@ -67,7 +67,9 @@ public:
     const QList<TemplateAttribute*>& GetAttributes() const { return myAttributeTemplates; }
     QList<TemplateAttribute*>& GetAttributesW() { return myAttributeTemplates; }
 
-    void SaveTemplate(QJsonObject& _templateJson) const;
+    void SaveTemplate(QJsonArray& _templateJson) const;
+    static TemplateStructure LoadTemplateNoAttribute(const QJsonObject& _templateJson);
+    void LoadTemplateOnlyAttribute(const QJsonArray& _templateJson);
 };
 
 #endif // TEMPLATESTRUCTURE_H

@@ -6,6 +6,13 @@
 
 namespace StructureImportHelper
 {
+    enum class OverwritePolicy
+    {
+        Overwrite,
+        KeepExisting,
+        NewRow
+    };
+
     bool DecomposeCSVString(QString _csvLineCopy, int _expectedCountWithKey, QStringList& _outList, bool _removeKey = false);
 };
 

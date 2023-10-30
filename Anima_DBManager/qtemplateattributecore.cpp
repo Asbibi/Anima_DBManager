@@ -67,7 +67,7 @@ void QTemplateAttributeCore::PerformTypeSpecificPreparation(AttributeTypeHelper:
     else if (_type == AttributeTypeHelper::Type::Structure
             && myTemplateAttribute.mySharedParam.templateStruct == nullptr)
     {
-        myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure("", QColorConstants::Black);
+        myTemplateAttribute.mySharedParam.templateStruct = new TemplateStructure();
     }
 }
 void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)

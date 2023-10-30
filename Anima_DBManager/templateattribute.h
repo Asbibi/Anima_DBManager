@@ -58,7 +58,7 @@ public:
     Attribute* GenerateAttribute() const;
 
     QJsonObject GetAsJson() const;
-    static TemplateAttribute* NewAttribute_CSV(const QString& _csvLine, QHash<AReference*, QString>& _outRefMap);
+    static TemplateAttribute NewAttributeFromJSON(const QJsonObject& _templateAttributeAsJson);
 };
 
 #endif // TEMPLATEATTRIBUTE_H

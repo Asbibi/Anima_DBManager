@@ -16,7 +16,7 @@ struct AttributeParam
 {
     AttributeParam();
     AttributeParam(const AttributeParam& _another);
-    AttributeParam(const QString& _csvString, QHash<AReference*, QString>& _outRefMap);
+    AttributeParam(const QJsonObject& _paramAsJson);
     ~AttributeParam();
     void operator=(const AttributeParam& _another);
 

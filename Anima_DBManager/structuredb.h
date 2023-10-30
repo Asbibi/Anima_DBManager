@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include "structure.h"
+#include "structureimporthelper.h"
 #include "templatestructure.h"
 #include "areference.h"
 #include <QList>
@@ -46,7 +47,7 @@ public:
     void FixAttributesTypeToDefault(int _attIndex);
     void AddAttribute(int _position, bool _copyFromPrevious);
     void RemoveAttribute(int _position);
-    void SetAttributesFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap);
+    void SetAttributeTemplatesFromJSON(const QJsonArray& _attributesAsJson);
 
     bool UpdateMyAAssetIsDirty();
 
@@ -67,8 +68,8 @@ public:
 
     QJsonArray WriteValue_JSON_Table() const;
     void WriteValue_CSV_Table(std::ofstream& file) const;
-    void ReadValue_JSON_Table(const QJsonArray& _structArrayJson, int _overwritePolicy);
-    void ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy);
+    void ReadValue_JSON_Table(const QJsonArray& _structArrayJson, StructureImportHelper::OverwritePolicy _overwritePolicy);
+    void ReadValue_CSV_Table(int _index, const QStringList& fields, StructureImportHelper::OverwritePolicy _overwritePolicy);
     void AddValue_CSV_TableWithDelayedReference(const QStringList& fields, QHash<AReference*, QString>& referenceMap);
 };
 

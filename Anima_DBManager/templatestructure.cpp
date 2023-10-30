@@ -1,10 +1,14 @@
 #include "templatestructure.h"
 
 #include "sstringhelper.h"
+#include "savemanager.h"
 
 #include <QDebug>
 
 
+TemplateStructure::TemplateStructure() :
+    TemplateStructure("", QColorConstants::Black)
+{}
 TemplateStructure::TemplateStructure(const QString& _structName, const QColor& _structColor, IconManager::IconType _iconType) :
     TemplateStructure(_structName, _structName.left(2).toUpper(), _structColor, _iconType)
 {}
@@ -81,7 +85,8 @@ void TemplateStructure::AddAttributeTemplateInternal(TemplateAttribute* _attTemp
 
     myAttributeTemplates.insert(_index, _attTemplateToCopy);
     QString newAttributeName = _newName != nullptr ? *_newName : _attTemplateToCopy->GetName();
-    RenameAttributeTemplate(_index, newAttributeName, true);
+    bool skipSameNameCheck = !SaveManager::IsOpeningFile(); // was true (why ?) but caused issues on save file opening
+    RenameAttributeTemplate(_index, newAttributeName, skipSameNameCheck);
 }
 void TemplateStructure::RemoveAttribute(int _index)
 {
@@ -102,34 +107,6 @@ void TemplateStructure::MoveAttribute(int _indexFrom, int _indexTo)
     myAttributeTemplates.insert(_indexTo, templAttrib);
 }
 
-void TemplateStructure::SetAttributeFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap)
-{
-    // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
-    Q_ASSERT(myAttributeTemplates.count() == 0);
-
-    int attrCount = _stringList.count();
-    for (int i = 0; i < attrCount; i++)
-    {
-        const QString& stringAttr = _stringList[i];
-
-        AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(stringAttr.section('|', 1, 1));
-        AttributeParam param = AttributeParam(stringAttr.section('|', 2, -2), _outRefMap);
-        QString name = stringAttr.section('|', 0, 0);
-        AddAttributeTemplate(type, name, param, i);
-
-        // Reference attribute initalisation is deleguated to the map owner
-        if (type == AttributeTypeHelper::Type::Reference)
-        {
-            AReference* aref = dynamic_cast<AReference*>(myAttributeTemplates[i]->GetDefaultAttributeW());
-            Q_ASSERT(aref != nullptr);
-            _outRefMap.insert(aref, stringAttr.section('|', -1, -1));
-        }
-        else
-        {
-            myAttributeTemplates[i]->GetDefaultAttributeW()->ReadValue_CSV(stringAttr.section('|', -1, -1));
-        }
-    }
-}
 bool TemplateStructure::ChangeAttribute(int _attrIndex, const TemplateAttribute& _templateToCopy)
 {
     return GetAttributeTemplate(_attrIndex)->SetNewValues(_templateToCopy);
@@ -204,10 +181,11 @@ const TemplateAttribute* TemplateStructure::GetAttributeTemplate(const QString& 
 }
 
 
-void TemplateStructure::SaveTemplate(QJsonObject& _templateJson) const
+void TemplateStructure::SaveTemplate(QJsonArray& _templateJson) const
 {
     QJsonObject thisAsJson = QJsonObject();
 
+    thisAsJson.insert("Name", myStructName);
     thisAsJson.insert("Abbrev", myStructAbbrev);
     thisAsJson.insert("Icon", (int)myIconType);
     thisAsJson.insert("Color", myStructColor.name());
@@ -219,5 +197,22 @@ void TemplateStructure::SaveTemplate(QJsonObject& _templateJson) const
     }
     thisAsJson.insert("Attributes", myAttributesAsJson);
 
-    _templateJson.insert(myStructName, thisAsJson);
+    _templateJson.push_back(thisAsJson);
+}
+TemplateStructure TemplateStructure::LoadTemplateNoAttribute(const QJsonObject& _templateJson)
+{
+    auto newTemplate = TemplateStructure(_templateJson.value("Name").toString(),
+                                         _templateJson.value("Abbrev").toString(),
+                                         QColor(_templateJson.value("Color").toString()),
+                                         IconManager::IconType(_templateJson.value("Icon").toInt()));
+
+    return newTemplate;
+}
+void TemplateStructure::LoadTemplateOnlyAttribute(const QJsonArray& _templateJson)
+{
+    for (const auto& attrTemplateJson : _templateJson)
+    {
+        TemplateAttribute temporaryAttr = TemplateAttribute::NewAttributeFromJSON(attrTemplateJson.toObject());
+        AddAttributeTemplate(temporaryAttr);
+    }
 }

@@ -197,7 +197,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // III. Save structure templates & Structure defaults
 
     const int structTableCount = dbManager.GetStructuresCount();
-    QJsonObject templateJson = QJsonObject();
+    QJsonArray templateJson = QJsonArray();
     for (int i = 0; i < structTableCount; i++)
     {
         const auto& templateStruct = dbManager.GetStructureTable(i)->GetTemplate();
@@ -388,6 +388,7 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     _dbManager.SetProjectContentFolderPath(proIn.readLine());
 
     Q_ASSERT(proIn.atEnd());
+    projectFile.close();
 }
 void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath)
 {
@@ -461,6 +462,8 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath)
     {
         importerMap[tableName].PerformImport(-1, 0, tableName);
     }
+
+    file.close();
 }
 void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
 {
@@ -514,61 +517,30 @@ void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager
     {
         _dbManager.AddEnum(currentEnum);
     }
+
+    file.close();
 }
 void SaveManager::ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
-{    
-    struct TempTemplateStruct
-    {
-        QString myTemplateName;
-        QString myTemplateAbbrev;
-        QColor myTemplateColor;
-        QList<QString> myTemplateAttributes;
-    };
-
+{
     QFile file(_tempFolderPath + fileEndTemplate);
     bool openCheck = file.open(QIODevice::ReadOnly);
     Q_ASSERT(openCheck);
-    QTextStream in(&file);
-    QString currentLine;
-    int currentTemplate = -1;
-    QList<TempTemplateStruct> tempTemplates;
 
-    while (!in.atEnd())
+    const QJsonArray importedJson = QJsonDocument::fromJson(file.readAll()).array();
+    file.close();
+
+    // First loop to create the structures and set the "identity" values
+    for (const QJsonValue& templAsJson : importedJson)
     {
-        currentLine = in.readLine();
-        if (currentLine.first(3) != "###" || currentLine.last(3) != "###")
-        {
-            Q_ASSERT(currentTemplate != -1);
-            tempTemplates[currentTemplate].myTemplateAttributes.push_back(currentLine);
-            continue;
-        }
-
-        currentTemplate++;
-        TempTemplateStruct newTemplate;
-        int firstSeparator = currentLine.indexOf('-');
-        int secondSeparator = currentLine.indexOf('-', firstSeparator +3);
-        Q_ASSERT(firstSeparator != -1 && secondSeparator != -1);
-
-        newTemplate.myTemplateName = currentLine.mid(3, firstSeparator - 3);
-        newTemplate.myTemplateAbbrev = currentLine.mid(firstSeparator + 3, secondSeparator - firstSeparator - 3);
-        newTemplate.myTemplateColor = QColor(currentLine.last(10).first(7));
-
-        tempTemplates.push_back(newTemplate);
+        _dbManager.AddStructureDB(TemplateStructure::LoadTemplateNoAttribute(templAsJson.toObject()));
     }
 
-    for (const auto& tempTempl : tempTemplates)
+    // Second loop to set the attributes (parameters and default values)
+    int i = 0;
+    for (const QJsonValue& templAsJson : importedJson)
     {
-        _dbManager.AddStructureDB(TemplateStructure{
-                                      tempTempl.myTemplateName,
-                                      tempTempl.myTemplateAbbrev,
-                                      tempTempl.myTemplateColor
-                                  });
-    }
-
-    const int structCount = tempTemplates.count();
-    for (int i = 0; i < structCount; i++)
-    {
-        _dbManager.SetAttributeTemplatesFromStringList(i, tempTemplates[i].myTemplateAttributes, myRefMap);
+        _dbManager.SetAttributeTemplatesFromJSON(i, templAsJson.toObject().value("Attributes").toArray());
+        i++;
     }
 }
 void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
@@ -578,12 +550,14 @@ void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager
     Q_ASSERT(openCheck);
 
     const QJsonObject importedJson = QJsonDocument::fromJson(file.readAll()).object();
+    file.close();
+
     QStringList structNames = importedJson.keys();
     for (const auto& strctName : structNames)
     {
         StructureDB* currentStructTable = _dbManager.GetStructureTable(strctName);
         Q_ASSERT(currentStructTable != nullptr);
-        currentStructTable->ReadValue_JSON_Table(importedJson.value(strctName).toArray(), 3);
+        currentStructTable->ReadValue_JSON_Table(importedJson.value(strctName).toArray(), StructureImportHelper::OverwritePolicy::Overwrite);
     }
 }
 void SaveManager::ProcessDelayedRef()

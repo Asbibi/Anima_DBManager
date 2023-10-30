@@ -180,11 +180,11 @@ void StructureDB::RemoveAttribute(int _position)
     }
     myTemplate.RemoveAttribute(_position);
 }
-void StructureDB::SetAttributesFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap)
+void StructureDB::SetAttributeTemplatesFromJSON(const QJsonArray& _attributesAsJson)
 {
     // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
     Q_ASSERT(myStructures.count() == 0);
-    myTemplate.SetAttributeFromList(_stringList, _outRefMap);
+    myTemplate.LoadTemplateOnlyAttribute(_attributesAsJson);
 }
 bool StructureDB::UpdateMyAAssetIsDirty()
 {
@@ -343,7 +343,7 @@ void StructureDB::WriteValue_CSV_Table(std::ofstream& file) const
         myStructures[i]->WriteValue_CSV_AsRow(file);
     }
 }
-void StructureDB::ReadValue_JSON_Table(const QJsonArray& _structArrayJson, int _overwritePolicy)
+void StructureDB::ReadValue_JSON_Table(const QJsonArray& _structArrayJson, StructureImportHelper::OverwritePolicy _overwritePolicy)
 {
     const int structsJsonCount = _structArrayJson.count();
     if (structsJsonCount == 0)
@@ -368,13 +368,13 @@ void StructureDB::ReadValue_JSON_Table(const QJsonArray& _structArrayJson, int _
         int rowCount = GetStructureCount();
         bool exists = structIndex < rowCount;
 
-        if (exists && _overwritePolicy == 1)
+        if (exists && _overwritePolicy == StructureImportHelper::OverwritePolicy::KeepExisting)
         {
             // Keep existing
             // nothing to do
             return;
         }
-        else if (!exists || _overwritePolicy == 2)
+        else if (!exists || _overwritePolicy == StructureImportHelper::OverwritePolicy::NewRow)
         {
             // Write in a new row
             // -> Add enough lines to meet _index
@@ -386,18 +386,18 @@ void StructureDB::ReadValue_JSON_Table(const QJsonArray& _structArrayJson, int _
         myStructures[structIndex]->ReadValue_JSON(structJson);
     }
 }
-void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy)
+void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, StructureImportHelper::OverwritePolicy _overwritePolicy)
 {
     int rowCount = GetStructureCount();
     bool exists = _index < rowCount;
 
-    if (exists && _overwritePolicy == 1)
+    if (exists && _overwritePolicy  == StructureImportHelper::OverwritePolicy::KeepExisting)
     {
         // Keep existing
         // nothing to do
         return;
     }
-    else if (!exists || _overwritePolicy == 2)
+    else if (!exists || _overwritePolicy  == StructureImportHelper::OverwritePolicy::NewRow)
     {
         // Write in a new row
         // -> Add enough lines to meet _index

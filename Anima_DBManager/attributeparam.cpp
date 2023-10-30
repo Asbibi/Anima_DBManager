@@ -33,18 +33,29 @@ AttributeParam::AttributeParam(const AttributeParam& _another) :
     }
     DB_Manager::GetDB_Manager().RegisterAttributeParam(this);
 }
-AttributeParam::AttributeParam(const QString& _csvString, QHash<AReference*, QString>& _outRefMap) :
-    ignoreMin{ _csvString.section(',',0,0) == "TRUE" },
-    ignoreMax { _csvString.section(',',1,1) == "TRUE" },
-    min_i { _csvString.section(',',2,2).toInt() },
-    max_i { _csvString.section(',',3,3).toInt() },
-    min_f { _csvString.section(',',4,4).toFloat() },
-    max_f { _csvString.section(',',5,5).toFloat() },
-    templateAtt { TemplateAttribute::NewAttribute_CSV(CleanTemplateStringCSV(_csvString.section(',',6,6)), _outRefMap) },
-    templateStruct{ nullptr }, // TODO
-    structTable { DB_Manager::GetDB_Manager().GetStructureTable(_csvString.section(',',8,8).toInt()) },
-    enumeratorIndex { _csvString.section(',',9,9).toInt() }
-{}
+AttributeParam::AttributeParam(const QJsonObject& _paramAsJson) :
+    ignoreMin { _paramAsJson.value("ignoreMin").toBool()},
+    ignoreMax { _paramAsJson.value("ignoreMax").toBool()},
+    min_i { _paramAsJson.value("min_i").toInt()},
+    max_i { _paramAsJson.value("max_i").toInt()},
+    min_f { (float)_paramAsJson.value("min_f").toDouble()},
+    max_f { (float)_paramAsJson.value("max_f").toDouble()},
+    templateAtt { _paramAsJson.contains("templateAtt") ?
+                    new TemplateAttribute(TemplateAttribute::NewAttributeFromJSON(_paramAsJson.value("templateAtt").toObject())) :
+                    nullptr},
+    templateStruct {nullptr},
+    structTable { _paramAsJson.contains("structTable") ?
+                      DB_Manager::GetDB_Manager().GetStructureTable(_paramAsJson.value("structTable").toString()) :
+                      nullptr},
+    enumeratorIndex { _paramAsJson.value("enumeratorIndex").toInt()}
+{
+    if (!_paramAsJson.contains("templateStruct"))
+    {
+         return;
+    }
+    templateStruct = new TemplateStructure();
+    templateStruct->LoadTemplateOnlyAttribute(_paramAsJson.value("templateStruct").toArray());
+}
 AttributeParam::~AttributeParam()
 {
     if (templateAtt != nullptr)

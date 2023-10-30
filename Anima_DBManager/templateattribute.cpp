@@ -215,29 +215,16 @@ QJsonObject TemplateAttribute::GetAsJson() const
     obj.insert("default", myDefaultAttribute->GetAttributeAsJSON());
     return obj;
 }
-TemplateAttribute* TemplateAttribute::NewAttribute_CSV(const QString& _csvLine, QHash<AReference*, QString>& _outRefMap)
+TemplateAttribute TemplateAttribute::NewAttributeFromJSON(const QJsonObject& _templateAttributeAsJson)
 {
-    if (_csvLine.isEmpty())
-    {
-        return nullptr;
-    }
+    const QString name = _templateAttributeAsJson.value("name").toString();
+    const AttributeTypeHelper::Type type = AttributeTypeHelper::Type(_templateAttributeAsJson.value("type").toInt());
+    const AttributeParam param = AttributeParam(_templateAttributeAsJson.value("param").toObject());
 
-    AttributeTypeHelper::Type type = AttributeTypeHelper::StringToType(_csvLine.section('|', 1, 1));
+    TemplateAttribute templAttr = TemplateAttribute(name, type, param);
 
-    AttributeParam param = AttributeParam(_csvLine.section('|', 2, -2), _outRefMap);
-    TemplateAttribute* newTemplate = new TemplateAttribute(_csvLine.section('|', 0, 0), type, param);
+    templAttr.GetDefaultAttributeW()->ReadValue_JSON(_templateAttributeAsJson.value("default"));
 
-    // Reference attribute initalisation is deleguated to the map owner
-    if (type == AttributeTypeHelper::Type::Reference)
-    {
-        AReference* aref = dynamic_cast<AReference*>(newTemplate->GetDefaultAttributeW());
-        Q_ASSERT(aref != nullptr);
-        _outRefMap.insert(aref, _csvLine.section('|', -1, -1));
-    }
-    else
-    {
-        newTemplate->GetDefaultAttributeW()->ReadValue_CSV(_csvLine.section('|', -1, -1));
-    }
-
-    return newTemplate;
+    return templAttr;
 }
+
