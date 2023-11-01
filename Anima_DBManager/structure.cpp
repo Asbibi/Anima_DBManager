@@ -1,6 +1,8 @@
 #include "structure.h"
 
+#include "db_manager.h"
 #include <QList>
+
 
 Structure::Structure(TemplateStructure& _structureTemplate) :
     myTemplate(_structureTemplate)
@@ -89,10 +91,11 @@ void Structure::SetAttributeValueFromText(const QString& _attName, QString _valu
 }
 void Structure::ReadValue_JSON(const QJsonObject& _structAsJson)
 {
+    const auto& dbManager = DB_Manager::GetDB_Manager();
     for (int i = 0; i < myAttributes.size(); i++)
     {
         const QString& attrName = myTemplate.GetAttributeName(i);
-        const bool _jsonRead = myAttributes[i]->ReadValue_JSON(_structAsJson.value(attrName));
+        const bool _jsonRead = myAttributes[i]->ReadValue_JSON(_structAsJson.value(dbManager.GetAttributeFullName(attrName)));
         if (!_jsonRead)
         {
             qWarning() << _structAsJson.value("Name").toString() << " - Ignored " << attrName << " Attribute value : invalid json type" << _structAsJson.value(attrName);
@@ -152,11 +155,10 @@ QJsonObject Structure::WriteValue_JSON_AsRow() const
 {
     QJsonObject structAsJSON = QJsonObject();
 
-    //structAsJSON.insert("Name", QJsonValue());
-
+    const auto& dbManager = DB_Manager::GetDB_Manager();
     for (int i = 0; i < myAttributes.size(); i++)
     {
-        structAsJSON.insert(myTemplate.GetAttributeName(i), myAttributes[i]->GetAttributeAsJSON());
+        structAsJSON.insert(dbManager.GetAttributeFullName(myTemplate.GetAttributeName(i)), myAttributes[i]->GetAttributeAsJSON());
     }
 
     return structAsJSON;
@@ -183,7 +185,7 @@ QString Structure::GetStructureAsCSV() const
         {
             structAsCSV.append(",");
         }
-        structAsCSV.append(myTemplate.GetAttributeName(i));
+        structAsCSV.append(DB_Manager::GetDB_Manager().GetAttributeFullName(myTemplate.GetAttributeName(i)));
         structAsCSV.append('=');
         const auto type = myAttributes[i]->GetType();
         if (AttributeTypeHelper::ShouldBeWrappedInQuoteInCSV(type))

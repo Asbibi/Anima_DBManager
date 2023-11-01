@@ -70,7 +70,7 @@ const QString& DB_Manager::GetAttributeSuffix() const
 {
     return myAttributeSuffix;
 }
-QString DB_Manager::GetAttributeFullName(const QString& _attributeName)
+QString DB_Manager::GetAttributeFullName(const QString& _attributeName) const
 {
     return myAttributePrefix + _attributeName + myAttributeSuffix;
 }

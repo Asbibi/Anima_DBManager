@@ -51,7 +51,7 @@ public:
     void SetAttributeSuffix(const QString& _suffix);
     const QString& GetAttributePrefix() const;
     const QString& GetAttributeSuffix() const;
-    QString GetAttributeFullName(const QString& _attributeName);
+    QString GetAttributeFullName(const QString& _attributeName) const;
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
