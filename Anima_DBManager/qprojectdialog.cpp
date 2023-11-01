@@ -1,12 +1,18 @@
 #include "qprojectdialog.h"
 
+#include "db_manager.h"
+#include "sstringhelper.h"
+
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "db_manager.h"
+
+const QString QProjectDialog::ourOriginalAttributeName = "AttributeName";
+const QString QProjectDialog::ourPrefixColor = QColorConstants::DarkBlue.name();
+const QString QProjectDialog::ourSuffixColor = QColorConstants::DarkGreen.name();
 
 
 QProjectDialog::QProjectDialog(QWidget* _parent) :
@@ -32,6 +38,25 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     pathtBtnLayout->addWidget(changeBtn);
     pathtBtnLayout->addWidget(resetBtn);
     vLayout->addLayout(pathtBtnLayout);
+
+    vLayout->addSpacing(6);
+    auto* fixTitle = new QLabel("Attribute Prefix/Suffix:");
+    fixTitle->setStyleSheet("font-weight: bold");
+    vLayout->addWidget(fixTitle);
+    vLayout->addSpacing(3);
+    QHBoxLayout* fixLayout = new QHBoxLayout();
+    myPrefixEdit = new QLineEdit(dbManager.GetAttributePrefix());
+    mySuffixEdit = new QLineEdit(dbManager.GetAttributeSuffix());
+    myFixResult = new QLabel();
+    myPrefixEdit->setStyleSheet("color: " + ourPrefixColor);
+    mySuffixEdit->setStyleSheet("color: " + ourSuffixColor);
+    QObject::connect(myPrefixEdit, &QLineEdit::textEdited, this, &QProjectDialog::OnPrefixChange);
+    QObject::connect(mySuffixEdit, &QLineEdit::textEdited, this, &QProjectDialog::OnSuffixChange);
+    fixLayout->addWidget(myPrefixEdit);
+    fixLayout->addWidget(mySuffixEdit);
+    vLayout->addLayout(fixLayout);
+    vLayout->addWidget(myFixResult);
+    UpdateFixResult();
 
 
     vLayout->addSpacing(12);
@@ -76,8 +101,35 @@ void QProjectDialog::OnResetPath()
     SetPath("");
 }
 
+
+void QProjectDialog::OnPrefixChange()
+{
+    OnFixChanged(true);
+}
+void QProjectDialog::OnSuffixChange()
+{
+    OnFixChanged(false);
+}
+void QProjectDialog::OnFixChanged(bool _isPrefix)
+{
+    QLineEdit* lineEdit = _isPrefix ? myPrefixEdit : mySuffixEdit;
+    QString txt = lineEdit->text();
+    SStringHelper::CleanStringForIdentifier(txt);
+    lineEdit->setText(txt);
+
+    UpdateFixResult();
+}
+void QProjectDialog::UpdateFixResult()
+{
+    static QString fixResultTemplate = "%1 -> <span style=\" color:%4;\">%2</span>%1<span style=\" color:%5;\">%3</span>";
+    myFixResult->setText(fixResultTemplate.arg(ourOriginalAttributeName, myPrefixEdit->text(), mySuffixEdit->text(), ourPrefixColor, ourSuffixColor));
+}
+
 void QProjectDialog::OnApplyBtnClicked()
 {
-    DB_Manager::GetDB_Manager().SetProjectContentFolderPath(myProjectPath->text());
+    auto& dbManager = DB_Manager::GetDB_Manager();
+    dbManager.SetProjectContentFolderPath(myProjectPath->text());
+    dbManager.SetAttributePrefix(myPrefixEdit->text());
+    dbManager.SetAttributeSuffix(mySuffixEdit->text());
     QDialog::accept();
 }

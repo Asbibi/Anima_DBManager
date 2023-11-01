@@ -21,6 +21,9 @@ private:
     const QString myHomePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     bool myProjectPathIsValid = false;
 
+    QString myAttributePrefix = "my";
+    QString myAttributeSuffix = "oh";
+
     QList<AttributeParam*> myAttributeParamPtrs;
     QList<Enumerator> enumerators;
     QList<StructureDB*> myStructures;
@@ -43,6 +46,12 @@ public:
     bool SetProjectContentFolderPath(const QString& _path);
     const QString& GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
     bool IsProjectContentFolderPathValid() const;
+
+    void SetAttributePrefix(const QString& _prefix);
+    void SetAttributeSuffix(const QString& _suffix);
+    const QString& GetAttributePrefix() const;
+    const QString& GetAttributeSuffix() const;
+    QString GetAttributeFullName(const QString& _attributeName);
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
