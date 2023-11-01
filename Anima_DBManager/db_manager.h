@@ -21,8 +21,8 @@ private:
     const QString myHomePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     bool myProjectPathIsValid = false;
 
-    QString myAttributePrefix = "my";
-    QString myAttributeSuffix = "oh";
+    QString myAttributePrefix = "";
+    QString myAttributeSuffix = "";
 
     QList<AttributeParam*> myAttributeParamPtrs;
     QList<Enumerator> enumerators;

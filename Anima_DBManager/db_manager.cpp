@@ -225,6 +225,8 @@ void DB_Manager::Reset()
     //myAttributeParamPtrs.clear();
 
     myProjectContentFolderPath = "";
+    myAttributePrefix = "";
+    myAttributeSuffix = "";
 
     blockSignals(false);
 

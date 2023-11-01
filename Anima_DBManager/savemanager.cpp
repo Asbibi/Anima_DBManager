@@ -251,9 +251,11 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
         return;
     }
     csvProFile << "###PROJECT_FOLDER###\n";
+    csvProFile << dbManager.GetAttributePrefix().toStdString() << '\n';
+    csvProFile << dbManager.GetAttributeSuffix().toStdString() << '\n';
     if (dbManager.IsProjectContentFolderPathValid())
     {
-        csvProFile << dbManager.GetProjectContentFolderPath().toStdString() << "\n";
+        csvProFile << dbManager.GetProjectContentFolderPath().toStdString() << '\n';
     }
     csvProFile.close();
 
@@ -385,6 +387,8 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     QTextStream proIn(&projectFile);
     QString proFirstLine = proIn.readLine();
     Q_ASSERT(proFirstLine == "###PROJECT_FOLDER###");
+    _dbManager.SetAttributePrefix(proIn.readLine());
+    _dbManager.SetAttributeSuffix(proIn.readLine());
     _dbManager.SetProjectContentFolderPath(proIn.readLine());
 
     Q_ASSERT(proIn.atEnd());
