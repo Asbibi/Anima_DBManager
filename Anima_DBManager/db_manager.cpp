@@ -18,6 +18,8 @@
 #include "aasound.h"
 #include "aatexture.h"
 
+#include "savemanager.h"
+
 #include <fstream>
 
 #include <QDir>
@@ -73,6 +75,31 @@ const QString& DB_Manager::GetAttributeSuffix() const
 QString DB_Manager::GetAttributeFullName(const QString& _attributeName) const
 {
     return myAttributePrefix + _attributeName + myAttributeSuffix;
+}
+
+
+void DB_Manager::SetAutoSave(bool _enabled, int _intervalMinut)
+{
+    myAutoSaveEnabled = _enabled;
+
+    if (!myAutoSaveEnabled)
+    {
+        myAutoSaveTimer->stop();
+        return;
+    }
+
+    myAutoSaveInterval = _intervalMinut;
+    int intervalAsMS = myAutoSaveInterval * 60000;
+    myAutoSaveTimer->setInterval(intervalAsMS);
+    myAutoSaveTimer->start(intervalAsMS);
+}
+bool DB_Manager::GetAutoSaveEnabled() const
+{
+    return myAutoSaveEnabled;
+}
+int DB_Manager::GetAutoSaveInterval() const
+{
+    return myAutoSaveInterval;
 }
 
 
@@ -194,6 +221,8 @@ void DB_Manager::Init()
     AddAttributeTemplate(0, 0, false);
     AddStructureRow(0,0);
 
+    myAutoSaveTimer = new QTimer(this);
+    QObject::connect(myAutoSaveTimer, &QTimer::timeout, this, &DB_Manager::AutoSave);
 #else
 
 #endif
@@ -227,6 +256,8 @@ void DB_Manager::Reset()
     myProjectContentFolderPath = "";
     myAttributePrefix = "";
     myAttributeSuffix = "";
+    SetAutoSave(false, 15);
+    myAutoSaveInterval = 15;
 
     blockSignals(false);
 
@@ -845,4 +876,10 @@ void DB_Manager::AskUpdateOnStringTable(const int _tableIndex)
 void DB_Manager::AskUpdateOnStringPanel(const int _tableIndex)
 {
     emit StringTableChanged(_tableIndex);
+}
+
+
+void DB_Manager::AutoSave()
+{
+    SaveManager::SaveAuto();
 }

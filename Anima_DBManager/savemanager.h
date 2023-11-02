@@ -20,7 +20,7 @@ private:
     static const QString fileEndPro;
 
     bool myIsOpening = false;
-    QHash<AReference*, QString> myRefMap = QHash<AReference*, QString>();
+    QString myCurrentlyOpenedFile = "";
 
 
     static SaveManager& GetSaveManager();
@@ -28,7 +28,8 @@ private:
     static bool TryMakeTempFolder(const QString& _tempFolderPath);
     static int FindFileSeparatorStart(const QByteArray& _data, const int _start);
     static int WriteTempFileOnOpen(const QByteArray& _data, const QString& _tempFilePath, const int _separatorBegin);
-    void SaveFileInternal(const QString& _saveFilePath);
+    void SaveAutoInternal();
+    void SaveFileInternal(const QString& _saveFilePath, bool _isAutoSave = false);
     void OpenFileInternal(const QString& _saveFilePath);
 
     void ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
@@ -36,10 +37,13 @@ private:
     void ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
-    void ProcessDelayedRef();
 
 public:
+    static bool HasCurrentFile();
+    static const QString& GetCurrentSaveFile();
     static const QString& GetSaveFileExtension();
+    static void New();
+    static void SaveAuto();
     static void SaveFile(const QString& _saveFilePath);
     static void OpenFile(const QString& _saveFilePath);
     static bool IsOpeningFile();

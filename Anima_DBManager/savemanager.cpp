@@ -96,6 +96,16 @@ int SaveManager::WriteTempFileOnOpen(const QByteArray& _data, const QString& _te
 
     return nextSeparator;
 }
+
+void SaveManager::New()
+{
+    DB_Manager::GetDB_Manager().Reset();
+    GetSaveManager().myCurrentlyOpenedFile = "";
+}
+void SaveManager::SaveAuto()
+{
+    GetSaveManager().SaveAutoInternal();
+}
 void SaveManager::SaveFile(const QString& _saveFilePath)
 {
     SaveManager::GetSaveManager().SaveFileInternal(_saveFilePath);
@@ -111,13 +121,31 @@ bool SaveManager::IsOpeningFile()
 
 
 
+bool SaveManager::HasCurrentFile()
+{
+    return GetCurrentSaveFile() != "";
+}
+const QString& SaveManager::GetCurrentSaveFile()
+{
+    return GetSaveManager().myCurrentlyOpenedFile;
+}
 const QString& SaveManager::GetSaveFileExtension()
 {
     static const QString fileExt = "uadb";
     // Stands for Unreal Anima DataBase
     return fileExt;
 }
-void SaveManager::SaveFileInternal(const QString& _saveFilePath)
+void SaveManager::SaveAutoInternal()
+{
+    if (!HasCurrentFile())
+        return;
+
+    qDebug() << "AutoSaving";
+    QString autoFileName = myCurrentlyOpenedFile;
+    autoFileName.insert(autoFileName.lastIndexOf('.'), "_" + QDateTime::currentDateTime().toString(Qt::ISODate).replace(':', '-'));
+    SaveFileInternal(autoFileName, true);
+}
+void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSave)
 {
     // Save String Tables to a single file (values in CSV format)
     // Save enums
@@ -253,6 +281,8 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     csvProFile << "###PROJECT_FOLDER###\n";
     csvProFile << dbManager.GetAttributePrefix().toStdString() << '\n';
     csvProFile << dbManager.GetAttributeSuffix().toStdString() << '\n';
+    csvProFile << (dbManager.GetAutoSaveEnabled() ? 1 : 0) << '\n';
+    csvProFile << dbManager.GetAutoSaveInterval() << '\n';
     if (dbManager.IsProjectContentFolderPathValid())
     {
         csvProFile << dbManager.GetProjectContentFolderPath().toStdString() << '\n';
@@ -288,6 +318,12 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
+
+    // VIII. Remember the saved file as the opened one, only if regular save (ie not auto)
+    if (!_isAutoSave)
+    {
+        myCurrentlyOpenedFile = _saveFilePath;
+    }
 }
 void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 {
@@ -296,10 +332,9 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     // Import String Tables
     // Import Enums
     // Create the structure Tables from templates
-        // For the reference attr, if the referenced table doesn't exist yet, add the attribute in a temp array
-    // Fill all the values
-        // For reference attr, dont set the value but put it in the myDelayedReferenceValues map
-    // Once every structure has been created, set all the reference attributes
+    // Fill all the struct values
+    // Set myCurrentlyOpenedFile
+
 
 
 
@@ -366,16 +401,16 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     ProcessDataTempFile(tempFolderPath, dbManager);
 
 
-    // VIII. Fill Refs
 
-    ProcessDelayedRef();
-
-
-    // IX. Clean Up
+    // VIII. Clean Up
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
     myIsOpening = false;
+
+
+    // IX. Remember which file is open
+    myCurrentlyOpenedFile = _saveFilePath;
 }
 
 
@@ -389,6 +424,8 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     Q_ASSERT(proFirstLine == "###PROJECT_FOLDER###");
     _dbManager.SetAttributePrefix(proIn.readLine());
     _dbManager.SetAttributeSuffix(proIn.readLine());
+    const bool autoSaveFile = proIn.readLine() == '1';
+    _dbManager.SetAutoSave(autoSaveFile, proIn.readLine().toInt());
     _dbManager.SetProjectContentFolderPath(proIn.readLine());
 
     Q_ASSERT(proIn.atEnd());
@@ -564,13 +601,4 @@ void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager
         currentStructTable->ReadValue_JSON_Table(importedJson.value(strctName).toArray(), StructureImportHelper::OverwritePolicy::Overwrite);
     }
 }
-void SaveManager::ProcessDelayedRef()
-{
-    auto refAttributes = myRefMap.keys();
-    for (auto* aref : refAttributes)
-    {
-        aref->ReadValue_CSV(myRefMap[aref]);
-    }
 
-    myRefMap.clear();
-}

@@ -21,9 +21,11 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     QVBoxLayout* vLayout = new QVBoxLayout(this);
     setLayout(vLayout);
 
+    const QString titleStyle = "font-weight: bold";
+
     // Project Path
     auto* pathTitle = new QLabel("Unreal Project Path :");
-    pathTitle->setStyleSheet("font-weight: bold");
+    pathTitle->setStyleSheet(titleStyle);
     vLayout->addWidget(pathTitle);
     vLayout->addSpacing(3);
     const auto& dbManager = DB_Manager::GetDB_Manager();
@@ -41,7 +43,7 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
 
     vLayout->addSpacing(6);
     auto* fixTitle = new QLabel("Attribute Prefix/Suffix:");
-    fixTitle->setStyleSheet("font-weight: bold");
+    fixTitle->setStyleSheet(titleStyle);
     vLayout->addWidget(fixTitle);
     vLayout->addSpacing(3);
     QHBoxLayout* fixLayout = new QHBoxLayout();
@@ -57,6 +59,24 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     vLayout->addLayout(fixLayout);
     vLayout->addWidget(myFixResult);
     UpdateFixResult();
+
+    vLayout->addSpacing(6);
+    auto* autoSaveTitle = new QLabel("Automatic Save");
+    autoSaveTitle->setStyleSheet(titleStyle);
+    vLayout->addWidget(autoSaveTitle);
+    vLayout->addSpacing(3);
+    myAutoSaveEnable = new QCheckBox();
+    myAutoSaveInterval = new QSpinBox();
+    QFormLayout* autoSaveLayout = new QFormLayout();
+    QObject::connect(myAutoSaveEnable, &QCheckBox::toggled, myAutoSaveInterval, &QWidget::setEnabled);
+    autoSaveLayout->addRow("Enable AutoSave:", myAutoSaveEnable);
+    autoSaveLayout->addRow("AutoSave Interval (minuts):", myAutoSaveInterval);
+    vLayout->addLayout(autoSaveLayout);
+    const bool enabled = dbManager.GetAutoSaveEnabled();
+    myAutoSaveEnable->setChecked(enabled);
+    myAutoSaveInterval->setEnabled(enabled);
+    myAutoSaveInterval->setValue(dbManager.GetAutoSaveInterval());
+    //OnAutoSaveChanged(myAutoSaveEnable->checkState() == Qt::Checked);
 
 
     vLayout->addSpacing(12);
@@ -125,11 +145,13 @@ void QProjectDialog::UpdateFixResult()
     myFixResult->setText(fixResultTemplate.arg(ourOriginalAttributeName, myPrefixEdit->text(), mySuffixEdit->text(), ourPrefixColor, ourSuffixColor));
 }
 
+
 void QProjectDialog::OnApplyBtnClicked()
 {
     auto& dbManager = DB_Manager::GetDB_Manager();
     dbManager.SetProjectContentFolderPath(myProjectPath->text());
     dbManager.SetAttributePrefix(myPrefixEdit->text());
     dbManager.SetAttributeSuffix(mySuffixEdit->text());
+    dbManager.SetAutoSave(myAutoSaveEnable->checkState() != Qt::Unchecked, myAutoSaveInterval->value());
     QDialog::accept();
 }
