@@ -58,7 +58,7 @@ public:
     Attribute* GenerateAttribute() const;
 
     QJsonObject GetAsJson() const;
-    static TemplateAttribute NewAttributeFromJSON(const QJsonObject& _templateAttributeAsJson);
+    static TemplateAttribute* NewAttributeFromJSON(const QJsonObject& _templateAttributeAsJson);
 };
 
 #endif // TEMPLATEATTRIBUTE_H

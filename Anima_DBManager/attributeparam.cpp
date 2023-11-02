@@ -41,7 +41,7 @@ AttributeParam::AttributeParam(const QJsonObject& _paramAsJson) :
     min_f { (float)_paramAsJson.value("min_f").toDouble()},
     max_f { (float)_paramAsJson.value("max_f").toDouble()},
     templateAtt { _paramAsJson.contains("templateAtt") ?
-                    new TemplateAttribute(TemplateAttribute::NewAttributeFromJSON(_paramAsJson.value("templateAtt").toObject())) :
+                    TemplateAttribute::NewAttributeFromJSON(_paramAsJson.value("templateAtt").toObject()) :
                     nullptr},
     templateStruct {nullptr},
     structTable { _paramAsJson.contains("structTable") ?

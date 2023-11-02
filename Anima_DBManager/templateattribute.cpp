@@ -215,15 +215,15 @@ QJsonObject TemplateAttribute::GetAsJson() const
     obj.insert("default", myDefaultAttribute->GetAttributeAsJSON());
     return obj;
 }
-TemplateAttribute TemplateAttribute::NewAttributeFromJSON(const QJsonObject& _templateAttributeAsJson)
+TemplateAttribute* TemplateAttribute::NewAttributeFromJSON(const QJsonObject& _templateAttributeAsJson)
 {
     const QString name = _templateAttributeAsJson.value("name").toString();
     const AttributeTypeHelper::Type type = AttributeTypeHelper::Type(_templateAttributeAsJson.value("type").toInt());
     const AttributeParam param = AttributeParam(_templateAttributeAsJson.value("param").toObject());
 
-    TemplateAttribute templAttr = TemplateAttribute(name, type, param);
+    TemplateAttribute* templAttr = new TemplateAttribute(name, type, param);
 
-    templAttr.GetDefaultAttributeW()->ReadValue_JSON(_templateAttributeAsJson.value("default"));
+    templAttr->GetDefaultAttributeW()->ReadValue_JSON(_templateAttributeAsJson.value("default"));
 
     return templAttr;
 }

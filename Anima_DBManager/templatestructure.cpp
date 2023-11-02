@@ -85,8 +85,7 @@ void TemplateStructure::AddAttributeTemplateInternal(TemplateAttribute* _attTemp
 
     myAttributeTemplates.insert(_index, _attTemplateToCopy);
     QString newAttributeName = _newName != nullptr ? *_newName : _attTemplateToCopy->GetName();
-    bool skipSameNameCheck = !SaveManager::IsOpeningFile(); // was true (why ?) but caused issues on save file opening
-    RenameAttributeTemplate(_index, newAttributeName, skipSameNameCheck);
+    RenameAttributeTemplate(_index, newAttributeName, true);
 }
 void TemplateStructure::RemoveAttribute(int _index)
 {
@@ -210,9 +209,13 @@ TemplateStructure TemplateStructure::LoadTemplateNoAttribute(const QJsonObject& 
 }
 void TemplateStructure::LoadTemplateOnlyAttribute(const QJsonArray& _templateJson)
 {
+    int i = 0;
+    Q_ASSERT(myAttributeTemplates.count() == 0);
+    myAttributeTemplates.reserve(_templateJson.count());
     for (const auto& attrTemplateJson : _templateJson)
     {
-        TemplateAttribute temporaryAttr = TemplateAttribute::NewAttributeFromJSON(attrTemplateJson.toObject());
-        AddAttributeTemplate(temporaryAttr);
+        TemplateAttribute* temporaryAttr = TemplateAttribute::NewAttributeFromJSON(attrTemplateJson.toObject());
+        myAttributeTemplates.insert(i, temporaryAttr);
+        i++;
     }
 }
