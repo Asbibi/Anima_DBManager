@@ -97,6 +97,11 @@ int SaveManager::WriteTempFileOnOpen(const QByteArray& _data, const QString& _te
     return nextSeparator;
 }
 
+void SaveManager::New()
+{
+    DB_Manager::GetDB_Manager().Reset();
+    GetSaveManager().myCurrentlyOpenedFile = "";
+}
 void SaveManager::SaveAuto()
 {
     GetSaveManager().SaveAutoInternal();
@@ -116,6 +121,14 @@ bool SaveManager::IsOpeningFile()
 
 
 
+bool SaveManager::HasCurrentFile()
+{
+    return GetCurrentSaveFile() != "";
+}
+const QString& SaveManager::GetCurrentSaveFile()
+{
+    return GetSaveManager().myCurrentlyOpenedFile;
+}
 const QString& SaveManager::GetSaveFileExtension()
 {
     static const QString fileExt = "uadb";
@@ -127,7 +140,7 @@ void SaveManager::SaveAutoInternal()
     if (!myIsOpening)
         return;
 
-    QString autoFileName = "j";
+    QString autoFileName = myCurrentlyOpenedFile + "auto";
 }
 void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 {
@@ -300,6 +313,9 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
+
+    // VIII. Remember the saved file as the opened one
+    myCurrentlyOpenedFile = _saveFilePath;
 }
 void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 {
@@ -308,10 +324,9 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     // Import String Tables
     // Import Enums
     // Create the structure Tables from templates
-        // For the reference attr, if the referenced table doesn't exist yet, add the attribute in a temp array
-    // Fill all the values
-        // For reference attr, dont set the value but put it in the myDelayedReferenceValues map
-    // Once every structure has been created, set all the reference attributes
+    // Fill all the struct values
+    // Set myCurrentlyOpenedFile
+
 
 
 
@@ -378,16 +393,16 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     ProcessDataTempFile(tempFolderPath, dbManager);
 
 
-    // VIII. Fill Refs
 
-    ProcessDelayedRef();
-
-
-    // IX. Clean Up
+    // VIII. Clean Up
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
     myIsOpening = false;
+
+
+    // IX. Remember which file is open
+    myCurrentlyOpenedFile = _saveFilePath;
 }
 
 
@@ -576,13 +591,4 @@ void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager
         currentStructTable->ReadValue_JSON_Table(importedJson.value(strctName).toArray(), StructureImportHelper::OverwritePolicy::Overwrite);
     }
 }
-void SaveManager::ProcessDelayedRef()
-{
-    auto refAttributes = myRefMap.keys();
-    for (auto* aref : refAttributes)
-    {
-        aref->ReadValue_CSV(myRefMap[aref]);
-    }
 
-    myRefMap.clear();
-}

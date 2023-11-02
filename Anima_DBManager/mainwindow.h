@@ -19,7 +19,6 @@ class MainWindow : public QMainWindow
 
 private:
     DB_Manager& myManager;
-    QString myCurrentlyOpenedFile = "";
 
     QMenuBar* myMenuBar;
     QToolBox* myTableToolBox;
@@ -40,6 +39,7 @@ public:
     ~MainWindow();
 
     void Debug_Update();
+    void UpdateWindowName();
 
 public slots:
     void OnStringTableAdded(const int _index);

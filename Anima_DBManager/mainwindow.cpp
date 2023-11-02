@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     myManager(DB_Manager::GetDB_Manager())
 {
     setWindowIcon(QIcon(IconManager::GetAppIcon()));
+    UpdateWindowName();
     resize(1280,720);
 
     myMenuBar = new QMenuBar(this);
@@ -166,6 +167,15 @@ void MainWindow::Debug_Update()
     myEnumWidget->UpdateItemList();
     myStringWidget->UpdateItemList();
     myStructWidget->UpdateItemList();
+}
+void MainWindow::UpdateWindowName()
+{
+    QString windowName = "Anima DataBase Manager";
+    if (SaveManager::HasCurrentFile())
+    {
+        windowName.append(" - ").append(SaveManager::GetCurrentSaveFile());
+    }
+    setWindowTitle(windowName);
 }
 
 
@@ -391,7 +401,8 @@ bool MainWindow::OnNewDB()
         structTable->UnselectCurrent();
     }
 
-    DB_Manager::GetDB_Manager().Reset();
+    SaveManager::New();
+    UpdateWindowName();
 
     return true;
 }
@@ -406,11 +417,11 @@ void MainWindow::OnSaveAsDB()
 bool MainWindow::OnSaveDB_Internal(bool _saveAs)
 {
     const QString& fileExt = SaveManager::GetSaveFileExtension();
-    QString filePath = myCurrentlyOpenedFile;
+    QString filePath = SaveManager::GetCurrentSaveFile();
 
-    if (_saveAs || myCurrentlyOpenedFile.isEmpty() || !QFileInfo::exists(myCurrentlyOpenedFile))
+    if (_saveAs || filePath.isEmpty() || !QFileInfo::exists(filePath))
     {
-        if (myCurrentlyOpenedFile.isEmpty())
+        if (filePath.isEmpty())
         {
             filePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation) + "/New DataBase." + fileExt;
         }
@@ -427,6 +438,7 @@ bool MainWindow::OnSaveDB_Internal(bool _saveAs)
     qDebug() << filePath;
 
     SaveManager::SaveFile(filePath);
+    UpdateWindowName();
     return true;
 }
 void MainWindow::OnOpenDB()
@@ -434,7 +446,8 @@ void MainWindow::OnOpenDB()
     // Choose FilePath
 
     const QString& fileExt = SaveManager::GetSaveFileExtension();
-    QString filePath = myCurrentlyOpenedFile;
+    const QString& currentFilePath = SaveManager::GetCurrentSaveFile();
+    QString filePath = currentFilePath;
 
     if (filePath.isEmpty())
     {
@@ -447,7 +460,7 @@ void MainWindow::OnOpenDB()
     {
         return;
     }
-    if (myCurrentlyOpenedFile == filePath)
+    if (currentFilePath == filePath)
     {
         QMessageBox::StandardButton btn = QMessageBox::question(this, "Refresh opened", "The Database you asked to open is already opened.\nDo you want to reopen it ?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
         if (btn == QMessageBox::No)
@@ -467,10 +480,8 @@ void MainWindow::OnOpenDB()
     myManager.blockSignals(true);
     SaveManager::OpenFile(filePath);
     myManager.blockSignals(false);
-    OnResetView();
-
-    // set myCurrentlyOpenedFile et the end of the process
-    myCurrentlyOpenedFile = filePath;
+    OnResetView();    
+    UpdateWindowName();
 }
 
 // ================      Export Methods      ================
