@@ -90,7 +90,6 @@ void DB_Manager::SetAutoSave(bool _enabled, int _intervalMinut)
 
     myAutoSaveInterval = _intervalMinut;
     int intervalAsMS = myAutoSaveInterval * 60000;
-    intervalAsMS = 3000;
     myAutoSaveTimer->setInterval(intervalAsMS);
     myAutoSaveTimer->start(intervalAsMS);
 }
@@ -882,6 +881,5 @@ void DB_Manager::AskUpdateOnStringPanel(const int _tableIndex)
 
 void DB_Manager::AutoSave()
 {
-    qDebug() << "AutoSaving";
     SaveManager::SaveAuto();
 }

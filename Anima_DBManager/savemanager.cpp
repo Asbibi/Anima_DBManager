@@ -137,12 +137,15 @@ const QString& SaveManager::GetSaveFileExtension()
 }
 void SaveManager::SaveAutoInternal()
 {
-    if (!myIsOpening)
+    if (!HasCurrentFile())
         return;
 
-    QString autoFileName = myCurrentlyOpenedFile + "auto";
+    qDebug() << "AutoSaving";
+    QString autoFileName = myCurrentlyOpenedFile;
+    autoFileName.insert(autoFileName.lastIndexOf('.'), "_" + QDateTime::currentDateTime().toString(Qt::ISODate).replace(':', '-'));
+    SaveFileInternal(autoFileName, true);
 }
-void SaveManager::SaveFileInternal(const QString& _saveFilePath)
+void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSave)
 {
     // Save String Tables to a single file (values in CSV format)
     // Save enums
@@ -314,8 +317,11 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
 
-    // VIII. Remember the saved file as the opened one
-    myCurrentlyOpenedFile = _saveFilePath;
+    // VIII. Remember the saved file as the opened one, only if regular save (ie not auto)
+    if (!_isAutoSave)
+    {
+        myCurrentlyOpenedFile = _saveFilePath;
+    }
 }
 void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 {

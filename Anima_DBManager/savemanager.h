@@ -29,7 +29,7 @@ private:
     static int FindFileSeparatorStart(const QByteArray& _data, const int _start);
     static int WriteTempFileOnOpen(const QByteArray& _data, const QString& _tempFilePath, const int _separatorBegin);
     void SaveAutoInternal();
-    void SaveFileInternal(const QString& _saveFilePath);
+    void SaveFileInternal(const QString& _saveFilePath, bool _isAutoSave = false);
     void OpenFileInternal(const QString& _saveFilePath);
 
     void ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
