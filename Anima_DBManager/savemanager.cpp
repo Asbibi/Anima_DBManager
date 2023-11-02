@@ -96,6 +96,11 @@ int SaveManager::WriteTempFileOnOpen(const QByteArray& _data, const QString& _te
 
     return nextSeparator;
 }
+
+void SaveManager::SaveAuto()
+{
+    GetSaveManager().SaveAutoInternal();
+}
 void SaveManager::SaveFile(const QString& _saveFilePath)
 {
     SaveManager::GetSaveManager().SaveFileInternal(_saveFilePath);
@@ -116,6 +121,13 @@ const QString& SaveManager::GetSaveFileExtension()
     static const QString fileExt = "uadb";
     // Stands for Unreal Anima DataBase
     return fileExt;
+}
+void SaveManager::SaveAutoInternal()
+{
+    if (!myIsOpening)
+        return;
+
+    QString autoFileName = "j";
 }
 void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 {

@@ -10,6 +10,7 @@
 #include <QString>
 #include <QStandardPaths>
 #include <QList>
+#include <QTimer>
 #include <vector>
 
 class DB_Manager : public QObject
@@ -23,6 +24,10 @@ private:
 
     QString myAttributePrefix = "";
     QString myAttributeSuffix = "";
+
+    bool myAutoSaveEnabled = false;
+    int myAutoSaveInterval = 15;        // unit : minut
+    QTimer* myAutoSaveTimer;
 
     QList<AttributeParam*> myAttributeParamPtrs;
     QList<Enumerator> enumerators;
@@ -52,6 +57,10 @@ public:
     const QString& GetAttributePrefix() const;
     const QString& GetAttributeSuffix() const;
     QString GetAttributeFullName(const QString& _attributeName) const;
+
+    void SetAutoSave(bool _enabled, int _intervalMinut);
+    bool GetAutoSaveEnabled() const;
+    int GetAutoSaveInterval() const;
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
@@ -142,6 +151,9 @@ signals:
     void StructAttributeNameChanged(const int _tableIndex);
 
     void ResetView();
+
+public slots:
+    void AutoSave();
 };
 
 #endif // DB_MANAGER_H

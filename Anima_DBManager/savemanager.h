@@ -40,6 +40,7 @@ private:
 
 public:
     static const QString& GetSaveFileExtension();
+    static void SaveAuto();
     static void SaveFile(const QString& _saveFilePath);
     static void OpenFile(const QString& _saveFilePath);
     static bool IsOpeningFile();
