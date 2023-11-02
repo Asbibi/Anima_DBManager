@@ -3,8 +3,10 @@
 
 #include <QDialog>
 
+#include <QCheckBox>
 #include <QLabel>
 #include <QLineEdit>
+#include <QSpinBox>
 
 
 class QProjectDialog : public QDialog
@@ -20,6 +22,9 @@ private:
     QLineEdit* myPrefixEdit;
     QLineEdit* mySuffixEdit;
     QLabel* myFixResult;
+
+    QCheckBox* myAutoSaveEnable;
+    QSpinBox* myAutoSaveInterval;
 
     void SetPath(const QString& _path);
     void OnFixChanged(bool _isPrefix);

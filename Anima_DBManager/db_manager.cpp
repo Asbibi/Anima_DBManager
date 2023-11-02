@@ -223,8 +223,6 @@ void DB_Manager::Init()
 
     myAutoSaveTimer = new QTimer(this);
     QObject::connect(myAutoSaveTimer, &QTimer::timeout, this, &DB_Manager::AutoSave);
-    SetAutoSave(true, 15);
-
 #else
 
 #endif
