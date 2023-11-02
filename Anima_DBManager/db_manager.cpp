@@ -256,6 +256,8 @@ void DB_Manager::Reset()
     myProjectContentFolderPath = "";
     myAttributePrefix = "";
     myAttributeSuffix = "";
+    SetAutoSave(false, 15);
+    myAutoSaveInterval = 15;
 
     blockSignals(false);
 

@@ -281,6 +281,8 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     csvProFile << "###PROJECT_FOLDER###\n";
     csvProFile << dbManager.GetAttributePrefix().toStdString() << '\n';
     csvProFile << dbManager.GetAttributeSuffix().toStdString() << '\n';
+    csvProFile << (dbManager.GetAutoSaveEnabled() ? 1 : 0) << '\n';
+    csvProFile << dbManager.GetAutoSaveInterval() << '\n';
     if (dbManager.IsProjectContentFolderPathValid())
     {
         csvProFile << dbManager.GetProjectContentFolderPath().toStdString() << '\n';
@@ -422,6 +424,8 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     Q_ASSERT(proFirstLine == "###PROJECT_FOLDER###");
     _dbManager.SetAttributePrefix(proIn.readLine());
     _dbManager.SetAttributeSuffix(proIn.readLine());
+    const bool autoSaveFile = proIn.readLine() == '1';
+    _dbManager.SetAutoSave(autoSaveFile, proIn.readLine().toInt());
     _dbManager.SetProjectContentFolderPath(proIn.readLine());
 
     Q_ASSERT(proIn.atEnd());
