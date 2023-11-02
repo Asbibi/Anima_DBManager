@@ -25,6 +25,15 @@ QString ATableString::GetAttributeAsCSV() const
 {
     return "(myTable=" + myTableName + ",myKey=\"" + myStringIdentifier+ "\")";
 }
+QJsonValue ATableString::GetAttributeAsJSON() const
+{
+    QJsonObject stringRefAsJSON = QJsonObject();
+
+    stringRefAsJSON.insert("myTable", myTableName);
+    stringRefAsJSON.insert("myKey", myStringIdentifier);
+
+    return QJsonValue(stringRefAsJSON);
+}
 void ATableString::SetValueFromText(const QString& text)
 {
     if (text.isEmpty() || text == "##")
@@ -67,6 +76,27 @@ void ATableString::CopyValueFromOther(const Attribute* _other)
 
     myTableName = other_ATS->myTableName;
     myStringIdentifier = other_ATS->myStringIdentifier;
+}
+bool ATableString::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isObject())
+    {
+        return false;
+    }
+
+    QJsonObject valueAsObj = _value.toObject();
+    const QJsonValue& tabKey = valueAsObj.value("myTable");
+    const QJsonValue& strKey = valueAsObj.value("myKey");
+
+    if (!tabKey.isString() || !strKey.isString())
+    {
+        return false;
+    }
+
+    myTableName = tabKey.toString();
+    myStringIdentifier = strKey.toString();
+
+    return true;
 }
 void ATableString::ReadValue_CSV(const QString& _text)
 {

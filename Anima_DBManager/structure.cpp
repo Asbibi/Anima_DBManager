@@ -87,6 +87,18 @@ void Structure::SetAttributeValueFromText(const QString& _attName, QString _valu
 {
     SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _valueText);
 }
+void Structure::ReadValue_JSON(const QJsonObject& _structAsJson)
+{
+    for (int i = 0; i < myAttributes.size(); i++)
+    {
+        const QString& attrName = myTemplate.GetAttributeName(i);
+        const bool _jsonRead = myAttributes[i]->ReadValue_JSON(_structAsJson.value(attrName));
+        if (!_jsonRead)
+        {
+            qWarning() << _structAsJson.value("Name").toString() << " - Ignored " << attrName << " Attribute value : invalid json type" << _structAsJson.value(attrName);
+        }
+    }
+}
 void Structure::ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue)
 {
     if (_attIndex < 0 || _attIndex >= myAttributes.size())
@@ -136,6 +148,30 @@ void Structure::GetAttributesDisplayedText(QString& _text) const
         _text.append(myAttributes[i]->GetValueAsText());
     }
 }
+QJsonObject Structure::WriteValue_JSON_AsRow() const
+{
+    QJsonObject structAsJSON = QJsonObject();
+
+    //structAsJSON.insert("Name", QJsonValue());
+
+    for (int i = 0; i < myAttributes.size(); i++)
+    {
+        structAsJSON.insert(myTemplate.GetAttributeName(i), myAttributes[i]->GetAttributeAsJSON());
+    }
+
+    return structAsJSON;
+}
+void Structure::WriteValue_CSV_AsRow(std::ofstream& file) const
+{
+    // Add all attribute values in between ""
+    for (const auto& att : myAttributes)
+    {
+        file << ",\"";
+        att->WriteValue_CSV(file);
+        file << "\"";
+    }
+    file << "\n";
+}
 QString Structure::GetStructureAsCSV() const
 {
     QString structAsCSV = "(";
@@ -163,17 +199,6 @@ QString Structure::GetStructureAsCSV() const
 
     structAsCSV.append(')');
     return structAsCSV;
-}
-void Structure::WriteValue_CSV_AsRow(std::ofstream& file) const
-{
-    // Add all attribute values in between ""
-    for (const auto& att : myAttributes)
-    {
-        file << ",\"";
-        att->WriteValue_CSV(file);
-        file << "\"";
-    }
-    file << "\n";
 }
 QString Structure::GetDisplayText() const
 {

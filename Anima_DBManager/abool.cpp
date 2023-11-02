@@ -21,6 +21,10 @@ QString ABool::GetAttributeAsCSV() const
 {
     return value ? "True" : "False";
 }
+QJsonValue ABool::GetAttributeAsJSON() const
+{
+    return QJsonValue(value);
+}
 void ABool::SetValueFromText(const QString& text)
 {
     SetValue(QString::compare(text, "true", Qt::CaseInsensitive) == 0);
@@ -32,6 +36,16 @@ void ABool::CopyValueFromOther(const Attribute* _other)
         return;
 
     value = other_AB->value;
+}
+bool ABool::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isBool())
+    {
+        return false;
+    }
+
+    value = _value.toBool();
+    return true;
 }
 
 

@@ -1,9 +1,11 @@
 #ifndef STRUCTURE_H
 #define STRUCTURE_H
 
-#include "templatestructure.h"
-#include <QList>
 #include <QObject>
+
+#include "templatestructure.h"
+#include <QJsonObject>
+#include <QList>
 
 /**
  * Data Object for a Structure Object.
@@ -32,6 +34,7 @@ public:
     const QList<Attribute*>& GetAttributes() const;
     void SetAttributeValueFromText(int _attIndex, QString _valueText);
     void SetAttributeValueFromText(const QString& _attName, QString _valueText);
+    void ReadValue_JSON(const QJsonObject& _structAsJson);
     void ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue);
     void MoveAttribute(int _indexFrom, int _indexTo);
     void ResetAttributeToDefault(int _attindex);
@@ -40,8 +43,9 @@ public:
     void RemoveAttribute(int _position);
 
     void GetAttributesDisplayedText(QString& _text) const;
-    QString GetStructureAsCSV() const;                      // Used for structure as attribute of other structures
+    QJsonObject WriteValue_JSON_AsRow() const;
     void WriteValue_CSV_AsRow(std::ofstream& file) const;   // Used to directly save a row structure of a DataTable
+    QString GetStructureAsCSV() const;                      // Used for structure as attribute of other structures
     QString GetDisplayText() const;
     bool IsOneOfMyAttributes(const Attribute* _attributePtr) const;
 };

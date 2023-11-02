@@ -35,6 +35,10 @@ QString AStructure::GetAttributeAsCSV() const
 {
     return myValue->GetStructureAsCSV();
 }
+QJsonValue AStructure::GetAttributeAsJSON() const
+{
+    return QJsonValue(myValue->WriteValue_JSON_AsRow());
+}
 void AStructure::SetValueFromText(const QString& text)
 {
     // Manage to remove starting '{' and final '}'
@@ -119,6 +123,17 @@ void AStructure::CopyValueFromOther(const Attribute* _other)
         return;
 
     myValue = other_AS->myValue;
+}
+bool AStructure::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isObject())
+    {
+        return false;
+    }
+
+    Q_ASSERT(myValue != nullptr);
+    myValue->ReadValue_JSON(_value.toObject());
+    return true;
 }
 
 

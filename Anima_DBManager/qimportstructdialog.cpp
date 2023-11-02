@@ -4,6 +4,7 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QHBoxLayout>
+#include <QJsonDocument>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -97,17 +98,39 @@ bool QImportStructDialog::CheckCSVHearders(const StructureDB* _stringTable, cons
 }
 
 
-void QImportStructDialog::PerformImport(StructureDB* _structTable, int _overrideChoice)
+void QImportStructDialog::PerformImport(StructureDB* _structTable, StructureImportHelper::OverwritePolicy _overrideChoice)
 {
     Q_ASSERT(_structTable != nullptr);
     qDebug() << "Import Struct Table";
 
     QFile file(mySelectedFilePath);
     if(!file.open(QIODevice::ReadOnly)) {
-        QMessageBox::information(0, "Error Reading CSV file", file.errorString());
+        QMessageBox::critical(0, "Error Reading file", file.errorString());
     }
 
-    QTextStream in(&file);
+    if (mySelectedFilePath.endsWith(".json"))
+    {
+        PerformImportJSON(file, _structTable, _overrideChoice);
+    }
+    else if (mySelectedFilePath.endsWith(".csv"))
+    {
+        PerformImportCSV(file, _structTable, _overrideChoice);
+    }
+    else
+    {
+        QMessageBox::warning(0, "Error Reading file", "File extension not handled.\nImport is aborted.");
+    }
+
+    file.close();
+}
+void QImportStructDialog::PerformImportJSON(QFile& _importedFile, StructureDB* _structTable, StructureImportHelper::OverwritePolicy _overrideChoice)
+{
+    const QJsonArray importedJsonsArray = QJsonDocument::fromJson(_importedFile.readAll()).array();
+    _structTable->ReadValue_JSON_Table(importedJsonsArray, _overrideChoice);
+}
+void QImportStructDialog::PerformImportCSV(QFile& _importedFile, StructureDB* _structTable, StructureImportHelper::OverwritePolicy _overrideChoice)
+{
+    QTextStream in(&_importedFile);
 
     const int attrCount = _structTable->GetTemplate().GetAttributesCount();
     const int attrCountPlusKey = attrCount + 1;
@@ -149,8 +172,6 @@ void QImportStructDialog::PerformImport(StructureDB* _structTable, int _override
 
         _structTable->ReadValue_CSV_Table(structIndex, fields, _overrideChoice);
     }
-
-    file.close();
 }
 
 
@@ -166,7 +187,7 @@ void QImportStructDialog::OnApplyBtnClicked()
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     int structTableIndex = myTableComboBox->currentIndex();
 
-    PerformImport(dbManager.GetStructureTable(structTableIndex), overrideChoice);
+    PerformImport(dbManager.GetStructureTable(structTableIndex), StructureImportHelper::OverwritePolicy(overrideChoice));
 
     QDialog::accept();
 }
@@ -175,7 +196,11 @@ void QImportStructDialog::OnFileBtnClicked()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open CSV Struct Table file",
                                                     DB_Manager::GetDB_Manager().GetProjectContentFolderPath(),
-                                                    "CSV (*.csv)");
+#ifdef CSV_EXPORT_ENABLED
+                                                    "All Exports (*.json *.csv);;JSON (*.json);;CSV (*.csv)");
+#else
+                                                    "JSON (*.json)");
+#endif
 
     if (fileName.isEmpty())
     {

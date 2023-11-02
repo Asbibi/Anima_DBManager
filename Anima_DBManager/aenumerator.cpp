@@ -27,6 +27,10 @@ QString AEnumerator::GetAttributeAsCSV() const
 {
     return CheckEnumIsValid() ? GetDisplayedText() : "";
 }
+QJsonValue AEnumerator::GetAttributeAsJSON() const
+{
+    return QJsonValue(GetAttributeAsCSV());
+}
 void AEnumerator::SetValueFromText(const QString& text)
 {
     if (!CheckEnumIsValid())
@@ -47,6 +51,16 @@ void AEnumerator::CopyValueFromOther(const Attribute* _other)
         return;
 
     value_index = other_AE->value_index;
+}
+bool AEnumerator::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isString())
+    {
+        return false;
+    }
+
+    SetValueFromText(_value.toString());
+    return true;
 }
 
 

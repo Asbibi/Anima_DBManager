@@ -1,5 +1,6 @@
 #include "areference.h"
 
+#include "savemanager.h"
 #include "structure.h"
 #include "structuredb.h"
 
@@ -38,23 +39,29 @@ QString AReference::GetAttributeAsCSV() const
         MY_SHARED_PARAM.structTable->GetStructureRowName(myStructureRef) :
         "";
 }
+QJsonValue AReference::GetAttributeAsJSON() const
+{
+    return QJsonValue(GetAttributeAsCSV());
+}
 void AReference::SetValueFromText(const QString& text)
 {
+    Q_ASSERT(text[0] == '&');
     QString contentText = text;
-    if (contentText[0] != '&')
-    {
-        qFatal("\n\nMissing start '&' character while setting <REFERENCE> Attribute's value:\n\n\t===== Abort =====\n\n");
-        return;
-    }
+
     bool ok;
     int structIndex = (contentText.remove('&')).toInt(&ok);
-    if (!ok || !MY_SHARED_PARAM.structTable || structIndex < 0)
+    StructureDB* structTable = MY_SHARED_PARAM.structTable;
+    if (!ok || !structTable || structIndex < 0)
     {
         SetReference(nullptr);
         return;
     }
 
-    SetReference(MY_SHARED_PARAM.structTable->GetStructureAt(structIndex));
+    if (structIndex >= structTable->GetStructureCount() && SaveManager::IsOpeningFile())
+    {
+        structTable->SetStructureCount(structIndex+1);
+    }
+    SetReference(structTable->GetStructureAt(structIndex));
 }
 void AReference::CopyValueFromOther(const Attribute* _other)
 {
@@ -64,9 +71,19 @@ void AReference::CopyValueFromOther(const Attribute* _other)
 
     myStructureRef = other_AR->myStructureRef;
 }
+bool AReference::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isString())
+    {
+        return false;
+    }
+
+    SetValueFromText(ConvertRowNameToTextValue(_value.toString()));
+    return true;
+}
 void AReference::ReadValue_CSV(const QString& _text)
 {
-    SetValueFromText('&' + QString(_text).remove(MY_SHARED_PARAM.structTable->GetTemplateAbbrev()));
+    SetValueFromText(ConvertRowNameToTextValue(_text));
 }
 
 
@@ -104,4 +121,9 @@ int AReference::GetReferenceIndex() const
 
     qCritical() << "My Ref not found in structs: should be null";
     return -1;
+}
+
+QString AReference::ConvertRowNameToTextValue(const QString& _rowName) const
+{
+    return '&' + QString(_rowName).remove(MY_SHARED_PARAM.structTable->GetTemplateAbbrev());
 }

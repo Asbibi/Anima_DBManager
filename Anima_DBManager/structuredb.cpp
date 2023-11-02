@@ -180,11 +180,25 @@ void StructureDB::RemoveAttribute(int _position)
     }
     myTemplate.RemoveAttribute(_position);
 }
-void StructureDB::SetAttributesFromList(const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap)
+void StructureDB::SetAttributeTemplatesFromJSON(const QJsonArray& _attributesAsJson)
 {
     // no use for this method outside of the Open action, if nec adapt it later to be usable at any state
-    Q_ASSERT(myStructures.count() == 0);
-    myTemplate.SetAttributeFromList(_stringList, _outRefMap);
+    myTemplate.LoadTemplateOnlyAttribute(_attributesAsJson);
+    if(myStructures.count() == 0)
+    {
+        return;
+    }
+
+    const int attrCount = myTemplate.GetAttributesCount();
+    for (auto* str : myStructures)
+    {
+        Q_ASSERT(str->GetAttributeCount() == 0);
+        for (int i = 0; i <attrCount; i++)
+        {
+            str->AddAttribute(i, false);
+            str->FixAttributeTypeToDefault(i);
+        }
+    }
 }
 bool StructureDB::UpdateMyAAssetIsDirty()
 {
@@ -309,6 +323,22 @@ int StructureDB::GetStructureIndex(const Structure* _structure) const
     return i;
 }
 
+
+
+QJsonArray StructureDB::WriteValue_JSON_Table() const
+{
+    QJsonArray jsonStructArray = QJsonArray();
+
+    const int count = GetStructureCount();
+    for (int i = 0; i < count; i++)
+    {
+        QJsonObject rowAsJSON = myStructures[i]->WriteValue_JSON_AsRow();
+        rowAsJSON.insert("Name", GetStructureRowName(i));
+        jsonStructArray.append(QJsonValue(rowAsJSON));
+    }
+
+    return jsonStructArray;
+}
 void StructureDB::WriteValue_CSV_Table(std::ofstream& file) const
 {
     file << "---";
@@ -327,22 +357,65 @@ void StructureDB::WriteValue_CSV_Table(std::ofstream& file) const
         myStructures[i]->WriteValue_CSV_AsRow(file);
     }
 }
-void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, int _overwritePolicy)
+void StructureDB::ReadValue_JSON_Table(const QJsonArray& _structArrayJson, StructureImportHelper::OverwritePolicy _overwritePolicy)
+{
+    const int structsJsonCount = _structArrayJson.count();
+    if (structsJsonCount == 0)
+    {
+        return;
+    }
+
+    const QString& myAbbrev = GetTemplateAbbrev();
+    bool parsingOK = true;
+    for (int i = 0; i < structsJsonCount; i++)
+    {
+        const QJsonObject structJson = _structArrayJson[i].toObject();
+
+        int structIndex = structJson.value("Name").toString().remove(myAbbrev).toInt(&parsingOK);
+        if (!parsingOK)
+        {
+            qWarning() << "Struct " << i << " skipped because index couldn't be retrieved : " << structJson;
+            continue;
+        }
+
+
+        int rowCount = GetStructureCount();
+        bool exists = structIndex < rowCount;
+
+        if (exists && _overwritePolicy == StructureImportHelper::OverwritePolicy::KeepExisting)
+        {
+            // Keep existing
+            // nothing to do
+            return;
+        }
+        else if (!exists || _overwritePolicy == StructureImportHelper::OverwritePolicy::NewRow)
+        {
+            // Write in a new row
+            // -> Add enough lines to meet _index
+            SetStructureCount(structIndex + 1);
+        }
+        // else (exists && policy=3): overwrite existing
+
+
+        myStructures[structIndex]->ReadValue_JSON(structJson);
+    }
+}
+void StructureDB::ReadValue_CSV_Table(int _index, const QStringList& fields, StructureImportHelper::OverwritePolicy _overwritePolicy)
 {
     int rowCount = GetStructureCount();
     bool exists = _index < rowCount;
 
-    if (exists && _overwritePolicy == 1)
+    if (exists && _overwritePolicy  == StructureImportHelper::OverwritePolicy::KeepExisting)
     {
         // Keep existing
         // nothing to do
         return;
     }
-    else if (!exists || _overwritePolicy == 2)
+    else if (!exists || _overwritePolicy  == StructureImportHelper::OverwritePolicy::NewRow)
     {
         // Write in a new row
-        _index = rowCount;
-        AddStructureAt(-1);
+        // -> Add enough lines to meet _index
+        SetStructureCount(_index + 1);
     }
     // else (exists && policy=3): overwrite existing
 

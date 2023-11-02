@@ -2,6 +2,7 @@
 
 #include "templateattribute.h"
 #include <QDebug>
+#include <QJsonArray>
 
 AArray::AArray(TemplateAttribute& _template) :
     Attribute(_template)
@@ -26,6 +27,29 @@ AArray::~AArray()
     }
 }
 
+
+
+void AArray::SetCount(int _count)
+{
+    const int currentSize = myValues.size();
+    if (currentSize < _count)
+    {
+        const int diff = _count - currentSize;
+        for (int i = 0; i < diff; i++)
+        {
+            AddRow(-1);
+        }
+    }
+    else if (currentSize > _count)
+    {
+        const int diff = currentSize - _count;
+        for (int i = 0; i < diff; i++)
+        {
+            RemoveRow(0);
+        }
+    }
+    Q_ASSERT(_count == myValues.size());
+}
 
 QString AArray::GetDisplayedText() const
 {
@@ -58,6 +82,17 @@ QString AArray::GetAttributeAsCSV() const
     }
 
     return arrayAsCSV.append(')');
+}
+QJsonValue AArray::GetAttributeAsJSON() const
+{
+    QJsonArray attributesAsJSON = QJsonArray();
+
+    for (const auto* attr : myValues)
+    {
+        attributesAsJSON.append(attr->GetAttributeAsJSON());
+    }
+
+    return QJsonValue(attributesAsJSON);
 }
 void AArray::SetValueFromText(const QString& text)
 {
@@ -119,26 +154,7 @@ void AArray::SetValueFromText(const QString& text)
         Q_ASSERT(openBrackets.size() == 0);
     }
 
-
-    const int finalSize = finalList.size();
-    const int currentSize = myValues.size();
-    if (currentSize < finalSize)
-    {
-        const int diff = finalSize - currentSize;
-        for (int i = 0; i < diff; i++)
-        {
-            AddRow(-1);
-        }
-    }
-    else if (currentSize > finalSize)
-    {
-        const int diff = currentSize - finalSize;
-        for (int i = 0; i < diff; i++)
-        {
-            RemoveRow(0);
-        }
-    }
-    Q_ASSERT(finalSize == myValues.size());
+    SetCount(finalList.size());
 
 
     // Apply all the strings in the finalList to their attribute
@@ -166,6 +182,24 @@ void AArray::CopyValueFromOther(const Attribute* _other)
         myValues[i]->CopyValueFromOther(other_AA->myValues[i]);
     for (int i=myCount; i < otherCount; i++)
         myValues.push_back(other_AA->myValues[i]->CreateDuplica());
+}
+bool AArray::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isArray())
+    {
+        return false;
+    }
+
+    QJsonArray jsonAsArray = _value.toArray();
+    const int jsonCount = jsonAsArray.count();
+    SetCount(jsonCount);
+
+    for (int i = 0; i < jsonCount; i++)
+    {
+        myValues[i]->ReadValue_JSON(jsonAsArray[i]);
+    }
+
+    return true;
 }
 void AArray::ReadValue_CSV(const QString& text)
 {

@@ -3,19 +3,20 @@
 #include <QDebug>
 #include <QDir>
 #include <QFileInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QMessageBox>
 
 #include "sstringimporter.h"
 #include "structureimporthelper.h"
 
-//#define WITH_COMPRESSION
 
 const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
-const QString SaveManager::fileEndString = "ST.csv";
-const QString SaveManager::fileEndEnum = "EN.csv";
-const QString SaveManager::fileEndTemplate = "TP.csv";
-const QString SaveManager::fileEndData = "DT.csv";
-const QString SaveManager::fileEndPro = "PR.csv";
+const QString SaveManager::fileEndString = "1_ST.csv";
+const QString SaveManager::fileEndEnum = "2_EN.csv";
+const QString SaveManager::fileEndTemplate = "3_TP.json";
+const QString SaveManager::fileEndData = "4_DT.json";
+const QString SaveManager::fileEndPro = "5_PR.csv";
 
 SaveManager::SaveManager()
 {}
@@ -36,6 +37,11 @@ bool SaveManager::TryMakeTempFolder(const QString& _tempFolderPath)
 {
     if (QFileInfo::exists(_tempFolderPath))
     {
+#ifdef REPLACE_TEMP_SAVE_FOLDER
+        QDir tempDir(_tempFolderPath);
+        tempDir.removeRecursively();
+        qWarning() << "Temp Save Folder alreday exists : deleted and recreated";
+#else
         QString warningtext = "Needed temporary folder \"" + _tempFolderPath + "\" already exists.\n\nPlease delete it or change your file name before saving again.";
         QMessageBox::information(
             nullptr,
@@ -43,6 +49,7 @@ bool SaveManager::TryMakeTempFolder(const QString& _tempFolderPath)
             warningtext,
             QMessageBox::Ok);
         return false;
+#endif
     }
 
     QDir().mkdir(_tempFolderPath);
@@ -97,6 +104,10 @@ void SaveManager::OpenFile(const QString& _saveFilePath)
 {
     SaveManager::GetSaveManager().OpenFileInternal(_saveFilePath);
 }
+bool SaveManager::IsOpeningFile()
+{
+    return SaveManager::GetSaveManager().myIsOpening;
+}
 
 
 
@@ -111,6 +122,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
     // Save String Tables to a single file (values in CSV format)
     // Save enums
     // Save Structure templates
+    // Save Structure default attributes
     // Save structures as CSV or through the setByTextFormat
     // Save Project infos
     // Zip all files to a single save file
@@ -119,6 +131,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     // 0. Preparation
 
+    Q_ASSERT(!myIsOpening);
     const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
     if (!TryMakeTempFolder(tempFolderPath))
@@ -152,8 +165,9 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
         const QString& tableName = table->GetTableName();
         for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
         {
-            csvStringFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###\n";
+            csvStringFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###";
             table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l);
+            csvStringFile << '\n';
         }
     }
     csvStringFile.close();
@@ -180,23 +194,26 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
 
 
-    // III. Save structure templates
+    // III. Save structure templates & Structure defaults
 
     const int structTableCount = dbManager.GetStructuresCount();
-    QString templFilePath = tempFolderPath + fileEndTemplate;
-    tempFileList << templFilePath;
-    std::ofstream csvTemplFile(templFilePath.toStdString());
-    if (!csvTemplFile)
-    {
-        qCritical() << "ERROR SAVING DB : temp file " << templFilePath << " couldn't be created";
-        return;
-    }
+    QJsonArray templateJson = QJsonArray();
     for (int i = 0; i < structTableCount; i++)
     {
         const auto& templateStruct = dbManager.GetStructureTable(i)->GetTemplate();
-        templateStruct.SaveTemplate_CSV(csvTemplFile);
+        templateStruct.SaveTemplate(templateJson);
     }
-    csvTemplFile.close();
+
+    QString templateFilePath = tempFolderPath + fileEndTemplate;
+    tempFileList << templateFilePath;
+    QFile jsonTemplateFile = QFile(templateFilePath);
+    if(!jsonTemplateFile.open(QIODevice::ReadWrite))
+    {
+        qCritical() << "ERROR SAVING DB : default file " << templateFilePath << " couldn't be created";
+        return;
+    }
+    jsonTemplateFile.write(QJsonDocument(templateJson).toJson());
+    jsonTemplateFile.close();
 
 
 
@@ -204,19 +221,22 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
 
     QString structFilePath = tempFolderPath + fileEndData;
     tempFileList << structFilePath;
-    std::ofstream csvStructFile(structFilePath.toStdString());
-    if (!csvStructFile)
+    QFile jsonStructFile = QFile(structFilePath);
+    if(!jsonStructFile.open(QIODevice::ReadWrite))
     {
         qCritical() << "ERROR SAVING DB : temp file " << structFilePath << " couldn't be created";
         return;
     }
+    QJsonObject structData = QJsonObject();
     for (int i = 0; i < structTableCount; i++)
     {
         const auto* structTable = dbManager.GetStructureTable(i);
-        csvStructFile << "###" << structTable->GetTemplateName().toStdString() << "###\n";
-        structTable->WriteValue_CSV_Table(csvStructFile);
+        structData.insert(structTable->GetTemplateName(), structTable->WriteValue_JSON_Table());
+        //csvStructFile << "###" << structTable->GetTemplateName().toStdString() << "###\n";
+        //structTable->WriteValue_CSV_Table(csvStructFile);
     }
-    csvStructFile.close();
+    jsonStructFile.write(QJsonDocument(structData).toJson());
+    jsonStructFile.close();
 
 
 
@@ -252,7 +272,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath)
         uncompressedData.append(infile.readAll());
         infile.close();
     }
-#ifdef WITH_COMPRESSION
+#ifdef SAVE_WITH_COMPRESSION
     QByteArray compressedData = qCompress(uncompressedData,9);
     saveFile.write(compressedData);
 #else
@@ -283,6 +303,8 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // 0. Preparation
 
+    Q_ASSERT(!myIsOpening);
+    myIsOpening = true;
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
     if (!TryMakeTempFolder(tempFolderPath))
@@ -296,7 +318,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::ReadOnly);
-#ifdef WITH_COMPRESSION
+#ifdef SAVE_WITH_COMPRESSION
     QByteArray compressedData = saveFile.readAll();
     QByteArray uncompressedData = qUncompress(compressedData);
 #else
@@ -351,6 +373,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
+    myIsOpening = false;
 }
 
 
@@ -365,6 +388,7 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     _dbManager.SetProjectContentFolderPath(proIn.readLine());
 
     Q_ASSERT(proIn.atEnd());
+    projectFile.close();
 }
 void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath)
 {
@@ -438,6 +462,8 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath)
     {
         importerMap[tableName].PerformImport(-1, 0, tableName);
     }
+
+    file.close();
 }
 void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
 {
@@ -491,61 +517,30 @@ void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager
     {
         _dbManager.AddEnum(currentEnum);
     }
+
+    file.close();
 }
 void SaveManager::ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
-{    
-    struct TempTemplateStruct
-    {
-        QString myTemplateName;
-        QString myTemplateAbbrev;
-        QColor myTemplateColor;
-        QList<QString> myTemplateAttributes;
-    };
-
+{
     QFile file(_tempFolderPath + fileEndTemplate);
     bool openCheck = file.open(QIODevice::ReadOnly);
     Q_ASSERT(openCheck);
-    QTextStream in(&file);
-    QString currentLine;
-    int currentTemplate = -1;
-    QList<TempTemplateStruct> tempTemplates;
 
-    while (!in.atEnd())
+    const QJsonArray importedJson = QJsonDocument::fromJson(file.readAll()).array();
+    file.close();
+
+    // First loop to create the structures and set the "identity" values
+    for (const QJsonValue& templAsJson : importedJson)
     {
-        currentLine = in.readLine();
-        if (currentLine.first(3) != "###" || currentLine.last(3) != "###")
-        {
-            Q_ASSERT(currentTemplate != -1);
-            tempTemplates[currentTemplate].myTemplateAttributes.push_back(currentLine);
-            continue;
-        }
-
-        currentTemplate++;
-        TempTemplateStruct newTemplate;
-        int firstSeparator = currentLine.indexOf('-');
-        int secondSeparator = currentLine.indexOf('-', firstSeparator +3);
-        Q_ASSERT(firstSeparator != -1 && secondSeparator != -1);
-
-        newTemplate.myTemplateName = currentLine.mid(3, firstSeparator - 3);
-        newTemplate.myTemplateAbbrev = currentLine.mid(firstSeparator + 3, secondSeparator - firstSeparator - 3);
-        newTemplate.myTemplateColor = QColor(currentLine.last(10).first(7));
-
-        tempTemplates.push_back(newTemplate);
+        _dbManager.AddStructureDB(TemplateStructure::LoadTemplateNoAttribute(templAsJson.toObject()));
     }
 
-    for (const auto& tempTempl : tempTemplates)
+    // Second loop to set the attributes (parameters and default values)
+    int i = 0;
+    for (const QJsonValue& templAsJson : importedJson)
     {
-        _dbManager.AddStructureDB(TemplateStructure{
-                                      tempTempl.myTemplateName,
-                                      tempTempl.myTemplateAbbrev,
-                                      tempTempl.myTemplateColor
-                                  });
-    }
-
-    const int structCount = tempTemplates.count();
-    for (int i = 0; i < structCount; i++)
-    {
-        _dbManager.SetAttributeTemplatesFromStringList(i, tempTemplates[i].myTemplateAttributes, myRefMap);
+        _dbManager.SetAttributeTemplatesFromJSON(i, templAsJson.toObject().value("Attributes").toArray());
+        i++;
     }
 }
 void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
@@ -553,34 +548,16 @@ void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager
     QFile file(_tempFolderPath + fileEndData);
     bool openCheck = file.open(QIODevice::ReadOnly);
     Q_ASSERT(openCheck);
-    QTextStream in(&file);
-    QString currentLine;
 
-    StructureDB* currentStructTable = nullptr;
+    const QJsonObject importedJson = QJsonDocument::fromJson(file.readAll()).object();
+    file.close();
 
-    while (!in.atEnd())
+    QStringList structNames = importedJson.keys();
+    for (const auto& strctName : structNames)
     {
-        currentLine = in.readLine();
-
-        // Start of a new Struct table
-        if (currentLine.first(3) == "###" && currentLine.last(3) == "###")
-        {
-            currentStructTable = _dbManager.GetStructureTable(currentLine.remove('#'));
-            Q_ASSERT(currentStructTable != nullptr);
-            continue;
-        }
-
-        // Header line, useless
-        if (currentLine.first(3) == "---")
-        {
-            continue;
-        }
-
+        StructureDB* currentStructTable = _dbManager.GetStructureTable(strctName);
         Q_ASSERT(currentStructTable != nullptr);
-        QStringList fields;
-        bool decompose = StructureImportHelper::DecomposeCSVString(currentLine, currentStructTable->GetTemplate().GetAttributesCount() + 1, fields, true);
-        Q_ASSERT(decompose);
-        currentStructTable->AddValue_CSV_TableWithDelayedReference(fields, myRefMap);
+        currentStructTable->ReadValue_JSON_Table(importedJson.value(strctName).toArray(), StructureImportHelper::OverwritePolicy::Overwrite);
     }
 }
 void SaveManager::ProcessDelayedRef()

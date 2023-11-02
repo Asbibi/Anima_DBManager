@@ -20,14 +20,18 @@ public:
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
     virtual QString GetAttributeAsCSV()                         const override;
+    virtual QJsonValue GetAttributeAsJSON()                     const override;
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
+    virtual bool ReadValue_JSON(const QJsonValue& _value)             override;
     virtual void ReadValue_CSV(const QString& _text)                  override;
 
     void SetReference(const Structure* _reference);
     const Structure* GetReference() const;
     const StructureDB* GetStructureDB() const;
     int GetReferenceIndex() const;
+
+    QString ConvertRowNameToTextValue(const QString& _rowName) const;
 };
 
 #endif // AREFERENCE_H

@@ -3,6 +3,8 @@
 #include <QHBoxLayout>
 
 #include "db_manager.h"
+#include <QFile>
+#include <QJsonDocument>
 
 QStructureTable::QStructureTable(StructureDB& _structureDB) :
     QTableWidget(nullptr),
@@ -18,6 +20,24 @@ QStructureTable::~QStructureTable()
 {}
 
 
+void QStructureTable::ExportStructsToJSON(const QString _directoryPath)
+{
+    Q_ASSERT(!_directoryPath.isEmpty());
+    QString filePath = _directoryPath + "/DT_" + myStructureDB.GetTemplateName() + ".json";
+    qDebug() << "Export String table " << myStructureDB.GetTemplateName() << " to file : " << filePath;
+
+    QFile file = QFile(filePath);
+    if(!file.open(QIODevice::ReadWrite))
+    {
+        qCritical() <<"ERROR EXPORT STRUCT TABLE : " << filePath << " couldn't be open";
+        return;
+    }
+    file.resize(0); // Clear file content
+
+    file.write(QJsonDocument(myStructureDB.WriteValue_JSON_Table()).toJson());
+
+    file.close();
+}
 void QStructureTable::ExportStructsToCSV(const QString _directoryPath)
 {
     Q_ASSERT(!_directoryPath.isEmpty());
@@ -86,6 +106,7 @@ void QStructureTable::UpdateTable()
     // Fill the table
     const int structureCount = myStructureDB.GetStructureCount();
     setRowCount(structureCount);
+    QStringList rowNames;
 
     for (int row = 0; row < structureCount; row++)
     {
@@ -119,7 +140,9 @@ void QStructureTable::UpdateTable()
             Q_ASSERT(attributeItem);
             attributeItem->SetContentFromAttribute(attribute);
         }
+        rowNames.append(myStructureDB.GetStructureRowName(row));
     }
+    setVerticalHeaderLabels(rowNames);
 }
 
 

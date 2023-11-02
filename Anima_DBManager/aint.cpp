@@ -24,6 +24,10 @@ QString AInt::GetAttributeAsCSV() const
 {
     return QString::number(GetValue());
 }
+QJsonValue AInt::GetAttributeAsJSON() const
+{
+    return QJsonValue(value);
+}
 void AInt::SetValueFromText(const QString& text)
 {
     bool ok;
@@ -68,6 +72,16 @@ void AInt::CopyValueFromOther(const Attribute* _other)
         value = MY_SHARED_PARAM.min_i;
     else if (!FitsMaxParam())
             value = MY_SHARED_PARAM.max_i;
+}
+bool AInt::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isDouble()) // Type Double is used for int in QJsonValue
+    {
+        return false;
+    }
+
+    value = _value.toInt();
+    return true;
 }
 
 

@@ -2,6 +2,7 @@
 #define QIMPORTSTRUCTDIALOG_H
 
 #include <QDialog>
+#include <QFile>
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
@@ -21,7 +22,9 @@ private:
     QPanelStruct* myStructWidget;
 
     bool CheckCSVHearders(const StructureDB* _stringTable, const QString& _firstLine);
-    void PerformImport(StructureDB* _structTable, int _overrideChoice);
+    void PerformImport(StructureDB* _structTable, StructureImportHelper::OverwritePolicy _overrideChoice);
+    void PerformImportJSON(QFile& _importedFile, StructureDB* _structTable, StructureImportHelper::OverwritePolicy _overrideChoice);
+    void PerformImportCSV(QFile& _importedFile, StructureDB* _structTable, StructureImportHelper::OverwritePolicy _overrideChoice);
 
 public:
     QImportStructDialog(QPanelStruct* _structWidget, QWidget* _parent = nullptr);

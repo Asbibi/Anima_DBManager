@@ -23,6 +23,10 @@ QString AFloat::GetAttributeAsCSV() const
 {
     return QString::number(GetValue());
 }
+QJsonValue AFloat::GetAttributeAsJSON() const
+{
+    return QJsonValue(value);
+}
 void AFloat::SetValueFromText(const QString& text)
 {
     bool ok;
@@ -62,6 +66,16 @@ void AFloat::CopyValueFromOther(const Attribute* _other)
         value = MY_SHARED_PARAM.min_f;
     else if (!FitsMaxParam())
             value = MY_SHARED_PARAM.max_f;
+}
+bool AFloat::ReadValue_JSON(const QJsonValue& _value)
+{
+    if (!_value.isDouble())
+    {
+        return false;
+    }
+
+    value = _value.toDouble();
+    return true;
 }
 
 

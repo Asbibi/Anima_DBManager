@@ -83,7 +83,7 @@ public:
     void AddAttributeTemplate(const QString& _tableName, int _attrIndex, bool _copyFromPrevious);
     void RemoveAttributeTemplate(int _tableIndex, int _attrIndex);
     void RemoveAttributeTemplate(const QString& _tableName, int _attrIndex);
-    void SetAttributeTemplatesFromStringList(int _tableIndex, const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap);
+    void SetAttributeTemplatesFromJSON(int _tableIndex, const QJsonArray& _attributesAsJson);
     void AddStructureRow(const int _tableIndex, const int _position);
     void DuplicateStructureRow(const int _tableIndex, const int _position, const int _originalIndex);
     void RemoveStructureRow(const int _tableIndex, const int _position);

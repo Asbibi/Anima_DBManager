@@ -580,13 +580,13 @@ void DB_Manager::RemoveAttributeTemplate(const QString& _tableName, int _attrInd
 {
     RemoveAttributeTemplate(GetStructureTableIndex(_tableName), _attrIndex);
 }
-void DB_Manager::SetAttributeTemplatesFromStringList(int _tableIndex, const QList<QString>& _stringList, QHash<AReference*, QString>& _outRefMap)
+void DB_Manager::SetAttributeTemplatesFromJSON(int _tableIndex, const QJsonArray& _attributesAsJson)
 {
     const int count = myStructures.count();
     if (_tableIndex < 0 || _tableIndex > count)
         return;
 
-    myStructures[_tableIndex]->SetAttributesFromList(_stringList, _outRefMap);
+    myStructures[_tableIndex]->SetAttributeTemplatesFromJSON(_attributesAsJson);
     emit StructItemChanged(_tableIndex);
 }
 void DB_Manager::AddStructureRow(const int _tableIndex, const int _position)
