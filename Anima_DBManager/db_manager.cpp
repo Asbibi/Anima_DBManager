@@ -54,6 +54,28 @@ bool DB_Manager::IsProjectContentFolderPathValid() const
 }
 
 
+void DB_Manager::SetAttributePrefix(const QString& _prefix)
+{
+    myAttributePrefix = _prefix;
+}
+void DB_Manager::SetAttributeSuffix(const QString& _suffix)
+{
+    myAttributeSuffix = _suffix;
+}
+const QString& DB_Manager::GetAttributePrefix() const
+{
+    return myAttributePrefix;
+}
+const QString& DB_Manager::GetAttributeSuffix() const
+{
+    return myAttributeSuffix;
+}
+QString DB_Manager::GetAttributeFullName(const QString& _attributeName) const
+{
+    return myAttributePrefix + _attributeName + myAttributeSuffix;
+}
+
+
 void DB_Manager::Init()
 {
 #ifdef TEST_VALUES
@@ -203,6 +225,8 @@ void DB_Manager::Reset()
     //myAttributeParamPtrs.clear();
 
     myProjectContentFolderPath = "";
+    myAttributePrefix = "";
+    myAttributeSuffix = "";
 
     blockSignals(false);
 
