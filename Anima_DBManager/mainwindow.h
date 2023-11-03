@@ -40,6 +40,7 @@ public:
 
     void Debug_Update();
     void UpdateWindowName();
+    void OpenDB(const QString& _savefile);
 
 public slots:
     void OnStringTableAdded(const int _index);

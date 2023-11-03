@@ -33,9 +33,7 @@ private:
 
 public:
     TemplateAttribute();
-#ifdef TEST_VALUES
     TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy);
-#endif
     TemplateAttribute(const TemplateAttribute& _another);
     ~TemplateAttribute();
 

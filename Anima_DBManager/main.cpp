@@ -1,6 +1,8 @@
 #include "mainwindow.h"
 
+#include "constants.h"
 #include "db_manager.h"
+#include "savemanager.h"
 
 #include <QApplication>
 #include <QLocale>
@@ -24,7 +26,21 @@ int main(int argc, char *argv[])
 
     MainWindow w;
     DB_Manager::GetDB_Manager().Init();
+
+
+
+    if (argc == 2)
+    {
+#ifdef TEST_VALUES
+        SaveManager::New();
+#endif
+        w.OpenDB(argv[1]);
+    }
+
+#ifdef TEST_VALUES
     w.Debug_Update();
+#endif
     w.show();
+
     return a.exec();
 }

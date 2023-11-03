@@ -13,15 +13,12 @@ TemplateAttribute::TemplateAttribute() :
 {
     InitDefaultAttribute(AttributeTypeHelper::Type::Bool);
 }
-#ifdef TEST_VALUES
 TemplateAttribute::TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy) :
     myAttrName(_name),
     mySharedParam(_sharedParamToCopy)
 {
-    qDebug() << "Template Constructed via Test Constructor";
     InitDefaultAttribute(_type);
 }
-#endif
 TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
     myAttrName(_another.myAttrName),
     mySharedParam(_another.mySharedParam)
