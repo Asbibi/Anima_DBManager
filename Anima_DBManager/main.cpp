@@ -31,16 +31,21 @@ int main(int argc, char *argv[])
 
     if (argc == 2)
     {
+        const QString fileName = argv[1];
+        if (fileName.endsWith(SaveManager::GetSaveFileExtension()))
+        {
 #ifdef TEST_VALUES
-        SaveManager::New();
+            SaveManager::New();
 #endif
-        w.OpenDB(argv[1]);
+            w.OpenDB(fileName);
+        }
     }
 
 #ifdef TEST_VALUES
     w.Debug_Update();
 #endif
-    w.show();
 
+
+    w.show();
     return a.exec();
 }
