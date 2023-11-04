@@ -177,6 +177,14 @@ void MainWindow::UpdateWindowName()
     }
     setWindowTitle(windowName);
 }
+void MainWindow::OpenDB(const QString& _savefile)
+{
+    myManager.blockSignals(true);
+    SaveManager::OpenFile(_savefile);
+    myManager.blockSignals(false);
+    OnResetView();
+    UpdateWindowName();
+}
 
 
 void MainWindow::OnStringTableAdded(const int _index)
@@ -476,12 +484,8 @@ void MainWindow::OnOpenDB()
     // New
     OnNewDB();
 
-    // OpenInternal
-    myManager.blockSignals(true);
-    SaveManager::OpenFile(filePath);
-    myManager.blockSignals(false);
-    OnResetView();    
-    UpdateWindowName();
+    // Open Internal
+    OpenDB(filePath);
 }
 
 // ================      Export Methods      ================

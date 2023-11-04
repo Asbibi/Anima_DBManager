@@ -221,12 +221,12 @@ void DB_Manager::Init()
     AddAttributeTemplate(0, 0, false);
     AddStructureRow(0,0);
 
-    myAutoSaveTimer = new QTimer(this);
-    QObject::connect(myAutoSaveTimer, &QTimer::timeout, this, &DB_Manager::AutoSave);
+
 #else
 
 #endif
-
+    myAutoSaveTimer = new QTimer(this);
+    QObject::connect(myAutoSaveTimer, &QTimer::timeout, this, &DB_Manager::AutoSave);
 }
 
 void DB_Manager::Reset()
