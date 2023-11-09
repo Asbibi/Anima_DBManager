@@ -28,11 +28,11 @@ public:
     virtual AttributeTypeHelper::Type GetType()             const = 0;
     virtual QString GetDisplayedText()                      const = 0;
     virtual QString GetValueAsText()                        const = 0;
-    virtual QString GetAttributeAsCSV()                     const = 0;
-    virtual QJsonValue GetAttributeAsJSON()                 const = 0;
+    virtual QString GetValue_CSV()                          const = 0;
+    virtual QJsonValue GetValue_JSON()                      const = 0;
     virtual void CopyValueFromOther(const Attribute* _other)      = 0;
-    virtual bool ReadValue_JSON(const QJsonValue& _value)         = 0;
-    virtual void ReadValue_CSV(const QString& text);
+    virtual bool SetValue_JSON(const QJsonValue& _value)          = 0;
+    virtual void SetValue_CSV(const QString& text);
     void WriteValue_CSV(std::ofstream& file) const;
 
     const TemplateAttribute* GetTemplate() const;

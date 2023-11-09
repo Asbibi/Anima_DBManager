@@ -31,11 +31,11 @@ QString AStructure::GetValueAsText() const
 {
     return GetValueAsTextFromAttributes(myValue->GetAttributes());
 }
-QString AStructure::GetAttributeAsCSV() const
+QString AStructure::GetValue_CSV() const
 {
     return myValue->GetStructureAsCSV();
 }
-QJsonValue AStructure::GetAttributeAsJSON() const
+QJsonValue AStructure::GetValue_JSON() const
 {
     return QJsonValue(myValue->WriteValue_JSON_AsRow());
 }
@@ -124,7 +124,7 @@ void AStructure::CopyValueFromOther(const Attribute* _other)
 
     myValue = other_AS->myValue;
 }
-bool AStructure::ReadValue_JSON(const QJsonValue& _value)
+bool AStructure::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isObject())
     {

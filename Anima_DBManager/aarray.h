@@ -18,12 +18,12 @@ public:
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Array; };
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValueAsText()                            const override;
-    virtual QString GetAttributeAsCSV()                         const override;
-    virtual QJsonValue GetAttributeAsJSON()                     const override;
+    virtual QString GetValue_CSV()                         const override;
+    virtual QJsonValue GetValue_JSON()                     const override;
     virtual void SetValueFromText(const QString& text)                override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
-    virtual bool ReadValue_JSON(const QJsonValue& _value)             override;
-    virtual void ReadValue_CSV(const QString& text)                   override;
+    virtual bool SetValue_JSON(const QJsonValue& _value)             override;
+    virtual void SetValue_CSV(const QString& text)                   override;
 
     TemplateAttribute* GetArrayElementTemplate() const;
     QStringList GetValuesAsTexts() const;
@@ -35,7 +35,6 @@ public:
     void MoveRow(int _originalIndex, int _targetIndex);
 
     static QString GetShortDisplayedString(int _count);
-    static QString GetStructureStringFromList(const QStringList& _listString);
 };
 
 #endif // AARRAY_H

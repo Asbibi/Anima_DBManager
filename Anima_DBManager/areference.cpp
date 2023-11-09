@@ -33,15 +33,15 @@ QString AReference::GetValueAsText() const
             QString::number(MY_SHARED_PARAM.structTable->GetStructureIndex(myStructureRef)) :
             "Ø");
 }
-QString AReference::GetAttributeAsCSV() const
+QString AReference::GetValue_CSV() const
 {
     return (MY_SHARED_PARAM.structTable && myStructureRef) ?
         MY_SHARED_PARAM.structTable->GetStructureRowName(myStructureRef) :
         "";
 }
-QJsonValue AReference::GetAttributeAsJSON() const
+QJsonValue AReference::GetValue_JSON() const
 {
-    return QJsonValue(GetAttributeAsCSV());
+    return QJsonValue(GetValue_CSV());
 }
 void AReference::SetValueFromText(const QString& text)
 {
@@ -71,7 +71,7 @@ void AReference::CopyValueFromOther(const Attribute* _other)
 
     myStructureRef = other_AR->myStructureRef;
 }
-bool AReference::ReadValue_JSON(const QJsonValue& _value)
+bool AReference::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isString())
     {
@@ -81,7 +81,7 @@ bool AReference::ReadValue_JSON(const QJsonValue& _value)
     SetValueFromText(ConvertRowNameToTextValue(_value.toString()));
     return true;
 }
-void AReference::ReadValue_CSV(const QString& _text)
+void AReference::SetValue_CSV(const QString& _text)
 {
     SetValueFromText(ConvertRowNameToTextValue(_text));
 }

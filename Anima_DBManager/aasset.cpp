@@ -43,7 +43,7 @@ QString AAsset::GetValueAsText() const
 {
     return (myIsDirty && !myFilePath.isEmpty()) ? '!' + myFilePath : myFilePath;
 }
-QString AAsset::GetAttributeAsCSV() const
+QString AAsset::GetValue_CSV() const
 {
     if (myFilePath.isEmpty() || myIsDirty)
     {
@@ -66,9 +66,9 @@ QString AAsset::GetAttributeAsCSV() const
             + editedPath + '.'
             + assetName + '\'';
 }
-QJsonValue AAsset::GetAttributeAsJSON() const
+QJsonValue AAsset::GetValue_JSON() const
 {
-    return QJsonValue(GetAttributeAsCSV());
+    return QJsonValue(GetValue_CSV());
 }
 
 void AAsset::SetValueFromText(const QString& text)
@@ -94,17 +94,17 @@ void AAsset::CopyValueFromOther(const Attribute* _other)
     myFilePath = other_AA->myFilePath;
     myIsDirty = other_AA->myIsDirty;
 }
-bool AAsset::ReadValue_JSON(const QJsonValue& _value)
+bool AAsset::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isString())
     {
         return false;
     }
 
-    ReadValue_CSV(_value.toString());
+    SetValue_CSV(_value.toString());
     return true;
 }
-void AAsset::ReadValue_CSV(const QString& text)
+void AAsset::SetValue_CSV(const QString& text)
 {    
     if(text.isEmpty() || text.endsWith("\'\'"))
     {

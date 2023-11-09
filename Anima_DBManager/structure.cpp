@@ -95,8 +95,8 @@ void Structure::ReadValue_JSON(const QJsonObject& _structAsJson)
     for (int i = 0; i < myAttributes.size(); i++)
     {
         const QString& attrName = myTemplate.GetAttributeName(i);
-        const bool _jsonRead = myAttributes[i]->ReadValue_JSON(_structAsJson.value(dbManager.GetAttributeFullName(attrName)));
-        if (!_jsonRead)
+        const bool jsonReadOk = myAttributes[i]->SetValue_JSON(_structAsJson.value(dbManager.GetAttributeFullName(attrName)));
+        if (!jsonReadOk)
         {
             qWarning() << _structAsJson.value("Name").toString() << " - Ignored " << attrName << " Attribute value : invalid json type" << _structAsJson.value(attrName);
         }
@@ -106,7 +106,7 @@ void Structure::ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue)
 {
     if (_attIndex < 0 || _attIndex >= myAttributes.size())
         return;
-    myAttributes[_attIndex]->ReadValue_CSV(_csvValue);
+    myAttributes[_attIndex]->SetValue_CSV(_csvValue);
 }
 void Structure::MoveAttribute(int _indexFrom, int _indexTo)
 {
@@ -158,7 +158,7 @@ QJsonObject Structure::WriteValue_JSON_AsRow() const
     const auto& dbManager = DB_Manager::GetDB_Manager();
     for (int i = 0; i < myAttributes.size(); i++)
     {
-        structAsJSON.insert(dbManager.GetAttributeFullName(myTemplate.GetAttributeName(i)), myAttributes[i]->GetAttributeAsJSON());
+        structAsJSON.insert(dbManager.GetAttributeFullName(myTemplate.GetAttributeName(i)), myAttributes[i]->GetValue_JSON());
     }
 
     return structAsJSON;
@@ -190,11 +190,11 @@ QString Structure::GetStructureAsCSV() const
         const auto type = myAttributes[i]->GetType();
         if (AttributeTypeHelper::ShouldBeWrappedInQuoteInCSV(type))
         {
-            structAsCSV.append(QString(AttributeTypeHelper::csvDoubleQuoteWrapper).arg(myAttributes[i]->GetAttributeAsCSV()));
+            structAsCSV.append(QString(AttributeTypeHelper::csvDoubleQuoteWrapper).arg(myAttributes[i]->GetValue_CSV()));
         }
         else
         {
-            structAsCSV.append(myAttributes[i]->GetAttributeAsCSV());
+            structAsCSV.append(myAttributes[i]->GetValue_CSV());
         }
     }
     // ==========================

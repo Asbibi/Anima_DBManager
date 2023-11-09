@@ -23,13 +23,13 @@ QString AEnumerator::GetValueAsText() const
 {
     return CheckEnumIsValid() ? MY_SHARED_PARAM.GetEnum()->GetValue(value_index) : "Ø";
 }
-QString AEnumerator::GetAttributeAsCSV() const
+QString AEnumerator::GetValue_CSV() const
 {
     return CheckEnumIsValid() ? GetDisplayedText() : "";
 }
-QJsonValue AEnumerator::GetAttributeAsJSON() const
+QJsonValue AEnumerator::GetValue_JSON() const
 {
-    return QJsonValue(GetAttributeAsCSV());
+    return QJsonValue(GetValue_CSV());
 }
 void AEnumerator::SetValueFromText(const QString& text)
 {
@@ -52,7 +52,7 @@ void AEnumerator::CopyValueFromOther(const Attribute* _other)
 
     value_index = other_AE->value_index;
 }
-bool AEnumerator::ReadValue_JSON(const QJsonValue& _value)
+bool AEnumerator::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isString())
     {

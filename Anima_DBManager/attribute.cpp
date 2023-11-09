@@ -27,14 +27,14 @@ void Attribute::EmitValueChanged()
     emit OnValueChanged(this);
 }
 
-void Attribute::ReadValue_CSV(const QString& text)
+void Attribute::SetValue_CSV(const QString& text)
 {
     // By default simply use the standard set from text method
     SetValueFromText(text);
 }
 void Attribute::WriteValue_CSV(std::ofstream& file) const
 {
-    file << GetAttributeAsCSV().toStdString();
+    file << GetValue_CSV().toStdString();
 }
 
 const TemplateAttribute* Attribute::GetTemplate() const

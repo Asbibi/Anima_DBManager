@@ -3,6 +3,7 @@
 #include "templateattribute.h"
 #include <QDebug>
 #include <QJsonArray>
+#include <QJsonDocument>
 
 AArray::AArray(TemplateAttribute& _template) :
     Attribute(_template)
@@ -57,9 +58,16 @@ QString AArray::GetDisplayedText() const
 }
 QString AArray::GetValueAsText() const
 {
-    return GetStructureStringFromList(GetValuesAsTexts());
+    QJsonArray valuesAsJson = QJsonArray();
+    const auto valuesInList = GetValuesAsTexts();
+    for (const auto& elementValue : valuesInList)
+    {
+        valuesAsJson.append(elementValue);
+    }
+
+    return QString(QJsonDocument(valuesAsJson).toJson(QJsonDocument::Indented));
 }
-QString AArray::GetAttributeAsCSV() const
+QString AArray::GetValue_CSV() const
 {
     const bool shouldWrapInQuote = AttributeTypeHelper::ShouldBeWrappedInQuoteInCSV(myTemplate.GetSharedParam().templateAtt->GetType());
     QString arrayAsCSV = "(";
@@ -73,93 +81,38 @@ QString AArray::GetAttributeAsCSV() const
 
         if (shouldWrapInQuote)
         {
-            arrayAsCSV.append(QString(AttributeTypeHelper::csvDoubleQuoteWrapper).arg(myValues[i]->GetAttributeAsCSV()));
+            arrayAsCSV.append(QString(AttributeTypeHelper::csvDoubleQuoteWrapper).arg(myValues[i]->GetValue_CSV()));
         }
         else
         {
-            arrayAsCSV.append(myValues[i]->GetAttributeAsCSV());
+            arrayAsCSV.append(myValues[i]->GetValue_CSV());
         }
     }
 
     return arrayAsCSV.append(')');
 }
-QJsonValue AArray::GetAttributeAsJSON() const
+QJsonValue AArray::GetValue_JSON() const
 {
     QJsonArray attributesAsJSON = QJsonArray();
 
     for (const auto* attr : myValues)
     {
-        attributesAsJSON.append(attr->GetAttributeAsJSON());
+        attributesAsJSON.append(attr->GetValue_JSON());
     }
 
     return QJsonValue(attributesAsJSON);
 }
 void AArray::SetValueFromText(const QString& text)
 {
-    // Manage to remove starting '[' and final ']' due to
-    QString contentText = text;
-    if (contentText[0] != '[')
-    {
-        qFatal("\n\nMissing start '[' character while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-        return;
-    }
-    else if (contentText[contentText.count() - 1] != ']')
-    {
-        qFatal("\n\nMissing end ']' character while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-        return;
-    }
-    contentText = contentText.mid(1, contentText.count() - 2);
+    QJsonArray valuesAsJson = QJsonDocument::fromJson(text.toUtf8()).array();
+    const int valuesCount = valuesAsJson.size();
 
-
-    // Read the text
-    QList<QString> finalList = QList<QString>();
-    if (!contentText.isEmpty())
-    {
-        QList<bool> openBrackets = QList<bool>();
-            //  ->  add "true" to indicate an open "{", a false for an open "[", and remove it when closed
-        QString currentString = "";
-
-        for (const QChar& chr : contentText)
-        {
-            int currentBracketCount = (int)openBrackets.size();
-            if (chr == ',' && currentBracketCount == 0)
-            {
-                finalList.push_back(currentString);
-                currentString = "";
-                continue;
-            }
-
-            currentString.append(chr);
-            if (chr == '{')
-                openBrackets.push_back(true);
-            else if (chr == '[')
-                openBrackets.push_back(false);
-            else if (currentBracketCount != 0)
-            {
-                if (openBrackets[currentBracketCount - 1] && chr == '}')
-                    openBrackets.pop_back();
-                else if (!openBrackets[currentBracketCount - 1] && chr == ']')
-                    openBrackets.pop_back();
-            }
-            else
-            {
-                if (chr == '}'|| chr == ']')
-                {
-                    qFatal("\n\nA '}' or ']' found with nothing opened while setting <ARRAY> Attribute's value:\n\n\t===== Abort =====\n\n");
-                    return;
-                }
-            }
-        }
-        finalList.push_back(currentString);
-        Q_ASSERT(openBrackets.size() == 0);
-    }
-
-    SetCount(finalList.size());
+    SetCount(valuesCount);
 
 
     // Apply all the strings in the finalList to their attribute
-    for(int i =0; i < (int)(finalList.size()); i++)
-        myValues[i]->SetValueFromText(finalList[i]);
+    for(int i = 0; i < valuesCount; i++)
+        myValues[i]->SetValueFromText(valuesAsJson[i].toString());
 }
 void AArray::CopyValueFromOther(const Attribute* _other)
 {
@@ -183,7 +136,7 @@ void AArray::CopyValueFromOther(const Attribute* _other)
     for (int i=myCount; i < otherCount; i++)
         myValues.push_back(other_AA->myValues[i]->CreateDuplica());
 }
-bool AArray::ReadValue_JSON(const QJsonValue& _value)
+bool AArray::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isArray())
     {
@@ -196,12 +149,12 @@ bool AArray::ReadValue_JSON(const QJsonValue& _value)
 
     for (int i = 0; i < jsonCount; i++)
     {
-        myValues[i]->ReadValue_JSON(jsonAsArray[i]);
+        myValues[i]->SetValue_JSON(jsonAsArray[i]);
     }
 
     return true;
 }
-void AArray::ReadValue_CSV(const QString& text)
+void AArray::SetValue_CSV(const QString& text)
 {
     Q_ASSERT(text.length() > 1 && text[0] == '(');
     QString editedText = text.sliced(1, text.length() -2);
@@ -239,7 +192,7 @@ void AArray::ReadValue_CSV(const QString& text)
             else if (iChar == ',' && level == 0)
             {
                 AddRow(currentElementIndex);
-                myValues[currentElementIndex]->ReadValue_CSV(editedText.mid(start, count));
+                myValues[currentElementIndex]->SetValue_CSV(editedText.mid(start, count));
                 currentElementIndex++;
                 start += count + 1;
                 count = 0;
@@ -253,7 +206,7 @@ void AArray::ReadValue_CSV(const QString& text)
     if (count !=0 && level == 0)
     {
         AddRow(currentElementIndex);
-        myValues[currentElementIndex]->ReadValue_CSV(editedText.mid(start, count));
+        myValues[currentElementIndex]->SetValue_CSV(editedText.mid(start, count));
     }
 }
 
@@ -340,16 +293,4 @@ void AArray::MoveRow(int _originalIndex, int _targetIndex)
 QString AArray::GetShortDisplayedString(int _count)
 {
     return QString("[ARRAY:%1]").arg(_count);
-}
-QString AArray::GetStructureStringFromList(const QStringList& _listString)
-{
-    QString _text = "[";
-    for (int i = 0; i < _listString.count(); i++)
-    {
-        if (i > 0)
-            _text.append(',');
-        _text.append(_listString[i]);
-    }
-    _text.append(']');
-    return _text;
 }
