@@ -54,7 +54,7 @@ void SearchManager::SearchStruct(const SearchParameter& _parameters, QList<Searc
                     continue;
                 }
 
-                const QString attrVal = attr->GetValueAsText();
+                const QString attrVal = attr->GetValue_String();
                 if (IsStringOk(attrVal, _parameters))
                 {
                     // ADD to results

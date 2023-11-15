@@ -32,6 +32,7 @@ SOURCES += \
     db_manager.cpp \
     enumerator.cpp \
     iconmanager.cpp \
+    jsonhelper.cpp \
     main.cpp \
     mainwindow.cpp \
     qapmesh.cpp \
@@ -109,6 +110,7 @@ HEADERS += \
     db_manager.h \
     enumerator.h \
     iconmanager.h \
+    jsonhelper.h \
     mainwindow.h \
     qapmesh.h \
     qapsound.h \

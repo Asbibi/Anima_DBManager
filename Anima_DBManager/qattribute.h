@@ -21,7 +21,6 @@ private:
     QWidget* myContent = nullptr;
     QPushButton* myEditButton = nullptr;
 
-    void LogErrorCast() const;
     void DeleteContent();
     void RebuildAttributeWidget(const Attribute* _attribute);
     void RebuildWidgetFromType(const AttributeTypeHelper::Type _type);
@@ -34,11 +33,11 @@ public:
     void EmptyArrayAttribute();
 
 signals:
-    void OnWidgetValueChanged(const QString& _thisQAttribute);    // arg given during emit()
+    void OnWidgetValueChanged(const QJsonValue& _value);
 
 public slots:
     void UpdateAttribute(const Attribute* _attribute);
-    void ContentStateChanged();//Attribute& _attribute);
+    void ContentStateChanged();
 };
 
 #endif // QATTRIBUTE_H

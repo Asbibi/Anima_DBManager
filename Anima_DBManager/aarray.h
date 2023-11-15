@@ -17,16 +17,13 @@ public:
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Array; };
     virtual QString GetDisplayedText()                          const override;
-    virtual QString GetValueAsText()                            const override;
-    virtual QString GetValue_CSV()                         const override;
-    virtual QJsonValue GetValue_JSON()                     const override;
-    virtual void SetValueFromText(const QString& text)                override;
-    virtual void CopyValueFromOther(const Attribute* _other)          override;
+    virtual QString GetValue_CSV()                              const override;
+    virtual QJsonValue GetValue_JSON()                          const override;
+    virtual void CopyValueFromOther(const Attribute* _other)         override;
     virtual bool SetValue_JSON(const QJsonValue& _value)             override;
     virtual void SetValue_CSV(const QString& text)                   override;
 
     TemplateAttribute* GetArrayElementTemplate() const;
-    QStringList GetValuesAsTexts() const;
     const QList<Attribute*>& GetAttributes() const;
     void AddRow(int _index);
     void DuplicateRow(int _index);

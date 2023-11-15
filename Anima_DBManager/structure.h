@@ -32,8 +32,8 @@ public:
     const Attribute* GetAttribute(const QString& _attName) const;
     Attribute* GetAttribute(int _attIndex);
     const QList<Attribute*>& GetAttributes() const;
-    void SetAttributeValueFromText(int _attIndex, QString _valueText);
-    void SetAttributeValueFromText(const QString& _attName, QString _valueText);
+    void SetAttributeValueFromText(int _attIndex, const QJsonValue& _value);
+    void SetAttributeValueFromText(const QString& _attName, const QJsonValue& _value);
     void ReadValue_JSON(const QJsonObject& _structAsJson);
     void ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue);
     void MoveAttribute(int _indexFrom, int _indexTo);
@@ -42,7 +42,6 @@ public:
     void AddAttribute(int _position, bool _copyFromPrevious);
     void RemoveAttribute(int _position);
 
-    void GetAttributesDisplayedText(QString& _text) const;
     QJsonObject WriteValue_JSON_AsRow() const;
     void WriteValue_CSV_AsRow(std::ofstream& file) const;   // Used to directly save a row structure of a DataTable
     QString GetStructureAsCSV() const;                      // Used for structure as attribute of other structures

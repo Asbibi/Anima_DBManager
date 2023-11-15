@@ -5,6 +5,7 @@
 
 #include "attribute.h"
 #include "qattribute.h"
+#include <QJsonObject>
 #include <QListWidget>
 
 class QStructureDialog : public QDialog
@@ -20,7 +21,7 @@ public:
     QStructureDialog(const QList<Attribute*>& _attributeList, QWidget* _parent = nullptr);
     ~QStructureDialog();
 
-    QString GetValue() const;
+    QJsonObject GetValue() const;
 
 public slots:
     void OnSelectItem(QListWidgetItem* _current, QListWidgetItem* _previous);

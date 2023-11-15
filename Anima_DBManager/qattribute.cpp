@@ -49,11 +49,6 @@ QAttribute::~QAttribute()
     DeleteContent();
 }
 
-void QAttribute::LogErrorCast() const
-{
-    qCritical() << "-- CAST FAILED -- Attribute or Content Cast failed with type " << (int)myType;
-}
-
 void QAttribute::DeleteContent()
 {
     if (myEditButton != nullptr)
@@ -74,7 +69,7 @@ void QAttribute::RebuildAttributeWidget(const Attribute* _attribute)
     // We assume that myAttributePtr != _attribute, so need to reconnect to the right attribute object
     QObject::disconnect(this, nullptr, nullptr, nullptr);
     QObject::connect(_attribute, &Attribute::OnValueChanged, this, &QAttribute::UpdateAttribute);
-    QObject::connect(this, &QAttribute::OnWidgetValueChanged, _attribute, &Attribute::SetValueFromText);
+    QObject::connect(this, &QAttribute::OnWidgetValueChanged, _attribute, &Attribute::SetValue_JSON);
 
     const AttributeTypeHelper::Type _newType = _attribute ? _attribute->GetType() : AttributeTypeHelper::Type::Invalid;
     if (_newType != myType)
@@ -245,11 +240,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         {
             auto* qarray = dynamic_cast<QArrayLabel*>(myContent);
             const AArray* arrayAttribute = dynamic_cast<const AArray*>(_attribute);
-            if(!qarray || !arrayAttribute)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(qarray && arrayAttribute);
 
             qarray->SetValue(arrayAttribute);
             break;
@@ -258,11 +249,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         {
             auto* qastructure = dynamic_cast<QAStructureLabel*>(myContent);
             const AStructure* structAttribute = dynamic_cast<const AStructure*>(_attribute);
-            if(!qastructure || !structAttribute)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(qastructure && structAttribute);
 
             qastructure->SetValue(structAttribute->GetAttributes());
             break;
@@ -271,11 +258,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         {
             auto* checkBox = dynamic_cast<QCheckBox*>(myContent);
             const ABool* boolAttribute = dynamic_cast<const ABool*>(_attribute);
-            if(!checkBox || !boolAttribute)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(checkBox && boolAttribute);
 
             checkBox->setChecked(boolAttribute->GetValue());
             break;
@@ -284,11 +267,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         {
             auto* comboBox = dynamic_cast<QComboBox*>(myContent);
             const AEnumerator* enumeratorAttribute = dynamic_cast<const AEnumerator*>(_attribute);
-            if(!comboBox || !enumeratorAttribute)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(comboBox && enumeratorAttribute);
 
             QObject::disconnect(comboBox, nullptr, nullptr, nullptr);
             while (comboBox->count() > 0)
@@ -316,11 +295,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         {
             auto* doubleSpinBox = dynamic_cast<QDoubleSpinBox*>(myContent);
             const AFloat* floatAttribute = dynamic_cast<const AFloat*>(_attribute);
-            if(!doubleSpinBox || !floatAttribute)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(doubleSpinBox && floatAttribute);
 
             bool use;
             float max = floatAttribute->GetMax(use);
@@ -334,11 +309,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         {
             auto* spinBox = dynamic_cast<QSpinBox*>(myContent);
             const AInt* intAttribute = dynamic_cast<const AInt*>(_attribute);
-            if(!spinBox || !intAttribute)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(spinBox && intAttribute);
 
             bool use;
             int max = intAttribute->GetMax(use);
@@ -351,11 +322,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         case AttributeTypeHelper::Type::ShortString :
         {
             auto* lineEdit = dynamic_cast<QLineEdit*>(myContent);
-            if(!lineEdit)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(lineEdit);
 
             lineEdit->setText(_attribute->GetDisplayedText());
             break;
@@ -364,11 +331,7 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         {
             auto* qsstring = dynamic_cast<QSString*>(myContent);
             const ATableString* stringAttribute = dynamic_cast<const ATableString*>(_attribute);
-            if(!qsstring || !stringAttribute)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(qsstring && stringAttribute);
 
             qsstring->SetValue(stringAttribute->GetTableName(), stringAttribute->GetStringIdentifier());
             break;
@@ -376,13 +339,10 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         case AttributeTypeHelper::Type::Texture :
         {
             auto* qassetTexture = dynamic_cast<QAssetTexture*>(myContent);
-            if(!qassetTexture)
-            {
-                LogErrorCast();
-                return;
-            }
+            const AAsset* assetAttribute = dynamic_cast<const AAsset*>(_attribute);
+            Q_ASSERT(qassetTexture && assetAttribute);
 
-            qassetTexture->SetValue(_attribute->GetValueAsText());
+            qassetTexture->SetValue(assetAttribute->GetFilePath());
             break;
         }
         case AttributeTypeHelper::Type::UAsset :
@@ -391,24 +351,17 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
         case AttributeTypeHelper::Type::Sound :
         {
             auto* qasset = dynamic_cast<QAssetLabel*>(myContent);
-            if(!qasset)
-            {
-                LogErrorCast();
-                return;
-            }
+            const AAsset* assetAttribute = dynamic_cast<const AAsset*>(_attribute);
+            Q_ASSERT(qasset && assetAttribute);
 
-            qasset->SetValue(_attribute->GetValueAsText());
+            qasset->SetValue(assetAttribute->GetFilePath());
             break;
         }
         case AttributeTypeHelper::Type::Reference :
         {
             QRefLabel* refLabel = dynamic_cast<QRefLabel*>(myContent);
             const AReference* refAttribute = dynamic_cast<const AReference*>(_attribute);
-            if(!refLabel || !refAttribute)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(refLabel && refAttribute);
 
             refLabel->SetStructureDB(refAttribute->GetStructureDB());
             refLabel->SetValue(refAttribute->GetReferenceIndex());
@@ -425,98 +378,84 @@ void QAttribute::ContentStateChanged()
 {
     qDebug() << "Attribute update with type " << AttributeTypeHelper::TypeToString(myType) << " (" << (int)myType << ')';
 
-    QString valueString;
+    QJsonValue value;
     switch(myType)
     {
         case AttributeTypeHelper::Type::Array :
         {
             auto* arrayLabel = dynamic_cast<QArrayLabel*>(myContent);
-            if(!arrayLabel)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = arrayLabel->GetValue();
+            Q_ASSERT(arrayLabel);
+
+            value = QJsonValue(arrayLabel->GetValue());
             break;
         }
         case AttributeTypeHelper::Type::Structure :
         {
             auto* structLabel = dynamic_cast<QAStructureLabel*>(myContent);
-            if(!structLabel)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = structLabel->GetValue();
+            Q_ASSERT(structLabel);
+
+            value = QJsonValue(structLabel->GetValue());
             break;
         }
         case AttributeTypeHelper::Type::Bool :
         {
             auto* checkBox = dynamic_cast<QCheckBox*>(myContent);
-            if(!checkBox)
-            {
-                LogErrorCast();
-                return;
-            }
+            Q_ASSERT(checkBox);
 
-            valueString = checkBox->isChecked() ? "true" : "false";
+            value = QJsonValue(checkBox->isChecked());
             break;
         }
         case AttributeTypeHelper::Type::Enum :
         {
             auto* comboBox = dynamic_cast<QComboBox*>(myContent);
-            if(!comboBox)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = comboBox->currentText();
+            Q_ASSERT(comboBox);
+
+            value = QJsonValue(comboBox->currentText());
             break;
         }
+
+#define GET_SPIN_BOX_VALUE(SpinBoxClass) auto* spinBox = dynamic_cast<SpinBoxClass*>(myContent); \
+    Q_ASSERT(spinBox); \
+    value = QJsonValue(spinBox->value());
+
         case AttributeTypeHelper::Type::Float :
+        {
+            GET_SPIN_BOX_VALUE(QDoubleSpinBox);
+            break;
+        }
         case AttributeTypeHelper::Type::Int :
         {
-            auto* spinBoxAbstr = dynamic_cast<QAbstractSpinBox*>(myContent);
-            if(!spinBoxAbstr)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = spinBoxAbstr->text();
-            valueString.replace(',', '.');
+            GET_SPIN_BOX_VALUE(QSpinBox);
             break;
         }
+#undef GET_SPIN_BOX_VALUE
+
         case AttributeTypeHelper::Type::ShortString :
         {
             auto* lineEdit = dynamic_cast<QLineEdit*>(myContent);
-            if(!lineEdit)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = lineEdit->text();
+            Q_ASSERT(lineEdit);
+
+            value = QJsonValue(lineEdit->text());
             break;
         }
         case AttributeTypeHelper::Type::TableString :
         {
             auto* qsstring = dynamic_cast<QSString*>(myContent);
-            if(!qsstring)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = qsstring->GetFormattedValue();
+            Q_ASSERT(qsstring);
+
+            QString tableId;
+            QString stringId;
+            qsstring->GetValue(tableId, stringId);
+
+            value = ATableString::ConvertToJsonValue(tableId, stringId);
             break;
         }
         case AttributeTypeHelper::Type::Texture :
         {
             auto* qassetTexture = dynamic_cast<QAssetTexture*>(myContent);
-            if(!qassetTexture)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = qassetTexture->GetValue();
+            Q_ASSERT(qassetTexture);
+
+            value = QJsonValue(qassetTexture->GetValue());
             break;
         }
         case AttributeTypeHelper::Type::UAsset :
@@ -525,30 +464,24 @@ void QAttribute::ContentStateChanged()
         case AttributeTypeHelper::Type::Sound :
         {
             auto* qasset = dynamic_cast<QAssetLabel*>(myContent);
-            if(!qasset)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = qasset->GetValue();
+            Q_ASSERT(qasset);
+
+            value = QJsonValue(qasset->GetValue());
             break;
         }
         case AttributeTypeHelper::Type::Reference :
         {
             QRefLabel* refLabel = dynamic_cast<QRefLabel*>(myContent);
-            if(!refLabel)
-            {
-                LogErrorCast();
-                return;
-            }
-            valueString = refLabel->GetValueText();
+            Q_ASSERT(refLabel);
+
+            value = QJsonValue(refLabel->GetValueText());
             break;
         }
         default:
             break;
     }
 
-    emit OnWidgetValueChanged(valueString);
+    emit OnWidgetValueChanged(value);
 }
 void QAttribute::EmptyArrayAttribute()
 {

@@ -56,17 +56,6 @@ QString AArray::GetDisplayedText() const
 {
     return GetShortDisplayedString(myValues.count());
 }
-QString AArray::GetValueAsText() const
-{
-    QJsonArray valuesAsJson = QJsonArray();
-    const auto valuesInList = GetValuesAsTexts();
-    for (const auto& elementValue : valuesInList)
-    {
-        valuesAsJson.append(elementValue);
-    }
-
-    return QString(QJsonDocument(valuesAsJson).toJson(QJsonDocument::Indented));
-}
 QString AArray::GetValue_CSV() const
 {
     const bool shouldWrapInQuote = AttributeTypeHelper::ShouldBeWrappedInQuoteInCSV(myTemplate.GetSharedParam().templateAtt->GetType());
@@ -102,18 +91,6 @@ QJsonValue AArray::GetValue_JSON() const
 
     return QJsonValue(attributesAsJSON);
 }
-void AArray::SetValueFromText(const QString& text)
-{
-    QJsonArray valuesAsJson = QJsonDocument::fromJson(text.toUtf8()).array();
-    const int valuesCount = valuesAsJson.size();
-
-    SetCount(valuesCount);
-
-
-    // Apply all the strings in the finalList to their attribute
-    for(int i = 0; i < valuesCount; i++)
-        myValues[i]->SetValueFromText(valuesAsJson[i].toString());
-}
 void AArray::CopyValueFromOther(const Attribute* _other)
 {
     const AArray* other_AA = dynamic_cast<const AArray*>(_other);
@@ -122,7 +99,7 @@ void AArray::CopyValueFromOther(const Attribute* _other)
 
     if (myTemplate.GetSharedParam().templateAtt != other_AA->myTemplate.GetSharedParam().templateAtt)
     {
-        SetValueFromText(other_AA->GetValueAsText());
+        SetValue_JSON(other_AA->GetValue_JSON());
         return;
     }
 
@@ -217,19 +194,6 @@ void AArray::SetValue_CSV(const QString& text)
 TemplateAttribute* AArray::GetArrayElementTemplate() const
 {
     return myTemplate.GetSharedParam().templateAtt;
-}
-QStringList AArray::GetValuesAsTexts() const
-{
-    int count = (int)myValues.size();
-    QStringList strings = QStringList();
-    strings.reserve(count);
-
-    for (const auto* val : myValues)
-    {
-        strings.push_back(val->GetValueAsText());
-    }
-
-    return strings;
 }
 const QList<Attribute*>& AArray::GetAttributes() const
 {

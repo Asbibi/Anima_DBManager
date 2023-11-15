@@ -79,15 +79,15 @@ const QList<Attribute*>& Structure::GetAttributes() const
 {
     return myAttributes;
 }
-void Structure::SetAttributeValueFromText(int _attIndex, QString _valueText)
+void Structure::SetAttributeValueFromText(int _attIndex, const QJsonValue& _value)
 {
     if (_attIndex < 0 || _attIndex >= myAttributes.size())
         return;
-    myAttributes[_attIndex]->SetValueFromText(_valueText);
+    myAttributes[_attIndex]->SetValue_JSON(_value);
 }
-void Structure::SetAttributeValueFromText(const QString& _attName, QString _valueText)
+void Structure::SetAttributeValueFromText(const QString& _attName, const QJsonValue& _value)
 {
-    SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _valueText);
+    SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _value);
 }
 void Structure::ReadValue_JSON(const QJsonObject& _structAsJson)
 {
@@ -141,16 +141,7 @@ void Structure::RemoveAttribute(int _position)
 }
 
 
-void Structure::GetAttributesDisplayedText(QString& _text) const
-{
-    const int attrCount = myAttributes.count();
-    for (int i = 0; i < attrCount; i++)
-    {
-        if (i > 0)
-            _text.append(',');
-        _text.append(myAttributes[i]->GetValueAsText());
-    }
-}
+
 QJsonObject Structure::WriteValue_JSON_AsRow() const
 {
     QJsonObject structAsJSON = QJsonObject();
@@ -209,7 +200,7 @@ QString Structure::GetDisplayText() const
     const int nAttr = attributeTemplates.count();
     for (int i = 0; i < nAttr; i++)
     {
-        text += attributeTemplates[i]->GetName() + " \t = " + GetAttribute(i)->GetValueAsText() + "\n";
+        text += attributeTemplates[i]->GetName() + " \t = " + GetAttribute(i)->GetValue_String() + "\n";
     }
     return text;
 }

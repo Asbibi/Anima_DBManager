@@ -185,13 +185,13 @@ bool TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
         ResetUselessParam(newType);
     }
 
-    SetDefaultValue(_templateToCopy.myDefaultAttribute->GetValueAsText());
+    SetDefaultValue(_templateToCopy.myDefaultAttribute->GetValue_JSON());
 
     return softChange;
 }
-void TemplateAttribute::SetDefaultValue(const QString& _valueAsText)
+void TemplateAttribute::SetDefaultValue(const QJsonValue& _value)
 {
-    myDefaultAttribute->SetValueFromText(_valueAsText);
+    myDefaultAttribute->SetValue_JSON(_value);
 }
 
 

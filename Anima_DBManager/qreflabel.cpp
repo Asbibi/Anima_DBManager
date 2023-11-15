@@ -40,7 +40,8 @@ int QRefLabel::GetValue() const
 
 const QString QRefLabel::GetValueText()
 {
-    return "&" + QString::number(myRefIndexInDB);
+    Q_ASSERT(hisStructureDB != nullptr);
+    return hisStructureDB->GetStructureRowName(myRefIndexInDB);
 }
 
 void QRefLabel::EditValue()

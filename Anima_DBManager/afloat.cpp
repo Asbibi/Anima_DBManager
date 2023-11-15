@@ -15,10 +15,6 @@ QString AFloat::GetDisplayedText() const
 {
     return QString::number(GetValue());
 }
-QString AFloat::GetValueAsText() const
-{
-    return QString::number(value);
-}
 QString AFloat::GetValue_CSV() const
 {
     return QString::number(GetValue());
@@ -26,23 +22,6 @@ QString AFloat::GetValue_CSV() const
 QJsonValue AFloat::GetValue_JSON() const
 {
     return QJsonValue(value);
-}
-void AFloat::SetValueFromText(const QString& text)
-{
-    bool ok;
-    float _value = text.toFloat(&ok);
-    if (!ok)
-    {
-       EmitValueChanged();
-       return;
-    }
-
-    bool changed = value != _value;
-    value = _value;
-    if (changed)
-    {
-        EmitValueChanged();
-    }
 }
 void AFloat::CopyValueFromOther(const Attribute* _other)
 {
@@ -76,6 +55,23 @@ bool AFloat::SetValue_JSON(const QJsonValue& _value)
 
     value = _value.toDouble();
     return true;
+}
+void AFloat::SetValue_CSV(const QString& _text)
+{
+    bool ok;
+    float _value = _text.toFloat(&ok);
+    if (!ok)
+    {
+       EmitValueChanged();
+       return;
+    }
+
+    bool changed = value != _value;
+    value = _value;
+    if (changed)
+    {
+        EmitValueChanged();
+    }
 }
 
 

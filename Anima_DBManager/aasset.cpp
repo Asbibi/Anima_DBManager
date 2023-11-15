@@ -33,15 +33,24 @@ bool AAsset::UpdateIsDirty()
     myIsDirty = newDirty;
     return changed;
 }
+void AAsset::SetValueFromText(const QString& text)
+{
+    if (text.isEmpty())
+    {
+        myFilePath = "";
+        myIsDirty = false;
+        return;
+    }
+
+    myIsDirty = text[0] == '!';
+    myFilePath = myIsDirty ? text.right(text.length() -1) : text;
+    Q_ASSERT(myIsDirty == IsDirty(myFilePath));
+}
 
 
 QString AAsset::GetDisplayedText() const
 {
     return GetFilePathForDisplay(myFilePath, myIsDirty);
-}
-QString AAsset::GetValueAsText() const
-{
-    return (myIsDirty && !myFilePath.isEmpty()) ? '!' + myFilePath : myFilePath;
 }
 QString AAsset::GetValue_CSV() const
 {
@@ -71,19 +80,6 @@ QJsonValue AAsset::GetValue_JSON() const
     return QJsonValue(GetValue_CSV());
 }
 
-void AAsset::SetValueFromText(const QString& text)
-{
-    if (text.isEmpty())
-    {
-        myFilePath = "";
-        myIsDirty = false;
-        return;
-    }
-
-    myIsDirty = text[0] == '!';
-    myFilePath = myIsDirty ? text.right(text.length() -1) : text;
-    Q_ASSERT(myIsDirty == IsDirty(myFilePath));
-}
 
 void AAsset::CopyValueFromOther(const Attribute* _other)
 {
