@@ -14,6 +14,8 @@ private:
     QList<Attribute*> myAttributesPtr; // ptr to the astructure's actual attributes => !!! NOT THE OWNER !!!
     QJsonObject myValue;
 
+    void SetValue(QJsonObject _value);
+
 public:
     QAStructureLabel(QWidget* _parent);
 
