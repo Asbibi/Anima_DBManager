@@ -11,6 +11,8 @@ protected:
     void SetValueFromText(const QString& text);
 
 public:
+    static const QString noPathValue;
+
     AAsset(TemplateAttribute& _template);
     AAsset(TemplateAttribute& _template, QString _filePath);
 

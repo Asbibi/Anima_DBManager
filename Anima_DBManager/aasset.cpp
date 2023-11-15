@@ -3,6 +3,8 @@
 #include "db_manager.h"
 
 
+const QString AAsset::noPathValue = "None";
+
 AAsset::AAsset(TemplateAttribute& _template) :
     AAsset(_template, "")
 {}
@@ -35,7 +37,7 @@ bool AAsset::UpdateIsDirty()
 }
 void AAsset::SetValueFromText(const QString& text)
 {
-    if (text.isEmpty())
+    if (text.isEmpty() || text == noPathValue)
     {
         myFilePath = "";
         myIsDirty = false;
@@ -60,7 +62,7 @@ QString AAsset::GetValue_CSV() const
         {
             qWarning("Asset ignored because dirty");
         }
-        return "None";
+        return noPathValue;
     }
 
     QString editedPath = myFilePath;
@@ -116,8 +118,8 @@ void AAsset::SetValue_CSV(const QString& text)
     }
 
     if (!text.startsWith(className))
-    {
-        // Log ? Message Box ?
+    {        
+        SetValueFromText(text);
         return;
     }
 
