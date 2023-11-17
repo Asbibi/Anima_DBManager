@@ -1,5 +1,6 @@
 #include "sstringhelper.h"
 
+#include "db_manager.h"
 #include <QList>
 
 #define CD_FR "FR"
@@ -104,6 +105,10 @@ void CleanStringForIdentifier(QString& _identifier)
     {
         _identifier.remove(bc);
     }
+}
+bool IsNameOkForAttribute(const QString& _name)
+{
+    return _name != "" && DB_Manager::GetDB_Manager().GetAttributeFullName(_name) != "Name";
 }
 void IncrementLanguage(SStringLanguages& _language)
 {

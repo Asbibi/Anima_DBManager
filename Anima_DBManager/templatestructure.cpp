@@ -125,9 +125,9 @@ void TemplateStructure::RenameAttributeTemplate(int _index, QString& _newName, b
     auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetAttributeIndex(_identifier) == -1); };
     _newName = SStringHelper::GetUniqueIdentifier(baseName, validate, true);
 
-    if (DB_Manager::GetDB_Manager().GetAttributeFullName(_newName) == "Name")
+    if (!SStringHelper::IsNameOkForAttribute(_newName))
     {
-        qDebug() << "Tried to set \"Name\" as an attribute name which is not allowed due to JSON exporting";
+        qDebug() << "Tried to set \"Name\" or \"\" as an attribute name which is not allowed due to JSON exporting";
         _newName = myAttributeTemplates[_index]->GetName();
         return;
     }
