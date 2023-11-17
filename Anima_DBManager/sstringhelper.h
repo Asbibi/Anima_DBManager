@@ -19,6 +19,7 @@ QString GetLanguageString(SStringLanguages _language);
 QString GetLanguageCD(SStringLanguages _language);
 QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const QString&)> _ValidateId, bool _noneAutorized);
 void CleanStringForIdentifier(QString& _identifier);
+bool IsNameOkForAttribute(const QString& _name);
 void IncrementLanguage(SStringLanguages& _language);
 
 }

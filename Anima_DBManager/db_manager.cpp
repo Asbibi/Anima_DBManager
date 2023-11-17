@@ -56,6 +56,29 @@ bool DB_Manager::IsProjectContentFolderPathValid() const
 }
 
 
+bool DB_Manager::SetAttributeFixsIfOk(const QString& _prefix, const QString& _suffix)
+{
+    const QString oldPrefix = myAttributePrefix;
+    const QString oldSuffix = myAttributeSuffix;
+    SetAttributePrefix(_prefix);
+    SetAttributeSuffix(_suffix);
+
+    for (const auto* structDb : myStructures)
+    {
+        for (const auto* attr : structDb->GetTemplate().GetAttributes())
+        {
+            if (!SStringHelper::IsNameOkForAttribute(attr->GetName()))
+            {
+                // Changing Prefix/Suffix is not ok for one attribute => revert changes
+                SetAttributePrefix(oldPrefix);
+                SetAttributePrefix(oldSuffix);
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
 void DB_Manager::SetAttributePrefix(const QString& _prefix)
 {
     myAttributePrefix = _prefix;

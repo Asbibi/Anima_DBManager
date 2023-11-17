@@ -52,6 +52,7 @@ public:
     const QString& GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
     bool IsProjectContentFolderPathValid() const;
 
+    bool SetAttributeFixsIfOk(const QString& _prefix, const QString& _suffix);
     void SetAttributePrefix(const QString& _prefix);
     void SetAttributeSuffix(const QString& _suffix);
     const QString& GetAttributePrefix() const;

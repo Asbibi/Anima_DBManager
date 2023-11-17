@@ -149,9 +149,19 @@ void QProjectDialog::UpdateFixResult()
 void QProjectDialog::OnApplyBtnClicked()
 {
     auto& dbManager = DB_Manager::GetDB_Manager();
+    if (!dbManager.SetAttributeFixsIfOk(myPrefixEdit->text(), mySuffixEdit->text()))
+    {
+        qDebug() << "Changing prefix/suffix not ok";
+
+        //const QBrush emptyBrush = QBrush(QColor(255,158,158));
+        myPrefixEdit->setStyleSheet("QLineEdit { background: rgb(255,158,158); }");
+        mySuffixEdit->setStyleSheet("QLineEdit { background: rgb(255,158,158); }");
+        //myPrefixEdit->setBackground(emptyBrush);
+        //mySuffixEdit
+        return;
+    }
+
     dbManager.SetProjectContentFolderPath(myProjectPath->text());
-    dbManager.SetAttributePrefix(myPrefixEdit->text());
-    dbManager.SetAttributeSuffix(mySuffixEdit->text());
     dbManager.SetAutoSave(myAutoSaveEnable->checkState() != Qt::Unchecked, myAutoSaveInterval->value());
     QDialog::accept();
 }
