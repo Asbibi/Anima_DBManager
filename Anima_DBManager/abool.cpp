@@ -13,21 +13,13 @@ QString ABool::GetDisplayedText() const
 {
     return value ? "TRUE" : "FALSE";
 }
-QString ABool::GetValueAsText() const
-{
-    return value ? "true" : "false";
-}
-QString ABool::GetAttributeAsCSV() const
+QString ABool::GetValue_CSV() const
 {
     return value ? "True" : "False";
 }
-QJsonValue ABool::GetAttributeAsJSON() const
+QJsonValue ABool::GetValue_JSON() const
 {
     return QJsonValue(value);
-}
-void ABool::SetValueFromText(const QString& text)
-{
-    SetValue(QString::compare(text, "true", Qt::CaseInsensitive) == 0);
 }
 void ABool::CopyValueFromOther(const Attribute* _other)
 {
@@ -37,7 +29,7 @@ void ABool::CopyValueFromOther(const Attribute* _other)
 
     value = other_AB->value;
 }
-bool ABool::ReadValue_JSON(const QJsonValue& _value)
+bool ABool::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isBool())
     {
@@ -46,6 +38,10 @@ bool ABool::ReadValue_JSON(const QJsonValue& _value)
 
     value = _value.toBool();
     return true;
+}
+void ABool::SetValue_CSV(const QString& _text)
+{
+    SetValue(QString::compare(_text, "true", Qt::CaseInsensitive) == 0);
 }
 
 

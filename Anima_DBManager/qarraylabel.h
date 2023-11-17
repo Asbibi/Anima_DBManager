@@ -4,6 +4,7 @@
 #include <QLabel>
 
 #include "aarray.h"
+#include <QJsonArray>
 
 
 class QArrayLabel : public QLabel
@@ -12,7 +13,7 @@ class QArrayLabel : public QLabel
 
 private:
     const AArray* myArrayAttribute;
-    QString myValue;
+    QJsonArray myValue;
 
     void ComputeMyValue(const QList<Attribute*>& _attributes);
 
@@ -20,7 +21,7 @@ public:
     QArrayLabel(QWidget* _parent);
 
     void SetValue(const AArray* _arrayAttr);
-    QString GetValue() const;
+    QJsonArray GetValue() const;
 
 signals:
     void OnValueEdited();

@@ -19,27 +19,13 @@ QString AShortString::GetDisplayedText() const
     else
         return value.left(MY_SHARED_PARAM.max_i);
 }
-QString AShortString::GetValueAsText() const
-{
-    return value;
-}
-QString AShortString::GetAttributeAsCSV() const
+QString AShortString::GetValue_CSV() const
 {
     return GetDisplayedText();
 }
-QJsonValue AShortString::GetAttributeAsJSON() const
+QJsonValue AShortString::GetValue_JSON() const
 {
     return QJsonValue(value);
-}
-void AShortString::SetValueFromText(const QString& text)
-{
-    bool changed = value != text;
-    value = text;
-
-    if (changed)
-    {
-        EmitValueChanged();
-    }
 }
 void AShortString::CopyValueFromOther(const Attribute* _other)
 {
@@ -49,7 +35,7 @@ void AShortString::CopyValueFromOther(const Attribute* _other)
 
     value = other_ASS->value;
 }
-bool AShortString::ReadValue_JSON(const QJsonValue& _value)
+bool AShortString::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isString())
     {
@@ -58,6 +44,16 @@ bool AShortString::ReadValue_JSON(const QJsonValue& _value)
 
     value = _value.toString();
     return true;
+}
+void AShortString::SetValue_CSV(const QString& _text)
+{
+    bool changed = value != _text;
+    value = _text;
+
+    if (changed)
+    {
+        EmitValueChanged();
+    }
 }
 
 

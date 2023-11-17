@@ -4,6 +4,7 @@
 #include <QLabel>
 
 #include "attribute.h"
+#include <QJsonObject>
 
 class QAStructureLabel : public QLabel
 {
@@ -11,12 +12,15 @@ class QAStructureLabel : public QLabel
 
 private:
     QList<Attribute*> myAttributesPtr; // ptr to the astructure's actual attributes => !!! NOT THE OWNER !!!
+    QJsonObject myValue;
+
+    void SetValue(QJsonObject _value);
 
 public:
     QAStructureLabel(QWidget* _parent);
 
     void SetValue(const QList<Attribute*>& _structureAttrPtr);
-    QString GetValue() const;
+    QJsonObject GetValue() const;
 
 signals:
     void OnValueEdited();

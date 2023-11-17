@@ -346,9 +346,9 @@ void QTemplateAttributeCore::OnParamChanged_StructureTemplate(bool _withCritical
     emit ParamEdited(_withCriticalChange);
 }
 
-void QTemplateAttributeCore::OnDefaultAttributeEdited(const QString& _attributeValueAsText)
+void QTemplateAttributeCore::OnDefaultAttributeEdited(const QJsonValue& _attributeValue)
 {
-    myTemplateAttribute.myDefaultAttribute->SetValueFromText(_attributeValueAsText);
+    myTemplateAttribute.myDefaultAttribute->SetValue_JSON(_attributeValue);
     emit ParamEdited(false);
 }
 void QTemplateAttributeCore::OnResetAStructureDefault()

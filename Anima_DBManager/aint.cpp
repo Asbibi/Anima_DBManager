@@ -16,39 +16,13 @@ QString AInt::GetDisplayedText() const
 {
     return QString::number(GetValue());
 }
-QString AInt::GetValueAsText() const
-{
-    return QString::number(value);
-}
-QString AInt::GetAttributeAsCSV() const
+QString AInt::GetValue_CSV() const
 {
     return QString::number(GetValue());
 }
-QJsonValue AInt::GetAttributeAsJSON() const
+QJsonValue AInt::GetValue_JSON() const
 {
     return QJsonValue(value);
-}
-void AInt::SetValueFromText(const QString& text)
-{
-    bool ok;
-    int _value = 0;
-    if (text.contains('.'))
-        _value = text.toFloat(&ok);
-    else
-        _value = text.toInt(&ok);
-
-    if (!ok)
-    {
-       EmitValueChanged();
-       return;
-    }
-
-    bool changed = value != _value;
-    value = _value;
-    if (changed)
-    {
-        EmitValueChanged();
-    }
 }
 void AInt::CopyValueFromOther(const Attribute* _other)
 {
@@ -73,7 +47,7 @@ void AInt::CopyValueFromOther(const Attribute* _other)
     else if (!FitsMaxParam())
             value = MY_SHARED_PARAM.max_i;
 }
-bool AInt::ReadValue_JSON(const QJsonValue& _value)
+bool AInt::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isDouble()) // Type Double is used for int in QJsonValue
     {
@@ -83,6 +57,30 @@ bool AInt::ReadValue_JSON(const QJsonValue& _value)
     value = _value.toInt();
     return true;
 }
+void AInt::SetValue_CSV(const QString& _text)
+{
+    bool ok;
+    int _value = 0;
+    if (_text.contains('.'))
+        _value = _text.toFloat(&ok);
+    else
+        _value = _text.toInt(&ok);
+
+
+    if (!ok)
+    {
+       EmitValueChanged();
+       return;
+    }
+
+    bool changed = value != _value;
+    value = _value;
+    if (changed)
+    {
+        EmitValueChanged();
+    }
+}
+
 
 
 bool AInt::FitsMinParam() const

@@ -60,7 +60,7 @@ public slots:
     void OnParamChanged_ArrayTemplate(bool _withCriticalChange);
     void OnParamChanged_StructureTemplate(bool _withCriticalChange);
 
-    void OnDefaultAttributeEdited(const QString& _attributeValueAsText);
+    void OnDefaultAttributeEdited(const QJsonValue& _attributeValue);
     void OnResetAStructureDefault();
 };
 

@@ -19,19 +19,15 @@ QString AEnumerator::GetDisplayedText() const
 {
     return CheckEnumIsValid() ? MY_SHARED_PARAM.GetEnum()->GetValue(value_index) : "<font color=\"darkred\">!!! NULL ENUM !!!</font>";
 }
-QString AEnumerator::GetValueAsText() const
-{
-    return CheckEnumIsValid() ? MY_SHARED_PARAM.GetEnum()->GetValue(value_index) : "Ø";
-}
-QString AEnumerator::GetAttributeAsCSV() const
+QString AEnumerator::GetValue_CSV() const
 {
     return CheckEnumIsValid() ? GetDisplayedText() : "";
 }
-QJsonValue AEnumerator::GetAttributeAsJSON() const
+QJsonValue AEnumerator::GetValue_JSON() const
 {
-    return QJsonValue(GetAttributeAsCSV());
+    return QJsonValue(GetValue_CSV());
 }
-void AEnumerator::SetValueFromText(const QString& text)
+void AEnumerator::SetValueFromText(const QString& _text)
 {
     if (!CheckEnumIsValid())
     {
@@ -39,7 +35,7 @@ void AEnumerator::SetValueFromText(const QString& text)
         return;
     }
 
-    int indexValue = MY_SHARED_PARAM.GetEnum()->GetValueIndex(text);
+    int indexValue = MY_SHARED_PARAM.GetEnum()->GetValueIndex(_text);
     if (indexValue < 0 || indexValue >= MY_SHARED_PARAM.GetEnum()->GetValueCount())
         indexValue = 0;
     SetEnumValue(indexValue);
@@ -52,7 +48,7 @@ void AEnumerator::CopyValueFromOther(const Attribute* _other)
 
     value_index = other_AE->value_index;
 }
-bool AEnumerator::ReadValue_JSON(const QJsonValue& _value)
+bool AEnumerator::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isString())
     {
@@ -61,6 +57,10 @@ bool AEnumerator::ReadValue_JSON(const QJsonValue& _value)
 
     SetValueFromText(_value.toString());
     return true;
+}
+void AEnumerator::SetValue_CSV(const QString& _text)
+{
+    SetValueFromText(_text);
 }
 
 

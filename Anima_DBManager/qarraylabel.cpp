@@ -1,7 +1,8 @@
 #include "qarraylabel.h"
 
+#include "jsonhelper.h"
 #include "qarraydialog.h"
-
+#include <QJsonDocument>
 
 QArrayLabel::QArrayLabel(QWidget* _parent) :
     QLabel(_parent)
@@ -11,29 +12,16 @@ QArrayLabel::QArrayLabel(QWidget* _parent) :
 
 void QArrayLabel::ComputeMyValue(const QList<Attribute*>& _attributes)
 {
-    myValue = "[";
-    for (const auto* attr : _attributes)
-    {
-        myValue += attr->GetValueAsText();
-        myValue += ',';
-    }
-    const int strLenght = myValue.count();
-    if (strLenght > 1)
-    {
-        myValue[strLenght-1] = ']';
-    }
-    else
-    {
-        myValue += ']';
-    }
+    myValue = JsonHelper::ConvertAttributeListToJsonArray(_attributes);
+    setText(JsonHelper::JsonToString(myValue));
 }
 void QArrayLabel::SetValue(const AArray* _arrayAttr)
 {
     myArrayAttribute = _arrayAttr;
-    setText(myArrayAttribute->GetDisplayedText());
+    //setText(myArrayAttribute->GetDisplayedText());
     ComputeMyValue(myArrayAttribute->GetAttributes());
 }
-QString QArrayLabel::GetValue() const
+QJsonArray QArrayLabel::GetValue() const
 {
     return myValue;
 }
@@ -54,7 +42,7 @@ void QArrayLabel::EditValue()
     {        
         ComputeMyValue(dialog->GetAttributes());
         emit OnValueEdited();
-        setText(myArrayAttribute->GetDisplayedText());
+        //setText(myArrayAttribute->GetDisplayedText());
     }
     delete dialog;
 }

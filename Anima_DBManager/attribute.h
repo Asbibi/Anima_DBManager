@@ -6,6 +6,8 @@
 #include "attributetype.h"
 #include "attributeparam.h"
 #include <fstream>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QJsonValue>
 
 class TemplateAttribute;
@@ -27,22 +29,22 @@ public:
 
     virtual AttributeTypeHelper::Type GetType()             const = 0;
     virtual QString GetDisplayedText()                      const = 0;
-    virtual QString GetValueAsText()                        const = 0;
-    virtual QString GetAttributeAsCSV()                     const = 0;
-    virtual QJsonValue GetAttributeAsJSON()                 const = 0;
+    virtual QString GetValue_CSV()                          const = 0;
+    virtual QJsonValue GetValue_JSON()                      const = 0;
     virtual void CopyValueFromOther(const Attribute* _other)      = 0;
-    virtual bool ReadValue_JSON(const QJsonValue& _value)         = 0;
-    virtual void ReadValue_CSV(const QString& text);
-    void WriteValue_CSV(std::ofstream& file) const;
+    virtual bool SetValue_JSON(const QJsonValue& _value)          = 0;
+    virtual void SetValue_CSV(const QString& _text)               = 0;
 
-    const TemplateAttribute* GetTemplate() const;
-    const AttributeParam& GetTemplateParam() const;
+    void WriteValue_CSV(std::ofstream& file)                const;
+
+    const TemplateAttribute* GetTemplate()                  const;
+    const AttributeParam& GetTemplateParam()                const;
+    QString GetValue_String()                               const;
 
 signals:
     void OnValueChanged(const Attribute* _this);    // arg given during emit()
 
-public slots:
-    virtual void SetValueFromText(const QString& text)            = 0;
+//public slots:
 };
 
 #define MY_SHARED_PARAM myTemplate.GetSharedParam()

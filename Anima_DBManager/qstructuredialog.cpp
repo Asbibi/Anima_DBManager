@@ -1,6 +1,7 @@
 #include "qstructuredialog.h"
 
 #include "astructure.h"
+#include "jsonhelper.h"
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -36,7 +37,7 @@ QStructureDialog::QStructureDialog(const QList<Attribute*>& _attributeList, QWid
     for (auto* attr : _attributeList)
     {
         myAttributes.push_back(attr->CreateDuplica());
-        myList->addItem(attr->GetValueAsText());
+        myList->addItem(attr->GetValue_String());
     }
 
 
@@ -51,9 +52,9 @@ QStructureDialog::~QStructureDialog()
     }
 }
 
-QString QStructureDialog::GetValue() const
+QJsonObject QStructureDialog::GetValue() const
 {
-    return AStructure::GetValueAsTextFromAttributes(myAttributes);
+    return JsonHelper::ConvertAttributeListToJsonObject(myAttributes);
 }
 
 void QStructureDialog::OnSelectItem(QListWidgetItem* _current, QListWidgetItem* _previous)
@@ -64,7 +65,7 @@ void QStructureDialog::OnSelectItem(QListWidgetItem* _current, QListWidgetItem* 
         QObject::disconnect(myCurrentAttributeEditor);
         delete myCurrentAttributeEditor;
         myCurrentAttributeEditor = nullptr;
-        _previous->setText(myAttributes[myList->row(_previous)]->GetValueAsText());
+        _previous->setText(myAttributes[myList->row(_previous)]->GetValue_String());
     }
 
     myCurrentAttributeEditor = new QAttribute();

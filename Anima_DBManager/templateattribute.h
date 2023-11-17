@@ -6,6 +6,7 @@
 #include "attributeparam.h"
 #include "constants.h"
 #include <QJsonObject>
+#include <QJsonValue>
 #include <QString>
 #include <QSet>
 
@@ -49,7 +50,7 @@ public:
     bool HasValidSharedParam() const;
 
     bool SetNewValues(const TemplateAttribute& _templateToCopy);
-    void SetDefaultValue(const QString& _valueAsText);
+    void SetDefaultValue(const QJsonValue& _value);
     void SetName(const QString& _name) {myAttrName = _name;}
 
 

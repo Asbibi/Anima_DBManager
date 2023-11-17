@@ -3,6 +3,8 @@
 #include "db_manager.h"
 
 
+const QString AAsset::noPathValue = "None";
+
 AAsset::AAsset(TemplateAttribute& _template) :
     AAsset(_template, "")
 {}
@@ -33,17 +35,26 @@ bool AAsset::UpdateIsDirty()
     myIsDirty = newDirty;
     return changed;
 }
+void AAsset::SetValueFromText(const QString& text)
+{
+    if (text.isEmpty() || text == noPathValue)
+    {
+        myFilePath = "";
+        myIsDirty = false;
+        return;
+    }
+
+    myIsDirty = text[0] == '!';
+    myFilePath = myIsDirty ? text.right(text.length() -1) : text;
+    Q_ASSERT(myIsDirty == IsDirty(myFilePath));
+}
 
 
 QString AAsset::GetDisplayedText() const
 {
     return GetFilePathForDisplay(myFilePath, myIsDirty);
 }
-QString AAsset::GetValueAsText() const
-{
-    return (myIsDirty && !myFilePath.isEmpty()) ? '!' + myFilePath : myFilePath;
-}
-QString AAsset::GetAttributeAsCSV() const
+QString AAsset::GetValue_CSV() const
 {
     if (myFilePath.isEmpty() || myIsDirty)
     {
@@ -51,7 +62,7 @@ QString AAsset::GetAttributeAsCSV() const
         {
             qWarning("Asset ignored because dirty");
         }
-        return "None";
+        return noPathValue;
     }
 
     QString editedPath = myFilePath;
@@ -66,24 +77,11 @@ QString AAsset::GetAttributeAsCSV() const
             + editedPath + '.'
             + assetName + '\'';
 }
-QJsonValue AAsset::GetAttributeAsJSON() const
+QJsonValue AAsset::GetValue_JSON() const
 {
-    return QJsonValue(GetAttributeAsCSV());
+    return QJsonValue(GetValue_CSV());
 }
 
-void AAsset::SetValueFromText(const QString& text)
-{
-    if (text.isEmpty())
-    {
-        myFilePath = "";
-        myIsDirty = false;
-        return;
-    }
-
-    myIsDirty = text[0] == '!';
-    myFilePath = myIsDirty ? text.right(text.length() -1) : text;
-    Q_ASSERT(myIsDirty == IsDirty(myFilePath));
-}
 
 void AAsset::CopyValueFromOther(const Attribute* _other)
 {
@@ -94,17 +92,17 @@ void AAsset::CopyValueFromOther(const Attribute* _other)
     myFilePath = other_AA->myFilePath;
     myIsDirty = other_AA->myIsDirty;
 }
-bool AAsset::ReadValue_JSON(const QJsonValue& _value)
+bool AAsset::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isString())
     {
         return false;
     }
 
-    ReadValue_CSV(_value.toString());
+    SetValue_CSV(_value.toString());
     return true;
 }
-void AAsset::ReadValue_CSV(const QString& text)
+void AAsset::SetValue_CSV(const QString& text)
 {    
     if(text.isEmpty() || text.endsWith("\'\'"))
     {
@@ -120,8 +118,8 @@ void AAsset::ReadValue_CSV(const QString& text)
     }
 
     if (!text.startsWith(className))
-    {
-        // Log ? Message Box ?
+    {        
+        SetValueFromText(text);
         return;
     }
 

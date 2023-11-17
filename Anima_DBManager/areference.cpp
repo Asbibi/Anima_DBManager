@@ -5,6 +5,7 @@
 #include "structuredb.h"
 
 #include <QDebug>
+#include <QJsonDocument>
 
 AReference::AReference(TemplateAttribute& _template) :
     Attribute(_template),
@@ -19,44 +20,38 @@ QString AReference::GetDisplayedText() const
 
     QString structString = "";
     if (myStructureRef->IsOneOfMyAttributes(this))
-        structString = "this";
-    else
-        // return MY_SHARED_PARAM.structTable->GetStructureRowName(myStructureRef) ?
-        myStructureRef->GetAttributesDisplayedText(structString);
-    return "&{ " + structString + " }";
+        return "<font color=\"blue\">this</font>";
 
+    QJsonObject refStructValue = myStructureRef->WriteValue_JSON_AsRow();
+    return QJsonDocument(refStructValue).toJson(QJsonDocument::Compact);
 }
-QString AReference::GetValueAsText() const
-{
-    return '&'
-        + QString((MY_SHARED_PARAM.structTable && myStructureRef) ?
-            QString::number(MY_SHARED_PARAM.structTable->GetStructureIndex(myStructureRef)) :
-            "Ø");
-}
-QString AReference::GetAttributeAsCSV() const
+QString AReference::GetValue_CSV() const
 {
     return (MY_SHARED_PARAM.structTable && myStructureRef) ?
         MY_SHARED_PARAM.structTable->GetStructureRowName(myStructureRef) :
         "";
 }
-QJsonValue AReference::GetAttributeAsJSON() const
+QJsonValue AReference::GetValue_JSON() const
 {
-    return QJsonValue(GetAttributeAsCSV());
+    return QJsonValue(GetValue_CSV());
 }
-void AReference::SetValueFromText(const QString& text)
+void AReference::SetValueFromText(const QString& _text)
 {
-    Q_ASSERT(text[0] == '&');
-    QString contentText = text;
-
-    bool ok;
-    int structIndex = (contentText.remove('&')).toInt(&ok);
-    StructureDB* structTable = MY_SHARED_PARAM.structTable;
-    if (!ok || !structTable || structIndex < 0)
+    if (_text.isEmpty())
     {
         SetReference(nullptr);
         return;
     }
 
+    StructureDB* structTable = MY_SHARED_PARAM.structTable;
+    Q_ASSERT(structTable != nullptr);
+
+    QString contentText = _text;
+    bool ok;
+    int structIndex = (contentText.remove(structTable->GetTemplateAbbrev())).toInt(&ok);
+    Q_ASSERT(ok);
+
+    // When opening a Savefile, we fill up the the referenced Struct table if the referenced structure doesn't exist yet
     if (structIndex >= structTable->GetStructureCount() && SaveManager::IsOpeningFile())
     {
         structTable->SetStructureCount(structIndex+1);
@@ -71,19 +66,19 @@ void AReference::CopyValueFromOther(const Attribute* _other)
 
     myStructureRef = other_AR->myStructureRef;
 }
-bool AReference::ReadValue_JSON(const QJsonValue& _value)
+bool AReference::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isString())
     {
         return false;
     }
 
-    SetValueFromText(ConvertRowNameToTextValue(_value.toString()));
+    SetValueFromText(_value.toString());
     return true;
 }
-void AReference::ReadValue_CSV(const QString& _text)
+void AReference::SetValue_CSV(const QString& _text)
 {
-    SetValueFromText(ConvertRowNameToTextValue(_text));
+    SetValueFromText(_text);
 }
 
 
@@ -121,9 +116,4 @@ int AReference::GetReferenceIndex() const
 
     qCritical() << "My Ref not found in structs: should be null";
     return -1;
-}
-
-QString AReference::ConvertRowNameToTextValue(const QString& _rowName) const
-{
-    return '&' + QString(_rowName).remove(MY_SHARED_PARAM.structTable->GetTemplateAbbrev());
 }

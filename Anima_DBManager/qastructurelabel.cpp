@@ -1,7 +1,9 @@
 #include "qastructurelabel.h"
 
 #include "astructure.h"
+#include "jsonhelper.h"
 #include "qstructuredialog.h"
+#include <QJsonDocument>
 
 QAStructureLabel::QAStructureLabel(QWidget* _parent) :
     QLabel(_parent)
@@ -10,14 +12,19 @@ QAStructureLabel::QAStructureLabel(QWidget* _parent) :
 }
 
 
+void QAStructureLabel::SetValue(QJsonObject _value)
+{
+    myValue = _value;
+    setText(JsonHelper::JsonToString(myValue));
+}
 void QAStructureLabel::SetValue(const QList<Attribute*>& _structureAttrPtr)
 {
     myAttributesPtr = _structureAttrPtr;
-    setText(AStructure::GetValueAsTextFromAttributes(myAttributesPtr));
+    SetValue(JsonHelper::ConvertAttributeListToJsonObject(_structureAttrPtr));
 }
-QString QAStructureLabel::GetValue() const
+QJsonObject QAStructureLabel::GetValue() const
 {
-    return text();
+    return myValue;
 }
 
 void QAStructureLabel::EditValue()
@@ -27,7 +34,7 @@ void QAStructureLabel::EditValue()
     int res = dialog->result();
     if (res == QDialog::Accepted)
     {
-        setText(dialog->GetValue());
+        SetValue(dialog->GetValue());
         emit OnValueEdited();
     }
     delete dialog;

@@ -2,6 +2,10 @@
 
 #include "db_manager.h"
 
+
+const QString ATableString::tableString = "myTable";
+const QString ATableString::identifierString = "myKey";
+
 ATableString::ATableString(TemplateAttribute& _template) :
     Attribute(_template)
 {}
@@ -17,56 +21,13 @@ QString ATableString::GetDisplayedText() const
     auto& DB = DB_Manager::GetDB_Manager();
     return DB.GetStringForDisplay(myTableName, myStringIdentifier, false);
 }
-QString ATableString::GetValueAsText() const
+QString ATableString::GetValue_CSV() const
 {
-    return '#' + myTableName + '#' + myStringIdentifier;
+    return QString("(%1=%3,%2=\"%4\")").arg(tableString, identifierString, myTableName, myStringIdentifier);
 }
-QString ATableString::GetAttributeAsCSV() const
+QJsonValue ATableString::GetValue_JSON() const
 {
-    return "(myTable=" + myTableName + ",myKey=\"" + myStringIdentifier+ "\")";
-}
-QJsonValue ATableString::GetAttributeAsJSON() const
-{
-    QJsonObject stringRefAsJSON = QJsonObject();
-
-    stringRefAsJSON.insert("myTable", myTableName);
-    stringRefAsJSON.insert("myKey", myStringIdentifier);
-
-    return QJsonValue(stringRefAsJSON);
-}
-void ATableString::SetValueFromText(const QString& text)
-{
-    if (text.isEmpty() || text == "##")
-    {
-        myTableName = "";
-        myStringIdentifier = "";
-        return;
-    }
-
-    QString tableId = text.section('#', 1,1);
-    QString stringId = text.section('#', 2,2);
-    if (text != ("#" + tableId + "#" + stringId) || stringId.contains('#'))
-    {
-        qFatal("\n\nInvalid string while setting <TABLE_STRING> attribute's value:\n\n\t===== Abort =====\n\n");
-        return;
-    }
-
-   QString oldTableId = myTableName;
-   QString oldStringId = myStringIdentifier;
-   myTableName = tableId;
-   myStringIdentifier = stringId;
-
-
-   if ((myTableName != oldTableId || myStringIdentifier != oldStringId ) && HasValidValues())
-   {
-       EmitValueChanged();
-   }
-   else
-   {
-       // Abort Change
-       myTableName = oldTableId;
-       myStringIdentifier = oldStringId;
-   }
+    return ConvertToJsonValue(myTableName, myStringIdentifier);
 }
 void ATableString::CopyValueFromOther(const Attribute* _other)
 {
@@ -77,7 +38,7 @@ void ATableString::CopyValueFromOther(const Attribute* _other)
     myTableName = other_ATS->myTableName;
     myStringIdentifier = other_ATS->myStringIdentifier;
 }
-bool ATableString::ReadValue_JSON(const QJsonValue& _value)
+bool ATableString::SetValue_JSON(const QJsonValue& _value)
 {
     if (!_value.isObject())
     {
@@ -85,8 +46,8 @@ bool ATableString::ReadValue_JSON(const QJsonValue& _value)
     }
 
     QJsonObject valueAsObj = _value.toObject();
-    const QJsonValue& tabKey = valueAsObj.value("myTable");
-    const QJsonValue& strKey = valueAsObj.value("myKey");
+    const QJsonValue& tabKey = valueAsObj.value(tableString);
+    const QJsonValue& strKey = valueAsObj.value(identifierString);
 
     if (!tabKey.isString() || !strKey.isString())
     {
@@ -98,14 +59,21 @@ bool ATableString::ReadValue_JSON(const QJsonValue& _value)
 
     return true;
 }
-void ATableString::ReadValue_CSV(const QString& _text)
+void ATableString::SetValue_CSV(const QString& _text)
 {
+    // Text has format (myTable=...,myKey="...")
+    // Need to clean it first
     QString textCopy = _text;
-    textCopy.replace("(myTable=", "#");
-    textCopy.replace(",myKey=\"", "#");
-    int textLength = textCopy.length();
-    textCopy.remove(textLength - 2, 2);
-    SetValueFromText(textCopy);
+    textCopy.remove(QString("(%1=").arg(tableString));
+    textCopy.remove(textCopy.length() - 2, 2);  //remove ending ") string
+
+    // Separate the 2 values + finish cleaning
+    auto splits = textCopy.split(QString(",%2=\"").arg(identifierString));
+    Q_ASSERT(splits.size() == 2);
+
+    // Assign values
+    myTableName = splits[0];
+    myStringIdentifier = splits[1];
 }
 
 
@@ -122,4 +90,16 @@ const QString& ATableString::GetTableName() const
 const QString& ATableString::GetStringIdentifier() const
 {
     return myStringIdentifier;
+}
+
+
+
+QJsonValue ATableString::ConvertToJsonValue(const QString& _tableId, const QString& _stringId)
+{
+    QJsonObject stringRefAsJSON = QJsonObject();
+
+    stringRefAsJSON.insert(tableString, _tableId);
+    stringRefAsJSON.insert(identifierString, _stringId);
+
+    return QJsonValue(stringRefAsJSON);
 }

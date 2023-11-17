@@ -12,26 +12,23 @@ class AReference : public Attribute
 {
 private:
     QPointer<const Structure> myStructureRef;
+    void SetValueFromText(const QString& _text);
 
 public:
     AReference(TemplateAttribute& _template);
 
     virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Reference; };
     virtual QString GetDisplayedText()                          const override;
-    virtual QString GetValueAsText()                            const override;
-    virtual QString GetAttributeAsCSV()                         const override;
-    virtual QJsonValue GetAttributeAsJSON()                     const override;
-    virtual void SetValueFromText(const QString& text)                override;
+    virtual QString GetValue_CSV()                              const override;
+    virtual QJsonValue GetValue_JSON()                          const override;
     virtual void CopyValueFromOther(const Attribute* _other)          override;
-    virtual bool ReadValue_JSON(const QJsonValue& _value)             override;
-    virtual void ReadValue_CSV(const QString& _text)                  override;
+    virtual bool SetValue_JSON(const QJsonValue& _value)              override;
+    virtual void SetValue_CSV(const QString& _text)                   override;
 
     void SetReference(const Structure* _reference);
     const Structure* GetReference() const;
     const StructureDB* GetStructureDB() const;
     int GetReferenceIndex() const;
-
-    QString ConvertRowNameToTextValue(const QString& _rowName) const;
 };
 
 #endif // AREFERENCE_H

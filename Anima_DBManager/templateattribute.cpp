@@ -185,13 +185,13 @@ bool TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
         ResetUselessParam(newType);
     }
 
-    SetDefaultValue(_templateToCopy.myDefaultAttribute->GetValueAsText());
+    SetDefaultValue(_templateToCopy.myDefaultAttribute->GetValue_JSON());
 
     return softChange;
 }
-void TemplateAttribute::SetDefaultValue(const QString& _valueAsText)
+void TemplateAttribute::SetDefaultValue(const QJsonValue& _value)
 {
-    myDefaultAttribute->SetValueFromText(_valueAsText);
+    myDefaultAttribute->SetValue_JSON(_value);
 }
 
 
@@ -209,7 +209,7 @@ QJsonObject TemplateAttribute::GetAsJson() const
     obj.insert("name", myAttrName);
     obj.insert("type", (int)GetType());
     obj.insert("param", mySharedParam.GetAsJson());
-    obj.insert("default", myDefaultAttribute->GetAttributeAsJSON());
+    obj.insert("default", myDefaultAttribute->GetValue_JSON());
     return obj;
 }
 TemplateAttribute* TemplateAttribute::NewAttributeFromJSON(const QJsonObject& _templateAttributeAsJson)
@@ -220,7 +220,7 @@ TemplateAttribute* TemplateAttribute::NewAttributeFromJSON(const QJsonObject& _t
 
     TemplateAttribute* templAttr = new TemplateAttribute(name, type, param);
 
-    templAttr->GetDefaultAttributeW()->ReadValue_JSON(_templateAttributeAsJson.value("default"));
+    templAttr->GetDefaultAttributeW()->SetValue_JSON(_templateAttributeAsJson.value("default"));
 
     return templAttr;
 }

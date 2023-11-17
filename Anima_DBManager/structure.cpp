@@ -79,15 +79,15 @@ const QList<Attribute*>& Structure::GetAttributes() const
 {
     return myAttributes;
 }
-void Structure::SetAttributeValueFromText(int _attIndex, QString _valueText)
+void Structure::SetAttributeValueFromText(int _attIndex, const QJsonValue& _value)
 {
     if (_attIndex < 0 || _attIndex >= myAttributes.size())
         return;
-    myAttributes[_attIndex]->SetValueFromText(_valueText);
+    myAttributes[_attIndex]->SetValue_JSON(_value);
 }
-void Structure::SetAttributeValueFromText(const QString& _attName, QString _valueText)
+void Structure::SetAttributeValueFromText(const QString& _attName, const QJsonValue& _value)
 {
-    SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _valueText);
+    SetAttributeValueFromText(myTemplate.GetAttributeIndex(_attName), _value);
 }
 void Structure::ReadValue_JSON(const QJsonObject& _structAsJson)
 {
@@ -95,8 +95,8 @@ void Structure::ReadValue_JSON(const QJsonObject& _structAsJson)
     for (int i = 0; i < myAttributes.size(); i++)
     {
         const QString& attrName = myTemplate.GetAttributeName(i);
-        const bool _jsonRead = myAttributes[i]->ReadValue_JSON(_structAsJson.value(dbManager.GetAttributeFullName(attrName)));
-        if (!_jsonRead)
+        const bool jsonReadOk = myAttributes[i]->SetValue_JSON(_structAsJson.value(dbManager.GetAttributeFullName(attrName)));
+        if (!jsonReadOk)
         {
             qWarning() << _structAsJson.value("Name").toString() << " - Ignored " << attrName << " Attribute value : invalid json type" << _structAsJson.value(attrName);
         }
@@ -106,7 +106,7 @@ void Structure::ReadAttributeValue_CSV(int _attIndex, const QString& _csvValue)
 {
     if (_attIndex < 0 || _attIndex >= myAttributes.size())
         return;
-    myAttributes[_attIndex]->ReadValue_CSV(_csvValue);
+    myAttributes[_attIndex]->SetValue_CSV(_csvValue);
 }
 void Structure::MoveAttribute(int _indexFrom, int _indexTo)
 {
@@ -141,16 +141,7 @@ void Structure::RemoveAttribute(int _position)
 }
 
 
-void Structure::GetAttributesDisplayedText(QString& _text) const
-{
-    const int attrCount = myAttributes.count();
-    for (int i = 0; i < attrCount; i++)
-    {
-        if (i > 0)
-            _text.append(',');
-        _text.append(myAttributes[i]->GetValueAsText());
-    }
-}
+
 QJsonObject Structure::WriteValue_JSON_AsRow() const
 {
     QJsonObject structAsJSON = QJsonObject();
@@ -158,7 +149,7 @@ QJsonObject Structure::WriteValue_JSON_AsRow() const
     const auto& dbManager = DB_Manager::GetDB_Manager();
     for (int i = 0; i < myAttributes.size(); i++)
     {
-        structAsJSON.insert(dbManager.GetAttributeFullName(myTemplate.GetAttributeName(i)), myAttributes[i]->GetAttributeAsJSON());
+        structAsJSON.insert(dbManager.GetAttributeFullName(myTemplate.GetAttributeName(i)), myAttributes[i]->GetValue_JSON());
     }
 
     return structAsJSON;
@@ -190,11 +181,11 @@ QString Structure::GetStructureAsCSV() const
         const auto type = myAttributes[i]->GetType();
         if (AttributeTypeHelper::ShouldBeWrappedInQuoteInCSV(type))
         {
-            structAsCSV.append(QString(AttributeTypeHelper::csvDoubleQuoteWrapper).arg(myAttributes[i]->GetAttributeAsCSV()));
+            structAsCSV.append(QString(AttributeTypeHelper::csvDoubleQuoteWrapper).arg(myAttributes[i]->GetValue_CSV()));
         }
         else
         {
-            structAsCSV.append(myAttributes[i]->GetAttributeAsCSV());
+            structAsCSV.append(myAttributes[i]->GetValue_CSV());
         }
     }
     // ==========================
@@ -209,7 +200,7 @@ QString Structure::GetDisplayText() const
     const int nAttr = attributeTemplates.count();
     for (int i = 0; i < nAttr; i++)
     {
-        text += attributeTemplates[i]->GetName() + " \t = " + GetAttribute(i)->GetValueAsText() + "\n";
+        text += attributeTemplates[i]->GetName() + " \t = " + GetAttribute(i)->GetValue_String() + "\n";
     }
     return text;
 }
