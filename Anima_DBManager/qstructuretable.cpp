@@ -78,7 +78,12 @@ void QStructureTable::Unselect(int _row, int _col)
     // "Show" the corresponding item
     QAttributeDisplay* attributeItem = dynamic_cast<QAttributeDisplay*>(item(_row, _col));
     Q_ASSERT(attributeItem != nullptr);
-    attributeItem->SetContentFromAttribute(myStructureDB.GetStructureAt(_row)->GetAttribute(_col));
+
+    const Structure* row_Structure = myStructureDB.GetStructureAt(_row);
+    if (row_Structure != nullptr)
+    {
+        attributeItem->SetContentFromAttribute(row_Structure->GetAttribute(_col));
+    }
     setItem(_row, _col, attributeItem);
 }
 
@@ -88,7 +93,7 @@ void QStructureTable::UpdateTable()
 {
     // Reset
     clearSelection();
-    UnselectCurrent();
+    setCurrentCell(-1, -1, QItemSelectionModel::Clear);
 
     // Column number & Headers
     const auto& templ = myStructureDB.GetTemplate();
@@ -153,6 +158,12 @@ void QStructureTable::OnSelectItem(int _currentRow, int _currentColumn, int _pre
     if (_previousRow != -1 && _previousColumn != -1)
     {
         Unselect(_previousRow, _previousColumn);
+    }
+
+    // Selecting "None" cell -> nothing else to do
+    if (_currentRow < 0 || _currentColumn < 0)
+    {
+        return;
     }
 
 
