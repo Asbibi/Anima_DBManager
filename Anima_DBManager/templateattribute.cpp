@@ -168,6 +168,8 @@ bool TemplateAttribute::IsSameStructType(const AttributeParam& _firstParam, cons
 }
 bool TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
 {
+    SetActive(_templateToCopy.IsActive());
+
     const AttributeTypeHelper::Type newType = _templateToCopy.GetType();
     const AttributeParam& newParamToCopy = _templateToCopy.mySharedParam;
     bool softChange = GetType() == newType;
@@ -200,6 +202,14 @@ bool TemplateAttribute::SetNewValues(const TemplateAttribute& _templateToCopy)
 void TemplateAttribute::SetDefaultValue(const QJsonValue& _value)
 {
     myDefaultAttribute->SetValue_JSON(_value);
+}
+void TemplateAttribute::SetName(const QString& _name)
+{
+    myAttrName = _name;
+}
+void TemplateAttribute::SetActive(bool _active)
+{
+    myIsActive = _active;
 }
 
 

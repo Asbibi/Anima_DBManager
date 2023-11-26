@@ -53,7 +53,7 @@ public:
 
     bool SetNewValues(const TemplateAttribute& _templateToCopy);
     void SetDefaultValue(const QJsonValue& _value);
-    void SetName(const QString& _name) {myAttrName = _name;}
+    void SetName(const QString& _name);
     void SetActive(bool _active);
 
 
