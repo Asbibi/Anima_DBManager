@@ -9,19 +9,22 @@
 
 TemplateAttribute::TemplateAttribute() :
     myAttrName("New"),
-    mySharedParam()
+    mySharedParam(),
+    myIsActive(true)
 {
     InitDefaultAttribute(AttributeTypeHelper::Type::Bool);
 }
-TemplateAttribute::TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy) :
+TemplateAttribute::TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy, bool _active) :
     myAttrName(_name),
-    mySharedParam(_sharedParamToCopy)
+    mySharedParam(_sharedParamToCopy),
+    myIsActive(_active)
 {
     InitDefaultAttribute(_type);
 }
 TemplateAttribute::TemplateAttribute(const TemplateAttribute& _another) :
     myAttrName(_another.myAttrName),
-    mySharedParam(_another.mySharedParam)
+    mySharedParam(_another.mySharedParam),
+    myIsActive(_another.myIsActive)
 {
     InitDefaultAttribute(_another.GetType());
 
@@ -105,6 +108,11 @@ bool TemplateAttribute::HasValidSharedParam() const
 {
     return AttributeTypeHelper::AreParamValid(GetType(), mySharedParam);
 }
+bool TemplateAttribute::IsActive() const
+{
+    return myIsActive;
+}
+
 
 bool TemplateAttribute::IsSameArrayType(const AttributeParam& _firstParam, const AttributeParam& _secondParam)
 {
@@ -209,6 +217,7 @@ QJsonObject TemplateAttribute::GetAsJson() const
     obj.insert("name", myAttrName);
     obj.insert("type", (int)GetType());
     obj.insert("param", mySharedParam.GetAsJson());
+    obj.insert("active", myIsActive);
     obj.insert("default", myDefaultAttribute->GetValue_JSON());
     return obj;
 }
@@ -217,8 +226,9 @@ TemplateAttribute* TemplateAttribute::NewAttributeFromJSON(const QJsonObject& _t
     const QString name = _templateAttributeAsJson.value("name").toString();
     const AttributeTypeHelper::Type type = AttributeTypeHelper::Type(_templateAttributeAsJson.value("type").toInt());
     const AttributeParam param = AttributeParam(_templateAttributeAsJson.value("param").toObject());
+    const bool active = _templateAttributeAsJson.value("active").toBool();
 
-    TemplateAttribute* templAttr = new TemplateAttribute(name, type, param);
+    TemplateAttribute* templAttr = new TemplateAttribute(name, type, param, active);
 
     templAttr->GetDefaultAttributeW()->SetValue_JSON(_templateAttributeAsJson.value("default"));
 

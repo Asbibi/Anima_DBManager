@@ -24,6 +24,7 @@ private:
     AttributeParam mySharedParam;
     Attribute* myDefaultAttribute = nullptr;
     QSet<Attribute*> myAttributes;
+    bool myIsActive;
 
     void DeleteDefaultAttribute();
     void InitDefaultAttribute(AttributeTypeHelper::Type _type);
@@ -34,7 +35,7 @@ private:
 
 public:
     TemplateAttribute();
-    TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy);
+    TemplateAttribute(const QString& _name, const AttributeTypeHelper::Type _type, const AttributeParam& _sharedParamToCopy, bool _active = true);
     TemplateAttribute(const TemplateAttribute& _another);
     ~TemplateAttribute();
 
@@ -48,10 +49,12 @@ public:
     AttributeParam& GetSharedParam();
     Attribute* GetDefaultAttributeW();
     bool HasValidSharedParam() const;
+    bool IsActive() const;
 
     bool SetNewValues(const TemplateAttribute& _templateToCopy);
     void SetDefaultValue(const QJsonValue& _value);
     void SetName(const QString& _name) {myAttrName = _name;}
+    void SetActive(bool _active);
 
 
     Attribute* GenerateAttribute() const;

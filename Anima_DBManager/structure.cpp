@@ -146,16 +146,19 @@ void Structure::RemoveAttribute(int _position)
     delete removedAttr;
 }
 
-
+#include "savemanager.h"
 
 QJsonObject Structure::WriteValue_JSON_AsRow() const
 {
     QJsonObject structAsJSON = QJsonObject();
 
+    const bool isSaving = SaveManager::IsSavingFile();
     const auto& dbManager = DB_Manager::GetDB_Manager();
     for (int i = 0; i < myAttributes.size(); i++)
     {
-        structAsJSON.insert(dbManager.GetAttributeFullName(myTemplate.GetAttributeName(i)), myAttributes[i]->GetValue_JSON());
+        if (isSaving || myAttributes[i]->GetTemplate()->IsActive()) {
+            structAsJSON.insert(dbManager.GetAttributeFullName(myTemplate.GetAttributeName(i)), myAttributes[i]->GetValue_JSON());
+        }
     }
 
     return structAsJSON;
