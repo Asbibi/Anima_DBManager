@@ -355,12 +355,16 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::ReadOnly);
-#ifdef SAVE_WITH_COMPRESSION
     QByteArray compressedData = saveFile.readAll();
-    QByteArray uncompressedData = qUncompress(compressedData);
-#else
-    QByteArray uncompressedData = saveFile.readAll();
-#endif
+    QByteArray uncompressedData;
+    if (compressedData.startsWith(separator))
+    {
+        uncompressedData = compressedData;
+    }
+    else
+    {
+        uncompressedData = qUncompress(compressedData);
+    }
     saveFile.close();
 
 
