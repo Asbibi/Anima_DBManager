@@ -1,6 +1,7 @@
 #include "structure.h"
 
 #include "db_manager.h"
+#include "aarray.h"
 #include <QList>
 
 
@@ -125,6 +126,11 @@ void Structure::FixAttributeTypeToDefault(int _attIndex)
 
     // Delete the old invalid one
     attr->PreManualDelete();
+    if (attr->GetType() == AttributeTypeHelper::Type::Array)
+    {
+        AArray* aa = dynamic_cast<AArray*>(attr);
+        aa->Empty(false);
+    }
     delete attr;
 }
 void Structure::AddAttribute(int _position, bool _copyFromPrevious)
