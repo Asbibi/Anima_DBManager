@@ -228,13 +228,17 @@ void AArray::RemoveRow(int _index)
     removed->PreManualDelete();
     delete(removed);
 }
-void AArray::Empty()
+void AArray::Empty(bool _clean)
 {
-    for (auto* elem : myValues)
+    if (_clean)
     {
-        elem->PreManualDelete();
-        delete elem;
+        for (auto* elem : myValues)
+        {
+            elem->PreManualDelete();
+            delete elem;
+        }
     }
+
     myValues.clear();
 }
 void AArray::MoveRow(int _originalIndex, int _targetIndex)

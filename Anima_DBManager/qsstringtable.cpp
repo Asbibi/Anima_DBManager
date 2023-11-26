@@ -99,6 +99,7 @@ void QSStringTable::UpdateTable()
 
 void QSStringTable::OnCellEdit(QTableWidgetItem *item)
 {
+    scrollToItem(item);
     blockSignals(true);
     item->setText(item->text().replace('\n', "\\n"));
     blockSignals(false);

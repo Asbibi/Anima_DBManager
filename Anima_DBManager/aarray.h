@@ -28,7 +28,7 @@ public:
     void AddRow(int _index);
     void DuplicateRow(int _index);
     void RemoveRow(int _index);
-    void Empty();
+    void Empty(bool _clean = true);
     void MoveRow(int _originalIndex, int _targetIndex);
 
     static QString GetShortDisplayedString(int _count);
