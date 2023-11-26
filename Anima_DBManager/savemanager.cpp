@@ -118,6 +118,10 @@ bool SaveManager::IsOpeningFile()
 {
     return SaveManager::GetSaveManager().myIsOpening;
 }
+bool SaveManager::IsSavingFile()
+{
+    return SaveManager::GetSaveManager().myIsSaving;
+}
 
 
 
@@ -159,7 +163,8 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
     // 0. Preparation
 
-    Q_ASSERT(!myIsOpening);
+    Q_ASSERT(!myIsOpening && !myIsSaving);
+    myIsSaving = true;
     const DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
     if (!TryMakeTempFolder(tempFolderPath))
@@ -318,8 +323,11 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
+    myIsSaving = false;
+
 
     // VIII. Remember the saved file as the opened one, only if regular save (ie not auto)
+
     if (!_isAutoSave)
     {
         myCurrentlyOpenedFile = _saveFilePath;
@@ -340,7 +348,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // 0. Preparation
 
-    Q_ASSERT(!myIsOpening);
+    Q_ASSERT(!myIsOpening && !myIsSaving);
     myIsOpening = true;
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     const QString tempFolderPath = GetSaveFileTempFolder(_saveFilePath);
@@ -355,12 +363,16 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::ReadOnly);
-#ifdef SAVE_WITH_COMPRESSION
     QByteArray compressedData = saveFile.readAll();
-    QByteArray uncompressedData = qUncompress(compressedData);
-#else
-    QByteArray uncompressedData = saveFile.readAll();
-#endif
+    QByteArray uncompressedData;
+    if (compressedData.startsWith(separator))
+    {
+        uncompressedData = compressedData;
+    }
+    else
+    {
+        uncompressedData = qUncompress(compressedData);
+    }
     saveFile.close();
 
 

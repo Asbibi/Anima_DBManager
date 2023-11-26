@@ -20,6 +20,7 @@ private:
     static const QString fileEndPro;
 
     bool myIsOpening = false;
+    bool myIsSaving = false;
     QString myCurrentlyOpenedFile = "";
 
 
@@ -47,6 +48,7 @@ public:
     static void SaveFile(const QString& _saveFilePath);
     static void OpenFile(const QString& _saveFilePath);
     static bool IsOpeningFile();
+    static bool IsSavingFile();
 };
 
 #endif // SAVEMANAGER_H

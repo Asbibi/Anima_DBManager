@@ -8,6 +8,7 @@
 #include "qattribute.h"
 #include "qtemplatestructurecore.h"
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFormLayout>
 #include <QLabel>
@@ -20,6 +21,7 @@ private:
     TemplateAttribute& myTemplateAttribute;
 
     QLineEdit* myName = nullptr;
+    QCheckBox* myActiveCheckBox = nullptr;
     QFormLayout* myFormLayout;
     QComboBox* myTypeComboBox;
     QAttribute* myDefAttributeEditor;
@@ -33,7 +35,7 @@ private:
     void ReConstructDefaultAttribute(AttributeTypeHelper::Type _type);
 
 public:
-    QTemplateAttributeCore(TemplateAttribute& _templateAttribute, bool _withNameField = false, QWidget* _parent = nullptr);
+    QTemplateAttributeCore(TemplateAttribute& _templateAttribute, bool _withNameField = false, bool _withActive = true, QWidget* _parent = nullptr);
 
     AttributeTypeHelper::Type GetType() const;
     bool HasConfigValid() const;
@@ -47,6 +49,7 @@ signals:
 
 public slots:
     void OnParamChanged_Name();
+    void OnParamChanged_Active(int _state);
     void OnParamChanged_Type(const QString& _typeStr);
 
     void OnParamChanged_IgnoreMin(bool _use);

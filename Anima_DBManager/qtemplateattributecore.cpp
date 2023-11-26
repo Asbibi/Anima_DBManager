@@ -5,7 +5,7 @@
 #include "db_manager.h"
 #include "qoptionalvalue.h"
 
-QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttribute, bool _withNameField, QWidget* _parent) :
+QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttribute, bool _withNameField, bool _withActive, QWidget* _parent) :
     QWidget{_parent},
     myTemplateAttribute{_templateAttribute}
 {
@@ -51,6 +51,14 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
     defaultLayout->addWidget(myDefAttributeUnavailable);
     myFormLayout->addRow("Default:", defaultLayout);
 
+    if (_withActive)
+    {
+        myActiveCheckBox = new QCheckBox();
+        myActiveCheckBox->setCheckState(_templateAttribute.IsActive() ? Qt::Checked : Qt::Unchecked);
+        QObject::connect(myActiveCheckBox, &QCheckBox::stateChanged, this, &QTemplateAttributeCore::OnParamChanged_Active);
+        myFormLayout->addRow("Active:", myActiveCheckBox);
+    }
+
     UpdateLayout(currentType);
     ShowDefaultWidget(true);
 }
@@ -74,6 +82,7 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 {
     const AttributeTypeHelper::Type currentType = myTemplateAttribute.GetType();
     const int rowToAdd = myName == nullptr ? 1 : 2;
+    const int rowToKeep = rowToAdd + (myActiveCheckBox == nullptr ? 1 : 2);
 
     if (currentType == AttributeTypeHelper::Type::Array && myArrayTemplate != nullptr)
     {
@@ -92,7 +101,7 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
 
     PerformTypeSpecificPreparation(_type);
 
-    while (myFormLayout->rowCount() > rowToAdd + 1)
+    while (myFormLayout->rowCount() > rowToKeep)
     {
         myFormLayout->removeRow(rowToAdd);
     }
@@ -103,7 +112,7 @@ void QTemplateAttributeCore::UpdateLayout(AttributeTypeHelper::Type _type)
         case AttributeTypeHelper::Type::Array:
         {
             Q_ASSERT(myTemplateAttribute.mySharedParam.templateAtt != nullptr);
-            myArrayTemplate = new QTemplateAttributeCore(*myTemplateAttribute.mySharedParam.templateAtt);
+            myArrayTemplate = new QTemplateAttributeCore(*myTemplateAttribute.mySharedParam.templateAtt, false, false, this);
             myFormLayout->insertRow(rowToAdd, "Template:", myArrayTemplate);
             QObject::connect(myArrayTemplate, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttributeCore::OnParamChanged_ArrayTemplate);
             QOptionalValue_Int* minValue = new QOptionalValue_Int();
@@ -271,6 +280,12 @@ void QTemplateAttributeCore::OnParamChanged_Name()
     QString newName = myName->text();
     emit NameChanged(newName);
     myName->setText(newName);
+}
+void QTemplateAttributeCore::OnParamChanged_Active(int _state)
+{
+    Q_ASSERT(myActiveCheckBox != nullptr);
+    myTemplateAttribute.SetActive(_state == Qt::Checked);
+    emit ParamEdited(false);
 }
 void QTemplateAttributeCore::OnParamChanged_Type(const QString& _typeStr)
 {
