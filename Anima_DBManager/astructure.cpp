@@ -41,7 +41,12 @@ void AStructure::CopyValueFromOther(const Attribute* _other)
     if (!other_AS)
         return;
 
-    myValue = other_AS->myValue;
+    Q_ASSERT(myValue->GetTemplate().GetAttributesCount() == other_AS->myValue->GetTemplate().GetAttributesCount());
+    const int attrCount = myValue->GetTemplate().GetAttributesCount();
+    for (int i = 0; i < attrCount; i++)
+    {
+        myValue->GetAttribute(i)->CopyValueFromOther(other_AS->myValue->GetAttribute(i));
+    }
 }
 bool AStructure::SetValue_JSON(const QJsonValue& _value)
 {
