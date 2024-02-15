@@ -661,7 +661,7 @@ void DB_Manager::RemoveAttributeTemplate(const QString& _tableName, int _attrInd
 void DB_Manager::SetAttributeTemplatesFromJSON(int _tableIndex, const QJsonArray& _attributesAsJson)
 {
     const int count = myStructures.count();
-    if (_tableIndex < 0 || _tableIndex > count)
+    if (_tableIndex < 0 || _tableIndex >= count)
         return;
 
     myStructures[_tableIndex]->SetAttributeTemplatesFromJSON(_attributesAsJson);
