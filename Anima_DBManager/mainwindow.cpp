@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include <QAction>
+#include <QCloseEvent>
 #include <QFileDialog>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -41,12 +42,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
     auto* newDB = fileMenu->addAction("New");
     QObject::connect(newDB, &QAction::triggered, this, &MainWindow::OnNewDB);
+    newDB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
     auto* openDB = fileMenu->addAction("Open");
     QObject::connect(openDB, &QAction::triggered, this, &MainWindow::OnOpenDB);
+    openDB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
     auto* saveDB = fileMenu->addAction("Save");
     QObject::connect(saveDB, &QAction::triggered, this, &MainWindow::OnSaveDB);
+    saveDB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
     auto* saveAsDB = fileMenu->addAction("Save As...");
     QObject::connect(saveAsDB, &QAction::triggered, this, &MainWindow::OnSaveAsDB);
+    saveAsDB->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL | Qt::Key_S));
 
 #ifdef CSV_EXPORT_ENABLED
     QMenu* exportCurrentStructMenu = exportImportMenu->addMenu("Export Current Structure Table");
@@ -72,6 +77,7 @@ MainWindow::MainWindow(QWidget *parent) :
     exportImportMenu->addSeparator();
     auto* exportAll = exportImportMenu->addAction("Export Everything");
     QObject::connect(exportAll, &QAction::triggered, this, &MainWindow::OnExportAll);
+    exportAll->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
 
     exportImportMenu->addSeparator();
     auto* importStructAction = exportImportMenu->addAction("Import Structure Table");
@@ -95,6 +101,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     QObject::connect(projSettings, &QAction::triggered, this, &MainWindow::OnProjectSettings);
+    projSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
 
 
 
@@ -161,6 +168,15 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {}
 
+
+void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants to close app
+{
+    event->ignore();
+    if (QMessageBox::Yes == QMessageBox::question(this, "Close Confirmation", "Do you want to close the manager ?\nUnsaved change will be lost.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No))
+    {
+        event->accept();
+    }
+}
 
 void MainWindow::Debug_Update()
 {

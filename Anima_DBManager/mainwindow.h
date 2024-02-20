@@ -38,6 +38,8 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    virtual void closeEvent(QCloseEvent *event) override;
+
     void Debug_Update();
     void UpdateWindowName();
     void OpenDB(const QString& _savefile);
