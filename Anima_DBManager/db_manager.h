@@ -153,6 +153,9 @@ signals:
 
     void ResetView();
 
+    void AcknowledgeChange();
+    void AutoSaveFeedback(bool _showFeedback);
+
 public slots:
     void AutoSave();
 };

@@ -45,6 +45,7 @@ bool DB_Manager::SetProjectContentFolderPath(const QString& _path)
 {
     myProjectContentFolderPath = _path;
     myProjectPathIsValid = QDir(myProjectContentFolderPath).exists();
+    emit AcknowledgeChange();
     return myProjectPathIsValid;
 }
 const QString& DB_Manager::GetProjectContentFolderPath(bool _homePathIfUnvalid) const {
@@ -63,6 +64,7 @@ bool DB_Manager::SetAttributeFixsIfOk(const QString& _prefix, const QString& _su
     SetAttributePrefix(_prefix);
     SetAttributeSuffix(_suffix);
 
+    //Chek if change is Ok (if not revert)
     for (const auto* structDb : myStructures)
     {
         for (const auto* attr : structDb->GetTemplate().GetAttributes())
@@ -77,6 +79,7 @@ bool DB_Manager::SetAttributeFixsIfOk(const QString& _prefix, const QString& _su
         }
     }
 
+    emit AcknowledgeChange();
     return true;
 }
 void DB_Manager::SetAttributePrefix(const QString& _prefix)
@@ -115,6 +118,7 @@ void DB_Manager::SetAutoSave(bool _enabled, int _intervalMinut)
     int intervalAsMS = myAutoSaveInterval * 60000;
     myAutoSaveTimer->setInterval(intervalAsMS);
     myAutoSaveTimer->start(intervalAsMS);
+    emit AcknowledgeChange();
 }
 bool DB_Manager::GetAutoSaveEnabled() const
 {
@@ -319,6 +323,7 @@ void DB_Manager::AddEnum(const Enumerator& _enum, int _index)
             enumIndex++;
     }
     enumerators.insert(_index, _enum);
+    emit AcknowledgeChange();
 }
 void DB_Manager::MoveEnum(const int _indexFrom, const int _indexTo)
 {
@@ -346,6 +351,7 @@ void DB_Manager::MoveEnum(const int _indexFrom, const int _indexTo)
 
     auto movedEnum = enumerators.takeAt(_indexFrom);
     enumerators.insert(_indexTo, movedEnum);
+    emit AcknowledgeChange();
 }
 bool DB_Manager::CanSafelyRemoveEnum(int _index) const
 {
@@ -373,6 +379,7 @@ void DB_Manager::RemoveEnum(int _index)
     }
 
     enumerators.removeAt(_index);
+    emit AcknowledgeChange();
 }
 void DB_Manager::UpdateEnum(int _index, const Enumerator& _another)
 {
@@ -380,6 +387,7 @@ void DB_Manager::UpdateEnum(int _index, const Enumerator& _another)
         return;
 
     enumerators[_index].operator=(_another);
+    emit AcknowledgeChange();
 }
 void DB_Manager::UpdateEnumName(int _index, const QString& _name)
 {
@@ -387,6 +395,7 @@ void DB_Manager::UpdateEnumName(int _index, const QString& _name)
         return;
 
     enumerators[_index].SetName(_name);
+    emit AcknowledgeChange();
 }
 
 
@@ -465,6 +474,7 @@ void DB_Manager::AddStructureDB(const TemplateStructure& _structureTemplate, int
     myStructures.insert(_index, new StructureDB(_structureTemplate));
     myStructures[_index]->SetTemplateName(identifier);
     emit StructTableAdded(_index);
+    emit AcknowledgeChange();
 }
 void DB_Manager::DuplicateStructureDB(int _index, int _indexOriginal)
 {
@@ -482,6 +492,7 @@ void DB_Manager::DuplicateStructureDB(int _index, int _indexOriginal)
      myStructures.insert(_index, new StructureDB(original));
      myStructures[_index]->SetTemplateName(identifier);
      emit StructTableAdded(_index);
+     emit AcknowledgeChange();
 }
 void DB_Manager::MoveStructureDB(int _indexFrom, int _indexTo)
 {
@@ -493,6 +504,7 @@ void DB_Manager::MoveStructureDB(int _indexFrom, int _indexTo)
 
     myStructures.move(_indexFrom, _indexTo);
     emit StructTableMoved(_indexFrom, _indexTo);
+    emit AcknowledgeChange();
 }
 void DB_Manager::RemoveStructureDB(int _index)
 {
@@ -511,6 +523,7 @@ void DB_Manager::RemoveStructureDB(int _index)
     }
 
     emit StructTableRemoved(_index);
+    emit AcknowledgeChange();
 
     delete structDB;
 }
@@ -527,6 +540,7 @@ void DB_Manager::RemoveStructureDB(const QString& _tableName)
         }
     }
     RemoveStructureDB(index);
+    emit AcknowledgeChange();
 }
 void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
 {
@@ -536,6 +550,7 @@ void DB_Manager::RenameStructureDB(int _index, const QString& _tableName)
 
     myStructures[_index]->SetTemplateName(_tableName);
     emit StructTableRenamed(_index, _tableName);
+    emit AcknowledgeChange();
 }
 void DB_Manager::ChangeStructureDBAbbrev(int _index, QString& _abbrev)
 {
@@ -545,6 +560,7 @@ void DB_Manager::ChangeStructureDBAbbrev(int _index, QString& _abbrev)
 
     myStructures[_index]->SetTemplateAbbrev(_abbrev);
     // TODO - Inform the AReference entities so they can update their display text
+    emit AcknowledgeChange();
 }
 void DB_Manager::ChangeStructureDBIconType(int _index, IconManager::IconType _iconType)
 {
@@ -554,6 +570,7 @@ void DB_Manager::ChangeStructureDBIconType(int _index, IconManager::IconType _ic
 
     myStructures[_index]->SetTemplateIconType(_iconType);
     emit StructTableIconChanged(_index, myStructures[_index]->GetIcon());
+    emit AcknowledgeChange();
 }
 void DB_Manager::ChangeStructureDBIconColor(int _index, const QColor& _color)
 {
@@ -563,6 +580,7 @@ void DB_Manager::ChangeStructureDBIconColor(int _index, const QColor& _color)
 
     myStructures[_index]->SetTemplateColor(_color);
     emit StructTableIconChanged(_index, myStructures[_index]->GetIcon());
+    emit AcknowledgeChange();
 }
 void DB_Manager::MoveStructureAttribute(int _tableIndex, int _indexFrom, int _indexTo)
 {
@@ -574,6 +592,7 @@ void DB_Manager::MoveStructureAttribute(int _tableIndex, int _indexFrom, int _in
     Q_ASSERT(structDB);
     structDB->MoveAttribute(_indexFrom, _indexTo);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::MoveStructureAttribute(const QString& _tableName, int _indexFrom, int _indexTo)
 {
@@ -588,6 +607,7 @@ void DB_Manager::RenameStructureAttribute(int _tableIndex, int _attributeIndex, 
     myStructures[_tableIndex]->SetTemplateAttributeName(_attributeIndex, _attributeName);
 
     emit StructAttributeNameChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::RenameStructureAttribute(const QString& _tableName, int _attributeIndex, QString& _attributeName)
 {
@@ -601,6 +621,7 @@ void DB_Manager::ResetAttributesToDefaultValue(int _tableIndex, int _attributeIn
 
     myStructures[_tableIndex]->ResetAttributeToDefault(_attributeIndex);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::ResetAttributesToDefaultValue(const QString& _tableName, int _attributeIndex)
 {
@@ -627,6 +648,7 @@ void DB_Manager::ChangeAttributeTemplate(int _tableIndex, int _attrIndex, const 
     {
         emit StructItemChanged(_tableIndex);
     }
+    emit AcknowledgeChange();
 }
 void DB_Manager::ChangeAttributeTemplate(const QString& _tableName, int _attrIndex, const TemplateAttribute& _templateToCopy, bool _needResetValue)
 {
@@ -640,6 +662,7 @@ void DB_Manager::AddAttributeTemplate(int _tableIndex, int _attrIndex, bool _cop
 
     myStructures[_tableIndex]->AddAttribute(_attrIndex, _copyFromPrevious);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::AddAttributeTemplate(const QString& _tableName, int _attrIndex, bool _copyFromPrevious)
 {
@@ -653,6 +676,7 @@ void DB_Manager::RemoveAttributeTemplate(int _tableIndex, int _attrIndex)
 
     myStructures[_tableIndex]->RemoveAttribute(_attrIndex);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::RemoveAttributeTemplate(const QString& _tableName, int _attrIndex)
 {
@@ -666,6 +690,7 @@ void DB_Manager::SetAttributeTemplatesFromJSON(int _tableIndex, const QJsonArray
 
     myStructures[_tableIndex]->SetAttributeTemplatesFromJSON(_attributesAsJson);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::AddStructureRow(const int _tableIndex, const int _position)
 {
@@ -675,6 +700,7 @@ void DB_Manager::AddStructureRow(const int _tableIndex, const int _position)
 
     myStructures[_tableIndex]->AddStructureAt(_position);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::DuplicateStructureRow(const int _tableIndex, const int _position, const int _originalIndex)
 {
@@ -684,6 +710,7 @@ void DB_Manager::DuplicateStructureRow(const int _tableIndex, const int _positio
 
     myStructures[_tableIndex]->DuplicateStructureAt(_position, _originalIndex);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::RemoveStructureRow(const int _tableIndex, const int _position)
 {
@@ -693,6 +720,7 @@ void DB_Manager::RemoveStructureRow(const int _tableIndex, const int _position)
 
     myStructures[_tableIndex]->RemoveStructureAt(_position);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::MoveStructureRow(const int _tableIndex, const int _positionFrom, int& _positionTo)
 {
@@ -702,7 +730,10 @@ void DB_Manager::MoveStructureRow(const int _tableIndex, const int _positionFrom
 
     myStructures[_tableIndex]->MoveStructureAt(_positionFrom, _positionTo);
     if (_positionFrom != _positionTo)
+    {
         emit StructItemChanged(_tableIndex);
+        emit AcknowledgeChange();
+    }
 }
 void DB_Manager::SetStructureRowCount(const int _tableIndex, const int _count)
 {
@@ -712,6 +743,7 @@ void DB_Manager::SetStructureRowCount(const int _tableIndex, const int _count)
 
     myStructures[_tableIndex]->SetStructureCount(_count);
     emit StructItemChanged(_tableIndex);
+    emit AcknowledgeChange();
 }
 void DB_Manager::UpdateAAssetIsDirty()
 {
@@ -795,6 +827,7 @@ void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int& _index
     const QString identifier = SStringHelper::GetUniqueIdentifier(baseIdentifier, validate, true);
 
     myStringTables.insert(_index, SStringTable(identifier));
+    emit AcknowledgeChange();
 }
 void DB_Manager::AddStringTable(const QString& _newTableName, int _index)
 {
@@ -834,6 +867,7 @@ void DB_Manager::MoveStringTable(int _indexFrom, int _indexTo)
     auto item = myStringTables.takeAt(_indexFrom);
     myStringTables.insert(_indexTo, item);
     emit StringTableMoved(_indexFrom, _indexTo);
+    emit AcknowledgeChange();
 }
 void DB_Manager::RemoveStringTable(int _index)
 {
@@ -842,6 +876,7 @@ void DB_Manager::RemoveStringTable(int _index)
 
     myStringTables.removeAt(_index);
     emit StringTableRemoved(_index);
+    emit AcknowledgeChange();
 }
 void DB_Manager::RemoveStringTable(const QString& _tableName)
 {
@@ -854,6 +889,7 @@ void DB_Manager::RenameStringTable(int _index, QString& _tableName)
 
     myStringTables[_index].SetTableName(_tableName);
     emit StringTableRenamed(_index, _tableName);
+    emit AcknowledgeChange();
 
     // TODO (?) : update all attributes using this table
 }
@@ -862,6 +898,7 @@ void DB_Manager::SetStringTableItemCount(const int _index, const int _count)
     GetStringTable(_index)->SetStringItemCount(_count);
     AskUpdateOnStringTable(_index);
     AskUpdateOnStringPanel(_index);
+    emit AcknowledgeChange();
 }
 bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const
 {
@@ -905,4 +942,6 @@ void DB_Manager::AskUpdateOnStringPanel(const int _tableIndex)
 void DB_Manager::AutoSave()
 {
     SaveManager::SaveAuto();
+    emit AutoSaveFeedback(true);
+    QTimer::singleShot(5000, this, [this](){ emit AutoSaveFeedback(false); });
 }

@@ -162,6 +162,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     CONNECT_DB(ResetView);
 
+    CONNECT_DB(AcknowledgeChange);
+    CONNECT_DB(AutoSaveFeedback);
+
 #undef CONNECT_DB
 }
 
@@ -169,11 +172,22 @@ MainWindow::~MainWindow()
 {}
 
 
-void MainWindow::closeEvent(QCloseEvent *event)  // show prompt when user wants to close app
+void MainWindow::closeEvent(QCloseEvent *event)
 {
-    event->ignore();
-    if (QMessageBox::Yes == QMessageBox::question(this, "Close Confirmation", "Do you want to close the manager ?\nUnsaved change will be lost.", QMessageBox::Yes | QMessageBox::No, QMessageBox::No))
+    if (!myHasUnsavedChanges)
     {
+        event->accept();
+        return;
+    }
+
+    event->ignore();
+    auto res = QMessageBox::question(this, "Closing DB Manager", "Do you want to close the DB Manager ?\nUnsaved change will be lost.", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel);
+    if (res != QMessageBox::Cancel)
+    {
+        if (res == QMessageBox::Save)
+        {
+            OnSaveDB();
+        }
         event->accept();
     }
 }
@@ -191,6 +205,14 @@ void MainWindow::UpdateWindowName()
     {
         windowName.append(" - ").append(SaveManager::GetCurrentSaveFile());
     }
+    if (myHasUnsavedChanges)
+    {
+        windowName.append("*");
+    }
+    if (myShowAutoSaveFeedBack)
+    {
+        windowName.append(" --- Backup Auto-Saved");
+    }
     setWindowTitle(windowName);
 }
 void MainWindow::OpenDB(const QString& _savefile)
@@ -199,6 +221,7 @@ void MainWindow::OpenDB(const QString& _savefile)
     SaveManager::OpenFile(_savefile);
     myManager.blockSignals(false);
     OnResetView();
+    myHasUnsavedChanges = false;
     UpdateWindowName();
 }
 
@@ -398,6 +421,21 @@ void MainWindow::OnResetView()
     }
 }
 
+void MainWindow::OnAcknowledgeChange()
+{
+    if (myHasUnsavedChanges)
+    {
+        return;
+    }
+    myHasUnsavedChanges = true;
+    UpdateWindowName();
+}
+
+void MainWindow::OnAutoSaveFeedback(bool _showFeedback)
+{
+    myShowAutoSaveFeedBack = _showFeedback;
+    UpdateWindowName();
+}
 
 
 // ================       File Methods       ================
@@ -426,6 +464,7 @@ bool MainWindow::OnNewDB()
     }
 
     SaveManager::New();
+    myHasUnsavedChanges = false;
     UpdateWindowName();
 
     return true;
@@ -462,6 +501,7 @@ bool MainWindow::OnSaveDB_Internal(bool _saveAs)
     qDebug() << filePath;
 
     SaveManager::SaveFile(filePath);
+    myHasUnsavedChanges = false;
     UpdateWindowName();
     return true;
 }

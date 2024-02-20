@@ -29,10 +29,14 @@ private:
     QPanelString* myStringWidget;
     QPanelStruct* myStructWidget;
 
+    bool myHasUnsavedChanges = false;
+    bool myShowAutoSaveFeedBack = false;
+
     bool OnSaveDB_Internal(bool _saveAs);
     void CleanTabWidget(QTabWidget* _tabWidget);
     void ExportCurrentStructTable(bool _JSON);
     void ExportAllStructTables(bool _JSON);
+
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -83,5 +87,8 @@ public slots:
     void OnImportStuctTable();
 
     void OnProjectSettings();
+
+    void OnAcknowledgeChange();
+    void OnAutoSaveFeedback(bool _showFeedback);
 };
 #endif // MAINWINDOW_H

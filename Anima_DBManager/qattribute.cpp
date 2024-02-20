@@ -13,6 +13,7 @@
 #include "atablestring.h"
 #include "areference.h"
 #include "astructure.h"
+#include "db_manager.h"
 #include "qsstring.h"
 #include "qarraylabel.h"
 #include "qastructurelabel.h"
@@ -482,6 +483,7 @@ void QAttribute::ContentStateChanged()
     }
 
     emit OnWidgetValueChanged(value);
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 void QAttribute::EmptyArrayAttribute()
 {
