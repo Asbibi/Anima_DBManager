@@ -178,3 +178,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 FORMS += \
     qstructuretable.ui
+
+RESOURCES += \
+    resources.qrc

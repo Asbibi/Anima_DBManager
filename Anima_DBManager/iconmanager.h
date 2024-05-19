@@ -43,7 +43,7 @@ public:
     };
 
 private:
-    const QString myIconFolder = "../icons/";
+    const QString myIconResourcePathStart = ":/icons/icons/";
     QMap<IconType, QChar> myIconFileCharMap;
     IconManager();
     IconManager(IconManager& other) = delete;
