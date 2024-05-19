@@ -70,7 +70,7 @@ void QColorEditor::OnSliderReleased()
 void QColorEditor::OnColorTextChanged()
 {
     const QString& colorHex = myColorText->text();
-    if (!QColor::isValidColor(colorHex))
+    if (!QColor::isValidColorName(colorHex))
     {
         myColorText->setText(myColor.name());
         return;

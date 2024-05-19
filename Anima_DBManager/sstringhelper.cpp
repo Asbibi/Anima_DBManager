@@ -117,4 +117,10 @@ void IncrementLanguage(SStringLanguages& _language)
     _language = (SStringLanguages)l;
 }
 
+const QString& GetEmptyStringReference()
+{
+    static QString emptyStringRef = "";
+    return emptyStringRef;
+}
+
 }
