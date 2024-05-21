@@ -44,7 +44,7 @@ IconManager& IconManager::GetInstance()
 
 QIcon IconManager::GetAppIcon()
 {
-    return QIcon(GetInstance().myIconFolder + APP_ICON_NAME);
+    return QIcon(GetInstance().myIconResourcePathStart + APP_ICON_NAME);
 }
 QIcon IconManager::GetSimpleIcon(IconType _type, const QColor& _color)
 {
@@ -57,7 +57,7 @@ QIcon IconManager::GetSimpleIcon_internal(IconType _type, const QColor& _color)
         return QIcon();
     }
 
-    QPixmap pixmap = QPixmap(myIconFolder + "TabIcon_" + myIconFileCharMap[_type] + ".png");
+    QPixmap pixmap = QPixmap(myIconResourcePathStart + "TabIcon_" + myIconFileCharMap[_type] + ".png");
     QBitmap mask = pixmap.createMaskFromColor(QColorConstants::Transparent, Qt::MaskInColor);
     pixmap.fill(_color);
     pixmap.setMask(mask);

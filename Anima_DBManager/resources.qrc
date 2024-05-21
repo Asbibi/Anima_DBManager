@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/DB_Icon.png</file>
+        <file>icons/TabIcon_A.png</file>
+        <file>icons/TabIcon_B.png</file>
+        <file>icons/TabIcon_C.png</file>
+        <file>icons/TabIcon_D.png</file>
+        <file>icons/TabIcon_E.png</file>
+        <file>icons/TabIcon_F.png</file>
+        <file>icons/TabIcon_G.png</file>
+        <file>icons/TabIcon_H.png</file>
+        <file>icons/TabIcon_I.png</file>
+        <file>icons/TabIcon_J.png</file>
+        <file>icons/TabIcon_K.png</file>
+        <file>icons/TabIcon_L.png</file>
+        <file>icons/TabIcon_M.png</file>
+        <file>icons/TabIcon_N.png</file>
+        <file>icons/TabIcon_O.png</file>
+        <file>icons/TabIcon_P.png</file>
+        <file>icons/TabIcon_Q.png</file>
+        <file>icons/TabIcon_R.png</file>
+        <file>icons/TabIcon_S.png</file>
+        <file>icons/TabIcon_T.png</file>
+        <file>icons/TabIcon_U.png</file>
+        <file>icons/TabIcon_V.png</file>
+        <file>icons/TabIcon_W.png</file>
+        <file>icons/TabIcon_X.png</file>
+        <file>icons/TabIcon_Y.png</file>
+        <file>icons/TabIcon_Z.png</file>
+    </qresource>
+</RCC>

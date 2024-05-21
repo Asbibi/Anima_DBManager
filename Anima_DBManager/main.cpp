@@ -6,23 +6,13 @@
 
 #include <QApplication>
 #include <QLocale>
+#include <QStyleFactory>
 #include <QTranslator>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //a.setStyle("fusion");
-    //a.setStyle("macintosh");
-
-    /*QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        const QString baseName = "Anima_DBManager_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }*/
+    a.setStyle(QStyleFactory::create("WindowsVista"));
 
     MainWindow w;
     DB_Manager::GetDB_Manager().Init();
