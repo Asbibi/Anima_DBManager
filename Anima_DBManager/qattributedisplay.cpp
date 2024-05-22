@@ -95,9 +95,11 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
             Q_ASSERT(castedAttribute);
             setIcon(QIcon(AATexture::GetPixmapFromAssetPath(castedAttribute->GetFilePath())));
         }
-        case AttributeTypeHelper::Type::Mesh:
+        case AttributeTypeHelper::Type::SkeletalMesh:
+        case AttributeTypeHelper::Type::StaticMesh:
         case AttributeTypeHelper::Type::Niagara:
         case AttributeTypeHelper::Type::Sound:
+        case AttributeTypeHelper::Type::Class:
         case AttributeTypeHelper::Type::UAsset:
         {
             const AAsset* castedAttribute = dynamic_cast<const AAsset*>(_attribute);

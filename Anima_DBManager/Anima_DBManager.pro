@@ -14,7 +14,10 @@ CONFIG += c++11
 TARGET = AnimaDB
 
 SOURCES += \
+    aaclass.cpp \
     aamesh.cpp \
+    aamskeletal.cpp \
+    aamstatic.cpp \
     aaniagara.cpp \
     aarray.cpp \
     aasound.cpp \
@@ -90,7 +93,10 @@ SOURCES += \
     templatestructure.cpp
 
 HEADERS += \
+    aaclass.h \
     aamesh.h \
+    aamskeletal.h \
+    aamstatic.h \
     aaniagara.h \
     aarray.h \
     aasound.h \

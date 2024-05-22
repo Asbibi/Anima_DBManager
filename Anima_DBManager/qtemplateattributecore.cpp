@@ -35,9 +35,11 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
     myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::Structure));
     myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::UAsset));
     myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::Texture));
-    myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::Mesh));
+    myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::SkeletalMesh));
+    myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::StaticMesh));
     myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::Niagara));
     myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::Sound));
+    myTypeComboBox->addItem(AttributeTypeHelper::TypeToString(AttributeTypeHelper::Type::Class));
     myTypeComboBox->setCurrentText(AttributeTypeHelper::TypeToString(currentType));
     QObject::connect(myTypeComboBox, &QComboBox::currentTextChanged, this, &QTemplateAttributeCore::OnParamChanged_Type);
 

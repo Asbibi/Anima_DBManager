@@ -48,13 +48,14 @@ QAssetPreviewDialog::QAssetPreviewDialog(const AttributeTypeHelper::Type& assetT
             title = "Sound" + title;
             break;
         }
-        case AttributeTypeHelper::Type::Mesh:
+        case AttributeTypeHelper::Type::SkeletalMesh:
+        case AttributeTypeHelper::Type::StaticMesh:
         {
             myMeshPreview = new QAPMesh();
             myMeshPreview->SetFilePath(filePath);
             vLayout->addWidget(myMeshPreview);
             QObject::connect(this, &QAssetPreviewDialog::FilePathChanged, myMeshPreview, &QAPMesh::SetFilePath);
-            title = "Mesh" + title;
+            title = QString(assetType == AttributeTypeHelper::Type::SkeletalMesh ? "Skeletal" : "Static") + " Mesh" + title;
             break;
         }
         default:

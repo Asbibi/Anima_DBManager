@@ -15,10 +15,12 @@
 #include "atablestring.h"
 
 #include "aasset.h"
-#include "aamesh.h"
+#include "aamskeletal.h"
+#include "aamstatic.h"
 #include "aaniagara.h"
 #include "aasound.h"
 #include "aatexture.h"
+#include "aaclass.h"
 
 
 namespace AttributeTypeHelper {
@@ -42,9 +44,11 @@ QString TypeToString(const Type _type)
 
         CASE(UAsset,        "UAsset");
         CASE(Texture,       "Texture");
-        CASE(Mesh,          "Mesh");
+        CASE(SkeletalMesh,  "SkeletalMesh");
+        CASE(StaticMesh,    "StaticMesh");
         CASE(Niagara,       "Niagara");
         CASE(Sound,         "Sound");
+        CASE(Class,         "Class");
 
         default:
         CASE(Invalid,       "Unset");
@@ -71,9 +75,11 @@ Type StringToType(const QString& _typeString)
 
     CASE(UAsset,        "UAsset");
     CASE(Texture,       "Texture");
-    CASE(Mesh,          "Mesh");
+    CASE(SkeletalMesh,  "SkeletalMesh");
+    CASE(StaticMesh,    "StaticMesh");
     CASE(Niagara,       "Niagara");
     CASE(Sound,         "Sound");
+    CASE(Class,         "Class");
 
 #undef CASE
 
@@ -135,10 +141,12 @@ Attribute* NewAttributeFromType(const Type _type, TemplateAttribute& _template)
         CASE_INIT_TEMPLATE(Reference);
         CASE_INIT_TEMPLATE(TableString);
         CASE_INIT_TEMPLATE_WITH_CLASS(UAsset, AAsset);
-        CASE_INIT_TEMPLATE_WITH_CLASS(Mesh, AAMesh);
+        CASE_INIT_TEMPLATE_WITH_CLASS(SkeletalMesh, AAMSkeletal);
+        CASE_INIT_TEMPLATE_WITH_CLASS(StaticMesh, AAMStatic);
         CASE_INIT_TEMPLATE_WITH_CLASS(Niagara, AANiagara);
         CASE_INIT_TEMPLATE_WITH_CLASS(Sound, AASound);
         CASE_INIT_TEMPLATE_WITH_CLASS(Texture, AATexture);
+        CASE_INIT_TEMPLATE_WITH_CLASS(Class, AAClass);
     }
 
 #undef CASE_INIT_TEMPLATE
