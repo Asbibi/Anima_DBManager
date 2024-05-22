@@ -16,6 +16,7 @@ QOptionalValue_Int::QOptionalValue_Int(QWidget *parent)
 
     mySpinBox = new QSpinBox();
     mySpinBox->setMinimum(INT_MIN);
+    mySpinBox->setMaximum(INT_MAX);
     myLayout->addWidget(mySpinBox);
     QObject::connect(mySpinBox, &QSpinBox::valueChanged, this, &QOptionalValue_Int::MyValueChanged);
 }
@@ -60,6 +61,7 @@ QOptionalValue_Float::QOptionalValue_Float(QWidget *parent)
 
     mySpinBox = new QDoubleSpinBox();
     mySpinBox->setMinimum(INT_MIN);
+    mySpinBox->setMaximum(INT_MAX);
     myLayout->addWidget(mySpinBox);
     QObject::connect(mySpinBox, &QDoubleSpinBox::valueChanged, this, &QOptionalValue_Float::MyValueChanged);
 }
