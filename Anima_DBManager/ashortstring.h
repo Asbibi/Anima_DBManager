@@ -12,7 +12,7 @@ public:
     AShortString(TemplateAttribute& _template);
     AShortString(TemplateAttribute& _template, QString _value);
 
-    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::ShortString; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::ShortString; }
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValue_CSV()                              const override;
     virtual QJsonValue GetValue_JSON()                          const override;

@@ -17,7 +17,7 @@ private:
 public:
     AReference(TemplateAttribute& _template);
 
-    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Reference; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Reference; }
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValue_CSV()                              const override;
     virtual QJsonValue GetValue_JSON()                          const override;

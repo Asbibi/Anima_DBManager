@@ -29,6 +29,10 @@ QJsonValue ATableString::GetValue_JSON() const
 {
     return ConvertToJsonValue(myTableName, myStringIdentifier);
 }
+QString ATableString::GetValue_String() const
+{
+    return QString("('%1', %2)").arg(myStringIdentifier, myTableName);
+}
 void ATableString::CopyValueFromOther(const Attribute* _other)
 {
     const ATableString* other_ATS = dynamic_cast<const ATableString*>(_other);

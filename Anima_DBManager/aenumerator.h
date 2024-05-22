@@ -14,7 +14,7 @@ private:
 public:
     AEnumerator(TemplateAttribute& _template, int _valueIndex = 0);
 
-    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Enum; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Enum; }
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValue_CSV()                              const override;
     virtual QJsonValue GetValue_JSON()                          const override;

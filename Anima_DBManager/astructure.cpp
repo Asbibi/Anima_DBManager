@@ -24,8 +24,7 @@ AStructure::AStructure(TemplateAttribute& _template, const Structure* _value) :
 
 QString AStructure::GetDisplayedText() const
 {
-    // return GetValueAsText() ?
-    return "{STRUCT}";
+    return GetValue_String();
 }
 QString AStructure::GetValue_CSV() const
 {
@@ -34,6 +33,11 @@ QString AStructure::GetValue_CSV() const
 QJsonValue AStructure::GetValue_JSON() const
 {
     return QJsonValue(myValue->WriteValue_JSON_AsRow());
+}
+QString AStructure::GetValue_String() const
+{
+    const auto& attributeList = myValue->GetAttributes();
+    return QString("{%1}").arg(Attribute::GetContentStringFromList(attributeList));
 }
 void AStructure::CopyValueFromOther(const Attribute* _other)
 {
