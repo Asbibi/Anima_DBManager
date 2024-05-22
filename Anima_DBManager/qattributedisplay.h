@@ -10,10 +10,14 @@ private:
     static QColor defaultColor;
     static QColor nullColor;
     static QColor invalidColor;
+    static QColor disabledColor;
+    static QColor defaultForegroundColor;
+    static QColor disabledForegroundColor;
     static QVariant noneCheckData;
 
     AttributeTypeHelper::Type myCurrentType = AttributeTypeHelper::Type::Invalid;
-    QString myCurrentValue;    
+    QString myCurrentValue;
+    bool myIsActiveAttribute;
 
     bool AskUpdateContent(const Attribute* _attribute);
     void UpdateContent(const Attribute* _attribute);
