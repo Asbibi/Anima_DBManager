@@ -559,6 +559,7 @@ void DB_Manager::ChangeStructureDBAbbrev(int _index, QString& _abbrev)
         return;
 
     myStructures[_index]->SetTemplateAbbrev(_abbrev);
+    emit StructItemChanged(_index);
     // TODO - Inform the AReference entities so they can update their display text
     emit AcknowledgeChange();
 }
