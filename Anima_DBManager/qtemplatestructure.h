@@ -17,6 +17,7 @@ private:
     QList<QString> myAttributeNames;
 
     QString ComputeTabNameForAttribute(const QString& _name, const AttributeTypeHelper::Type& _type);
+    void OnNameChanged_Index(int _attributeIndex, QString& _newName);
 
 protected:
     virtual void AddAttribute(int _position, bool _duplicatePrevious = false) override;
