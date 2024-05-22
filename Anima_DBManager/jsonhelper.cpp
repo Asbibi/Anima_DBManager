@@ -2,6 +2,7 @@
 
 #include "attribute.h"
 #include "templateattribute.h"
+#include "db_manager.h"
 
 #include <QJsonDocument>
 
@@ -20,10 +21,11 @@ QJsonArray ConvertAttributeListToJsonArray(const QList<Attribute*>& _attributes)
 }
 QJsonObject ConvertAttributeListToJsonObject(const QList<Attribute*>& _attributes)
 {
+    const auto& dbManager = DB_Manager::GetDB_Manager();
     QJsonObject retVal = QJsonObject();
     for (const auto* attr : _attributes)
     {
-        retVal.insert(attr->GetTemplate()->GetName(), attr->GetValue_JSON());
+        retVal.insert(dbManager.GetAttributeFullName(attr->GetTemplate()->GetName()), attr->GetValue_JSON());
     }
     return retVal;
 }
