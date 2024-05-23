@@ -91,6 +91,10 @@ QJsonValue AArray::GetValue_JSON() const
 
     return QJsonValue(attributesAsJSON);
 }
+QString AArray::GetValue_String() const
+{
+    return QString("[%1]").arg(Attribute::GetContentStringFromList(myValues));
+}
 void AArray::CopyValueFromOther(const Attribute* _other)
 {
     const AArray* other_AA = dynamic_cast<const AArray*>(_other);

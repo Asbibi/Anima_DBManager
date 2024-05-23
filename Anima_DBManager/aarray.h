@@ -15,10 +15,11 @@ public:
     AArray(TemplateAttribute& _template, const QList<Attribute*>& _values);
     ~AArray();
 
-    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Array; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Array; }
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValue_CSV()                              const override;
     virtual QJsonValue GetValue_JSON()                          const override;
+    virtual QString GetValue_String()                           const override;
     virtual void CopyValueFromOther(const Attribute* _other)         override;
     virtual bool SetValue_JSON(const QJsonValue& _value)             override;
     virtual void SetValue_CSV(const QString& text)                   override;

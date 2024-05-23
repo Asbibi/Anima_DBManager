@@ -22,7 +22,17 @@ QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attri
     myQListAttributes->SetItemEditable(false);
     myQListAttributes->SetMinMax(_useMin, _min, _useMax, _max);
     vLayout->addWidget(myQListAttributes);
-    // + count label ?
+
+    QHBoxLayout* countLayout = new QHBoxLayout();
+    myRowCountSpinner = new QSpinBox();
+    myRowCountSpinner->setMinimum(_useMin ? _min : 0);
+    myRowCountSpinner->setMaximum(_useMax ? _max : INT_MAX);
+    countLayout->addWidget(myRowCountSpinner);
+    QPushButton* countPushBtn = new QPushButton("Set Item Count");
+    countPushBtn->setMaximumWidth(90);
+    QObject::connect(countPushBtn, &QPushButton::clicked, this, &QArrayDialog::SetItemCount);
+    countLayout->addWidget(countPushBtn);
+    vLayout->addLayout(countLayout);
 
     vLayout->addWidget(new QLabel("Edit Selected:"));
     myQAttribute = new QAttribute();
@@ -59,6 +69,7 @@ QArrayDialog::QArrayDialog(const TemplateAttribute* _template, const QList<Attri
     // ------ Init ------
 
     UpdateQAttribute(0);
+    UpdateCountSpinnerValue();
 }
 QArrayDialog::~QArrayDialog()
 {
@@ -72,6 +83,10 @@ void QArrayDialog::CleanAttributes()
         delete attr;
     }
     myAttributes.clear();
+}
+void QArrayDialog::UpdateCountSpinnerValue()
+{
+    myRowCountSpinner->setValue(myAttributes.count());
 }
 const QList<Attribute*>& QArrayDialog::GetAttributes() const
 {
@@ -96,6 +111,7 @@ void QArrayDialog::OnValueAdded(const int _index)
 {
     Q_ASSERT(_index >= 0 &&  _index <= myAttributes.count());
     myAttributes.insert(_index, myTemplateAttribute->GenerateAttribute());
+    UpdateCountSpinnerValue();
 }
 void QArrayDialog::OnValueDuplicated(const int _index, const int _originalIndex)
 {
@@ -103,6 +119,7 @@ void QArrayDialog::OnValueDuplicated(const int _index, const int _originalIndex)
     Q_ASSERT(_index >= 0 &&  _index <= attrCount);
     Q_ASSERT(_originalIndex >= 0 &&  _originalIndex < attrCount);
     myAttributes.insert(_index, myAttributes[_originalIndex]->CreateDuplica());
+    UpdateCountSpinnerValue();
 }
 void QArrayDialog::OnValueMoved(const int _indexFrom, const int _indexTo)
 {
@@ -122,6 +139,21 @@ void QArrayDialog::OnValueRemoved(const int _index)
     auto* removedAttr = myAttributes.takeAt(_index);
     removedAttr->PreManualDelete();
     delete removedAttr;
+    UpdateCountSpinnerValue();
+}
+void QArrayDialog::SetItemCount()
+{
+    const int wantedCount = myRowCountSpinner->value();
+
+    myQListAttributes->SelectItemAt(myAttributes.count() - 1);
+    while (wantedCount < myAttributes.count())
+    {
+        myQListAttributes->OnRemove();
+    }
+    while (wantedCount > myAttributes.count())
+    {
+        myQListAttributes->OnAddAfter();
+    }
 }
 void QArrayDialog::OnSelectedValueEdited()
 {

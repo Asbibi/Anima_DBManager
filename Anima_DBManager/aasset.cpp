@@ -81,6 +81,10 @@ QJsonValue AAsset::GetValue_JSON() const
 {
     return QJsonValue(GetValue_CSV());
 }
+QString AAsset::GetValue_String() const
+{
+    return myFilePath.section('/', -1);
+}
 
 
 void AAsset::CopyValueFromOther(const Attribute* _other)

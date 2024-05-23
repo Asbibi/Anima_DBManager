@@ -27,9 +27,11 @@ enum class Type
 
     UAsset,
     Texture,
-    Mesh,
+    SkeletalMesh,
+    StaticMesh,
     Niagara,
     Sound,
+    Class
 };
 
 QString TypeToString(const Type _type);

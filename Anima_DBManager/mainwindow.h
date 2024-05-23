@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include <QMenuBar>
+#include <QSplitter>
 #include <QTabWidget>
 #include <QToolBox>
 
@@ -21,26 +22,49 @@ private:
     DB_Manager& myManager;
 
     QMenuBar* myMenuBar;
+    QMenu* myOpenRecentMenu;
+    QMenu* myExportOneStructMenu;
+    QMenu* myExportOneStringMenu;
+
+    QSplitter* mySplitter;
+
     QToolBox* myTableToolBox;
     QTabWidget* myTabString;
     QTabWidget* myTabStruct;
 
+    QToolBox* myPanelToolBox;
     QPanelEnum* myEnumWidget;
     QPanelString* myStringWidget;
     QPanelStruct* myStructWidget;
 
+    bool myHasUnsavedChanges = false;
+    bool myShowAutoSaveFeedBack = false;
+
     bool OnSaveDB_Internal(bool _saveAs);
     void CleanTabWidget(QTabWidget* _tabWidget);
+    void ExportOneStringTable(int _index, SStringHelper::SStringLanguages _language, QString _dir);
     void ExportCurrentStructTable(bool _JSON);
     void ExportAllStructTables(bool _JSON);
+    void ExportOneStructTable(int _index, bool _JSON, QString _dir);
+
+    void AddFileToOpenRecentList(const QString& _openFilePath);
+    void BuildOpenRecentMenu();
+    void BuildExportOneStructTableMenu();
+    void BuildExportOneStringTableMenu();
+
+    void SaveQSettings() const;
+    void LoadQSettings();
+
 
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    virtual void closeEvent(QCloseEvent *event) override;
+
     void Debug_Update();
     void UpdateWindowName();
-    void OpenDB(const QString& _savefile);
+    void OpenDB(const QString& _savefile, bool _resetApp = true);
 
 public slots:
     void OnStringTableAdded(const int _index);
@@ -70,10 +94,13 @@ public slots:
     void OnOpenDB();
 
     void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
+    void OnExportOneStringTable(int _index, SStringHelper::SStringLanguages _language);
     void OnExportAllStringTables(SStringHelper::SStringLanguages _language);
     void OnExportCurrentStructTable_JSON();
+    void OnExportOneStructTable_JSON(int _index);
     void OnExportAllStructTables_JSON();
     void OnExportCurrentStructTable_CSV();
+    void OnExportOneStructTable_CSV(int _index);
     void OnExportAllStructTables_CSV();
     void OnExportAll();
 
@@ -81,5 +108,10 @@ public slots:
     void OnImportStuctTable();
 
     void OnProjectSettings();
+
+    void OnAcknowledgeChange();
+    void OnAutoSaveFeedback(bool _showFeedback);
+
+    void ResetQSettings();
 };
 #endif // MAINWINDOW_H

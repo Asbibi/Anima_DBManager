@@ -49,4 +49,15 @@ QString Attribute::GetValue_String() const
 }
 
 
+QString Attribute::GetContentStringFromList(const QList<Attribute*>& _attributes)
+{
+    QString content = QString();
+    for (const auto* attr : _attributes)
+    {
+        content += ", " + attr->GetValue_String();
+    }
+    return content.removeFirst().removeFirst();
+}
+
+
 

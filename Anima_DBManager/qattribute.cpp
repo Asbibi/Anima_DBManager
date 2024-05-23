@@ -13,6 +13,7 @@
 #include "atablestring.h"
 #include "areference.h"
 #include "astructure.h"
+#include "db_manager.h"
 #include "qsstring.h"
 #include "qarraylabel.h"
 #include "qastructurelabel.h"
@@ -190,9 +191,16 @@ case AttributeTypeHelper::Type::type : \
 }
 
         CASE_ATTRIBUTE(UAsset, "UAsset", "Unreal Assets", *, AAsset::GetStaticAssetFileExtension());
-        CASE_ATTRIBUTE(Mesh, "Mesh", "3D Files", *, AATexture::GetStaticAssetFileExtension());
+#ifdef USE_SPECIFIC_FILE_EXTENSION_FOR_AAMESH
+        CASE_ATTRIBUTE(SkeletalMesh, "SkeletalMesh", "3D Rigged Files", SK_*, AAMesh::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(StaticMesh, "StaticMesh", "3D Static Files", SM_*, AAMesh::GetStaticAssetFileExtension());
+#else
+        CASE_ATTRIBUTE(SkeletalMesh, "SkeletalMesh", "3D Skeletal Meshes", SK_*, AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(StaticMesh, "StaticMesh", "3D Static Meshes", SM_*, AAsset::GetStaticAssetFileExtension());
+#endif
         CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems", P_*, AAsset::GetStaticAssetFileExtension());
         CASE_ATTRIBUTE(Sound, "Sound", "Sounds", *, AASound::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(Class, "Class", "Blueprint Classes", BP_*, AAsset::GetStaticAssetFileExtension());
 #undef CASE_ATTRIBUTE
         case AttributeTypeHelper::Type::Reference :
         {
@@ -346,9 +354,11 @@ void QAttribute::UpdateAttribute(const Attribute* _attribute)
             break;
         }
         case AttributeTypeHelper::Type::UAsset :
-        case AttributeTypeHelper::Type::Mesh :
+        case AttributeTypeHelper::Type::SkeletalMesh :
+        case AttributeTypeHelper::Type::StaticMesh :
         case AttributeTypeHelper::Type::Niagara :
         case AttributeTypeHelper::Type::Sound :
+        case AttributeTypeHelper::Type::Class :
         {
             auto* qasset = dynamic_cast<QAssetLabel*>(myContent);
             const AAsset* assetAttribute = dynamic_cast<const AAsset*>(_attribute);
@@ -459,9 +469,11 @@ void QAttribute::ContentStateChanged()
             break;
         }
         case AttributeTypeHelper::Type::UAsset :
-        case AttributeTypeHelper::Type::Mesh :
+        case AttributeTypeHelper::Type::SkeletalMesh :
+        case AttributeTypeHelper::Type::StaticMesh :
         case AttributeTypeHelper::Type::Niagara :
         case AttributeTypeHelper::Type::Sound :
+        case AttributeTypeHelper::Type::Class :
         {
             auto* qasset = dynamic_cast<QAssetLabel*>(myContent);
             Q_ASSERT(qasset);
@@ -482,6 +494,7 @@ void QAttribute::ContentStateChanged()
     }
 
     emit OnWidgetValueChanged(value);
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 void QAttribute::EmptyArrayAttribute()
 {

@@ -24,6 +24,10 @@ bool SStringItem::operator==(const SStringItem& _other) const
 {
     return myIdentifier == _other.myIdentifier;
 }
+bool SStringItem::operator<(const SStringItem& _other) const
+{
+    return myIdentifier < _other.myIdentifier;
+}
 
 
 

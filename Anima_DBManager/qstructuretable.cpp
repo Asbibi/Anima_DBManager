@@ -10,6 +10,8 @@ QStructureTable::QStructureTable(StructureDB& _structureDB) :
     QTableWidget(nullptr),
     myStructureDB(_structureDB)
 {
+    setTextElideMode(Qt::ElideMiddle);
+    setWordWrap(false);
     setItemPrototype(new QAttributeDisplay());
     setSelectionMode(QAbstractItemView::SingleSelection);
     QObject::connect(this, &QTableWidget::itemSelectionChanged, this, &QStructureTable::OnSelectionChanged);

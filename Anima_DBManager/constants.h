@@ -9,3 +9,9 @@
 
 // --- Deletes the temporary folder of Save/Load if already exists
 #define REPLACE_TEMP_SAVE_FOLDER
+
+// --- Indicates if 3D Meshes files should be searched using the fbx extension or the uasset (default) one
+//#define USE_SPECIFIC_FILE_EXTENSION_FOR_AAMESH
+
+// --- Indicates how many files we want to keep in memory for the open recent feature
+#define MAX_RECENT_FILES 5

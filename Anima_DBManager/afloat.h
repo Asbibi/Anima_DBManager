@@ -12,7 +12,7 @@ public:
     AFloat(TemplateAttribute& _template);
     AFloat(TemplateAttribute& _template, float _value);
 
-    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Float; };
+    virtual AttributeTypeHelper::Type GetType() const override { return AttributeTypeHelper::Type::Float; }
     virtual QString GetDisplayedText()                          const override;
     virtual QString GetValue_CSV()                              const override;
     virtual QJsonValue GetValue_JSON()                          const override;

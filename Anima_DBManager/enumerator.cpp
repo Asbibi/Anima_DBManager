@@ -1,5 +1,6 @@
 #include "enumerator.h"
 
+#include "sstringhelper.h"
 #include <QWidget>
 
 Enumerator::Enumerator(const QString& _name) : name(_name) {}
@@ -55,7 +56,7 @@ int Enumerator::GetValueCount() const
 const QString& Enumerator::GetValue(int _index) const
 {
     if (_index < 0 || _index >= (int)(values.size()))
-        return values.size() > 0 ? values[0] : "";
+        return values.size() > 0 ? values[0] : SStringHelper::GetEmptyStringReference();
 
     return values[_index];
 }

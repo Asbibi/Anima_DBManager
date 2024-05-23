@@ -13,6 +13,7 @@ private:
 protected:
     virtual int RefreshItemCount_Internal(const int _tableIndex) override;
     virtual void SetItemCount_Internal(const int _tableIndex, const int _newCount) override;
+    void SortCurrentTable(bool _ascending);
 
 public:
     explicit QPanelString(QWidget *parent = nullptr);
@@ -33,6 +34,9 @@ public slots:
     void OnSubItemDuplicated(const int _index, const int _originalIndex);
     void OnSubItemMoved(const int _indexFrom, const int _indexTo);
     void OnSubItemRemoved(const int _index);
+
+    void OnSortAscClicked();
+    void OnSortDescClicked();
 };
 
 #endif // QPANELSTRING_H

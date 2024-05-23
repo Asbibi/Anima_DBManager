@@ -3,11 +3,15 @@
 #include "abool.h"
 #include "aenumerator.h"
 #include "aatexture.h"
+#include "templateattribute.h"
 
 
 QColor QAttributeDisplay::defaultColor = QColorConstants::White;
 QColor QAttributeDisplay::nullColor = QColor(233, 218, 103);
 QColor QAttributeDisplay::invalidColor = QColor(241, 136, 136);
+QColor QAttributeDisplay::disabledColor = QColor(216, 216, 216);
+QColor QAttributeDisplay::defaultForegroundColor = QColorConstants::Black;
+QColor QAttributeDisplay::disabledForegroundColor = QColorConstants::DarkGray;
 QVariant QAttributeDisplay::noneCheckData = QVariant();
 
 QAttributeDisplay::QAttributeDisplay()
@@ -26,16 +30,19 @@ bool QAttributeDisplay::AskUpdateContent(const Attribute* _attribute)
     {
         myCurrentType = AttributeTypeHelper::Type::Invalid;
         myCurrentValue = "";
+        myIsActiveAttribute = true;
         return true;
     }
 
     const AttributeTypeHelper::Type type = _attribute->GetType();
     const QString& value = _attribute->GetValue_String();
-    if (type == myCurrentType && value == myCurrentValue)
+    if (type == myCurrentType && value == myCurrentValue &&
+        myIsActiveAttribute == _attribute->GetTemplate()->IsActive())
     {
         return false;
     }
 
+    myIsActiveAttribute = _attribute->GetTemplate()->IsActive();
     myCurrentType = type;
     myCurrentValue = value;
     return true;
@@ -52,8 +59,8 @@ void QAttributeDisplay::SetContentFromAttribute(const Attribute* _attribute)
 
 void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
 {
-    setBackground(defaultColor);
-    setForeground(QColorConstants::Black);
+    QColor colorToUse = defaultColor;
+    setForeground(defaultForegroundColor);
     setIcon(QIcon());
     setData(Qt::CheckStateRole, noneCheckData);
 
@@ -67,7 +74,7 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
             Q_ASSERT(castedAttribute);
             setText(QString());
             setCheckState(castedAttribute->GetValue() ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
-
+            setBackground(myIsActiveAttribute ? defaultColor : disabledColor);  // for other attribute types, it's done at the end of the method
 
             // End of process for Bool type : no text
             return;
@@ -95,14 +102,15 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
             Q_ASSERT(castedAttribute);
             setIcon(QIcon(AATexture::GetPixmapFromAssetPath(castedAttribute->GetFilePath())));
         }
-        case AttributeTypeHelper::Type::Mesh:
+        case AttributeTypeHelper::Type::SkeletalMesh:
+        case AttributeTypeHelper::Type::StaticMesh:
         case AttributeTypeHelper::Type::Niagara:
         case AttributeTypeHelper::Type::Sound:
+        case AttributeTypeHelper::Type::Class:
         case AttributeTypeHelper::Type::UAsset:
         {
             const AAsset* castedAttribute = dynamic_cast<const AAsset*>(_attribute);
             Q_ASSERT(castedAttribute);
-            QColor colorToUse = defaultColor;
             if (castedAttribute->IsEmpty())
             {
                 colorToUse = nullColor;
@@ -112,12 +120,18 @@ void QAttributeDisplay::UpdateContent(const Attribute* _attribute)
                 colorToUse = invalidColor;
                 textDisplayed.remove(0,1);
             }
-            setBackground(colorToUse);
             break;
         }
         default:
         {}
     }
+
+    if (!myIsActiveAttribute)
+    {
+        setForeground(disabledForegroundColor);
+        colorToUse = disabledColor;
+    }
+    setBackground(colorToUse);
     setText(textDisplayed);
 }
 

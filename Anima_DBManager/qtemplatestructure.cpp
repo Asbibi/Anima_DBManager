@@ -65,16 +65,20 @@ void QTemplateStructure::OnTabMoved(int _indexFrom, int _indexTo)
     myAttributeNames.insert(_indexTo, item);
     DB_Manager::GetDB_Manager().MoveStructureAttribute(myTemplateStructureCopy->GetStructName(), _indexFrom, _indexTo);
 }
+void QTemplateStructure::OnNameChanged_Index(int _attributeIndex, QString& _newName)
+{
+    if (_attributeIndex < 0)
+        return;
+
+    DB_Manager::GetDB_Manager().RenameStructureAttribute(myTemplateStructureCopy->GetStructName(), _attributeIndex, _newName);
+    myAttributeNames[_attributeIndex] = _newName;
+
+    emit RequestUpdateTemplateCopy(_attributeIndex);
+}
 void QTemplateStructure::OnNameChanged(const QString& _previousName, QString& _newName)
 {
     int index = myAttributeNames.indexOf(_previousName);
-    if (index < 0)
-        return;
-
-    DB_Manager::GetDB_Manager().RenameStructureAttribute(myTemplateStructureCopy->GetStructName(), index, _newName);
-    myAttributeNames[index] = _newName;
-
-    emit RequestUpdateTemplateCopy(index);
+    OnNameChanged_Index(index, _newName);
 }
 void QTemplateStructure::OnApply(const QString& _attrName,  const TemplateAttribute& _editedTemplateCopy, bool _hasCriticalChanges)
 {
@@ -85,6 +89,8 @@ void QTemplateStructure::OnApply(const QString& _attrName,  const TemplateAttrib
     DB_Manager::GetDB_Manager().ChangeAttributeTemplate(myTemplateStructureCopy->GetStructName(), index, _editedTemplateCopy, _hasCriticalChanges);
 
     emit AttributeChangeApplied();
+
+    myTabWidget->setCurrentIndex(index);
 }
 void QTemplateStructure::OnRevert(const QString& _attrName)
 {
@@ -133,6 +139,8 @@ void QTemplateStructure::OnDuplicate()
         return;
 
     AddAttribute(current + 1, true);
+    QString currentName = myAttributeNames[current + 1] + "_1";
+    OnNameChanged_Index(current + 1, currentName);
 }
 void QTemplateStructure::OnRemove()
 {

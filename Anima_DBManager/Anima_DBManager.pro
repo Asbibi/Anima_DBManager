@@ -11,8 +11,13 @@ CONFIG += c++11
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+TARGET = AnimaDB
+
 SOURCES += \
+    aaclass.cpp \
     aamesh.cpp \
+    aamskeletal.cpp \
+    aamstatic.cpp \
     aaniagara.cpp \
     aarray.cpp \
     aasound.cpp \
@@ -88,7 +93,10 @@ SOURCES += \
     templatestructure.cpp
 
 HEADERS += \
+    aaclass.h \
     aamesh.h \
+    aamskeletal.h \
+    aamstatic.h \
     aaniagara.h \
     aarray.h \
     aasound.h \
@@ -178,3 +186,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 FORMS += \
     qstructuretable.ui
+
+RESOURCES += \
+    resources.qrc
+
+RC_ICONS = DB_Icon.ico

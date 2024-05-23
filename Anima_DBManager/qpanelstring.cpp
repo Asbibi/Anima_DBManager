@@ -41,6 +41,14 @@ QPanelString::QPanelString(QWidget *parent)
     CONNECT_SUB_ITEM_SIGNAL(ItemRemoved);
 #undef CONNECT_SUB_ITEM_SIGNAL
 
+    QHBoxLayout* sortlayout = new QHBoxLayout();
+    QPushButton* sortAscButton = new QPushButton("Ascending Sort");
+    QPushButton* sortDescButton = new QPushButton("Descending Sort");
+    QObject::connect(sortAscButton, &QPushButton::clicked, this, &QPanelString::OnSortAscClicked);
+    QObject::connect(sortDescButton, &QPushButton::clicked, this, &QPanelString::OnSortDescClicked);
+    sortlayout->addWidget(sortAscButton);
+    sortlayout->addWidget(sortDescButton);
+    editLayout->addRow("Sort", sortlayout);
 
     InitItemCountWidget(editLayout);
 }
@@ -104,6 +112,7 @@ void QPanelString::OnItemDuplicated(const int _index, const int _originalIndex)
 void QPanelString::OnItemMoved(const int _indexFrom, const int _indexTo)
 {
     DB_Manager::GetDB_Manager().MoveStringTable(_indexFrom, _indexTo);
+    OnItemSelected(_indexTo);
 }
 void QPanelString::OnItemRemoved(const int _index)
 {
@@ -169,4 +178,21 @@ void QPanelString::OnSubItemRemoved(const int _index)
         selectionIndex--;
     DB_Manager::GetDB_Manager().AskFocusOnStringItem(currentTableIndex, selectionIndex);
     RefreshItemCount(currentTableIndex);
+}
+
+
+void QPanelString::OnSortAscClicked()
+{
+    SortCurrentTable(true);
+}
+void QPanelString::OnSortDescClicked()
+{
+    SortCurrentTable(false);
+}
+void QPanelString::SortCurrentTable(bool _ascending)
+{
+    GET_CURRENT_STRING_TABLE();
+    currentTable->SortStringItems(_ascending);
+    DB_Manager::GetDB_Manager().AskUpdateOnStringTable(currentTableIndex);
+    OnItemSelected(currentTableIndex);
 }

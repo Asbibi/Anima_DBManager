@@ -24,7 +24,7 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     const QString titleStyle = "font-weight: bold";
 
     // Project Path
-    auto* pathTitle = new QLabel("Unreal Project Path :");
+    auto* pathTitle = new QLabel("Unreal Project (Content folder) Path :");
     pathTitle->setStyleSheet(titleStyle);
     vLayout->addWidget(pathTitle);
     vLayout->addSpacing(3);
@@ -108,7 +108,7 @@ void QProjectDialog::SetPath(const QString& _path)
 
 void QProjectDialog::OnSelectPath()
 {
-    QString folderPath = QFileDialog::getExistingDirectory(this, "Select Struct DataTable Directory",
+    QString folderPath = QFileDialog::getExistingDirectory(this, "Select an Unreal Project's Content Folder",
                                                            myProjectPath->text());
     if (folderPath == nullptr)
         return;

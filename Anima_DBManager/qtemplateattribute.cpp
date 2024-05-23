@@ -66,7 +66,7 @@ void QTemplateAttribute::UpdateTemplateAttribute(const TemplateAttribute* _attr)
         myCoreEditor->disconnect();
         myFormLayout->removeRow(1);
     }
-    myCoreEditor = new QTemplateAttributeCore(*myTemplateCopy, false, this);
+    myCoreEditor = new QTemplateAttributeCore(*myTemplateCopy, false, true, this);
     myFormLayout->insertRow(1, "", myCoreEditor);
     QObject::connect(myCoreEditor, &QTemplateAttributeCore::ParamEdited, this, &QTemplateAttribute::OnParamEdited);
 

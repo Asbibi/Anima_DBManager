@@ -39,7 +39,9 @@ public:
 
     const TemplateAttribute* GetTemplate()                  const;
     const AttributeParam& GetTemplateParam()                const;
-    QString GetValue_String()                               const;
+    virtual QString GetValue_String()                       const;
+
+    static QString GetContentStringFromList(const QList<Attribute*>& _attributes);
 
 signals:
     void OnValueChanged(const Attribute* _this);    // arg given during emit()

@@ -6,23 +6,16 @@
 
 #include <QApplication>
 #include <QLocale>
+#include <QStyleFactory>
 #include <QTranslator>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //a.setStyle("fusion");
-    //a.setStyle("macintosh");
+    a.setStyle(QStyleFactory::create("WindowsVista"));
 
-    /*QTranslator translator;
-    const QStringList uiLanguages = QLocale::system().uiLanguages();
-    for (const QString &locale : uiLanguages) {
-        const QString baseName = "Anima_DBManager_" + QLocale(locale).name();
-        if (translator.load(":/i18n/" + baseName)) {
-            a.installTranslator(&translator);
-            break;
-        }
-    }*/
+    QCoreApplication::setOrganizationName("IceCubeStudio");
+    QCoreApplication::setApplicationName("AnimaDB");
 
     MainWindow w;
     DB_Manager::GetDB_Manager().Init();
@@ -37,7 +30,7 @@ int main(int argc, char *argv[])
 #ifdef TEST_VALUES
             SaveManager::New();
 #endif
-            w.OpenDB(fileName);
+            w.OpenDB(fileName, false);
         }
     }
 

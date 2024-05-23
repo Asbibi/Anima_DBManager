@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include <QAction>
+#include <QCloseEvent>
 #include <QFileDialog>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -8,8 +9,9 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSettings>
 #include <QSpinBox>
-#include <QSplitter>
+#include <QStringList>
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidgetAction>
@@ -31,7 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     setWindowIcon(QIcon(IconManager::GetAppIcon()));
     UpdateWindowName();
-    resize(1280,720);
 
     myMenuBar = new QMenuBar(this);
     QMenu* fileMenu = myMenuBar->addMenu("File");
@@ -41,12 +42,27 @@ MainWindow::MainWindow(QWidget *parent) :
 
     auto* newDB = fileMenu->addAction("New");
     QObject::connect(newDB, &QAction::triggered, this, &MainWindow::OnNewDB);
+    newDB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_N));
     auto* openDB = fileMenu->addAction("Open");
     QObject::connect(openDB, &QAction::triggered, this, &MainWindow::OnOpenDB);
+    openDB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
+    myOpenRecentMenu = fileMenu->addMenu("Open Recent...");
     auto* saveDB = fileMenu->addAction("Save");
     QObject::connect(saveDB, &QAction::triggered, this, &MainWindow::OnSaveDB);
+    saveDB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
     auto* saveAsDB = fileMenu->addAction("Save As...");
     QObject::connect(saveAsDB, &QAction::triggered, this, &MainWindow::OnSaveAsDB);
+    saveAsDB->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL | Qt::Key_S));
+    fileMenu->addSeparator();
+    auto* resetQSettingsAction = fileMenu->addAction("Reset Window");
+    QObject::connect(resetQSettingsAction, &QAction::triggered, this, &MainWindow::ResetQSettings);
+    resetQSettingsAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
+    fileMenu->addSeparator();
+    auto* quitAction = fileMenu->addAction("Quit application");
+    QObject::connect(quitAction, &QAction::triggered, this, &QCoreApplication::quit);
+    quitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+    BuildOpenRecentMenu();
+
 
 #ifdef CSV_EXPORT_ENABLED
     QMenu* exportCurrentStructMenu = exportImportMenu->addMenu("Export Current Structure Table");
@@ -62,16 +78,22 @@ MainWindow::MainWindow(QWidget *parent) :
 #else
     auto* exportCurrentStructJSON = exportImportMenu->addAction("Export Current Structure Table");
     QObject::connect(exportCurrentStructJSON, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable_JSON);
+    myExportOneStructMenu = exportImportMenu->addMenu("Export One Structure Table");
     auto* exportAllStructJSON = exportImportMenu->addAction("Export All Structure Tables");
     QObject::connect(exportAllStructJSON, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_JSON);
+    BuildExportOneStructTableMenu();
 #endif
     exportImportMenu->addSeparator();
 
     QMenu* exportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
+    myExportOneStringMenu = exportImportMenu->addMenu("Export One String Table");
     QMenu* exportAllStringsMenu = exportImportMenu->addMenu("Export All String Tables");
+    BuildExportOneStringTableMenu();
+
     exportImportMenu->addSeparator();
     auto* exportAll = exportImportMenu->addAction("Export Everything");
     QObject::connect(exportAll, &QAction::triggered, this, &MainWindow::OnExportAll);
+    exportAll->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
 
     exportImportMenu->addSeparator();
     auto* importStructAction = exportImportMenu->addAction("Import Structure Table");
@@ -95,20 +117,20 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     QObject::connect(projSettings, &QAction::triggered, this, &MainWindow::OnProjectSettings);
+    projSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
 
 
 
     //---------
 
-    QSplitter* splitter = new QSplitter(this);
-    setCentralWidget(splitter);
+    mySplitter = new QSplitter(this);
+    setCentralWidget(mySplitter);
     //splitter->setStyleSheet("QSplitter::handle { width: 2px; color: solid green;}");
 
     //---------
 
     myTableToolBox = new QToolBox();
-    myTableToolBox->setMinimumWidth(600);
-    splitter->addWidget(myTableToolBox);
+    mySplitter->addWidget(myTableToolBox);
 
     myTabStruct = new QTabWidget();
     myTabString = new QTabWidget();
@@ -117,8 +139,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //---------
 
-    QToolBox* defToolBox = new QToolBox();
-    splitter->addWidget(defToolBox);
+    myPanelToolBox = new QToolBox();
+    mySplitter->addWidget(myPanelToolBox);
 
     myEnumWidget = new QPanelEnum();
     myStringWidget = new QPanelString();
@@ -127,10 +149,10 @@ MainWindow::MainWindow(QWidget *parent) :
     myEnumWidget->Init();
     myStringWidget->Init();
     //myStructWidget->Init();
-    defToolBox->addItem(myStructWidget, "Structures");
-    defToolBox->addItem(myStringWidget, "String Tables");
-    defToolBox->addItem(myEnumWidget, "Enumerators");
-    defToolBox->addItem(searchPanel, "Search");
+    myPanelToolBox->addItem(myStructWidget, "Structures");
+    myPanelToolBox->addItem(myStringWidget, "String Tables");
+    myPanelToolBox->addItem(myEnumWidget, "Enumerators");
+    myPanelToolBox->addItem(searchPanel, "Search");
 
     //---------
 #define CONNECT_DB(method)  QObject::connect(&myManager, &DB_Manager::method, this, &MainWindow::On##method)
@@ -155,12 +177,203 @@ MainWindow::MainWindow(QWidget *parent) :
 
     CONNECT_DB(ResetView);
 
+    CONNECT_DB(AcknowledgeChange);
+    CONNECT_DB(AutoSaveFeedback);
+
 #undef CONNECT_DB
+
+    LoadQSettings();
 }
 
 MainWindow::~MainWindow()
 {}
 
+
+void MainWindow::AddFileToOpenRecentList(const QString& _openFilePath)
+{
+    QSettings settings;
+
+    // Get Current file paths
+    QStringList filePaths = QStringList();
+    if (settings.contains("recentFiles"))
+    {
+        QVariantList originalVariantList = settings.value("recentFiles").toList();
+        for (const auto& filePathAsVar : originalVariantList)
+        {
+            filePaths.push_back(filePathAsVar.toString());
+        }
+    }
+
+    // Add the new filepath to the list
+    filePaths.removeAll(_openFilePath);
+    filePaths.prepend(_openFilePath);
+
+    // Save filepaths in QSettings
+    QVariantList variantList;
+    for (const QString& item : filePaths)
+    {
+        // - filter out invalid files
+        if (!QFileInfo::exists(item))
+        {
+            continue;
+        }
+        QVariant variantItem = QVariant::fromValue(item);
+        variantList.append(variantItem);
+    }
+    // - filter out files that are too old
+    if (variantList.count() > MAX_RECENT_FILES)
+    {
+        variantList = variantList.first(MAX_RECENT_FILES);
+    }
+    settings.setValue("recentFiles", variantList);
+
+    // Update Actions
+    BuildOpenRecentMenu();
+}
+void MainWindow::BuildOpenRecentMenu()
+{
+    QSettings settings;
+    myOpenRecentMenu->clear();
+
+    // Get Current file paths
+    if (!settings.contains("recentFiles"))
+    {
+        myOpenRecentMenu->setEnabled(false);
+    }
+
+    QVariantList originalVariantList = settings.value("recentFiles").toList();
+    bool mostRecent = true;
+    for (const auto& filePathAsVar : originalVariantList)
+    {
+        QString filePath = filePathAsVar.toString();
+        auto* exportStructJSON = myOpenRecentMenu->addAction(filePath);
+        QObject::connect(exportStructJSON, &QAction::triggered, this, [this, filePath]{OpenDB(filePath);});
+        if (mostRecent)
+        {
+            exportStructJSON->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL | Qt::Key_O));
+            mostRecent = false;
+        }
+    }
+    myOpenRecentMenu->setEnabled(originalVariantList.count() > 0);
+}
+void MainWindow::BuildExportOneStructTableMenu()
+{
+    myExportOneStructMenu->clear();
+    const int structTableCount = myManager.GetStructuresCount();
+    for (int i = 0; i < structTableCount; i++)
+    {
+        const auto* structTable = myManager.GetStructureTable(i);
+        auto* exportStructJSON = myExportOneStructMenu->addAction("Export " + structTable->GetTemplateName());
+        QObject::connect(exportStructJSON, &QAction::triggered, this, [this, i]{OnExportOneStructTable_JSON(i);});
+    }
+    myExportOneStructMenu->setEnabled(structTableCount > 0);
+}
+void MainWindow::BuildExportOneStringTableMenu()
+{
+    myExportOneStringMenu->clear();
+    const int stringTableCount = myManager.GetStringTableCount();
+    for (int i = 0; i < stringTableCount; i++)
+    {
+        const auto* stringTable = myManager.GetStringTable(i);
+        QMenu* exportStringMenu = myExportOneStringMenu->addMenu("Export " + stringTable->GetTableName());
+        for (int j = 0; j < SStringHelper::SStringLanguages::Count; j++)
+        {
+            auto* exportOneStringAction = exportStringMenu->addAction("Export in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)j));
+            QObject::connect(exportOneStringAction, &QAction::triggered, this, [this, i, j]{OnExportOneStringTable(i, (SStringHelper::SStringLanguages)j);});
+        }
+
+        auto* exportOneStringActionAllLanguages = exportStringMenu->addAction("Export in All Languages");
+        QObject::connect(exportOneStringActionAllLanguages, &QAction::triggered, this, [this, i]{OnExportOneStringTable(i, SStringHelper::SStringLanguages::Count);});
+    }
+    myExportOneStringMenu->setEnabled(stringTableCount > 0);
+}
+
+
+void MainWindow::SaveQSettings() const
+{
+    QSettings settings;
+    settings.setValue("mainWindow/sizeW", size().width());
+    settings.setValue("mainWindow/sizeH", size().height());
+    settings.setValue("mainWindow/posX", pos().x());
+    settings.setValue("mainWindow/posY", pos().y());
+    settings.setValue("mainWindow/isMaximized", windowState() == Qt::WindowMaximized);
+    settings.setValue("splitter", mySplitter->saveState());
+    settings.setValue("focus/table", myTableToolBox->currentIndex());
+    settings.setValue("focus/panel", myPanelToolBox->currentIndex());
+}
+void MainWindow::LoadQSettings()
+{
+    QSettings settings;
+    //settings.clear();
+
+    if (!settings.contains("mainWindow/sizeW"))
+    {
+        QList<int> splitterDefaultSizes = QList<int>();
+        splitterDefaultSizes.push_back(600);
+        splitterDefaultSizes.push_back(680);
+        mySplitter->setSizes(splitterDefaultSizes);
+        resize(1280,720);
+
+        int width = frameGeometry().width();
+        int height = frameGeometry().height();
+        QScreen *screen = qApp->primaryScreen();
+        int screenWidth = screen->geometry().width();
+        int screenHeight = screen->geometry().height();
+        move((screenWidth - width) / 2, (screenHeight - height) / 2);
+        return;
+    }
+
+    const bool isMaximized = settings.value("mainWindow/isMaximized").toBool();
+    if (!isMaximized)
+    {
+        resize(settings.value("mainWindow/sizeW").toInt(), settings.value("mainWindow/sizeH").toInt());
+        move(settings.value("mainWindow/posX").toInt(), settings.value("mainWindow/posY").toInt());
+    }
+    else
+    {
+        resize(1280,720);
+    }
+    setWindowState(isMaximized ? Qt::WindowMaximized : Qt::WindowNoState);
+    mySplitter->restoreState(settings.value("splitter").toByteArray());
+    myTableToolBox->setCurrentIndex(settings.value("focus/table").toInt());
+    myPanelToolBox->setCurrentIndex(settings.value("focus/panel").toInt());
+}
+void MainWindow::ResetQSettings()
+{
+    QSettings settings;
+    QVariantList recentFiles;
+    if (settings.contains("recentFiles"))
+    {
+        recentFiles = settings.value("recentFiles").toList();
+    }
+    settings.clear();
+    settings.setValue("recentFiles", recentFiles);
+
+    LoadQSettings();
+}
+
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (!myHasUnsavedChanges)
+    {
+        SaveQSettings();
+        event->accept();
+        return;
+    }
+
+    event->ignore();
+    auto res = QMessageBox::question(this, "Closing DB Manager", "Do you want to close the DB Manager ?\nUnsaved change will be lost.", QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel);
+    if (res != QMessageBox::Cancel)
+    {
+        if (res == QMessageBox::Save)
+        {
+            OnSaveDB();
+        }
+        SaveQSettings();
+        event->accept();
+    }
+}
 
 void MainWindow::Debug_Update()
 {
@@ -175,15 +388,38 @@ void MainWindow::UpdateWindowName()
     {
         windowName.append(" - ").append(SaveManager::GetCurrentSaveFile());
     }
+    if (myHasUnsavedChanges)
+    {
+        windowName.append("*");
+    }
+    if (myShowAutoSaveFeedBack)
+    {
+        windowName.append(" --- Backup Auto-Saved");
+    }
     setWindowTitle(windowName);
 }
-void MainWindow::OpenDB(const QString& _savefile)
+void MainWindow::OpenDB(const QString& _savefile, bool _resetApp)
 {
+    if (!QFileInfo::exists(_savefile))
+    {
+        QMessageBox::information(this, "File not found", QString("Failed to open file :\nDoes not exists.\n\n%1").arg(_savefile));
+        return;
+    }
+
+    if (_resetApp)
+    {
+        // New -> Reset the db and window
+        OnNewDB();
+    }
+
+    // Open
     myManager.blockSignals(true);
     SaveManager::OpenFile(_savefile);
     myManager.blockSignals(false);
     OnResetView();
+    myHasUnsavedChanges = false;
     UpdateWindowName();
+    AddFileToOpenRecentList(_savefile);
 }
 
 
@@ -196,6 +432,8 @@ void MainWindow::OnStringTableAdded(const int _index)
     QSStringTable* stringTable = new QSStringTable(_index);
     myTabString->insertTab(_index, stringTable, sTable->GetTableName());
     myTabString->setCurrentIndex(_index);
+
+    BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableMoved(const int _indexFrom, const int _indexTo)
 {
@@ -218,6 +456,8 @@ void MainWindow::OnStringTableMoved(const int _indexFrom, const int _indexTo)
 
     if(wasCurrent)
         myTabString->setCurrentIndex(_indexTo);
+
+    BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableRemoved(const int _index)
 {
@@ -227,10 +467,14 @@ void MainWindow::OnStringTableRemoved(const int _index)
 
     myTabString->removeTab(_index);
     delete tabToDelete;
+
+    BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableRenamed(const int _index, const QString& _name)
 {
     myTabString->setTabText(_index, _name);
+
+    BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableChanged(const int _tableIndex)
 {
@@ -271,6 +515,8 @@ void MainWindow::OnStructTableAdded(const int _index)
     const int insertedIndex = myTabStruct->insertTab(_index, stuctureTable, stcTable->GetTemplateName());
     OnStructTableIconChanged(insertedIndex, stcTable->GetIcon());
     myTabStruct->setCurrentIndex(insertedIndex);
+
+    BuildExportOneStructTableMenu();
 }
 void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
 {
@@ -285,6 +531,8 @@ void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
 
     if(wasCurrent)
         myTabStruct->setCurrentIndex(_indexTo);
+
+    BuildExportOneStructTableMenu();
 }
 void MainWindow::OnStructTableRemoved(const int _index)
 {
@@ -294,10 +542,13 @@ void MainWindow::OnStructTableRemoved(const int _index)
 
     myTabStruct->removeTab(_index);
     delete tabToDelete;
+
+    BuildExportOneStructTableMenu();
 }
 void MainWindow::OnStructTableRenamed(const int _index, const QString& _name)
 {
     myTabStruct->setTabText(_index, _name);
+    BuildExportOneStructTableMenu();
 }
 void MainWindow::OnStructTableIconChanged(const int _index, const QIcon& _icon)
 {
@@ -382,6 +633,21 @@ void MainWindow::OnResetView()
     }
 }
 
+void MainWindow::OnAcknowledgeChange()
+{
+    if (myHasUnsavedChanges)
+    {
+        return;
+    }
+    myHasUnsavedChanges = true;
+    UpdateWindowName();
+}
+
+void MainWindow::OnAutoSaveFeedback(bool _showFeedback)
+{
+    myShowAutoSaveFeedBack = _showFeedback;
+    UpdateWindowName();
+}
 
 
 // ================       File Methods       ================
@@ -410,6 +676,7 @@ bool MainWindow::OnNewDB()
     }
 
     SaveManager::New();
+    myHasUnsavedChanges = false;
     UpdateWindowName();
 
     return true;
@@ -446,7 +713,9 @@ bool MainWindow::OnSaveDB_Internal(bool _saveAs)
     qDebug() << filePath;
 
     SaveManager::SaveFile(filePath);
+    myHasUnsavedChanges = false;
     UpdateWindowName();
+    AddFileToOpenRecentList(filePath);
     return true;
 }
 void MainWindow::OnOpenDB()
@@ -480,10 +749,6 @@ void MainWindow::OnOpenDB()
     qDebug() << filePath;
     Q_ASSERT(QFileInfo::exists(filePath));
 
-
-    // New
-    OnNewDB();
-
     // Open Internal
     OpenDB(filePath);
 }
@@ -492,27 +757,11 @@ void MainWindow::OnOpenDB()
 
 void MainWindow::OnExportCurrentStringTable(SStringHelper::SStringLanguages _language)
 {
-    QString dir = QFileDialog::getExistingDirectory(this, "Select String Table Directory",
-                                                    myManager.GetProjectContentFolderPath());
-    if (dir.isEmpty())
-    {
-        return;
-    }
-
-    QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->currentWidget());
-    Q_ASSERT(currentTab != nullptr);
-
-    if (_language != SStringHelper::SStringLanguages::Count)
-    {
-        currentTab->ExportStringsToCSV(dir, _language);
-    }
-    else
-    {
-        for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
-        {
-            currentTab->ExportStringsToCSV(dir, (SStringHelper::SStringLanguages)i);
-        }
-    }
+    ExportOneStringTable(myTabString->currentIndex(), _language, "");
+}
+void MainWindow::OnExportOneStringTable(int _index, SStringHelper::SStringLanguages _language)
+{
+    ExportOneStringTable(_index, _language, "");
 }
 void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _language)
 {
@@ -526,28 +775,47 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
     int widgetCount = myTabString->count();
     for (int i = 0; i < widgetCount; i++)
     {
-        QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(i));
-        if(tab == nullptr)
-        {
-            continue;
-        }
+        ExportOneStringTable(i, _language, dir);
+    }
+}
+void MainWindow::ExportOneStringTable(int _index, SStringHelper::SStringLanguages _language, QString _dir)
+{
+    QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_index));
+    if(tab == nullptr)
+    {
+        return;
+    }
 
-        if (_language != SStringHelper::SStringLanguages::Count)
+    if (_dir.isEmpty())
+    {
+        _dir = QFileDialog::getExistingDirectory(this, "Select Folder to export String Table " + myTabString->tabText(_index),
+                                                 myManager.GetProjectContentFolderPath());
+        if (_dir.isEmpty())
         {
-            tab->ExportStringsToCSV(dir, _language);
+            return;
         }
-        else
+    }
+
+
+    if (_language != SStringHelper::SStringLanguages::Count)
+    {
+        tab->ExportStringsToCSV(_dir, _language);
+    }
+    else
+    {
+        for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
         {
-            for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
-            {
-                tab->ExportStringsToCSV(dir, (SStringHelper::SStringLanguages)i);
-            }
+            tab->ExportStringsToCSV(_dir, (SStringHelper::SStringLanguages)i);
         }
     }
 }
 void MainWindow::OnExportCurrentStructTable_JSON()
 {
     ExportCurrentStructTable(true);
+}
+void MainWindow::OnExportOneStructTable_JSON(int _index)
+{
+    ExportOneStructTable(_index, true, "");
 }
 void MainWindow::OnExportAllStructTables_JSON()
 {
@@ -557,30 +825,17 @@ void MainWindow::OnExportCurrentStructTable_CSV()
 {
     ExportCurrentStructTable(false);
 }
+void MainWindow::OnExportOneStructTable_CSV(int _index)
+{
+    ExportOneStructTable(_index, false, "");
+}
 void MainWindow::OnExportAllStructTables_CSV()
 {
     ExportAllStructTables(false);
 }
 void MainWindow::ExportCurrentStructTable(bool _JSON)
 {
-    QString dir = QFileDialog::getExistingDirectory(this, "Select Struct DataTable Directory",
-                                                    myManager.GetProjectContentFolderPath());
-    if (dir.isEmpty())
-    {
-        return;
-    }
-
-    QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->currentWidget());
-    Q_ASSERT(currentTab != nullptr);
-
-    if (_JSON)
-    {
-        currentTab->ExportStructsToJSON(dir);
-    }
-    else
-    {
-        currentTab->ExportStructsToCSV(dir);
-    }
+    ExportOneStructTable(myTabStruct->currentIndex(), _JSON, "");
 }
 void MainWindow::ExportAllStructTables(bool _JSON)
 {
@@ -594,20 +849,37 @@ void MainWindow::ExportAllStructTables(bool _JSON)
     int widgetCount = myTabString->count();
     for (int i = 0; i < widgetCount; i++)
     {
-        QStructureTable* tab = dynamic_cast<QStructureTable*>(myTabStruct->widget(i));
-        if(tab == nullptr)
-        {
-            continue;
-        }
+        ExportOneStructTable(i, _JSON, dir);
+    }
+}
+void MainWindow::ExportOneStructTable(int _index, bool _JSON, QString _dir)
+{
+    QStructureTable* tab = dynamic_cast<QStructureTable*>(myTabStruct->widget(_index));
+    if(tab == nullptr)
+    {
+        return;
+    }
 
-        if (_JSON)
+
+    if (_dir.isEmpty())
+    {
+        _dir = QFileDialog::getExistingDirectory(this, "Select Folder to export Structure Table " + myTabStruct->tabText(_index),
+                                                        myManager.GetProjectContentFolderPath());
+        if (_dir.isEmpty())
         {
-            tab->ExportStructsToJSON(dir);
+            return;
         }
-        else
-        {
-            tab->ExportStructsToCSV(dir);
-        }
+    }
+
+
+
+    if (_JSON)
+    {
+        tab->ExportStructsToJSON(_dir);
+    }
+    else
+    {
+        tab->ExportStructsToCSV(_dir);
     }
 }
 void MainWindow::OnExportAll()

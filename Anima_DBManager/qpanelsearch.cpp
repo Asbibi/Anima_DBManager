@@ -47,9 +47,11 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
 
     ADD_ATTRIBUTE_CHECKBOX(UAsset, 0, 3);
     ADD_ATTRIBUTE_CHECKBOX(Texture, 1, 3);
-    ADD_ATTRIBUTE_CHECKBOX(Mesh, 2, 3);
-    ADD_ATTRIBUTE_CHECKBOX(Niagara, 3, 3);
-    ADD_ATTRIBUTE_CHECKBOX(Sound, 4, 3);
+    ADD_ATTRIBUTE_CHECKBOX(SkeletalMesh, 2, 3);
+    ADD_ATTRIBUTE_CHECKBOX(StaticMesh, 3, 3);
+    ADD_ATTRIBUTE_CHECKBOX(Niagara, 4, 3);
+    ADD_ATTRIBUTE_CHECKBOX(Sound, 5, 3);
+    ADD_ATTRIBUTE_CHECKBOX(Class, 6, 3);
 
 #undef ADD_ATTRIBUTE_CHECKBOX
 

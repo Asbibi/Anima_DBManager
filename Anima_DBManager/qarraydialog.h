@@ -8,6 +8,8 @@
 #include "qaugmentedlist.h"
 #include "templateattribute.h"
 
+#include <QSpinBox>
+
 class QArrayDialog : public QDialog
 {
     Q_OBJECT
@@ -17,9 +19,11 @@ private:
     QList<Attribute*> myAttributes;                 // owner, they are (altered) copies of the array element
 
     QAugmentedList* myQListAttributes;
+    QSpinBox* myRowCountSpinner;
     QAttribute* myQAttribute;
 
     void CleanAttributes();
+    void UpdateCountSpinnerValue();
 
 public:
     QArrayDialog(const TemplateAttribute* _template, const QList<Attribute*>& _attributeList, bool _useMin, int _min, bool _useMax, int _max, QWidget* _parent = nullptr);
@@ -34,6 +38,7 @@ public slots:
     void OnValueDuplicated(const int _index, const int _originalIndex);
     void OnValueMoved(const int _indexFrom, const int _indexTo);
     void OnValueRemoved(const int _index);
+    void SetItemCount();
 
     void OnSelectedValueEdited();
 };

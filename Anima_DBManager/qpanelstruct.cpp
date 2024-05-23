@@ -107,8 +107,14 @@ void QPanelStruct::OnItemMoved(const int _indexFrom, const int _indexTo)
 }
 void QPanelStruct::OnItemRemoved(const int _index)
 {
-    DB_Manager::GetDB_Manager().RemoveStructureDB(_index);
-    OnItemSelected(_index);
+    auto& DB = DB_Manager::GetDB_Manager();
+    DB.RemoveStructureDB(_index);
+    int indexToFocus = _index;
+    if (_index == DB.GetStructuresCount() && _index > 0)
+    {
+        indexToFocus--;
+    }
+    OnItemSelected(indexToFocus);
 }
 void QPanelStruct::OnItemApplied()
 {
