@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 #ifdef TEST_VALUES
             SaveManager::New();
 #endif
-            w.OpenDB(fileName);
+            w.OpenDB(fileName, false);
         }
     }
 

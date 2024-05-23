@@ -11,6 +11,7 @@
 #include <QPushButton>
 #include <QSettings>
 #include <QSpinBox>
+#include <QStringList>
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidgetAction>
@@ -45,24 +46,22 @@ MainWindow::MainWindow(QWidget *parent) :
     auto* openDB = fileMenu->addAction("Open");
     QObject::connect(openDB, &QAction::triggered, this, &MainWindow::OnOpenDB);
     openDB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
+    myOpenRecentMenu = fileMenu->addMenu("Open Recent...");
     auto* saveDB = fileMenu->addAction("Save");
     QObject::connect(saveDB, &QAction::triggered, this, &MainWindow::OnSaveDB);
     saveDB->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
     auto* saveAsDB = fileMenu->addAction("Save As...");
     QObject::connect(saveAsDB, &QAction::triggered, this, &MainWindow::OnSaveAsDB);
     saveAsDB->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL | Qt::Key_S));
-
     fileMenu->addSeparator();
-
     auto* resetQSettingsAction = fileMenu->addAction("Reset Window");
     QObject::connect(resetQSettingsAction, &QAction::triggered, this, &MainWindow::ResetQSettings);
     resetQSettingsAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
-
     fileMenu->addSeparator();
-
     auto* quitAction = fileMenu->addAction("Quit application");
     QObject::connect(quitAction, &QAction::triggered, this, &QCoreApplication::quit);
     quitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+    BuildOpenRecentMenu();
 
 
 #ifdef CSV_EXPORT_ENABLED
@@ -82,12 +81,15 @@ MainWindow::MainWindow(QWidget *parent) :
     myExportOneStructMenu = exportImportMenu->addMenu("Export One Structure Table");
     auto* exportAllStructJSON = exportImportMenu->addAction("Export All Structure Tables");
     QObject::connect(exportAllStructJSON, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_JSON);
+    BuildExportOneStructTableMenu();
 #endif
     exportImportMenu->addSeparator();
 
     QMenu* exportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
     myExportOneStringMenu = exportImportMenu->addMenu("Export One String Table");
     QMenu* exportAllStringsMenu = exportImportMenu->addMenu("Export All String Tables");
+    BuildExportOneStringTableMenu();
+
     exportImportMenu->addSeparator();
     auto* exportAll = exportImportMenu->addAction("Export Everything");
     QObject::connect(exportAll, &QAction::triggered, this, &MainWindow::OnExportAll);
@@ -187,6 +189,73 @@ MainWindow::~MainWindow()
 {}
 
 
+void MainWindow::AddFileToOpenRecentList(const QString& _openFilePath)
+{
+    QSettings settings;
+
+    // Get Current file paths
+    QStringList filePaths = QStringList();
+    if (settings.contains("recentFiles"))
+    {
+        QVariantList originalVariantList = settings.value("recentFiles").toList();
+        for (const auto& filePathAsVar : originalVariantList)
+        {
+            filePaths.push_back(filePathAsVar.toString());
+        }
+    }
+
+    // Add the new filepath to the list
+    filePaths.removeAll(_openFilePath);
+    filePaths.prepend(_openFilePath);
+
+    // Save filepaths in QSettings
+    QVariantList variantList;
+    for (const QString& item : filePaths)
+    {
+        // - filter out invalid files
+        if (!QFileInfo::exists(item))
+        {
+            continue;
+        }
+        QVariant variantItem = QVariant::fromValue(item);
+        variantList.append(variantItem);
+    }
+    // - filter out files that are too old
+    if (variantList.count() > MAX_RECENT_FILES)
+    {
+        variantList = variantList.first(MAX_RECENT_FILES);
+    }
+    settings.setValue("recentFiles", variantList);
+
+    // Update Actions
+    BuildOpenRecentMenu();
+}
+void MainWindow::BuildOpenRecentMenu()
+{
+    QSettings settings;
+    myOpenRecentMenu->clear();
+
+    // Get Current file paths
+    if (!settings.contains("recentFiles"))
+    {
+        myOpenRecentMenu->setEnabled(false);
+    }
+
+    QVariantList originalVariantList = settings.value("recentFiles").toList();
+    bool mostRecent = true;
+    for (const auto& filePathAsVar : originalVariantList)
+    {
+        QString filePath = filePathAsVar.toString();
+        auto* exportStructJSON = myOpenRecentMenu->addAction(filePath);
+        QObject::connect(exportStructJSON, &QAction::triggered, this, [this, filePath]{OpenDB(filePath);});
+        if (mostRecent)
+        {
+            exportStructJSON->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL | Qt::Key_O));
+            mostRecent = false;
+        }
+    }
+    myOpenRecentMenu->setEnabled(originalVariantList.count() > 0);
+}
 void MainWindow::BuildExportOneStructTableMenu()
 {
     myExportOneStructMenu->clear();
@@ -197,6 +266,7 @@ void MainWindow::BuildExportOneStructTableMenu()
         auto* exportStructJSON = myExportOneStructMenu->addAction("Export " + structTable->GetTemplateName());
         QObject::connect(exportStructJSON, &QAction::triggered, this, [this, i]{OnExportOneStructTable_JSON(i);});
     }
+    myExportOneStructMenu->setEnabled(structTableCount > 0);
 }
 void MainWindow::BuildExportOneStringTableMenu()
 {
@@ -215,12 +285,13 @@ void MainWindow::BuildExportOneStringTableMenu()
         auto* exportOneStringActionAllLanguages = exportStringMenu->addAction("Export in All Languages");
         QObject::connect(exportOneStringActionAllLanguages, &QAction::triggered, this, [this, i]{OnExportOneStringTable(i, SStringHelper::SStringLanguages::Count);});
     }
+    myExportOneStringMenu->setEnabled(stringTableCount > 0);
 }
+
 
 void MainWindow::SaveQSettings() const
 {
     QSettings settings;
-    //pos();
     settings.setValue("mainWindow/sizeW", size().width());
     settings.setValue("mainWindow/sizeH", size().height());
     settings.setValue("mainWindow/posX", pos().x());
@@ -270,7 +341,14 @@ void MainWindow::LoadQSettings()
 void MainWindow::ResetQSettings()
 {
     QSettings settings;
+    QVariantList recentFiles;
+    if (settings.contains("recentFiles"))
+    {
+        recentFiles = settings.value("recentFiles").toList();
+    }
     settings.clear();
+    settings.setValue("recentFiles", recentFiles);
+
     LoadQSettings();
 }
 
@@ -320,14 +398,28 @@ void MainWindow::UpdateWindowName()
     }
     setWindowTitle(windowName);
 }
-void MainWindow::OpenDB(const QString& _savefile)
+void MainWindow::OpenDB(const QString& _savefile, bool _resetApp)
 {
+    if (!QFileInfo::exists(_savefile))
+    {
+        QMessageBox::information(this, "File not found", QString("Failed to open file :\nDoes not exists.\n\n%1").arg(_savefile));
+        return;
+    }
+
+    if (_resetApp)
+    {
+        // New -> Reset the db and window
+        OnNewDB();
+    }
+
+    // Open
     myManager.blockSignals(true);
     SaveManager::OpenFile(_savefile);
     myManager.blockSignals(false);
     OnResetView();
     myHasUnsavedChanges = false;
     UpdateWindowName();
+    AddFileToOpenRecentList(_savefile);
 }
 
 
@@ -623,6 +715,7 @@ bool MainWindow::OnSaveDB_Internal(bool _saveAs)
     SaveManager::SaveFile(filePath);
     myHasUnsavedChanges = false;
     UpdateWindowName();
+    AddFileToOpenRecentList(filePath);
     return true;
 }
 void MainWindow::OnOpenDB()
@@ -655,10 +748,6 @@ void MainWindow::OnOpenDB()
 
     qDebug() << filePath;
     Q_ASSERT(QFileInfo::exists(filePath));
-
-
-    // New
-    OnNewDB();
 
     // Open Internal
     OpenDB(filePath);

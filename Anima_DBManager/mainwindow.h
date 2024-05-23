@@ -22,6 +22,7 @@ private:
     DB_Manager& myManager;
 
     QMenuBar* myMenuBar;
+    QMenu* myOpenRecentMenu;
     QMenu* myExportOneStructMenu;
     QMenu* myExportOneStringMenu;
 
@@ -46,6 +47,8 @@ private:
     void ExportAllStructTables(bool _JSON);
     void ExportOneStructTable(int _index, bool _JSON, QString _dir);
 
+    void AddFileToOpenRecentList(const QString& _openFilePath);
+    void BuildOpenRecentMenu();
     void BuildExportOneStructTableMenu();
     void BuildExportOneStringTableMenu();
 
@@ -61,7 +64,7 @@ public:
 
     void Debug_Update();
     void UpdateWindowName();
-    void OpenDB(const QString& _savefile);
+    void OpenDB(const QString& _savefile, bool _resetApp = true);
 
 public slots:
     void OnStringTableAdded(const int _index);
