@@ -89,6 +89,8 @@ void QTemplateStructure::OnApply(const QString& _attrName,  const TemplateAttrib
     DB_Manager::GetDB_Manager().ChangeAttributeTemplate(myTemplateStructureCopy->GetStructName(), index, _editedTemplateCopy, _hasCriticalChanges);
 
     emit AttributeChangeApplied();
+
+    myTabWidget->setCurrentIndex(index);
 }
 void QTemplateStructure::OnRevert(const QString& _attrName)
 {
