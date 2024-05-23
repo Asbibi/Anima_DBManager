@@ -14,6 +14,9 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     a.setStyle(QStyleFactory::create("WindowsVista"));
 
+    QCoreApplication::setOrganizationName("IceCubeStudio");
+    QCoreApplication::setApplicationName("AnimaDB");
+
     MainWindow w;
     DB_Manager::GetDB_Manager().Init();
 

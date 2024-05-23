@@ -9,8 +9,8 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QSettings>
 #include <QSpinBox>
-#include <QSplitter>
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidgetAction>
@@ -32,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     setWindowIcon(QIcon(IconManager::GetAppIcon()));
     UpdateWindowName();
-    resize(1280,720);
 
     myMenuBar = new QMenuBar(this);
     QMenu* fileMenu = myMenuBar->addMenu("File");
@@ -52,6 +51,19 @@ MainWindow::MainWindow(QWidget *parent) :
     auto* saveAsDB = fileMenu->addAction("Save As...");
     QObject::connect(saveAsDB, &QAction::triggered, this, &MainWindow::OnSaveAsDB);
     saveAsDB->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL | Qt::Key_S));
+
+    fileMenu->addSeparator();
+
+    auto* resetQSettingsAction = fileMenu->addAction("Reset Window");
+    QObject::connect(resetQSettingsAction, &QAction::triggered, this, &MainWindow::ResetQSettings);
+    resetQSettingsAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
+
+    fileMenu->addSeparator();
+
+    auto* quitAction = fileMenu->addAction("Quit application");
+    QObject::connect(quitAction, &QAction::triggered, this, &QCoreApplication::quit);
+    quitAction->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+
 
 #ifdef CSV_EXPORT_ENABLED
     QMenu* exportCurrentStructMenu = exportImportMenu->addMenu("Export Current Structure Table");
@@ -109,15 +121,14 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //---------
 
-    QSplitter* splitter = new QSplitter(this);
-    setCentralWidget(splitter);
+    mySplitter = new QSplitter(this);
+    setCentralWidget(mySplitter);
     //splitter->setStyleSheet("QSplitter::handle { width: 2px; color: solid green;}");
 
     //---------
 
     myTableToolBox = new QToolBox();
-    myTableToolBox->setMinimumWidth(600);
-    splitter->addWidget(myTableToolBox);
+    mySplitter->addWidget(myTableToolBox);
 
     myTabStruct = new QTabWidget();
     myTabString = new QTabWidget();
@@ -126,8 +137,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //---------
 
-    QToolBox* defToolBox = new QToolBox();
-    splitter->addWidget(defToolBox);
+    myPanelToolBox = new QToolBox();
+    mySplitter->addWidget(myPanelToolBox);
 
     myEnumWidget = new QPanelEnum();
     myStringWidget = new QPanelString();
@@ -136,10 +147,10 @@ MainWindow::MainWindow(QWidget *parent) :
     myEnumWidget->Init();
     myStringWidget->Init();
     //myStructWidget->Init();
-    defToolBox->addItem(myStructWidget, "Structures");
-    defToolBox->addItem(myStringWidget, "String Tables");
-    defToolBox->addItem(myEnumWidget, "Enumerators");
-    defToolBox->addItem(searchPanel, "Search");
+    myPanelToolBox->addItem(myStructWidget, "Structures");
+    myPanelToolBox->addItem(myStringWidget, "String Tables");
+    myPanelToolBox->addItem(myEnumWidget, "Enumerators");
+    myPanelToolBox->addItem(searchPanel, "Search");
 
     //---------
 #define CONNECT_DB(method)  QObject::connect(&myManager, &DB_Manager::method, this, &MainWindow::On##method)
@@ -168,6 +179,8 @@ MainWindow::MainWindow(QWidget *parent) :
     CONNECT_DB(AutoSaveFeedback);
 
 #undef CONNECT_DB
+
+    LoadQSettings();
 }
 
 MainWindow::~MainWindow()
@@ -204,11 +217,69 @@ void MainWindow::BuildExportOneStringTableMenu()
     }
 }
 
+void MainWindow::SaveQSettings() const
+{
+    QSettings settings;
+    //pos();
+    settings.setValue("mainWindow/sizeW", size().width());
+    settings.setValue("mainWindow/sizeH", size().height());
+    settings.setValue("mainWindow/posX", pos().x());
+    settings.setValue("mainWindow/posY", pos().y());
+    settings.setValue("mainWindow/isMaximized", windowState() == Qt::WindowMaximized);
+    settings.setValue("splitter", mySplitter->saveState());
+    settings.setValue("focus/table", myTableToolBox->currentIndex());
+    settings.setValue("focus/panel", myPanelToolBox->currentIndex());
+}
+void MainWindow::LoadQSettings()
+{
+    QSettings settings;
+    //settings.clear();
+
+    if (!settings.contains("mainWindow/sizeW"))
+    {
+        QList<int> splitterDefaultSizes = QList<int>();
+        splitterDefaultSizes.push_back(600);
+        splitterDefaultSizes.push_back(680);
+        mySplitter->setSizes(splitterDefaultSizes);
+        resize(1280,720);
+
+        int width = frameGeometry().width();
+        int height = frameGeometry().height();
+        QScreen *screen = qApp->primaryScreen();
+        int screenWidth = screen->geometry().width();
+        int screenHeight = screen->geometry().height();
+        move((screenWidth - width) / 2, (screenHeight - height) / 2);
+        return;
+    }
+
+    const bool isMaximized = settings.value("mainWindow/isMaximized").toBool();
+    if (!isMaximized)
+    {
+        resize(settings.value("mainWindow/sizeW").toInt(), settings.value("mainWindow/sizeH").toInt());
+        move(settings.value("mainWindow/posX").toInt(), settings.value("mainWindow/posY").toInt());
+    }
+    else
+    {
+        resize(1280,720);
+    }
+    setWindowState(isMaximized ? Qt::WindowMaximized : Qt::WindowNoState);
+    mySplitter->restoreState(settings.value("splitter").toByteArray());
+    myTableToolBox->setCurrentIndex(settings.value("focus/table").toInt());
+    myPanelToolBox->setCurrentIndex(settings.value("focus/panel").toInt());
+}
+void MainWindow::ResetQSettings()
+{
+    QSettings settings;
+    settings.clear();
+    LoadQSettings();
+}
+
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (!myHasUnsavedChanges)
     {
+        SaveQSettings();
         event->accept();
         return;
     }
@@ -221,6 +292,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         {
             OnSaveDB();
         }
+        SaveQSettings();
         event->accept();
     }
 }

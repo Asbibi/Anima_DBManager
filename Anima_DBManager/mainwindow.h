@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include <QMenuBar>
+#include <QSplitter>
 #include <QTabWidget>
 #include <QToolBox>
 
@@ -24,10 +25,13 @@ private:
     QMenu* myExportOneStructMenu;
     QMenu* myExportOneStringMenu;
 
+    QSplitter* mySplitter;
+
     QToolBox* myTableToolBox;
     QTabWidget* myTabString;
     QTabWidget* myTabStruct;
 
+    QToolBox* myPanelToolBox;
     QPanelEnum* myEnumWidget;
     QPanelString* myStringWidget;
     QPanelStruct* myStructWidget;
@@ -44,6 +48,9 @@ private:
 
     void BuildExportOneStructTableMenu();
     void BuildExportOneStringTableMenu();
+
+    void SaveQSettings() const;
+    void LoadQSettings();
 
 
 public:
@@ -101,5 +108,7 @@ public slots:
 
     void OnAcknowledgeChange();
     void OnAutoSaveFeedback(bool _showFeedback);
+
+    void ResetQSettings();
 };
 #endif // MAINWINDOW_H
