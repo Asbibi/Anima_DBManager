@@ -67,12 +67,14 @@ MainWindow::MainWindow(QWidget *parent) :
 #else
     auto* exportCurrentStructJSON = exportImportMenu->addAction("Export Current Structure Table");
     QObject::connect(exportCurrentStructJSON, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable_JSON);
+    myExportOneStructMenu = exportImportMenu->addMenu("Export One Structure Table");
     auto* exportAllStructJSON = exportImportMenu->addAction("Export All Structure Tables");
     QObject::connect(exportAllStructJSON, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_JSON);
 #endif
     exportImportMenu->addSeparator();
 
     QMenu* exportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
+    myExportOneStringMenu = exportImportMenu->addMenu("Export One String Table");
     QMenu* exportAllStringsMenu = exportImportMenu->addMenu("Export All String Tables");
     exportImportMenu->addSeparator();
     auto* exportAll = exportImportMenu->addAction("Export Everything");
@@ -172,6 +174,37 @@ MainWindow::~MainWindow()
 {}
 
 
+void MainWindow::BuildExportOneStructTableMenu()
+{
+    myExportOneStructMenu->clear();
+    const int structTableCount = myManager.GetStructuresCount();
+    for (int i = 0; i < structTableCount; i++)
+    {
+        const auto* structTable = myManager.GetStructureTable(i);
+        auto* exportStructJSON = myExportOneStructMenu->addAction("Export " + structTable->GetTemplateName());
+        QObject::connect(exportStructJSON, &QAction::triggered, this, [this, i]{OnExportOneStructTable_JSON(i);});
+    }
+}
+void MainWindow::BuildExportOneStringTableMenu()
+{
+    myExportOneStringMenu->clear();
+    const int stringTableCount = myManager.GetStringTableCount();
+    for (int i = 0; i < stringTableCount; i++)
+    {
+        const auto* stringTable = myManager.GetStringTable(i);
+        QMenu* exportStringMenu = myExportOneStringMenu->addMenu("Export " + stringTable->GetTableName());
+        for (int j = 0; j < SStringHelper::SStringLanguages::Count; j++)
+        {
+            auto* exportOneStringAction = exportStringMenu->addAction("Export in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)j));
+            QObject::connect(exportOneStringAction, &QAction::triggered, this, [this, i, j]{OnExportOneStringTable(i, (SStringHelper::SStringLanguages)j);});
+        }
+
+        auto* exportOneStringActionAllLanguages = exportStringMenu->addAction("Export in All Languages");
+        QObject::connect(exportOneStringActionAllLanguages, &QAction::triggered, this, [this, i]{OnExportOneStringTable(i, SStringHelper::SStringLanguages::Count);});
+    }
+}
+
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
     if (!myHasUnsavedChanges)
@@ -235,6 +268,8 @@ void MainWindow::OnStringTableAdded(const int _index)
     QSStringTable* stringTable = new QSStringTable(_index);
     myTabString->insertTab(_index, stringTable, sTable->GetTableName());
     myTabString->setCurrentIndex(_index);
+
+    BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableMoved(const int _indexFrom, const int _indexTo)
 {
@@ -257,6 +292,8 @@ void MainWindow::OnStringTableMoved(const int _indexFrom, const int _indexTo)
 
     if(wasCurrent)
         myTabString->setCurrentIndex(_indexTo);
+
+    BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableRemoved(const int _index)
 {
@@ -266,10 +303,14 @@ void MainWindow::OnStringTableRemoved(const int _index)
 
     myTabString->removeTab(_index);
     delete tabToDelete;
+
+    BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableRenamed(const int _index, const QString& _name)
 {
     myTabString->setTabText(_index, _name);
+
+    BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableChanged(const int _tableIndex)
 {
@@ -310,6 +351,8 @@ void MainWindow::OnStructTableAdded(const int _index)
     const int insertedIndex = myTabStruct->insertTab(_index, stuctureTable, stcTable->GetTemplateName());
     OnStructTableIconChanged(insertedIndex, stcTable->GetIcon());
     myTabStruct->setCurrentIndex(insertedIndex);
+
+    BuildExportOneStructTableMenu();
 }
 void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
 {
@@ -324,6 +367,8 @@ void MainWindow::OnStructTableMoved(const int _indexFrom, const int _indexTo)
 
     if(wasCurrent)
         myTabStruct->setCurrentIndex(_indexTo);
+
+    BuildExportOneStructTableMenu();
 }
 void MainWindow::OnStructTableRemoved(const int _index)
 {
@@ -333,10 +378,13 @@ void MainWindow::OnStructTableRemoved(const int _index)
 
     myTabStruct->removeTab(_index);
     delete tabToDelete;
+
+    BuildExportOneStructTableMenu();
 }
 void MainWindow::OnStructTableRenamed(const int _index, const QString& _name)
 {
     myTabStruct->setTabText(_index, _name);
+    BuildExportOneStructTableMenu();
 }
 void MainWindow::OnStructTableIconChanged(const int _index, const QIcon& _icon)
 {
@@ -548,27 +596,11 @@ void MainWindow::OnOpenDB()
 
 void MainWindow::OnExportCurrentStringTable(SStringHelper::SStringLanguages _language)
 {
-    QString dir = QFileDialog::getExistingDirectory(this, "Select String Table Directory",
-                                                    myManager.GetProjectContentFolderPath());
-    if (dir.isEmpty())
-    {
-        return;
-    }
-
-    QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->currentWidget());
-    Q_ASSERT(currentTab != nullptr);
-
-    if (_language != SStringHelper::SStringLanguages::Count)
-    {
-        currentTab->ExportStringsToCSV(dir, _language);
-    }
-    else
-    {
-        for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
-        {
-            currentTab->ExportStringsToCSV(dir, (SStringHelper::SStringLanguages)i);
-        }
-    }
+    ExportOneStringTable(myTabString->currentIndex(), _language, "");
+}
+void MainWindow::OnExportOneStringTable(int _index, SStringHelper::SStringLanguages _language)
+{
+    ExportOneStringTable(_index, _language, "");
 }
 void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _language)
 {
@@ -582,28 +614,47 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
     int widgetCount = myTabString->count();
     for (int i = 0; i < widgetCount; i++)
     {
-        QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(i));
-        if(tab == nullptr)
-        {
-            continue;
-        }
+        ExportOneStringTable(i, _language, dir);
+    }
+}
+void MainWindow::ExportOneStringTable(int _index, SStringHelper::SStringLanguages _language, QString _dir)
+{
+    QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_index));
+    if(tab == nullptr)
+    {
+        return;
+    }
 
-        if (_language != SStringHelper::SStringLanguages::Count)
+    if (_dir.isEmpty())
+    {
+        _dir = QFileDialog::getExistingDirectory(this, "Select Folder to export String Table " + myTabString->tabText(_index),
+                                                 myManager.GetProjectContentFolderPath());
+        if (_dir.isEmpty())
         {
-            tab->ExportStringsToCSV(dir, _language);
+            return;
         }
-        else
+    }
+
+
+    if (_language != SStringHelper::SStringLanguages::Count)
+    {
+        tab->ExportStringsToCSV(_dir, _language);
+    }
+    else
+    {
+        for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
         {
-            for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
-            {
-                tab->ExportStringsToCSV(dir, (SStringHelper::SStringLanguages)i);
-            }
+            tab->ExportStringsToCSV(_dir, (SStringHelper::SStringLanguages)i);
         }
     }
 }
 void MainWindow::OnExportCurrentStructTable_JSON()
 {
     ExportCurrentStructTable(true);
+}
+void MainWindow::OnExportOneStructTable_JSON(int _index)
+{
+    ExportOneStructTable(_index, true, "");
 }
 void MainWindow::OnExportAllStructTables_JSON()
 {
@@ -613,30 +664,17 @@ void MainWindow::OnExportCurrentStructTable_CSV()
 {
     ExportCurrentStructTable(false);
 }
+void MainWindow::OnExportOneStructTable_CSV(int _index)
+{
+    ExportOneStructTable(_index, false, "");
+}
 void MainWindow::OnExportAllStructTables_CSV()
 {
     ExportAllStructTables(false);
 }
 void MainWindow::ExportCurrentStructTable(bool _JSON)
 {
-    QString dir = QFileDialog::getExistingDirectory(this, "Select Struct DataTable Directory",
-                                                    myManager.GetProjectContentFolderPath());
-    if (dir.isEmpty())
-    {
-        return;
-    }
-
-    QStructureTable* currentTab = dynamic_cast<QStructureTable*>(myTabStruct->currentWidget());
-    Q_ASSERT(currentTab != nullptr);
-
-    if (_JSON)
-    {
-        currentTab->ExportStructsToJSON(dir);
-    }
-    else
-    {
-        currentTab->ExportStructsToCSV(dir);
-    }
+    ExportOneStructTable(myTabStruct->currentIndex(), _JSON, "");
 }
 void MainWindow::ExportAllStructTables(bool _JSON)
 {
@@ -650,20 +688,37 @@ void MainWindow::ExportAllStructTables(bool _JSON)
     int widgetCount = myTabString->count();
     for (int i = 0; i < widgetCount; i++)
     {
-        QStructureTable* tab = dynamic_cast<QStructureTable*>(myTabStruct->widget(i));
-        if(tab == nullptr)
-        {
-            continue;
-        }
+        ExportOneStructTable(i, _JSON, dir);
+    }
+}
+void MainWindow::ExportOneStructTable(int _index, bool _JSON, QString _dir)
+{
+    QStructureTable* tab = dynamic_cast<QStructureTable*>(myTabStruct->widget(_index));
+    if(tab == nullptr)
+    {
+        return;
+    }
 
-        if (_JSON)
+
+    if (_dir.isEmpty())
+    {
+        _dir = QFileDialog::getExistingDirectory(this, "Select Folder to export Structure Table " + myTabStruct->tabText(_index),
+                                                        myManager.GetProjectContentFolderPath());
+        if (_dir.isEmpty())
         {
-            tab->ExportStructsToJSON(dir);
+            return;
         }
-        else
-        {
-            tab->ExportStructsToCSV(dir);
-        }
+    }
+
+
+
+    if (_JSON)
+    {
+        tab->ExportStructsToJSON(_dir);
+    }
+    else
+    {
+        tab->ExportStructsToCSV(_dir);
     }
 }
 void MainWindow::OnExportAll()

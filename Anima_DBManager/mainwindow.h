@@ -21,6 +21,9 @@ private:
     DB_Manager& myManager;
 
     QMenuBar* myMenuBar;
+    QMenu* myExportOneStructMenu;
+    QMenu* myExportOneStringMenu;
+
     QToolBox* myTableToolBox;
     QTabWidget* myTabString;
     QTabWidget* myTabStruct;
@@ -34,8 +37,13 @@ private:
 
     bool OnSaveDB_Internal(bool _saveAs);
     void CleanTabWidget(QTabWidget* _tabWidget);
+    void ExportOneStringTable(int _index, SStringHelper::SStringLanguages _language, QString _dir);
     void ExportCurrentStructTable(bool _JSON);
     void ExportAllStructTables(bool _JSON);
+    void ExportOneStructTable(int _index, bool _JSON, QString _dir);
+
+    void BuildExportOneStructTableMenu();
+    void BuildExportOneStringTableMenu();
 
 
 public:
@@ -76,10 +84,13 @@ public slots:
     void OnOpenDB();
 
     void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
+    void OnExportOneStringTable(int _index, SStringHelper::SStringLanguages _language);
     void OnExportAllStringTables(SStringHelper::SStringLanguages _language);
     void OnExportCurrentStructTable_JSON();
+    void OnExportOneStructTable_JSON(int _index);
     void OnExportAllStructTables_JSON();
     void OnExportCurrentStructTable_CSV();
+    void OnExportOneStructTable_CSV(int _index);
     void OnExportAllStructTables_CSV();
     void OnExportAll();
 
