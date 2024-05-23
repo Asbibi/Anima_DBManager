@@ -17,6 +17,8 @@ public:
     SStringItem(const SStringItem& _another);
     void operator=(const SStringItem& _another);
     bool operator==(const SStringItem& _other) const;
+    bool operator<(const SStringItem& _other) const;
+    bool operator>(const SStringItem& _other) const;
 
     const QString& GetIdentifier() const;
     const QString& GetString(SStringHelper::SStringLanguages _language) const;

@@ -43,6 +43,7 @@ public:
     void RemoveStringItem(const QString& _identifier);
     void SwapStringItems(int _indexFirst, int _indexSecond);
     void MoveStringItems(int _indexFrom, int _indexTo);
+    void SortStringItems(bool _ascending);
 
     bool SetItemIdentifier(const int _index, const QString& _identifier);
     void SetItemString(int _row, SStringHelper::SStringLanguages _col, const QString& _text);

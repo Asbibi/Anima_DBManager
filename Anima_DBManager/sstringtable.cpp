@@ -199,6 +199,14 @@ void SStringTable::MoveStringItems(int _indexFrom, int _indexTo)
 
     myStrings.move(_indexFrom, _indexTo);
 }
+void SStringTable::SortStringItems(bool _ascending)
+{
+    std::sort(myStrings.begin(), myStrings.end());
+    if (!_ascending)
+    {
+        std::reverse(myStrings.begin(), myStrings.end());
+    }
+}
 
 
 
