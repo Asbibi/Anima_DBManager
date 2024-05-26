@@ -86,6 +86,7 @@ void QAttribute::RebuildWidgetFromType(const AttributeTypeHelper::Type _type)
 {
     DeleteContent();
 
+    const auto& dbManager = DB_Manager::GetDB_Manager();
     switch(_type)
     {
         case AttributeTypeHelper::Type::Array :
@@ -176,10 +177,10 @@ void QAttribute::RebuildWidgetFromType(const AttributeTypeHelper::Type _type)
                                  content, &QAssetTexture::OpenFileDialog);
             break;
         }
-#define CASE_ATTRIBUTE(type, typeStr, typeFile, expr, ext) \
+#define CASE_ATTRIBUTE(type, typeStr, typeFile, ext) \
 case AttributeTypeHelper::Type::type : \
 { \
-    QAssetLabel* content = new QAssetLabel(AttributeTypeHelper::Type::type, typeStr, typeFile" ("#expr"." + ext + ")", this); \
+    QAssetLabel* content = new QAssetLabel(AttributeTypeHelper::Type::type, typeStr, typeFile" (" + dbManager.GetAAssetRegex(AttributeTypeHelper::Type::type) + "." + ext + ")", this); \
     QObject::connect(content, &QAssetLabel::OnValueEdited, \
                          this, &QAttribute::ContentStateChanged); \
     myContent = content;    \
@@ -190,17 +191,17 @@ case AttributeTypeHelper::Type::type : \
     break; \
 }
 
-        CASE_ATTRIBUTE(UAsset, "UAsset", "Unreal Assets", *, AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(UAsset, "UAsset", "Unreal Assets", AAsset::GetStaticAssetFileExtension());
 #ifdef USE_SPECIFIC_FILE_EXTENSION_FOR_AAMESH
-        CASE_ATTRIBUTE(SkeletalMesh, "SkeletalMesh", "3D Rigged Files", SK_*, AAMesh::GetStaticAssetFileExtension());
-        CASE_ATTRIBUTE(StaticMesh, "StaticMesh", "3D Static Files", SM_*, AAMesh::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(SkeletalMesh, "SkeletalMesh", "3D Rigged Files", AAMesh::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(StaticMesh, "StaticMesh", "3D Static Files", AAMesh::GetStaticAssetFileExtension());
 #else
-        CASE_ATTRIBUTE(SkeletalMesh, "SkeletalMesh", "3D Skeletal Meshes", SK_*, AAsset::GetStaticAssetFileExtension());
-        CASE_ATTRIBUTE(StaticMesh, "StaticMesh", "3D Static Meshes", SM_*, AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(SkeletalMesh, "SkeletalMesh", "3D Skeletal Meshes", AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(StaticMesh, "StaticMesh", "3D Static Meshes", AAsset::GetStaticAssetFileExtension());
 #endif
-        CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems", P_*, AAsset::GetStaticAssetFileExtension());
-        CASE_ATTRIBUTE(Sound, "Sound", "Sounds", *, AASound::GetStaticAssetFileExtension());
-        CASE_ATTRIBUTE(Class, "Class", "Blueprint Classes", BP_*, AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(Niagara, "Niagara", "Niagara Systems", AAsset::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(Sound, "Sound", "Sounds", AASound::GetStaticAssetFileExtension());
+        CASE_ATTRIBUTE(Class, "Class", "Blueprint Classes", AAsset::GetStaticAssetFileExtension());
 #undef CASE_ATTRIBUTE
         case AttributeTypeHelper::Type::Reference :
         {

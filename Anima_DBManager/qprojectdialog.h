@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QSpinBox>
+#include <QTableWidget>
 
 
 class QProjectDialog : public QDialog
@@ -19,6 +20,7 @@ private:
     static const QString ourSuffixColor;
 
     QLabel* myProjectPath;
+    QTableWidget* myUAssetRegex;
     QLineEdit* myPrefixEdit;
     QLineEdit* mySuffixEdit;
     QLabel* myFixResult;

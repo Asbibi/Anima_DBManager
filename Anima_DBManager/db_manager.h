@@ -34,6 +34,8 @@ private:
     QList<StructureDB*> myStructures;
     QList<SStringTable> myStringTables;
 
+    QMap<AttributeTypeHelper::Type, QString> myAAssetRegex;
+
     DB_Manager();
     DB_Manager(const DB_Manager&) = delete;
     ~DB_Manager();
@@ -51,6 +53,9 @@ public:
     bool SetProjectContentFolderPath(const QString& _path);
     const QString& GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
     bool IsProjectContentFolderPathValid() const;
+
+    const QString GetAAssetRegex(AttributeTypeHelper::Type _type) const;
+    void SetAAssetRegex(AttributeTypeHelper::Type _type, const QString& _regex);
 
     bool SetAttributeFixsIfOk(const QString& _prefix, const QString& _suffix);
     void SetAttributePrefix(const QString& _prefix);

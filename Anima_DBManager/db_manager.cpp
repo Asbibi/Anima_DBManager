@@ -57,6 +57,18 @@ bool DB_Manager::IsProjectContentFolderPathValid() const
 }
 
 
+const QString DB_Manager::GetAAssetRegex(AttributeTypeHelper::Type _type) const
+{
+    Q_ASSERT(AttributeTypeHelper::assetTypes.contains(_type));
+    return myAAssetRegex[_type];
+}
+void DB_Manager::SetAAssetRegex(AttributeTypeHelper::Type _type, const QString& _regex)
+{
+    Q_ASSERT(AttributeTypeHelper::assetTypes.contains(_type));
+    myAAssetRegex.insert(_type, _regex);
+}
+
+
 bool DB_Manager::SetAttributeFixsIfOk(const QString& _prefix, const QString& _suffix)
 {
     const QString oldPrefix = myAttributePrefix;
@@ -252,6 +264,11 @@ void DB_Manager::Init()
 #else
 
 #endif
+    for (const auto& aasetType : AttributeTypeHelper::assetTypes)
+    {
+        myAAssetRegex.insert(aasetType, "*");
+    }
+
     myAutoSaveTimer = new QTimer(this);
     QObject::connect(myAutoSaveTimer, &QTimer::timeout, this, &DB_Manager::AutoSave);
 }

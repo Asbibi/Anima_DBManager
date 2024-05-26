@@ -288,9 +288,10 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     csvProFile << dbManager.GetAttributeSuffix().toStdString() << '\n';
     csvProFile << (dbManager.GetAutoSaveEnabled() ? 1 : 0) << '\n';
     csvProFile << dbManager.GetAutoSaveInterval() << '\n';
-    if (dbManager.IsProjectContentFolderPathValid())
+    csvProFile << (dbManager.IsProjectContentFolderPathValid() ? dbManager.GetProjectContentFolderPath() : "").toStdString() << '\n';
+    for (const auto& assetType : AttributeTypeHelper::assetTypes)
     {
-        csvProFile << dbManager.GetProjectContentFolderPath().toStdString() << '\n';
+        csvProFile << dbManager.GetAAssetRegex(assetType).toStdString() << '\n';
     }
     csvProFile.close();
 
@@ -439,6 +440,11 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     const bool autoSaveFile = proIn.readLine() == '1';
     _dbManager.SetAutoSave(autoSaveFile, proIn.readLine().toInt());
     _dbManager.SetProjectContentFolderPath(proIn.readLine());
+    for (const auto& assetType : AttributeTypeHelper::assetTypes)
+    {
+        QString regexLine = proIn.readLine();
+        _dbManager.SetAAssetRegex(assetType, regexLine.isEmpty() ? "*" : regexLine);
+    }
 
     Q_ASSERT(proIn.atEnd());
     projectFile.close();
