@@ -2,6 +2,7 @@
 #define ATTRIBUTETYPE_H
 
 #include <QString>
+#include <QList>
 
 struct AttributeParam;
 class Attribute;
@@ -42,6 +43,15 @@ Attribute* NewAttributeFromType(const Type _type, TemplateAttribute& _template);
 void ResetUselessParamsForType(const Type _type, AttributeParam& _param);
 bool ShouldBeWrappedInQuoteInCSV(const Type _type);
 const QString csvDoubleQuoteWrapper = "\"\"%1\"\"";
+const QList<Type> assetTypes{
+    Type::UAsset,
+    Type::Texture,
+    Type::SkeletalMesh,
+    Type::StaticMesh,
+    Type::Niagara,
+    Type::Sound,
+    Type::Class
+};
 
 }
 

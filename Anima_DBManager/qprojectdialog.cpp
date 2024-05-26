@@ -6,6 +6,7 @@
 #include <QFileDialog>
 #include <QFormLayout>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QPushButton>
 #include <QVBoxLayout>
 
@@ -40,6 +41,30 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     pathtBtnLayout->addWidget(changeBtn);
     pathtBtnLayout->addWidget(resetBtn);
     vLayout->addLayout(pathtBtnLayout);
+
+    vLayout->addSpacing(6);
+    auto* uassetTitle = new QLabel("Asset Attribute file filters:");
+    uassetTitle->setStyleSheet(titleStyle);
+    vLayout->addWidget(uassetTitle);
+    vLayout->addSpacing(3);
+    const int assetTypeCount = AttributeTypeHelper::assetTypes.count();
+    myUAssetRegex = new QTableWidget();
+    auto* hHeaders = myUAssetRegex->horizontalHeader();
+    hHeaders->hide();
+    hHeaders->setStretchLastSection(true);
+    myUAssetRegex->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContentsOnFirstShow);
+    myUAssetRegex->setColumnCount(1);
+    myUAssetRegex->setRowCount(assetTypeCount);
+    QStringList vLabels{};
+    for (int i = 0; i < assetTypeCount; i++)
+    {
+        vLabels.push_back(AttributeTypeHelper::TypeToString(AttributeTypeHelper::assetTypes[i]));
+        myUAssetRegex->setItem(i, 0, new QTableWidgetItem(dbManager.GetAAssetRegex(AttributeTypeHelper::assetTypes[i])));
+    }
+    myUAssetRegex->setVerticalHeaderLabels(vLabels);
+    myUAssetRegex->setMaximumWidth(200);
+    vLayout->addWidget(myUAssetRegex);
+    //myUAssetRegex->adjustSize();
 
     vLayout->addSpacing(6);
     auto* fixTitle = new QLabel("Attribute Prefix/Suffix:");
@@ -159,6 +184,12 @@ void QProjectDialog::OnApplyBtnClicked()
         //myPrefixEdit->setBackground(emptyBrush);
         //mySuffixEdit
         return;
+    }
+
+    const int assetTypeCount = AttributeTypeHelper::assetTypes.count();
+    for (int i = 0; i < assetTypeCount; i++)
+    {
+        dbManager.SetAAssetRegex(AttributeTypeHelper::assetTypes[i], myUAssetRegex->item(i, 0)->text());
     }
 
     dbManager.SetProjectContentFolderPath(myProjectPath->text());
