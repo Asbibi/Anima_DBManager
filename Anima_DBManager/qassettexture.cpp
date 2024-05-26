@@ -2,6 +2,7 @@
 
 #include <QHBoxLayout>
 #include "aatexture.h"
+#include "db_manager.h"
 
 #define PREVIEW_SIZE 22
 
@@ -18,7 +19,7 @@ QAssetTexture::QAssetTexture(QWidget *parent) :
     myTexturePreview->setMaximumSize(PREVIEW_SIZE, PREVIEW_SIZE);
     myTexturePreview->setMinimumSize(PREVIEW_SIZE, PREVIEW_SIZE);
 
-    myAssetLabel = new QAssetLabel(AttributeTypeHelper::Type::Texture, "Texture", "Images (*.png)", this);
+    myAssetLabel = new QAssetLabel(AttributeTypeHelper::Type::Texture, "Texture", "Images (" + DB_Manager::GetDB_Manager().GetAAssetRegex(AttributeTypeHelper::Type::Texture) + "." + AATexture::GetStaticAssetFileExtension() +")", this);
     QObject::connect(myAssetLabel, &QAssetLabel::OnValueEdited, this, &QAssetTexture::RelayAssetLabelSignal);
 
     layout()->addWidget(myTexturePreview);
