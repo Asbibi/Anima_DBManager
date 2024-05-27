@@ -189,9 +189,10 @@ MainWindow::~MainWindow()
 {}
 
 
-void MainWindow::AddFileToOpenRecentList(const QString& _openFilePath)
+void MainWindow::AddFileToOpenRecentList()
 {
     QSettings settings;
+    const QString& currentFilePath = SaveManager::GetCurrentSaveFile();
 
     // Get Current file paths
     QStringList filePaths = QStringList();
@@ -205,8 +206,8 @@ void MainWindow::AddFileToOpenRecentList(const QString& _openFilePath)
     }
 
     // Add the new filepath to the list
-    filePaths.removeAll(_openFilePath);
-    filePaths.prepend(_openFilePath);
+    filePaths.removeAll(currentFilePath);
+    filePaths.prepend(currentFilePath);
 
     // Save filepaths in QSettings
     QVariantList variantList;
@@ -419,7 +420,7 @@ void MainWindow::OpenDB(const QString& _savefile, bool _resetApp)
     OnResetView();
     myHasUnsavedChanges = false;
     UpdateWindowName();
-    AddFileToOpenRecentList(_savefile);
+    AddFileToOpenRecentList();
 }
 
 
@@ -715,7 +716,7 @@ bool MainWindow::OnSaveDB_Internal(bool _saveAs)
     SaveManager::SaveFile(filePath);
     myHasUnsavedChanges = false;
     UpdateWindowName();
-    AddFileToOpenRecentList(filePath);
+    AddFileToOpenRecentList();
     return true;
 }
 void MainWindow::OnOpenDB()

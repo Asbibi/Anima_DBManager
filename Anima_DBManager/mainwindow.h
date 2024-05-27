@@ -47,7 +47,7 @@ private:
     void ExportAllStructTables(bool _JSON);
     void ExportOneStructTable(int _index, bool _JSON, QString _dir);
 
-    void AddFileToOpenRecentList(const QString& _openFilePath);
+    void AddFileToOpenRecentList();
     void BuildOpenRecentMenu();
     void BuildExportOneStructTableMenu();
     void BuildExportOneStringTableMenu();

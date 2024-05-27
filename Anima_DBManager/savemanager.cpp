@@ -100,7 +100,7 @@ int SaveManager::WriteTempFileOnOpen(const QByteArray& _data, const QString& _te
 void SaveManager::New()
 {
     DB_Manager::GetDB_Manager().Reset();
-    GetSaveManager().myCurrentlyOpenedFile = "";
+    GetSaveManager().SetCurrentlyOpenedFile("");
 }
 void SaveManager::SaveAuto()
 {
@@ -132,6 +132,10 @@ bool SaveManager::HasCurrentFile()
 const QString& SaveManager::GetCurrentSaveFile()
 {
     return GetSaveManager().myCurrentlyOpenedFile;
+}
+void SaveManager::SetCurrentlyOpenedFile(const QString& _file)
+{
+    myCurrentlyOpenedFile = QDir::fromNativeSeparators(_file);
 }
 const QString& SaveManager::GetSaveFileExtension()
 {
@@ -423,7 +427,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
 
     // IX. Remember which file is open
-    myCurrentlyOpenedFile = _saveFilePath;
+    SetCurrentlyOpenedFile(_saveFilePath);
 }
 
 
