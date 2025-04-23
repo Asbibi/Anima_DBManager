@@ -105,7 +105,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(importEnumFromTxtAction, &QAction::triggered, this, &MainWindow::OnImportEnumerator);
 
     exportImportMenu->addSeparator();
-    auto* importEnumFromCodeAction = exportImportMenu->addAction("Import Enumerator from .h file");
+    auto* importEnumFromCodeAction = exportImportMenu->addAction("Import Enumerator from C++ file");
     QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
 
 
@@ -941,7 +941,74 @@ void MainWindow::OnImportEnumerator()
 }
 void MainWindow::OnImportEnumeratorFromCodeFile()
 {
+    QString fileName = QFileDialog::getOpenFileName(this, "Open C++ file with UEnum declaration",
+                                                    DB_Manager::GetDB_Manager().GetProjectSourceFolderPath(),
+                                                    "C++ (*.h *.cpp)");
 
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QTextStream in(&file);
+    QString fileContent = in.readAll();
+
+
+    QStringList enumSections = fileContent.split("UENUM(");
+    if (enumSections.isEmpty())
+    {
+        return;
+    }
+
+    enumSections.removeFirst();
+    int i = -1;
+    DB_Manager& dbManager = DB_Manager::GetDB_Manager();
+    for (const auto& enumSection : enumSections)
+    {
+        i++;
+        int start = enumSection.indexOf('{');
+        int end = enumSection.indexOf('}', start);
+
+        if (start == -1 || end == -1 || end < start)
+        {
+            qDebug() << "Enable to extract the content of the enum " << i << " (chars { and } not found or in the wrong order)";
+            continue;
+        }
+
+        QString enumContent = enumSection.mid(start + 1, end - start - 1);
+
+        static QString prefixEnumName = "enum class E";
+        int startName = enumSection.indexOf(prefixEnumName);
+        QString enumName = "ImportedEnum " + i;
+        if (startName != -1)
+        {
+            int substringStart = startName + prefixEnumName.length();
+            int endPos = enumSection.indexOf(' ', substringStart);
+
+            if (endPos == -1)
+            {
+                endPos = enumSection.indexOf(':', substringStart);
+                if (endPos == -1)
+                {
+                    endPos = enumSection.indexOf('{', substringStart);
+                    if (endPos == -1)
+                    {
+                        continue;
+                    }
+                }
+            }
+            enumName = enumSection.mid(substringStart, endPos - substringStart);
+        }
+
+        int enumIndex = dbManager.AddEnum(Enumerator(enumName));
+        dbManager.AddValuesToEnum(enumIndex, enumContent);
+    }
+
+    file.close();
+    myEnumWidget->UpdateItemList();
 }
 void MainWindow::OnProjectSettings()
 {

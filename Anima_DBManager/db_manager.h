@@ -52,6 +52,7 @@ public:
 
     bool SetProjectContentFolderPath(const QString& _path);
     const QString& GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
+    QString GetProjectSourceFolderPath(bool _homePathIfUnvalid = true) const;
     bool IsProjectContentFolderPathValid() const;
 
     const QString GetAAssetRegex(AttributeTypeHelper::Type _type) const;
@@ -70,7 +71,7 @@ public:
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
-    void AddEnum(const Enumerator& _enum, int _index = -1);
+    int AddEnum(const Enumerator& _enum, int _index = -1);
     void MoveEnum(const int _indexFrom, const int _indexTo);
     bool CanSafelyRemoveEnum(int _index) const;
     void RemoveEnum(int _index);
