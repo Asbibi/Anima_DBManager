@@ -2,6 +2,7 @@
 
 #include "sstringhelper.h"
 #include <QWidget>
+#include <QRegularExpression>
 
 Enumerator::Enumerator(const QString& _name) : name(_name) {}
 Enumerator::Enumerator(const QString& _name, const QString* _values, const int _count) : Enumerator(_name, _values, nullptr, _count) {}
@@ -154,13 +155,35 @@ void Enumerator::SaveEnum_CSV(std::ofstream& file) const
 }
 void Enumerator::AddValues(const QString& _values)
 {
-    QStringList potentialValues = _values.split(',', Qt::SkipEmptyParts);
-    for (const auto& potentialValue : potentialValues)
+    // Remove all comment blocks
+    QString valuesWithouCommentBlocks = _values;
+    static QRegularExpression commentBlockRegex = QRegularExpression(R"(/\*.*?\*/)");
+    valuesWithouCommentBlocks = valuesWithouCommentBlocks.replace(commentBlockRegex, "");
+
+    int startOfCommentBlock = valuesWithouCommentBlocks.indexOf("/*");
+    if (startOfCommentBlock != -1)
     {
-        QString cleanValue = potentialValue.simplified().section('/',0,0).section('=',0,0).replace(" ","");
-        if (cleanValue.length() > 0)
+        valuesWithouCommentBlocks = valuesWithouCommentBlocks.left(startOfCommentBlock);
+    }
+
+    QStringList lines = valuesWithouCommentBlocks.split('\n', Qt::SkipEmptyParts);
+    for (const auto& line : lines)
+    {
+        QStringList potentialValues = line.split(',', Qt::SkipEmptyParts);
+        for (const auto& potentialValue : potentialValues)
         {
-            AddValue(cleanValue);
+            QString cleanValue = potentialValue;
+            int startOfCommentLine = potentialValue.indexOf("//");
+            if (startOfCommentLine != -1)
+            {
+                cleanValue = cleanValue.left(startOfCommentLine);
+            }
+
+            cleanValue = cleanValue.simplified().section('=',0,0).replace(" ","");
+            if (cleanValue.length() > 0)
+            {
+                AddValue(cleanValue);
+            }
         }
     }
 }
