@@ -152,3 +152,15 @@ void Enumerator::SaveEnum_CSV(std::ofstream& file) const
         file << GetValue(i).toStdString() << '|' << GetColorHex(i).toStdString() << '\n';
     }
 }
+void Enumerator::AddValues(const QString& _values)
+{
+    QStringList potentialValues = _values.split(',', Qt::SkipEmptyParts);
+    for (const auto& potentialValue : potentialValues)
+    {
+        QString cleanValue = potentialValue.simplified().section('/',0,0).section('=',0,0).replace(" ","");
+        if (cleanValue.length() > 0)
+        {
+            AddValue(cleanValue);
+        }
+    }
+}

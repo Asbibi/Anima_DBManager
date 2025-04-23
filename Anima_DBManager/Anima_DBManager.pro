@@ -56,6 +56,7 @@ SOURCES += \
     qcoloreditor.cpp \
     qdatatable.cpp \
     qelementhandler.cpp \
+    qimportenumfromtextdialog.cpp \
     qimportstringdialog.cpp \
     qimportstructdialog.cpp \
     qlistwithsearch.cpp \
@@ -136,6 +137,7 @@ HEADERS += \
     qcoloreditor.h \
     qdatatable.h \
     qelementhandler.h \
+    qimportenumfromtextdialog.h \
     qimportstringdialog.h \
     qimportstructdialog.h \
     qlistwithsearch.h \

@@ -23,6 +23,7 @@
 #include "qsstringtable.h"
 #include "qimportstringdialog.h"
 #include "qimportstructdialog.h"
+#include "qimportenumfromtextdialog.h"
 #include "qprojectdialog.h"
 #include "qpanelsearch.h"
 
@@ -100,6 +101,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(importStructAction, &QAction::triggered, this, &MainWindow::OnImportStuctTable);
     auto* importStringAction = exportImportMenu->addAction("Import String Table");
     QObject::connect(importStringAction, &QAction::triggered, this, &MainWindow::OnImportStringTable);
+    auto* importEnumFromTxtAction = exportImportMenu->addAction("Import Enumerator");
+    QObject::connect(importEnumFromTxtAction, &QAction::triggered, this, &MainWindow::OnImportEnumerator);
+
+    exportImportMenu->addSeparator();
+    auto* importEnumFromCodeAction = exportImportMenu->addAction("Import Enumerator from .h file");
+    QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
 
 
     for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
@@ -920,6 +927,21 @@ void MainWindow::OnImportStuctTable()
     }
 
     delete dialog;
+}
+void MainWindow::OnImportEnumerator()
+{
+    auto* dialog = new QImportEnumFromTextDialog(this);
+    dialog->exec();
+    int res = dialog->result();
+    if (res == QDialog::Accepted)
+    {
+        myEnumWidget->UpdateItemList();
+    }
+    delete dialog;
+}
+void MainWindow::OnImportEnumeratorFromCodeFile()
+{
+
 }
 void MainWindow::OnProjectSettings()
 {

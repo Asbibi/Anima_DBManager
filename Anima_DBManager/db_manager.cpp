@@ -414,6 +414,14 @@ void DB_Manager::UpdateEnumName(int _index, const QString& _name)
     enumerators[_index].SetName(_name);
     emit AcknowledgeChange();
 }
+void DB_Manager::AddValuesToEnum(int _index, const QString& _values)
+{
+    if (_index < 0 || _index >= (int)enumerators.size())
+        return;
+
+    enumerators[_index].AddValues(_values);
+    emit AcknowledgeChange();
+}
 
 
 

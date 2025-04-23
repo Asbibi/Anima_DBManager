@@ -76,6 +76,7 @@ public:
     void RemoveEnum(int _index);
     void UpdateEnum(int _index, const Enumerator& _another);
     void UpdateEnumName(int _index, const QString& _name);
+    void AddValuesToEnum(int _index, const QString& _values);
 
     void RegisterAttributeParam(AttributeParam* _param);
     void UnregisterAttributeParam(AttributeParam* _param);

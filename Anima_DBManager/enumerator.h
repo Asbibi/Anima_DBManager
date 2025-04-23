@@ -43,6 +43,7 @@ public:
     void RemoveValue(int _index);
 
     void SaveEnum_CSV(std::ofstream& file) const;
+    void AddValues(const QString& _values);
 };
 
 #endif // ENUMERATOR_H
