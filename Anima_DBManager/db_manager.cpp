@@ -51,6 +51,15 @@ bool DB_Manager::SetProjectContentFolderPath(const QString& _path)
 const QString& DB_Manager::GetProjectContentFolderPath(bool _homePathIfUnvalid) const {
     return myProjectPathIsValid || !_homePathIfUnvalid ? myProjectContentFolderPath : myHomePath;
 }
+QString DB_Manager::GetProjectSourceFolderPath(bool _homePathIfUnvalid) const
+{
+    const QString& projectPath = GetProjectContentFolderPath(_homePathIfUnvalid);
+    if (projectPath.endsWith("Content"))
+    {
+        return projectPath.chopped(7).append("Source");
+    }
+    return projectPath;
+}
 bool DB_Manager::IsProjectContentFolderPathValid() const
 {
     return myProjectPathIsValid;
@@ -327,7 +336,21 @@ const Enumerator* DB_Manager::GetEnum(int _index) const
 
     return &enumerators[_index];
 }
-void DB_Manager::AddEnum(const Enumerator& _enum, int _index)
+int DB_Manager::GetIndexOfFirstEnumWithName(const QString& _name) const
+{
+    int i = 0;
+    for (auto& enumerator : enumerators)
+    {
+        if (enumerator.GetName() == _name)
+        {
+            return i;
+        }
+        i++;
+    }
+
+    return -1;
+}
+int DB_Manager::AddEnum(const Enumerator& _enum, int _index)
 {
     const int enumCount = enumerators.size();
     if (_index < 0 || _index > enumCount)
@@ -341,6 +364,7 @@ void DB_Manager::AddEnum(const Enumerator& _enum, int _index)
     }
     enumerators.insert(_index, _enum);
     emit AcknowledgeChange();
+    return _index;
 }
 void DB_Manager::MoveEnum(const int _indexFrom, const int _indexTo)
 {
@@ -412,6 +436,14 @@ void DB_Manager::UpdateEnumName(int _index, const QString& _name)
         return;
 
     enumerators[_index].SetName(_name);
+    emit AcknowledgeChange();
+}
+void DB_Manager::AddValuesToEnum(int _index, const QString& _values)
+{
+    if (_index < 0 || _index >= (int)enumerators.size())
+        return;
+
+    enumerators[_index].AddValues(_values);
     emit AcknowledgeChange();
 }
 

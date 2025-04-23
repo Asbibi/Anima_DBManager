@@ -23,6 +23,7 @@
 #include "qsstringtable.h"
 #include "qimportstringdialog.h"
 #include "qimportstructdialog.h"
+#include "qimportenumfromtextdialog.h"
 #include "qprojectdialog.h"
 #include "qpanelsearch.h"
 
@@ -100,6 +101,12 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(importStructAction, &QAction::triggered, this, &MainWindow::OnImportStuctTable);
     auto* importStringAction = exportImportMenu->addAction("Import String Table");
     QObject::connect(importStringAction, &QAction::triggered, this, &MainWindow::OnImportStringTable);
+    auto* importEnumFromTxtAction = exportImportMenu->addAction("Import Enumerator");
+    QObject::connect(importEnumFromTxtAction, &QAction::triggered, this, &MainWindow::OnImportEnumerator);
+
+    exportImportMenu->addSeparator();
+    auto* importEnumFromCodeAction = exportImportMenu->addAction("Import Enumerator from C++ file");
+    QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
 
 
     for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
@@ -920,6 +927,92 @@ void MainWindow::OnImportStuctTable()
     }
 
     delete dialog;
+}
+void MainWindow::OnImportEnumerator()
+{
+    auto* dialog = new QImportEnumFromTextDialog(this);
+    dialog->exec();
+    int res = dialog->result();
+    if (res == QDialog::Accepted)
+    {
+        myEnumWidget->UpdateItemList();
+    }
+    delete dialog;
+}
+void MainWindow::OnImportEnumeratorFromCodeFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Open C++ file with UEnum declaration",
+                                                    DB_Manager::GetDB_Manager().GetProjectSourceFolderPath(),
+                                                    "C++ (*.h *.cpp)");
+
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QTextStream in(&file);
+    QString fileContent = in.readAll();
+
+
+    QStringList enumSections = fileContent.split("UENUM(");
+    if (enumSections.isEmpty())
+    {
+        return;
+    }
+
+    enumSections.removeFirst();
+    int i = -1;
+    DB_Manager& dbManager = DB_Manager::GetDB_Manager();
+    for (const auto& enumSection : enumSections)
+    {
+        i++;
+        int start = enumSection.indexOf('{');
+        int end = enumSection.indexOf('}', start);
+
+        if (start == -1 || end == -1 || end < start)
+        {
+            qDebug() << "Enable to extract the content of the enum " << i << " (chars { and } not found or in the wrong order)";
+            continue;
+        }
+
+        QString enumContent = enumSection.mid(start + 1, end - start - 1);
+
+        static QString prefixEnumName = "enum class E";
+        int startName = enumSection.indexOf(prefixEnumName);
+        QString enumName = "ImportedEnum " + i;
+        if (startName != -1)
+        {
+            int substringStart = startName + prefixEnumName.length();
+            int endPos = enumSection.indexOf(' ', substringStart);
+
+            if (endPos == -1)
+            {
+                endPos = enumSection.indexOf(':', substringStart);
+                if (endPos == -1)
+                {
+                    endPos = enumSection.indexOf('{', substringStart);
+                    if (endPos == -1)
+                    {
+                        continue;
+                    }
+                }
+            }
+            enumName = enumSection.mid(substringStart, endPos - substringStart);
+        }
+
+        int enumIndex = dbManager.GetIndexOfFirstEnumWithName(enumName);
+        if (enumIndex == -1)
+        {
+            enumIndex = dbManager.AddEnum(Enumerator(enumName));
+        }
+        dbManager.AddValuesToEnum(enumIndex, enumContent);
+    }
+
+    file.close();
+    myEnumWidget->UpdateItemList();
 }
 void MainWindow::OnProjectSettings()
 {
