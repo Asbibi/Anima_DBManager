@@ -32,6 +32,7 @@ private:
     void SaveAutoInternal();
     void SaveFileInternal(const QString& _saveFilePath, bool _isAutoSave = false);
     void OpenFileInternal(const QString& _saveFilePath);
+    void SetCurrentlyOpenedFile(const QString& _file);
 
     void ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessStringTempFile(const QString& _tempFolderPath);
