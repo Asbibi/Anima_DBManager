@@ -1003,7 +1003,11 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
             enumName = enumSection.mid(substringStart, endPos - substringStart);
         }
 
-        int enumIndex = dbManager.AddEnum(Enumerator(enumName));
+        int enumIndex = dbManager.GetIndexOfFirstEnumWithName(enumName);
+        if (enumIndex == -1)
+        {
+            enumIndex = dbManager.AddEnum(Enumerator(enumName));
+        }
         dbManager.AddValuesToEnum(enumIndex, enumContent);
     }
 

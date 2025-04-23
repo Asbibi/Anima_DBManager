@@ -71,6 +71,7 @@ public:
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
+    int GetIndexOfFirstEnumWithName(const QString& _name) const;
     int AddEnum(const Enumerator& _enum, int _index = -1);
     void MoveEnum(const int _indexFrom, const int _indexTo);
     bool CanSafelyRemoveEnum(int _index) const;

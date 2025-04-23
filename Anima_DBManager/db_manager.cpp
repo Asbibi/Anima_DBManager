@@ -336,6 +336,20 @@ const Enumerator* DB_Manager::GetEnum(int _index) const
 
     return &enumerators[_index];
 }
+int DB_Manager::GetIndexOfFirstEnumWithName(const QString& _name) const
+{
+    int i = 0;
+    for (auto& enumerator : enumerators)
+    {
+        if (enumerator.GetName() == _name)
+        {
+            return i;
+        }
+        i++;
+    }
+
+    return -1;
+}
 int DB_Manager::AddEnum(const Enumerator& _enum, int _index)
 {
     const int enumCount = enumerators.size();
