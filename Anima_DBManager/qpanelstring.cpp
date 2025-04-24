@@ -98,6 +98,7 @@ void QPanelString::OnSelectDictionnary()
     const SStringTable* dictionnary = DB_Manager::GetDB_Manager().GetDictionnary();
 
     mySubGroupBox->setStyleSheet("QGroupBox::title { color: #4DAFFF; }");
+    mySubGroupBox->setTitle("Edit Dictionnary");
     mySubGroupBox->show();
     auto strings = dictionnary->GetStringItems();
     for (const auto& str : strings)
@@ -119,6 +120,7 @@ void QPanelString::OnItemSelected(const int _index)
     }
 
     mySubGroupBox->setStyleSheet("QGroupBox::title { color: black; }");
+    mySubGroupBox->setTitle("Edit Selected String Table");
     mySubGroupBox->show();
     auto strings = currentTable->GetStringItems();
     for (const auto& str : strings)

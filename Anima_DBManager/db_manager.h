@@ -136,6 +136,7 @@ public:
 
     const SStringTable* GetDictionnary() const;
     SStringTable* GetDictionnary();
+    void ReplaceDictionnaryWithLastStringTable();
 
     void AskFocusOnStringItem(const int _tableIndex, const int _stringIndex, const int _languageIndex = -1, const bool _forceFocus = false);
     void AskUpdateOnStringTable(const int _tableIndex);
@@ -164,6 +165,7 @@ signals:
     void StructAttributeNameChanged(const int _tableIndex);
 
     void ResetView();
+    void DictionnaryChanged();
 
     void AcknowledgeChange();
     void AutoSaveFeedback(bool _showFeedback);

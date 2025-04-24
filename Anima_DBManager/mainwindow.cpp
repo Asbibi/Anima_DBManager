@@ -648,6 +648,10 @@ void MainWindow::OnResetView()
     CleanTabWidget(myTabStruct);
     CleanTabWidget(myTabString);
 
+    QSStringTable* stringTable = new QSStringTable(-1);
+    myTabString->insertTab(0, stringTable, "DICTIONNARY");
+    UpdateStringTabStyle();
+
     const int stringTableCount = myManager.GetStringTableCount();
     for (int i = 0; i < stringTableCount; i++)
     {
@@ -660,6 +664,7 @@ void MainWindow::OnResetView()
         OnStructItemChanged(i);
     }
 }
+
 
 void MainWindow::OnAcknowledgeChange()
 {

@@ -984,6 +984,7 @@ QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& 
 
     return (myStr->length() > 15) ? (myStr->left(15) + "<font color=\"blue\">[...]</font>") : *myStr;  //<font color=\"blue\">Hello</font> //"[...]"
 }
+
 const SStringTable* DB_Manager::GetDictionnary() const
 {
     return &myStringTableDictionnary;
@@ -991,6 +992,17 @@ const SStringTable* DB_Manager::GetDictionnary() const
 SStringTable* DB_Manager::GetDictionnary()
 {
     return &myStringTableDictionnary;
+}
+void DB_Manager::ReplaceDictionnaryWithLastStringTable()
+{
+    int dictionnaryTableIndex = GetStringTableIndex("DICTIONNARY");
+    if (dictionnaryTableIndex < 0)
+    {
+        return;
+    }
+
+    myStringTableDictionnary = *GetStringTable(dictionnaryTableIndex);
+    RemoveStringTable(dictionnaryTableIndex);
 }
 
 

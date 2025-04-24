@@ -184,7 +184,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
     // I. String table save
 
-    const int stringTableCount = dbManager.GetStringTableCount();
+    const int stringTableCount = dbManager.GetStringTableCount() + 1; // +1 to include the DICTIONNARY
     QMap<int, QString> languageCodeMap;
     for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
     {
@@ -403,7 +403,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // IV. String Table
 
-    ProcessStringTempFile(tempFolderPath);
+    ProcessStringTempFile(tempFolderPath, dbManager);
 
 
     // V. Enums
@@ -456,7 +456,7 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     Q_ASSERT(proIn.atEnd());
     projectFile.close();
 }
-void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath)
+void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
 {
     QMap<QString, SStringImporter> importerMap;
 
@@ -520,14 +520,14 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath)
         curentFileStream = nullptr;
     }
 
-
-
-
     auto stringTableNames = importerMap.keys();
     for (const auto& tableName : stringTableNames)
     {
         importerMap[tableName].PerformImport(-1, 0, tableName);
     }
+
+
+    _dbManager.ReplaceDictionnaryWithLastStringTable();
 
     file.close();
 }
@@ -632,7 +632,7 @@ bool SaveManager::GetHasUnsavedChanges()
 {
     return GetSaveManager().myHasUnsavedChanges;
 }
-bool SaveManager::AcknowledgeUnsavedChanges()
+void SaveManager::AcknowledgeUnsavedChanges()
 {
     GetSaveManager().myHasUnsavedChanges = true;
 }
