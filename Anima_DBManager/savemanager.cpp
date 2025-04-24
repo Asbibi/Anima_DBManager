@@ -206,7 +206,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
         for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
         {
             csvStringFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###";
-            table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l);
+            table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l, false);
             csvStringFile << '\n';
         }
     }

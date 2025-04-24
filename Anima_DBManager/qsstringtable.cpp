@@ -57,7 +57,7 @@ void QSStringTable::UpdateIndex(int _strTableIndex)
     myStringTableIndex = _strTableIndex;
 }
 
-void QSStringTable::ExportStringsToCSV(const QString _directoryPath, SStringHelper::SStringLanguages _language)
+void QSStringTable::ExportStringsToCSV(const QString _directoryPath, SStringHelper::SStringLanguages _language, bool _withDictionnaryReplacement)
 {
     Q_ASSERT(_language != SStringHelper::SStringLanguages::Count && !_directoryPath.isEmpty());
     SStringTable& stringTable = GetTable();
@@ -73,7 +73,7 @@ void QSStringTable::ExportStringsToCSV(const QString _directoryPath, SStringHelp
     }
 
     csvFile << "Key,SourceString";
-    stringTable.WriteValue_CSV(csvFile, _language);
+    stringTable.WriteValue_CSV(csvFile, _language, _withDictionnaryReplacement);
 
     csvFile.close();
 }

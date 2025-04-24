@@ -26,7 +26,7 @@ public:
     void SetIdentifier(const QString& _identifier);
     void SetString(SStringHelper::SStringLanguages _language, const QString& _str);
 
-    void WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language) const;
+    void WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionnaryReplacement) const;
 };
 
 #endif // SSTRINGITEM_H

@@ -117,6 +117,25 @@ void IncrementLanguage(SStringLanguages& _language)
     _language = (SStringLanguages)l;
 }
 
+
+void ReplaceDictionnaryReferenceInString(QString& _string, SStringHelper::SStringLanguages _language)
+{
+    static QRegularExpression dictionnaryIdRegex(R"(\$(.*?)\$)");
+
+    const SStringTable* dictionnary = DB_Manager::GetDB_Manager().GetDictionnary();
+    Q_ASSERT(dictionnary != nullptr);
+
+    QString copy = _string;
+    QRegularExpressionMatchIterator matchIterator = dictionnaryIdRegex.globalMatch(copy);
+    while (matchIterator.hasNext())
+    {
+        QRegularExpressionMatch match = matchIterator.next();
+        QString indicator = match.captured(1); // Extracts text between '$'
+        const QString* dictionnaryString = dictionnary->GetString(indicator, _language);
+        _string.replace(match.captured(0), dictionnaryString != nullptr ? *dictionnaryString : "");
+    }
+}
+
 const QString& GetEmptyStringReference()
 {
     static QString emptyStringRef = "";

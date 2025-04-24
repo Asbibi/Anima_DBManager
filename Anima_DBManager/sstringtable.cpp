@@ -304,11 +304,11 @@ void SStringTable::ImportString(SStringHelper::SStringLanguages _language, const
 
 
 
-void SStringTable::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language) const
+void SStringTable::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionnaryReplacement) const
 {
     for (const auto& stringItem : myStrings)
     {
         _file << '\n';
-        stringItem.WriteValue_CSV(_file, _language);
+        stringItem.WriteValue_CSV(_file, _language, _withDictionnaryReplacement);
     }
 }
