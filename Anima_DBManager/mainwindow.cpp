@@ -147,7 +147,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QSStringTable* stringTable = new QSStringTable(-1);
     QObject::connect(myTabString, &QTabWidget::currentChanged, this, &MainWindow::OnCurrentStringTabCHanged);
-    myTabString->insertTab(0, stringTable, "DICTIONNARY");
+    myTabString->insertTab(0, stringTable, "DICTIONARY");
     UpdateStringTabStyle();
 
 
@@ -452,7 +452,7 @@ void MainWindow::UpdateStringTabStyle()
 void MainWindow::OnStringTableAdded(const int _index)
 {
     SStringTable* sTable = myManager.GetStringTable(_index);
-    if (sTable == myManager.GetDictionnary())
+    if (sTable == myManager.GetDictionary())
         return;
 
     QSStringTable* stringTable = new QSStringTable(_index);
@@ -655,7 +655,7 @@ void MainWindow::OnResetView()
     CleanTabWidget(myTabString);
 
     QSStringTable* stringTable = new QSStringTable(-1);
-    myTabString->insertTab(0, stringTable, "DICTIONNARY");
+    myTabString->insertTab(0, stringTable, "DICTIONARY");
     UpdateStringTabStyle();
 
     const int stringTableCount = myManager.GetStringTableCount();
@@ -814,7 +814,7 @@ void MainWindow::OnExportCurrentStringTable(SStringHelper::SStringLanguages _lan
 {
     if (myTabString->currentIndex() == 0)
     {
-        // Dictionnary
+        // Dictionary
         return;
     }
 
@@ -834,7 +834,7 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
     }
 
     int widgetCount = myTabString->count();
-    for (int i = 1; i < widgetCount; i++)   // starts at 1 to avoid dictionnary
+    for (int i = 1; i < widgetCount; i++)   // starts at 1 to avoid dictionary
     {
         ExportOneStringTable(i, _language, dir);
     }
@@ -842,7 +842,7 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
 void MainWindow::ExportOneStringTable(int _index, SStringHelper::SStringLanguages _language, QString _dir)
 {
     QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_index));
-    if(tab == nullptr || _index == 0)   // index 0 is for the dictionnary string table
+    if(tab == nullptr || _index == 0)   // index 0 is for the dictionary string table
     {
         return;
     }

@@ -118,21 +118,21 @@ void IncrementLanguage(SStringLanguages& _language)
 }
 
 
-void ReplaceDictionnaryReferenceInString(QString& _string, SStringHelper::SStringLanguages _language)
+void ReplaceDictionaryReferenceInString(QString& _string, SStringHelper::SStringLanguages _language)
 {
-    static QRegularExpression dictionnaryIdRegex(R"(\$(.*?)\$)");
+    static QRegularExpression dictionaryIdRegex(R"(\$(.*?)\$)");
 
-    const SStringTable* dictionnary = DB_Manager::GetDB_Manager().GetDictionnary();
-    Q_ASSERT(dictionnary != nullptr);
+    const SStringTable* dictionary = DB_Manager::GetDB_Manager().GetDictionary();
+    Q_ASSERT(dictionary != nullptr);
 
     QString copy = _string;
-    QRegularExpressionMatchIterator matchIterator = dictionnaryIdRegex.globalMatch(copy);
+    QRegularExpressionMatchIterator matchIterator = dictionaryIdRegex.globalMatch(copy);
     while (matchIterator.hasNext())
     {
         QRegularExpressionMatch match = matchIterator.next();
         QString indicator = match.captured(1); // Extracts text between '$'
-        const QString* dictionnaryString = dictionnary->GetString(indicator, _language);
-        _string.replace(match.captured(0), dictionnaryString != nullptr ? *dictionnaryString : "");
+        const QString* dictionaryString = dictionary->GetString(indicator, _language);
+        _string.replace(match.captured(0), dictionaryString != nullptr ? *dictionaryString : "");
     }
 }
 

@@ -53,12 +53,12 @@ void SStringItem::SetString(SStringHelper::SStringLanguages _language, const QSt
         myStrings[_language] = _str;
 }
 
-void SStringItem::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionnaryReplacement) const
+void SStringItem::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement) const
 {
     QString stringCpy = myStrings[_language];
-    if (_withDictionnaryReplacement)
+    if (_withDictionaryReplacement)
     {
-        SStringHelper::ReplaceDictionnaryReferenceInString(stringCpy, _language);
+        SStringHelper::ReplaceDictionaryReferenceInString(stringCpy, _language);
     }
 
     _file << "\"" << myIdentifier.toStdString() << "\",\"" << stringCpy.replace('\n',"\\n").toStdString() << "\"";

@@ -12,7 +12,7 @@ class QPanelString : public QPanelWithCount
     Q_OBJECT
 private:
     QListWithSearch* mySearchList;
-    bool myFocusOndictionnary = false;
+    bool myFocusOndictionary = false;
 
     void LoadStringTable(const SStringTable* _table);
 
@@ -44,7 +44,7 @@ public slots:
     void OnSortAscClicked();
     void OnSortDescClicked();
 
-    void OnSelectDictionnary();
+    void OnSelectDictionary();
 };
 
 #endif // QPANELSTRING_H

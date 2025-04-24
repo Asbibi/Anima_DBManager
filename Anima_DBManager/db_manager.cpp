@@ -301,7 +301,7 @@ void DB_Manager::Reset()
     {
         RemoveEnum(i);
     }
-    myStringTableDictionnary = SStringTable("DICTIONNARY");
+    myStringTableDictionary = SStringTable("DICTIONARY");
     //myStructures.clear();
     //enumerators.clear();
     //myStringTables.clear();
@@ -848,14 +848,14 @@ int DB_Manager::GetStringTableCount() const
 const SStringTable* DB_Manager::GetStringTable(int _index) const
 {
     if (_index < 0 || _index >= GetStringTableCount())
-        return GetDictionnary();
+        return GetDictionary();
 
     return &myStringTables[_index];
 }
 const SStringTable* DB_Manager::GetStringTable(const QString& _tableName) const
 {    
     const SStringTable* table = GetStringTable(GetStringTableIndex(_tableName));
-    if (table == GetDictionnary())
+    if (table == GetDictionary())
     {
         return nullptr;
     }
@@ -864,14 +864,14 @@ const SStringTable* DB_Manager::GetStringTable(const QString& _tableName) const
 SStringTable* DB_Manager::GetStringTable(int _index)
 {
     if (_index < 0 || _index >= GetStringTableCount())
-        return GetDictionnary();
+        return GetDictionary();
 
     return &myStringTables[_index];
 }
 SStringTable* DB_Manager::GetStringTable(const QString& _tableName)
 {
     SStringTable* table = GetStringTable(GetStringTableIndex(_tableName));
-    if (table == GetDictionnary())
+    if (table == GetDictionary())
     {
         return nullptr;
     }
@@ -964,7 +964,7 @@ void DB_Manager::SetStringTableItemCount(const int _index, const int _count)
 bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const
 {
     const auto* stringTable = GetStringTable(_tableId);
-    if (stringTable == GetDictionnary())
+    if (stringTable == GetDictionary())
         return false;
 
     const auto* string = stringTable->GetStringItem(_stringId);
@@ -985,24 +985,24 @@ QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& 
     return (myStr->length() > 15) ? (myStr->left(15) + "<font color=\"blue\">[...]</font>") : *myStr;  //<font color=\"blue\">Hello</font> //"[...]"
 }
 
-const SStringTable* DB_Manager::GetDictionnary() const
+const SStringTable* DB_Manager::GetDictionary() const
 {
-    return &myStringTableDictionnary;
+    return &myStringTableDictionary;
 }
-SStringTable* DB_Manager::GetDictionnary()
+SStringTable* DB_Manager::GetDictionary()
 {
-    return &myStringTableDictionnary;
+    return &myStringTableDictionary;
 }
-void DB_Manager::ReplaceDictionnaryWithLastStringTable()
+void DB_Manager::ReplaceDictionaryWithLastStringTable()
 {
-    int dictionnaryTableIndex = GetStringTableIndex("DICTIONNARY");
-    if (dictionnaryTableIndex < 0)
+    int dictionaryTableIndex = GetStringTableIndex("DICTIONARY");
+    if (dictionaryTableIndex < 0)
     {
         return;
     }
 
-    myStringTableDictionnary = *GetStringTable(dictionnaryTableIndex);
-    RemoveStringTable(dictionnaryTableIndex);
+    myStringTableDictionary = *GetStringTable(dictionaryTableIndex);
+    RemoveStringTable(dictionaryTableIndex);
 }
 
 

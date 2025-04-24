@@ -184,7 +184,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
     // I. String table save
 
-    const int stringTableCount = dbManager.GetStringTableCount() + 1; // +1 to include the DICTIONNARY
+    const int stringTableCount = dbManager.GetStringTableCount() + 1; // +1 to include the DICTIONARY
     QMap<int, QString> languageCodeMap;
     for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
     {
@@ -527,7 +527,7 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manag
     }
 
 
-    _dbManager.ReplaceDictionnaryWithLastStringTable();
+    _dbManager.ReplaceDictionaryWithLastStringTable();
 
     file.close();
 }

@@ -49,7 +49,7 @@ public:
     void SetItemString(int _row, SStringHelper::SStringLanguages _col, const QString& _text);
     void ImportString(SStringHelper::SStringLanguages _language, const QString& _identifier, const QString& _text, int _overwritePolicy);
 
-    void WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionnaryReplacement) const;
+    void WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement) const;
 };
 
 #endif // SSTRINGTABLE_H
