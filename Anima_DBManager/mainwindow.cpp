@@ -87,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     exportImportMenu->addSeparator();
 
-    QMenu* exportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
+    myExportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
     myExportOneStringMenu = exportImportMenu->addMenu("Export One String Table");
     QMenu* exportAllStringsMenu = exportImportMenu->addMenu("Export All String Tables");
     BuildExportOneStringTableMenu();
@@ -112,13 +112,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
     {
-        auto* exportCurrentStringAction = exportCurrentStringMenu->addAction("Export Current in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
+        auto* exportCurrentStringAction = myExportCurrentStringMenu->addAction("Export Current in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
         QObject::connect(exportCurrentStringAction, &QAction::triggered, this, [this, i]{OnExportCurrentStringTable((SStringHelper::SStringLanguages)i);});
 
         auto* exportAllStringAction = exportAllStringsMenu->addAction("Export All in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
         QObject::connect(exportAllStringAction, &QAction::triggered, this, [this, i]{OnExportAllStringTables((SStringHelper::SStringLanguages)i);});
     }
-    auto* exportCurrentStringAllLanguage = exportCurrentStringMenu->addAction("Export Current in All Languages");
+    auto* exportCurrentStringAllLanguage = myExportCurrentStringMenu->addAction("Export Current in All Languages");
     QObject::connect(exportCurrentStringAllLanguage, &QAction::triggered, this, [this]{OnExportCurrentStringTable(SStringHelper::SStringLanguages::Count);});
     auto* exportAllStringAllLanguage = exportAllStringsMenu->addAction("Export All in All Languages");
     QObject::connect(exportAllStringAllLanguage, &QAction::triggered, this, [this]{OnExportAllStringTables(SStringHelper::SStringLanguages::Count);});
@@ -146,8 +146,10 @@ MainWindow::MainWindow(QWidget *parent) :
     myTableToolBox->addItem(myTabString, "Table Strings");
 
     QSStringTable* stringTable = new QSStringTable(-1);
+    QObject::connect(myTabString, &QTabWidget::currentChanged, this, &MainWindow::OnCurrentStringTabCHanged);
     myTabString->insertTab(0, stringTable, "DICTIONNARY");
     UpdateStringTabStyle();
+
 
     //---------
 
@@ -530,6 +532,10 @@ void MainWindow::OnStringItemChanged(const int _tableIndex)
         return;
 
     currentTab->UpdateTable();
+}
+void MainWindow::OnCurrentStringTabCHanged(int _tabIndex)
+{
+    myExportCurrentStringMenu->setEnabled(_tabIndex > 0);
 }
 
 

@@ -23,6 +23,7 @@ private:
 
     QMenuBar* myMenuBar;
     QMenu* myOpenRecentMenu;
+    QMenu* myExportCurrentStringMenu;
     QMenu* myExportOneStructMenu;
     QMenu* myExportOneStringMenu;
 
@@ -75,6 +76,7 @@ public slots:
     void OnStringTableChanged(const int _tableIndex);
     void OnStringItemFocus(const int _tableIndex, const int _index, const int _languageIndex, const bool _forceFocus);
     void OnStringItemChanged(const int _tableIndex);
+    void OnCurrentStringTabCHanged(int _tabIndex);
 
     void OnStructTableAdded(const int _index);
     void OnStructTableMoved(const int _indexFrom, const int _indexTo);
