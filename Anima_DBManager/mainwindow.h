@@ -54,6 +54,8 @@ private:
     void SaveQSettings() const;
     void LoadQSettings();
 
+    void UpdateStringTabStyle();
+
 
 public:
     MainWindow(QWidget *parent = nullptr);

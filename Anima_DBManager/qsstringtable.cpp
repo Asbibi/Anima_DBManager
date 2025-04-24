@@ -39,7 +39,15 @@ void QSStringTable::PrivateUpdate()
 
 SStringTable& QSStringTable::GetTable()
 {
-    auto * table = DB_Manager::GetDB_Manager().GetStringTable(myStringTableIndex);
+    SStringTable* table = nullptr;
+    if (myStringTableIndex < 0)
+    {
+        table = DB_Manager::GetDB_Manager().GetDictionnary();
+    }
+    else
+    {
+        table = DB_Manager::GetDB_Manager().GetStringTable(myStringTableIndex);
+    }
     Q_ASSERT(table != nullptr);
     return *table;
 }

@@ -12,7 +12,20 @@
 QPanelString::QPanelString(QWidget *parent)
     : QPanelWithCount{"String Table", true, parent}
 {
-    QLayout* myLayout = layout();
+    QVBoxLayout* myLayout = (QVBoxLayout*)layout();
+
+    QGroupBox* dictionnaryGroupBox = new QGroupBox("Dictionnary");
+    QFormLayout* dictionnaryLayout = new QFormLayout();
+    dictionnaryGroupBox->setLayout(dictionnaryLayout);
+    QPushButton* accessDictionnary = new QPushButton("Edit Dictionnary");
+    QObject::connect(accessDictionnary, &QPushButton::clicked, this, &QPanelString::OnSelectDictionnary);
+    /*QPalette pal = accessDictionnary->palette();
+    pal.setColor(QPalette::Button, QColor(Qt::blue));
+    accessDictionnary->setPalette(pal);
+    accessDictionnary->update();*/
+    accessDictionnary->setStyleSheet("background-color: #B6DEFF;");
+    dictionnaryLayout->addRow("Access:", accessDictionnary);
+    myLayout->insertWidget(0, dictionnaryGroupBox);
 
     mySubGroupBox = new QGroupBox("Edit Selected String Table");
     QFormLayout* editLayout = new QFormLayout();
@@ -75,17 +88,37 @@ void QPanelString::UpdateItemList()
 }
 
 
+void QPanelString::OnSelectDictionnary()
+{
+    myItemList->SelectItemAt(-1);
+
+    myFocusOndictionnary = true;
+    mySearchList->ResetValues();
+
+    const SStringTable* dictionnary = DB_Manager::GetDB_Manager().GetDictionnary();
+
+    mySubGroupBox->setStyleSheet("QGroupBox::title { color: #4DAFFF; }");
+    mySubGroupBox->show();
+    auto strings = dictionnary->GetStringItems();
+    for (const auto& str : strings)
+    {
+        mySearchList->AddItemAtEnd_NoEmit(str.GetIdentifier());
+    }
+    RefreshItemCount(-1);
+}
 void QPanelString::OnItemSelected(const int _index)
 {
+    myFocusOndictionnary = false;
     mySearchList->ResetValues();
 
     SStringTable* currentTable = DB_Manager::GetDB_Manager().GetStringTable(_index);
-    if (!currentTable)
+    if (currentTable == DB_Manager::GetDB_Manager().GetDictionnary())
     {
         mySubGroupBox->hide();
         return;
     }
 
+    mySubGroupBox->setStyleSheet("QGroupBox::title { color: black; }");
     mySubGroupBox->show();
     auto strings = currentTable->GetStringItems();
     for (const auto& str : strings)
@@ -122,9 +155,7 @@ void QPanelString::OnItemRemoved(const int _index)
 
 #define GET_CURRENT_STRING_TABLE() \
 const int currentTableIndex = myItemList->GetCurrent(); \
-SStringTable* currentTable = DB_Manager::GetDB_Manager().GetStringTable(currentTableIndex); \
-if (!currentTable) \
-    return
+SStringTable* currentTable = myFocusOndictionnary ? DB_Manager::GetDB_Manager().GetDictionnary() : DB_Manager::GetDB_Manager().GetStringTable(currentTableIndex);
 
 
 void QPanelString::OnSubItemSelected(const int _index)

@@ -29,6 +29,7 @@ private:
     int myAutoSaveInterval = 15;        // unit : minut
     QTimer* myAutoSaveTimer;
 
+    SStringTable myStringTableDictionnary = SStringTable("DICTIONNARY");
     QList<AttributeParam*> myAttributeParamPtrs;
     QList<Enumerator> enumerators;
     QList<StructureDB*> myStructures;
@@ -132,6 +133,9 @@ public:
     void SetStringTableItemCount(const int _index, const int _count);
     bool AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const;
     QString GetStringForDisplay(const QString& _tableId, const QString& _stringId, bool _complete = false) const;
+
+    const SStringTable* GetDictionnary() const;
+    SStringTable* GetDictionnary();
 
     void AskFocusOnStringItem(const int _tableIndex, const int _stringIndex, const int _languageIndex = -1, const bool _forceFocus = false);
     void AskUpdateOnStringTable(const int _tableIndex);
