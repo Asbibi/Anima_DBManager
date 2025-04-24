@@ -28,6 +28,7 @@
 #include "qpanelsearch.h"
 
 
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     myManager(DB_Manager::GetDB_Manager())
@@ -86,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
     exportImportMenu->addSeparator();
 
-    QMenu* exportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
+    myExportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
     myExportOneStringMenu = exportImportMenu->addMenu("Export One String Table");
     QMenu* exportAllStringsMenu = exportImportMenu->addMenu("Export All String Tables");
     BuildExportOneStringTableMenu();
@@ -111,13 +112,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
     {
-        auto* exportCurrentStringAction = exportCurrentStringMenu->addAction("Export Current in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
+        auto* exportCurrentStringAction = myExportCurrentStringMenu->addAction("Export Current in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
         QObject::connect(exportCurrentStringAction, &QAction::triggered, this, [this, i]{OnExportCurrentStringTable((SStringHelper::SStringLanguages)i);});
 
         auto* exportAllStringAction = exportAllStringsMenu->addAction("Export All in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
         QObject::connect(exportAllStringAction, &QAction::triggered, this, [this, i]{OnExportAllStringTables((SStringHelper::SStringLanguages)i);});
     }
-    auto* exportCurrentStringAllLanguage = exportCurrentStringMenu->addAction("Export Current in All Languages");
+    auto* exportCurrentStringAllLanguage = myExportCurrentStringMenu->addAction("Export Current in All Languages");
     QObject::connect(exportCurrentStringAllLanguage, &QAction::triggered, this, [this]{OnExportCurrentStringTable(SStringHelper::SStringLanguages::Count);});
     auto* exportAllStringAllLanguage = exportAllStringsMenu->addAction("Export All in All Languages");
     QObject::connect(exportAllStringAllLanguage, &QAction::triggered, this, [this]{OnExportAllStringTables(SStringHelper::SStringLanguages::Count);});
@@ -143,6 +144,12 @@ MainWindow::MainWindow(QWidget *parent) :
     myTabString = new QTabWidget();
     myTableToolBox->addItem(myTabStruct, "Structures");
     myTableToolBox->addItem(myTabString, "Table Strings");
+
+    QSStringTable* stringTable = new QSStringTable(-1);
+    QObject::connect(myTabString, &QTabWidget::currentChanged, this, &MainWindow::OnCurrentStringTabCHanged);
+    myTabString->insertTab(0, stringTable, "DICTIONARY");
+    UpdateStringTabStyle();
+
 
     //---------
 
@@ -255,7 +262,7 @@ void MainWindow::BuildOpenRecentMenu()
     {
         QString filePath = filePathAsVar.toString();
         auto* exportStructJSON = myOpenRecentMenu->addAction(filePath);
-        QObject::connect(exportStructJSON, &QAction::triggered, this, [this, filePath]{OpenDB(filePath);});
+        QObject::connect(exportStructJSON, &QAction::triggered, this, [this, filePath]{OnOpenRecentDB(filePath);});
         if (mostRecent)
         {
             exportStructJSON->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL | Qt::Key_O));
@@ -363,7 +370,7 @@ void MainWindow::ResetQSettings()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (!myHasUnsavedChanges)
+    if (!SaveManager::GetHasUnsavedChanges())
     {
         SaveQSettings();
         event->accept();
@@ -396,7 +403,7 @@ void MainWindow::UpdateWindowName()
     {
         windowName.append(" - ").append(SaveManager::GetCurrentSaveFile());
     }
-    if (myHasUnsavedChanges)
+    if (SaveManager::GetHasUnsavedChanges())
     {
         windowName.append("*");
     }
@@ -425,62 +432,77 @@ void MainWindow::OpenDB(const QString& _savefile, bool _resetApp)
     SaveManager::OpenFile(_savefile);
     myManager.blockSignals(false);
     OnResetView();
-    myHasUnsavedChanges = false;
+    //myHasUnsavedChanges = false;
     UpdateWindowName();
     AddFileToOpenRecentList();
 }
 
 
+void MainWindow::UpdateStringTabStyle()
+{
+    if (myTabString->count()  < 2)
+    {
+        myTabString->setStyleSheet("QTabBar::tab { background: #B6DEFF; }");
+    }
+    else
+    {
+        myTabString->setStyleSheet("QTabBar::tab::first { background: #B6DEFF; }");
+    }
+}
 void MainWindow::OnStringTableAdded(const int _index)
 {
     SStringTable* sTable = myManager.GetStringTable(_index);
-    if (!sTable)
+    if (sTable == myManager.GetDictionary())
         return;
 
     QSStringTable* stringTable = new QSStringTable(_index);
-    myTabString->insertTab(_index, stringTable, sTable->GetTableName());
-    myTabString->setCurrentIndex(_index);
+    myTabString->insertTab(_index + 1, stringTable, sTable->GetTableName());
+    myTabString->setCurrentIndex(_index + 1);
+
+    UpdateStringTabStyle();
 
     BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableMoved(const int _indexFrom, const int _indexTo)
 {
-    QSStringTable* tabToMove = dynamic_cast<QSStringTable*>(myTabString->widget(_indexFrom));
+    QSStringTable* tabToMove = dynamic_cast<QSStringTable*>(myTabString->widget(_indexFrom+1));
     if (!tabToMove)
         return;
 
-    const QString tabName = myTabString->tabText(_indexFrom);
-    const bool wasCurrent = myTabString->currentIndex() == _indexFrom;
-    myTabString->removeTab(_indexFrom);
-    myTabString->insertTab(_indexTo, tabToMove, tabName);
+    const QString tabName = myTabString->tabText(_indexFrom + 1);
+    const bool wasCurrent = myTabString->currentIndex() == _indexFrom + 1;
+    myTabString->removeTab(_indexFrom + 1);
+    myTabString->insertTab(_indexTo + 1, tabToMove, tabName);
 
     const int count = myTabString->count();
     for (int i = 0; i < count; i++)
     {
-        QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_indexFrom));
+        QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_indexFrom + 1));
         if (tab)
             tab->UpdateIndex(i);
     }
 
     if(wasCurrent)
-        myTabString->setCurrentIndex(_indexTo);
+        myTabString->setCurrentIndex(_indexTo + 1);
 
     BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableRemoved(const int _index)
 {
-    QWidget* tabToDelete = myTabString->widget(_index);
+    QWidget* tabToDelete = myTabString->widget(_index + 1);
     if (!tabToDelete)
         return;
 
-    myTabString->removeTab(_index);
+    myTabString->removeTab(_index + 1);
     delete tabToDelete;
+
+    UpdateStringTabStyle();
 
     BuildExportOneStringTableMenu();
 }
 void MainWindow::OnStringTableRenamed(const int _index, const QString& _name)
 {
-    myTabString->setTabText(_index, _name);
+    myTabString->setTabText(_index + 1, _name);
 
     BuildExportOneStringTableMenu();
 }
@@ -491,13 +513,13 @@ void MainWindow::OnStringTableChanged(const int _tableIndex)
 }
 void MainWindow::OnStringItemFocus(const int _tableIndex, const int _index, const int _languageIndex, const bool _forceFocus)
 {
-    QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->widget(_tableIndex));
+    QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->widget(_tableIndex + 1));
     if (!currentTab)
         return;
 
     if (_forceFocus)
     {
-        myTabString->setCurrentIndex(_tableIndex);
+        myTabString->setCurrentIndex(_tableIndex + 1);
         myTableToolBox->setCurrentIndex(1);
     }
 
@@ -505,11 +527,15 @@ void MainWindow::OnStringItemFocus(const int _tableIndex, const int _index, cons
 }
 void MainWindow::OnStringItemChanged(const int _tableIndex)
 {
-    QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->widget(_tableIndex));
+    QSStringTable* currentTab = dynamic_cast<QSStringTable*>(myTabString->widget(_tableIndex + 1));
     if (!currentTab)
         return;
 
     currentTab->UpdateTable();
+}
+void MainWindow::OnCurrentStringTabCHanged(int _tabIndex)
+{
+    myExportCurrentStringMenu->setEnabled(_tabIndex > 0);
 }
 
 
@@ -628,6 +654,10 @@ void MainWindow::OnResetView()
     CleanTabWidget(myTabStruct);
     CleanTabWidget(myTabString);
 
+    QSStringTable* stringTable = new QSStringTable(-1);
+    myTabString->insertTab(0, stringTable, "DICTIONARY");
+    UpdateStringTabStyle();
+
     const int stringTableCount = myManager.GetStringTableCount();
     for (int i = 0; i < stringTableCount; i++)
     {
@@ -641,13 +671,14 @@ void MainWindow::OnResetView()
     }
 }
 
+
 void MainWindow::OnAcknowledgeChange()
 {
-    if (myHasUnsavedChanges)
+    if (SaveManager::GetHasUnsavedChanges())
     {
         return;
     }
-    myHasUnsavedChanges = true;
+    SaveManager::AcknowledgeUnsavedChanges();
     UpdateWindowName();
 }
 
@@ -662,16 +693,19 @@ void MainWindow::OnAutoSaveFeedback(bool _showFeedback)
 
 bool MainWindow::OnNewDB()
 {
-    QMessageBox::StandardButton btn = QMessageBox::question(this, "Save ?", "Save project before proceeding ?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
-    if (btn == QMessageBox::Cancel)
+    if (SaveManager::GetHasUnsavedChanges())
     {
-        return false;
-    }
-    else if (btn == QMessageBox::Yes)
-    {
-        bool saveComplete = OnSaveDB();
-        if (!saveComplete)
+        QMessageBox::StandardButton btn = QMessageBox::question(this, "Save ?", "Save project before proceeding ?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+        if (btn == QMessageBox::Cancel)
+        {
             return false;
+        }
+        else if (btn == QMessageBox::Yes)
+        {
+            bool saveComplete = OnSaveDB();
+            if (!saveComplete)
+                return false;
+        }
     }
 
     myStructWidget->UnselectItem();
@@ -684,7 +718,6 @@ bool MainWindow::OnNewDB()
     }
 
     SaveManager::New();
-    myHasUnsavedChanges = false;
     UpdateWindowName();
 
     return true;
@@ -721,7 +754,6 @@ bool MainWindow::OnSaveDB_Internal(bool _saveAs)
     qDebug() << filePath;
 
     SaveManager::SaveFile(filePath);
-    myHasUnsavedChanges = false;
     UpdateWindowName();
     AddFileToOpenRecentList();
     return true;
@@ -760,16 +792,37 @@ void MainWindow::OnOpenDB()
     // Open Internal
     OpenDB(filePath);
 }
+void MainWindow::OnOpenRecentDB(const QString& _filePath)
+{
+    const QString& currentFilePath = SaveManager::GetCurrentSaveFile();
+    if (currentFilePath == _filePath)
+    {
+        QMessageBox::StandardButton btn = QMessageBox::question(this, "Refresh opened", "The Database you asked to open is already opened.\nDo you want to reopen it ?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (btn == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
+    // Open Internal
+    OpenDB(_filePath);
+}
 
 // ================      Export Methods      ================
 
 void MainWindow::OnExportCurrentStringTable(SStringHelper::SStringLanguages _language)
 {
+    if (myTabString->currentIndex() == 0)
+    {
+        // Dictionary
+        return;
+    }
+
     ExportOneStringTable(myTabString->currentIndex(), _language, "");
 }
 void MainWindow::OnExportOneStringTable(int _index, SStringHelper::SStringLanguages _language)
 {
-    ExportOneStringTable(_index, _language, "");
+    ExportOneStringTable(_index + 1, _language, "");
 }
 void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _language)
 {
@@ -781,7 +834,7 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
     }
 
     int widgetCount = myTabString->count();
-    for (int i = 0; i < widgetCount; i++)
+    for (int i = 1; i < widgetCount; i++)   // starts at 1 to avoid dictionary
     {
         ExportOneStringTable(i, _language, dir);
     }
@@ -789,7 +842,7 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
 void MainWindow::ExportOneStringTable(int _index, SStringHelper::SStringLanguages _language, QString _dir)
 {
     QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_index));
-    if(tab == nullptr)
+    if(tab == nullptr || _index == 0)   // index 0 is for the dictionary string table
     {
         return;
     }
@@ -854,7 +907,7 @@ void MainWindow::ExportAllStructTables(bool _JSON)
         return;
     }
 
-    int widgetCount = myTabString->count();
+    int widgetCount = myTabStruct->count();
     for (int i = 0; i < widgetCount; i++)
     {
         ExportOneStructTable(i, _JSON, dir);
@@ -905,7 +958,7 @@ void MainWindow::OnImportStringTable()
     int res = dialog->result();
     if (res == QDialog::Accepted)
     {
-        QSStringTable* stringTable = dynamic_cast<QSStringTable*>(myTabString->widget(dialog->GetTableIndex()));
+        QSStringTable* stringTable = dynamic_cast<QSStringTable*>(myTabString->widget(dialog->GetTableIndex() + 1));
         if(stringTable != nullptr)
         {
             // can be nullptr if we imported in a new table that has been emptied and thus deleted

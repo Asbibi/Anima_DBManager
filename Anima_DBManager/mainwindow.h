@@ -23,6 +23,7 @@ private:
 
     QMenuBar* myMenuBar;
     QMenu* myOpenRecentMenu;
+    QMenu* myExportCurrentStringMenu;
     QMenu* myExportOneStructMenu;
     QMenu* myExportOneStringMenu;
 
@@ -37,7 +38,6 @@ private:
     QPanelString* myStringWidget;
     QPanelStruct* myStructWidget;
 
-    bool myHasUnsavedChanges = false;
     bool myShowAutoSaveFeedBack = false;
 
     bool OnSaveDB_Internal(bool _saveAs);
@@ -54,6 +54,8 @@ private:
 
     void SaveQSettings() const;
     void LoadQSettings();
+
+    void UpdateStringTabStyle();
 
 
 public:
@@ -74,6 +76,7 @@ public slots:
     void OnStringTableChanged(const int _tableIndex);
     void OnStringItemFocus(const int _tableIndex, const int _index, const int _languageIndex, const bool _forceFocus);
     void OnStringItemChanged(const int _tableIndex);
+    void OnCurrentStringTabCHanged(int _tabIndex);
 
     void OnStructTableAdded(const int _index);
     void OnStructTableMoved(const int _indexFrom, const int _indexTo);
@@ -92,6 +95,7 @@ public slots:
     bool OnSaveDB();
     void OnSaveAsDB();
     void OnOpenDB();
+    void OnOpenRecentDB(const QString& _filePath);
 
     void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
     void OnExportOneStringTable(int _index, SStringHelper::SStringLanguages _language);

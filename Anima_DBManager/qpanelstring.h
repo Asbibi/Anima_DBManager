@@ -4,11 +4,17 @@
 #include "qpanelwithcount.h"
 #include "qlistwithsearch.h"
 
+class SStringTable;
+
+
 class QPanelString : public QPanelWithCount
 {
     Q_OBJECT
 private:
     QListWithSearch* mySearchList;
+    bool myFocusOndictionary = false;
+
+    void LoadStringTable(const SStringTable* _table);
 
 protected:
     virtual int RefreshItemCount_Internal(const int _tableIndex) override;
@@ -37,6 +43,8 @@ public slots:
 
     void OnSortAscClicked();
     void OnSortDescClicked();
+
+    void OnSelectDictionary();
 };
 
 #endif // QPANELSTRING_H

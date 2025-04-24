@@ -22,7 +22,7 @@ private:
 public:
     QSStringTable(int _strTableIndex, QWidget* _parent = nullptr);
     void UpdateIndex(int _strTableIndex);
-    void ExportStringsToCSV(const QString _directoryPath, SStringHelper::SStringLanguages _language);
+    void ExportStringsToCSV(const QString _directoryPath, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement = true);
 
 signals:
     void TableEdited(int _row, int _col, const QString& _text);

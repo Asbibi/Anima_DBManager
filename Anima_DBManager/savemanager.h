@@ -22,6 +22,7 @@ private:
     bool myIsOpening = false;
     bool myIsSaving = false;
     QString myCurrentlyOpenedFile = "";
+    bool myHasUnsavedChanges = false;
 
 
     static SaveManager& GetSaveManager();
@@ -35,7 +36,7 @@ private:
     void SetCurrentlyOpenedFile(const QString& _file);
 
     void ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
-    void ProcessStringTempFile(const QString& _tempFolderPath);
+    void ProcessStringTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
@@ -50,6 +51,8 @@ public:
     static void OpenFile(const QString& _saveFilePath);
     static bool IsOpeningFile();
     static bool IsSavingFile();
+    static bool GetHasUnsavedChanges();
+    static void AcknowledgeUnsavedChanges();
 };
 
 #endif // SAVEMANAGER_H

@@ -1,4 +1,5 @@
 #include "sstringtable.h"
+#include "db_manager.h"
 
 
 SStringTable::SStringTable(const QString& _tableName) :
@@ -102,6 +103,7 @@ void SStringTable::SetStringItemCount(int _count)
             RemoveStringItem(_count);
         }
     }
+    // emit DB_Manager::GetDB_Manager().AcknowledgeChange(); Not nec beacuse call if Add or Remove
 }
 SStringItem* SStringTable::GetStringItemW(int _index)
 {
@@ -134,6 +136,7 @@ QString SStringTable::AddStringItem(int _index, const QString* _wantedIdentifier
 
 
     myStrings.insert(_index, SStringItem(identifier));
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
     return identifier;
 }
 
@@ -145,6 +148,7 @@ void SStringTable::AddStringItemWithTexts(int _index, const QString _texts[], co
     {
         item->SetString((SStringHelper::SStringLanguages)i, _texts[i]);
     }
+    // emit DB_Manager::GetDB_Manager().AcknowledgeChange(); Not nec because call in AddStrinItem
 }
 
 void SStringTable::AddStringItemFromCopy(int _index, const SStringItem& _item)
@@ -159,6 +163,7 @@ void SStringTable::AddStringItemFromCopy(int _index, const SStringItem& _item)
 
     myStrings.insert(_index, _item);
     myStrings[_index].SetIdentifier(identifier);
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 
 void SStringTable::RemoveStringItem(int _index)
@@ -167,6 +172,7 @@ void SStringTable::RemoveStringItem(int _index)
         return;
 
     myStrings.removeAt(_index);
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 
 void SStringTable::RemoveStringItem(const QString& _identifier)
@@ -185,6 +191,7 @@ void SStringTable::SwapStringItems(int _indexFirst, int _indexSecond)
         return;
 
     myStrings.swapItemsAt(_indexFirst, _indexSecond);
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 
 void SStringTable::MoveStringItems(int _indexFrom, int _indexTo)
@@ -198,6 +205,7 @@ void SStringTable::MoveStringItems(int _indexFrom, int _indexTo)
         return;
 
     myStrings.move(_indexFrom, _indexTo);
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 void SStringTable::SortStringItems(bool _ascending)
 {
@@ -206,6 +214,7 @@ void SStringTable::SortStringItems(bool _ascending)
     {
         std::reverse(myStrings.begin(), myStrings.end());
     }
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 
 
@@ -232,8 +241,12 @@ bool SStringTable::SetItemIdentifier(const int _index, const QString& _identifie
             break;
         }
     }
+
     if (ok)
+    {
         myStrings[_index].SetIdentifier(_identifier);
+        emit DB_Manager::GetDB_Manager().AcknowledgeChange();
+    }
     return ok;
 }
 
@@ -253,6 +266,7 @@ void SStringTable::SetItemString(int _row, SStringHelper::SStringLanguages _col,
     }
 
     stringItem->SetString(_col, _text);
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 void SStringTable::ImportString(SStringHelper::SStringLanguages _language, const QString& _identifier, const QString& _text, int _overwritePolicy)
 {
@@ -285,15 +299,16 @@ void SStringTable::ImportString(SStringHelper::SStringLanguages _language, const
         AddStringItem(-1, &_identifier);
         myStrings[stringIndex].SetString(_language, QString(_text).replace("\\n","\n"));
     }
+    emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 
 
 
-void SStringTable::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language) const
+void SStringTable::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement) const
 {
     for (const auto& stringItem : myStrings)
     {
         _file << '\n';
-        stringItem.WriteValue_CSV(_file, _language);
+        stringItem.WriteValue_CSV(_file, _language, _withDictionaryReplacement);
     }
 }
