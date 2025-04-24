@@ -37,7 +37,6 @@ private:
     QPanelString* myStringWidget;
     QPanelStruct* myStructWidget;
 
-    bool myHasUnsavedChanges = false;
     bool myShowAutoSaveFeedBack = false;
 
     bool OnSaveDB_Internal(bool _saveAs);
@@ -92,6 +91,7 @@ public slots:
     bool OnSaveDB();
     void OnSaveAsDB();
     void OnOpenDB();
+    void OnOpenRecentDB(const QString& _filePath);
 
     void OnExportCurrentStringTable(SStringHelper::SStringLanguages _language);
     void OnExportOneStringTable(int _index, SStringHelper::SStringLanguages _language);

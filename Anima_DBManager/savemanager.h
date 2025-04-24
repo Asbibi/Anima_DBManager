@@ -22,6 +22,7 @@ private:
     bool myIsOpening = false;
     bool myIsSaving = false;
     QString myCurrentlyOpenedFile = "";
+    bool myHasUnsavedChanges = false;
 
 
     static SaveManager& GetSaveManager();
@@ -50,6 +51,8 @@ public:
     static void OpenFile(const QString& _saveFilePath);
     static bool IsOpeningFile();
     static bool IsSavingFile();
+    static bool GetHasUnsavedChanges();
+    static bool AcknowledgeUnsavedChanges();
 };
 
 #endif // SAVEMANAGER_H

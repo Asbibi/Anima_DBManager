@@ -255,7 +255,7 @@ void MainWindow::BuildOpenRecentMenu()
     {
         QString filePath = filePathAsVar.toString();
         auto* exportStructJSON = myOpenRecentMenu->addAction(filePath);
-        QObject::connect(exportStructJSON, &QAction::triggered, this, [this, filePath]{OpenDB(filePath);});
+        QObject::connect(exportStructJSON, &QAction::triggered, this, [this, filePath]{OnOpenRecentDB(filePath);});
         if (mostRecent)
         {
             exportStructJSON->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL | Qt::Key_O));
@@ -363,7 +363,7 @@ void MainWindow::ResetQSettings()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    if (!myHasUnsavedChanges)
+    if (!SaveManager::GetHasUnsavedChanges())
     {
         SaveQSettings();
         event->accept();
@@ -396,7 +396,7 @@ void MainWindow::UpdateWindowName()
     {
         windowName.append(" - ").append(SaveManager::GetCurrentSaveFile());
     }
-    if (myHasUnsavedChanges)
+    if (SaveManager::GetHasUnsavedChanges())
     {
         windowName.append("*");
     }
@@ -425,7 +425,7 @@ void MainWindow::OpenDB(const QString& _savefile, bool _resetApp)
     SaveManager::OpenFile(_savefile);
     myManager.blockSignals(false);
     OnResetView();
-    myHasUnsavedChanges = false;
+    //myHasUnsavedChanges = false;
     UpdateWindowName();
     AddFileToOpenRecentList();
 }
@@ -643,11 +643,11 @@ void MainWindow::OnResetView()
 
 void MainWindow::OnAcknowledgeChange()
 {
-    if (myHasUnsavedChanges)
+    if (SaveManager::GetHasUnsavedChanges())
     {
         return;
     }
-    myHasUnsavedChanges = true;
+    SaveManager::AcknowledgeUnsavedChanges();
     UpdateWindowName();
 }
 
@@ -662,16 +662,19 @@ void MainWindow::OnAutoSaveFeedback(bool _showFeedback)
 
 bool MainWindow::OnNewDB()
 {
-    QMessageBox::StandardButton btn = QMessageBox::question(this, "Save ?", "Save project before proceeding ?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
-    if (btn == QMessageBox::Cancel)
+    if (SaveManager::GetHasUnsavedChanges())
     {
-        return false;
-    }
-    else if (btn == QMessageBox::Yes)
-    {
-        bool saveComplete = OnSaveDB();
-        if (!saveComplete)
+        QMessageBox::StandardButton btn = QMessageBox::question(this, "Save ?", "Save project before proceeding ?", QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel, QMessageBox::Yes);
+        if (btn == QMessageBox::Cancel)
+        {
             return false;
+        }
+        else if (btn == QMessageBox::Yes)
+        {
+            bool saveComplete = OnSaveDB();
+            if (!saveComplete)
+                return false;
+        }
     }
 
     myStructWidget->UnselectItem();
@@ -684,7 +687,6 @@ bool MainWindow::OnNewDB()
     }
 
     SaveManager::New();
-    myHasUnsavedChanges = false;
     UpdateWindowName();
 
     return true;
@@ -721,7 +723,6 @@ bool MainWindow::OnSaveDB_Internal(bool _saveAs)
     qDebug() << filePath;
 
     SaveManager::SaveFile(filePath);
-    myHasUnsavedChanges = false;
     UpdateWindowName();
     AddFileToOpenRecentList();
     return true;
@@ -759,6 +760,21 @@ void MainWindow::OnOpenDB()
 
     // Open Internal
     OpenDB(filePath);
+}
+void MainWindow::OnOpenRecentDB(const QString& _filePath)
+{
+    const QString& currentFilePath = SaveManager::GetCurrentSaveFile();
+    if (currentFilePath == _filePath)
+    {
+        QMessageBox::StandardButton btn = QMessageBox::question(this, "Refresh opened", "The Database you asked to open is already opened.\nDo you want to reopen it ?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+        if (btn == QMessageBox::No)
+        {
+            return;
+        }
+    }
+
+    // Open Internal
+    OpenDB(_filePath);
 }
 
 // ================      Export Methods      ================

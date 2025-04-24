@@ -100,7 +100,8 @@ int SaveManager::WriteTempFileOnOpen(const QByteArray& _data, const QString& _te
 void SaveManager::New()
 {
     DB_Manager::GetDB_Manager().Reset();
-    GetSaveManager().SetCurrentlyOpenedFile("");
+    SaveManager::GetSaveManager().SetCurrentlyOpenedFile("");
+    SaveManager::GetSaveManager().myHasUnsavedChanges = false;
 }
 void SaveManager::SaveAuto()
 {
@@ -109,10 +110,12 @@ void SaveManager::SaveAuto()
 void SaveManager::SaveFile(const QString& _saveFilePath)
 {
     SaveManager::GetSaveManager().SaveFileInternal(_saveFilePath);
+    SaveManager::GetSaveManager().myHasUnsavedChanges = false;
 }
 void SaveManager::OpenFile(const QString& _saveFilePath)
 {
     SaveManager::GetSaveManager().OpenFileInternal(_saveFilePath);
+    SaveManager::GetSaveManager().myHasUnsavedChanges = false;
 }
 bool SaveManager::IsOpeningFile()
 {
@@ -623,4 +626,15 @@ void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager
         currentStructTable->ReadValue_JSON_Table(importedJson.value(strctName).toArray(), StructureImportHelper::OverwritePolicy::Overwrite);
     }
 }
+
+
+bool SaveManager::GetHasUnsavedChanges()
+{
+    return GetSaveManager().myHasUnsavedChanges;
+}
+bool SaveManager::AcknowledgeUnsavedChanges()
+{
+    GetSaveManager().myHasUnsavedChanges = true;
+}
+
 
