@@ -2,6 +2,7 @@
 
 #include <QGroupBox>
 #include <QVBoxLayout>
+#include "sstringhelper.h"
 
 QPanelBase::QPanelBase(const QString& itemType, bool _uniqueNames, QWidget *parent)
     : QWidget{parent}
@@ -11,7 +12,9 @@ QPanelBase::QPanelBase(const QString& itemType, bool _uniqueNames, QWidget *pare
     QGroupBox* listGroupBox = new QGroupBox("All " + itemType + "s");
     myLayout->addWidget(listGroupBox);
 
-    myItemList = new QAugmentedList(_uniqueNames, "New " + itemType, listGroupBox);
+    QString itemTypeClean = itemType;
+    SStringHelper::CleanStringForIdentifier(itemTypeClean);
+    myItemList = new QAugmentedList(_uniqueNames, "New_" + itemTypeClean, listGroupBox);
     QVBoxLayout* listGroupBoxLayout = new QVBoxLayout();
     listGroupBox->setLayout(listGroupBoxLayout);
     listGroupBoxLayout->addWidget(myItemList);

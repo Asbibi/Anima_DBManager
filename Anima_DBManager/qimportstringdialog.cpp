@@ -27,8 +27,9 @@ QImportStringDialog::QImportStringDialog(QPanelString* _stringWidget, QWidget* _
     {
         myTableComboBox->addItem(dbManager.GetStringTable(i)->GetTableName());
     }
+    myTableComboBox->addItem("-DICTIONARY-");
     myTableComboBox->addItem("*** NEW ***");
-    myTableComboBox->setCurrentIndex(stringTableCount);
+    myTableComboBox->setCurrentIndex(stringTableCount+1);
     QObject::connect(myTableComboBox, &QComboBox::currentIndexChanged, this, &QImportStringDialog::OnTableComboBoxChanged);
     vLayout->addWidget(myTableComboBox);
 
@@ -58,8 +59,9 @@ QImportStringDialog::QImportStringDialog(QPanelString* _stringWidget, QWidget* _
     myOverrideComboBox->addItem("Import with new name (/!\\)");
     myOverrideComboBox->setEnabled(false);
     fLayout->addRow("On confict : ", myOverrideComboBox);
-    myNewTableName = new QLineEdit("NewStringTable");
+    myNewTableName = new QLineEdit("New_String_Table");
     fLayout->addRow("Name of new Table : ", myNewTableName);
+    QObject::connect(myNewTableName, &QLineEdit::editingFinished, this, &QImportStringDialog::OnNewTableNameChanged);
     vLayout->addLayout(fLayout);
 
     QWidget* btnWidget = new QWidget();
@@ -78,7 +80,17 @@ QImportStringDialog::QImportStringDialog(QPanelString* _stringWidget, QWidget* _
 
 int QImportStringDialog::GetTableIndex() const
 {
-    return myTableComboBox->currentIndex();
+    int currIndex = myTableComboBox->currentIndex();
+    int oldStringTableCount = myTableComboBox->count() - 2;
+    if (currIndex == oldStringTableCount)
+    {
+        currIndex = -1;
+    }
+    else if (currIndex > oldStringTableCount)
+    {
+        currIndex = oldStringTableCount;
+    }
+    return currIndex;
 }
 
 void QImportStringDialog::OnApplyBtnClicked()
@@ -92,9 +104,15 @@ void QImportStringDialog::OnApplyBtnClicked()
     int overrideChoice = myOverrideComboBox->currentIndex();
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     int stringTableIndex = myTableComboBox->currentIndex();
-    bool newTable = stringTableIndex == dbManager.GetStringTableCount();
+    bool dictionary = stringTableIndex == dbManager.GetStringTableCount();
+    bool newTable = stringTableIndex == dbManager.GetStringTableCount() + 1;
+    if (newTable)
+    {
+        // Correcting the offset due to the dictionary option
+        stringTableIndex -= 1;
+    }
 
-    if (!myImporter.PerformImport(stringTableIndex, overrideChoice, myNewTableName->text()))
+    if (!myImporter.PerformImport(dictionary ? -1 : stringTableIndex, overrideChoice, myNewTableName->text()))
     {
         QMessageBox::information(0, "Error Reading CSV file", QString("File %1 couldn't be open during String Table import").arg(myNewTableName->text()));
     }
@@ -136,4 +154,13 @@ void QImportStringDialog::OnTableComboBoxChanged(int _index)
     bool newTable = _index == (myTableComboBox->count() -1);
     myNewTableName->setEnabled(newTable);
     myOverrideComboBox->setEnabled(!newTable);
+}
+
+void QImportStringDialog::OnNewTableNameChanged()
+{
+    QString name = myNewTableName->text();
+    if (name == DB_Manager::GetDB_Manager().GetDictionary()->GetTableName())
+    {
+        myNewTableName->setText(name + "_1");
+    }
 }

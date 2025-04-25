@@ -884,6 +884,7 @@ void DB_Manager::AddStringTablePrivate(const QString& _newTableName, int& _index
         _index = count;
 
     QString baseIdentifier = _newTableName;
+    SStringHelper::CleanStringForIdentifier(baseIdentifier);
     auto validate = [this](const QString& _identifier)->bool{ return (bool)(GetStringTableIndex(_identifier) == -1); };
     const QString identifier = SStringHelper::GetUniqueIdentifier(baseIdentifier, validate, true);
 
@@ -964,7 +965,7 @@ void DB_Manager::SetStringTableItemCount(const int _index, const int _count)
 bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const
 {
     const auto* stringTable = GetStringTable(_tableId);
-    if (stringTable == GetDictionary())
+    if (stringTable == nullptr || stringTable == GetDictionary())
         return false;
 
     const auto* string = stringTable->GetStringItem(_stringId);

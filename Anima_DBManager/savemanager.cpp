@@ -523,11 +523,11 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manag
     auto stringTableNames = importerMap.keys();
     for (const auto& tableName : stringTableNames)
     {
-        importerMap[tableName].PerformImport(-1, 0, tableName);
+        importerMap[tableName].PerformImport(-2, 0, tableName); // -1 is for Dictionary import via DialogBox
     }
 
 
-    _dbManager.ReplaceDictionaryWithLastStringTable();
+    _dbManager.ReplaceDictionaryWithLastStringTable();  // TODO : directly import Dictionary with ....PerformImport(-1, 0, tableName); instead of using a temporary StringTable
 
     file.close();
 }
