@@ -107,6 +107,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(importEnumFromTxtAction, &QAction::triggered, this, &MainWindow::OnImportEnumerator);
 
     importMenu->addSeparator();
+    auto* importStructFromCodeAction = importMenu->addAction("Import StructTable from C++ file");
+    QObject::connect(importStructFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportStructTableFromCodeFile);
     auto* importEnumFromCodeAction = importMenu->addAction("Import Enumerator from C++ file");
     QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
 
@@ -816,6 +818,8 @@ void MainWindow::OnOpenRecentDB(const QString& _filePath)
     OpenDB(_filePath);
 }
 
+
+
 // ================      Export Methods      ================
 
 void MainWindow::OnExportCurrentStringTable(SStringHelper::SStringLanguages _language)
@@ -1000,9 +1004,28 @@ void MainWindow::OnImportEnumerator()
     }
     delete dialog;
 }
+void MainWindow::OnImportStructTableFromCodeFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Open C++ file with FTableRowBase USTRUCT declaration",
+                                                    DB_Manager::GetDB_Manager().GetProjectSourceFolderPath(),
+                                                    "C++ (*.h *.cpp)");
+
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QTextStream in(&file);
+    QString fileContent = in.readAll();
+
+    StructureImportHelper::DecomposeCPPFile(fileContent);
+}
 void MainWindow::OnImportEnumeratorFromCodeFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open C++ file with UEnum declaration",
+    QString fileName = QFileDialog::getOpenFileName(this, "Open C++ file with UENUM declaration",
                                                     DB_Manager::GetDB_Manager().GetProjectSourceFolderPath(),
                                                     "C++ (*.h *.cpp)");
 

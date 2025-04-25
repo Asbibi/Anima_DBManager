@@ -112,6 +112,7 @@ public slots:
     void OnImportStringTable();
     void OnImportStuctTable();
     void OnImportEnumerator();
+    void OnImportStructTableFromCodeFile();
     void OnImportEnumeratorFromCodeFile();
 
     void OnProjectSettings();

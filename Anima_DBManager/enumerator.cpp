@@ -1,6 +1,7 @@
 #include "enumerator.h"
 
 #include "sstringhelper.h"
+#include "structureimporthelper.h"
 #include <QWidget>
 #include <QRegularExpression>
 
@@ -156,15 +157,7 @@ void Enumerator::SaveEnum_CSV(std::ofstream& file) const
 void Enumerator::AddValues(const QString& _values)
 {
     // Remove all comment blocks
-    QString valuesWithouCommentBlocks = _values;
-    static QRegularExpression commentBlockRegex = QRegularExpression(R"(/\*.*?\*/)");
-    valuesWithouCommentBlocks = valuesWithouCommentBlocks.replace(commentBlockRegex, "");
-
-    int startOfCommentBlock = valuesWithouCommentBlocks.indexOf("/*");
-    if (startOfCommentBlock != -1)
-    {
-        valuesWithouCommentBlocks = valuesWithouCommentBlocks.left(startOfCommentBlock);
-    }
+    QString valuesWithouCommentBlocks = StructureImportHelper::RemoveCommentBlocks(_values);
 
     QStringList lines = valuesWithouCommentBlocks.split('\n', Qt::SkipEmptyParts);
     for (const auto& line : lines)

@@ -14,6 +14,11 @@ namespace StructureImportHelper
     };
 
     bool DecomposeCSVString(QString _csvLineCopy, int _expectedCountWithKey, QStringList& _outList, bool _removeKey = false);
-};
+    bool DecomposeCPPFile(const QString& _cppFileContent);
+
+    QString RemoveCommentBlocks(const QString& _text);
+    QString GetStructName(const QString& _text);
+    QString GetBracketContent(const QString& _text);
+}
 
 #endif // STRUCTUREIMPORTHELPER_H
