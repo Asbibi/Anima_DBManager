@@ -28,6 +28,7 @@ public slots:
     void OnApplyBtnClicked();
     void OnFileBtnClicked(SStringHelper::SStringLanguages _language, QLabel* _label);
     void OnTableComboBoxChanged(int _index);
+    void OnNewTableNameChanged();
 };
 
 #endif // QIMPORTSTRINGDIALOG_H

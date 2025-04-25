@@ -22,7 +22,7 @@ bool SStringImporter::PerformImport(int _stringTableIndex, int _overrideChoice, 
 {
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
     int stringTableCount = dbManager.GetStringTableCount();
-    if (_stringTableIndex == stringTableCount || _stringTableIndex < 0)
+    if (_stringTableIndex == stringTableCount || _stringTableIndex < -1)    // Case -1 associated to the dictionary
     {
         _stringTableIndex = stringTableCount;
         _overrideChoice = 0;
