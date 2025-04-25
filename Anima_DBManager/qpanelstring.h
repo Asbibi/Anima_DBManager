@@ -45,6 +45,8 @@ public slots:
     void OnSortDescClicked();
 
     void OnSelectDictionary();
+
+    void ReselectItem();
 };
 
 #endif // QPANELSTRING_H
