@@ -81,6 +81,11 @@ const SStringItem* SStringTable::GetStringItem(const QString& _identifier) const
 
 void SStringTable::SetTableName(QString& _name)
 {
+    const auto* dictionnary = DB_Manager::GetDB_Manager().GetDictionary();
+    if (this != dictionnary && dictionnary->GetTableName() == _name)
+    {
+        _name += "_1";
+    }
     SStringHelper::CleanStringForIdentifier(_name);
     myTableName = _name;
 }

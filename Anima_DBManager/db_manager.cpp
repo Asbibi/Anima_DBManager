@@ -964,7 +964,7 @@ void DB_Manager::SetStringTableItemCount(const int _index, const int _count)
 bool DB_Manager::AreValidIdentifiers(const QString& _tableId, const QString& _stringId) const
 {
     const auto* stringTable = GetStringTable(_tableId);
-    if (stringTable == GetDictionary())
+    if (stringTable == nullptr || stringTable == GetDictionary())
         return false;
 
     const auto* string = stringTable->GetStringItem(_stringId);
