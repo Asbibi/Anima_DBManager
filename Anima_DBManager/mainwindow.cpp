@@ -38,7 +38,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     myMenuBar = new QMenuBar(this);
     QMenu* fileMenu = myMenuBar->addMenu("File");
-    QMenu* exportImportMenu = myMenuBar->addMenu("Export/Import");
+    QMenu* exportMenu = myMenuBar->addMenu("Export");
+    QMenu* importMenu = myMenuBar->addMenu("Import");
     QAction* projSettings = myMenuBar->addAction("Project Settings");
     setMenuBar(myMenuBar);
 
@@ -67,8 +68,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
 #ifdef CSV_EXPORT_ENABLED
-    QMenu* exportCurrentStructMenu = exportImportMenu->addMenu("Export Current Structure Table");
-    QMenu* exportAllStructsMenu = exportImportMenu->addMenu("Export All Structure Tables");
+    QMenu* exportCurrentStructMenu = exportMenu->addMenu("Export Current Structure Table");
+    QMenu* exportAllStructsMenu = exportMenu->addMenu("Export All Structure Tables");
     auto* exportCurrentStructJSON = exportCurrentStructMenu->addAction("Export Current as JSON file");
     QObject::connect(exportCurrentStructJSON, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable_JSON);
     auto* exportCurrentStructCSV = exportCurrentStructMenu->addAction("Export Current as CSV file");
@@ -78,35 +79,35 @@ MainWindow::MainWindow(QWidget *parent) :
     auto* exportAllStructCSV = exportAllStructsMenu->addAction("Export All as CSV file");
     QObject::connect(exportAllStructCSV, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_CSV);
 #else
-    auto* exportCurrentStructJSON = exportImportMenu->addAction("Export Current Structure Table");
+    auto* exportCurrentStructJSON = exportMenu->addAction("Export Current Structure Table");
     QObject::connect(exportCurrentStructJSON, &QAction::triggered, this, &MainWindow::OnExportCurrentStructTable_JSON);
-    myExportOneStructMenu = exportImportMenu->addMenu("Export One Structure Table");
-    auto* exportAllStructJSON = exportImportMenu->addAction("Export All Structure Tables");
+    myExportOneStructMenu = exportMenu->addMenu("Export One Structure Table");
+    auto* exportAllStructJSON = exportMenu->addAction("Export All Structure Tables");
     QObject::connect(exportAllStructJSON, &QAction::triggered, this, &MainWindow::OnExportAllStructTables_JSON);
     BuildExportOneStructTableMenu();
 #endif
-    exportImportMenu->addSeparator();
+    exportMenu->addSeparator();
 
-    myExportCurrentStringMenu = exportImportMenu->addMenu("Export Current String Table");
-    myExportOneStringMenu = exportImportMenu->addMenu("Export One String Table");
-    QMenu* exportAllStringsMenu = exportImportMenu->addMenu("Export All String Tables");
+    myExportCurrentStringMenu = exportMenu->addMenu("Export Current String Table");
+    myExportOneStringMenu = exportMenu->addMenu("Export One String Table");
+    QMenu* exportAllStringsMenu = exportMenu->addMenu("Export All String Tables");
     BuildExportOneStringTableMenu();
 
-    exportImportMenu->addSeparator();
-    auto* exportAll = exportImportMenu->addAction("Export Everything");
+    exportMenu->addSeparator();
+    auto* exportAll = exportMenu->addAction("Export Everything");
     QObject::connect(exportAll, &QAction::triggered, this, &MainWindow::OnExportAll);
     exportAll->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_E));
 
-    exportImportMenu->addSeparator();
-    auto* importStructAction = exportImportMenu->addAction("Import Structure Table");
+
+    auto* importStructAction = importMenu->addAction("Import Structure Table");
     QObject::connect(importStructAction, &QAction::triggered, this, &MainWindow::OnImportStuctTable);
-    auto* importStringAction = exportImportMenu->addAction("Import String Table");
+    auto* importStringAction = importMenu->addAction("Import String Table");
     QObject::connect(importStringAction, &QAction::triggered, this, &MainWindow::OnImportStringTable);
-    auto* importEnumFromTxtAction = exportImportMenu->addAction("Import Enumerator");
+    auto* importEnumFromTxtAction = importMenu->addAction("Import Enumerator");
     QObject::connect(importEnumFromTxtAction, &QAction::triggered, this, &MainWindow::OnImportEnumerator);
 
-    exportImportMenu->addSeparator();
-    auto* importEnumFromCodeAction = exportImportMenu->addAction("Import Enumerator from C++ file");
+    importMenu->addSeparator();
+    auto* importEnumFromCodeAction = importMenu->addAction("Import Enumerator from C++ file");
     QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
 
 
