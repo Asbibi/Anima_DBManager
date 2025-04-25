@@ -229,3 +229,15 @@ void QPanelString::SortCurrentTable(bool _ascending)
     DB_Manager::GetDB_Manager().AskUpdateOnStringTable(currentTableIndex);
     OnItemSelected(currentTableIndex);
 }
+
+void QPanelString::ReselectItem()
+{
+    if (myFocusOndictionary)
+    {
+        OnSelectDictionary();
+    }
+    else
+    {
+        OnItemSelected(myItemList->GetCurrent());
+    }
+}

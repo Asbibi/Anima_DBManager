@@ -209,7 +209,9 @@ QString Structure::GetDisplayText() const
     const int nAttr = attributeTemplates.count();
     for (int i = 0; i < nAttr; i++)
     {
-        text += attributeTemplates[i]->GetName() + " \t = " + GetAttribute(i)->GetValue_String() + "\n";
+        text += (attributeTemplates[i]->IsActive() ? "" : "// ")
+                + attributeTemplates[i]->GetName() + " \t = "
+                + GetAttribute(i)->GetValue_String() + "\n";
     }
     return text;
 }

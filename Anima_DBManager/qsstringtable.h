@@ -25,7 +25,7 @@ public:
     void ExportStringsToCSV(const QString _directoryPath, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement = true);
 
 signals:
-    void TableEdited(int _row, int _col, const QString& _text);
+    void IdentifierEdited(int _tableIndex);
 
 public slots:
     void OnCellEdit(QTableWidgetItem *item);

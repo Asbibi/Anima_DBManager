@@ -147,8 +147,9 @@ MainWindow::MainWindow(QWidget *parent) :
     myTableToolBox->addItem(myTabString, "Table Strings");
 
     QSStringTable* stringTable = new QSStringTable(-1);
-    QObject::connect(myTabString, &QTabWidget::currentChanged, this, &MainWindow::OnCurrentStringTabCHanged);
+    QObject::connect(myTabString, &QTabWidget::currentChanged, this, &MainWindow::OnCurrentStringTabChanged);
     myTabString->insertTab(0, stringTable, "DICTIONARY");
+    QObject::connect(stringTable, &QSStringTable::IdentifierEdited, this, &MainWindow::OnStringIdentifierEditedOnTable);
     UpdateStringTabStyle();
 
 
@@ -457,6 +458,7 @@ void MainWindow::OnStringTableAdded(const int _index)
         return;
 
     QSStringTable* stringTable = new QSStringTable(_index);
+    QObject::connect(stringTable, &QSStringTable::IdentifierEdited, this, &MainWindow::OnStringIdentifierEditedOnTable);
     myTabString->insertTab(_index + 1, stringTable, sTable->GetTableName());
     myTabString->setCurrentIndex(_index + 1);
 
@@ -534,7 +536,11 @@ void MainWindow::OnStringItemChanged(const int _tableIndex)
 
     currentTab->UpdateTable();
 }
-void MainWindow::OnCurrentStringTabCHanged(int _tabIndex)
+void MainWindow::OnStringIdentifierEditedOnTable(const int _tableIndex)
+{
+    myStringWidget->ReselectItem();
+}
+void MainWindow::OnCurrentStringTabChanged(int _tabIndex)
 {
     myExportCurrentStringMenu->setEnabled(_tabIndex > 0);
 }
@@ -657,6 +663,7 @@ void MainWindow::OnResetView()
 
     QSStringTable* stringTable = new QSStringTable(-1);
     myTabString->insertTab(0, stringTable, "DICTIONARY");
+    QObject::connect(stringTable, &QSStringTable::IdentifierEdited, this, &MainWindow::OnStringIdentifierEditedOnTable);
     UpdateStringTabStyle();
 
     const int stringTableCount = myManager.GetStringTableCount();

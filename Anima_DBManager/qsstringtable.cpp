@@ -126,6 +126,8 @@ void QSStringTable::OnCellEdited(int row, int col)
         const QString oldId = GetTable().GetStringItem(row)->GetIdentifier();
         if (!GetTable().SetItemIdentifier(row, text))
             changedItem->setText(oldId);
+        else
+            emit IdentifierEdited(myStringTableIndex);
     }
     else
     {
