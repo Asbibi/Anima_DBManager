@@ -5,6 +5,7 @@
 #include <QStringList>
 #include <QList>
 #include "attributetype.h"
+#include "templatestructure.h"
 
 namespace StructureImportHelper
 {
@@ -40,8 +41,9 @@ namespace StructureImportHelper
     AttributeTypeHelper::Type GetTypeFromCppString(const QString& _typeCppString);
     bool ValidateEnumStructTypeAndGetSubType(const QList<QString>& _otherStructKeys, AttributeTypeHelper::Type _foundType, const QString& _cppType, QString& _subType);
 
-    TemplateAttribute* NewAttributeFromRepresentation(const AttributeTemplateRepresentation& _representation);
-    TemplateAttribute* NewAttributeFromRepresentation(const QString& _name, AttributeTypeHelper::Type _type, const QString& _subRef, AttributeTypeHelper::Type _subType, const QString& _subSubRef, bool _active, const QString _defVal);
+    bool GetStructureTemplateFromCppString(const QString& _structCppContent, const QMap<QString,QString>& _otherStructSections, TemplateStructure& _outTemplate);
+    TemplateAttribute* NewAttributeFromRepresentation(const QMap<QString,QString>& _otherStructSections, const AttributeTemplateRepresentation& _representation);
+    TemplateAttribute* NewAttributeFromRepresentation(const QMap<QString,QString>& _otherStructSections, const QString& _name, AttributeTypeHelper::Type _type, const QString& _subRef, AttributeTypeHelper::Type _subType, const QString& _subSubRef, bool _active, const QString _defVal);
 
 }
 

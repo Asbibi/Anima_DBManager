@@ -56,21 +56,11 @@ bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
     bool added = false;
     for (const auto& structContent : structTableSections)
     {
-        QList<AttributeTemplateRepresentation> templRepresentations = QList<AttributeTemplateRepresentation>();
-        GetTemplateAttributeRepresentation(structContent, otherStructSections.keys(), templRepresentations);
-        if (templRepresentations.isEmpty())
-        {
-            continue;
-        }
-
         QString structName = structTableSections.key(structContent);
         structName.removeFirst();
         TemplateStructure structureTemplate = TemplateStructure(structName);
-        for (const auto& templAttrRep : templRepresentations)
-        {
-            TemplateAttribute* templAttr = StructureImportHelper::NewAttributeFromRepresentation(templAttrRep);
-            structureTemplate.AddAttributeTemplateDirectly_UNSAFE(templAttr);
-        }
+
+        StructureImportHelper::GetStructureTemplateFromCppString(structContent, otherStructSections, structureTemplate);
 
         DB_Manager::GetDB_Manager().AddStructureDB(structureTemplate);
         added = true;
@@ -373,9 +363,27 @@ bool StructureImportHelper::ValidateEnumStructTypeAndGetSubType(const QList<QStr
     return true;
 }
 
-TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const AttributeTemplateRepresentation& _representation)
+bool StructureImportHelper::GetStructureTemplateFromCppString(const QString& _structCppContent, const QMap<QString,QString>& _otherStructSections, TemplateStructure& _outTemplate)
 {
-    return NewAttributeFromRepresentation(_representation.name,
+    QList<AttributeTemplateRepresentation> templRepresentations = QList<AttributeTemplateRepresentation>();
+    GetTemplateAttributeRepresentation(_structCppContent, _otherStructSections.keys(), templRepresentations);
+    if (templRepresentations.isEmpty())
+    {
+        return false;
+    }
+
+    for (const auto& templAttrRep : templRepresentations)
+    {
+        TemplateAttribute* templAttr = StructureImportHelper::NewAttributeFromRepresentation(_otherStructSections, templAttrRep);
+        _outTemplate.AddAttributeTemplateDirectly_UNSAFE(templAttr);
+    }
+
+    return true;
+}
+TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const QMap<QString,QString>& _otherStructSections, const AttributeTemplateRepresentation& _representation)
+{
+    return NewAttributeFromRepresentation(_otherStructSections,
+                                          _representation.name,
                                           _representation.dbType,
                                           _representation.subRefStructOrEnumName,
                                           _representation.subArryDbType,
@@ -383,7 +391,7 @@ TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const A
                                           _representation.active,
                                           _representation.defaultValue);
 }
-TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const QString& _name, AttributeTypeHelper::Type _type, const QString& _subRef, AttributeTypeHelper::Type _subType, const QString& _subSubRef, bool _active, const QString _defVal)
+TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const QMap<QString,QString>& _otherStructSections, const QString& _name, AttributeTypeHelper::Type _type, const QString& _subRef, AttributeTypeHelper::Type _subType, const QString& _subSubRef, bool _active, const QString _defVal)
 {
     AttributeParam param = AttributeParam();
     switch(_type)
@@ -396,7 +404,8 @@ TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const Q
         }
         case AttributeTypeHelper::Type::Array:
         {
-            param.templateAtt = StructureImportHelper::NewAttributeFromRepresentation("",
+            param.templateAtt = StructureImportHelper::NewAttributeFromRepresentation(_otherStructSections,
+                                                                                      "",
                                                                                       _subType,
                                                                                       _subSubRef,
                                                                                       AttributeTypeHelper::Type::Invalid,
@@ -407,7 +416,12 @@ TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const Q
         }
         case AttributeTypeHelper::Type::Structure:
         {
-            _type = AttributeTypeHelper::Type::Bool;
+            QString structName = _subRef;
+            structName.removeFirst();
+            param.templateStruct = new TemplateStructure(structName);
+
+            StructureImportHelper::GetStructureTemplateFromCppString(_otherStructSections.value(_subRef), _otherStructSections, *param.templateStruct);
+
             break;
         }
     }
