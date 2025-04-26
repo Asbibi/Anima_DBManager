@@ -1020,8 +1020,14 @@ void MainWindow::OnImportStructTableFromCodeFile()
     }
     QTextStream in(&file);
     QString fileContent = in.readAll();
+    file.close();
 
-    StructureImportHelper::DecomposeCPPFile(fileContent);
+    bool addedStruct = StructureImportHelper::DecomposeCPPFile(fileContent);
+    if (addedStruct)
+    {
+        myStructWidget->UpdateItemList();
+        OnResetView();
+    }
 }
 void MainWindow::OnImportEnumeratorFromCodeFile()
 {
@@ -1039,6 +1045,7 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
     }
     QTextStream in(&file);
     QString fileContent = in.readAll();
+    file.close();
 
 
     QStringList enumSections = fileContent.split("UENUM(");
@@ -1095,7 +1102,6 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
         dbManager.AddValuesToEnum(enumIndex, enumContent);
     }
 
-    file.close();
     myEnumWidget->UpdateItemList();
 }
 void MainWindow::OnProjectSettings()

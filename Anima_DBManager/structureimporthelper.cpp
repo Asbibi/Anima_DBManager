@@ -47,13 +47,13 @@ bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
     QMap<QString,QString> otherStructSections = QMap<QString,QString>();
     for (const auto& structSection : structSections)
     {
-
         (structSection.contains(": public FTableRowBase") ? structTableSections : otherStructSections)
             .insert(
                 StructureImportHelper::GetStructName(structSection),
                 StructureImportHelper::GetBracketContent(structSection));
     }
 
+    bool added = false;
     for (const auto& structContent : structTableSections)
     {
         QList<AttributeTemplateRepresentation> templRepresentations = QList<AttributeTemplateRepresentation>();
@@ -63,13 +63,20 @@ bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
             continue;
         }
 
+        QString structName = structTableSections.key(structContent);
+        structName.removeFirst();
+        TemplateStructure structureTemplate = TemplateStructure(structName);
+        for (const auto& templAttrRep : templRepresentations)
+        {
+            TemplateAttribute* templAttr = StructureImportHelper::NewAttributeFromRepresentation(templAttrRep);
+            structureTemplate.AddAttributeTemplateDirectly_UNSAFE(templAttr);
+        }
 
-
-
-
+        DB_Manager::GetDB_Manager().AddStructureDB(structureTemplate);
+        added = true;
     }
 
-    return true;
+    return added;
 }
 QString StructureImportHelper::RemoveCommentBlocks(const QString& _text)
 {
@@ -274,7 +281,7 @@ void StructureImportHelper::GetDbTypeFromCpp(const QList<QString>& _otherStructK
     // Make unidentified type inactie Boolean attributes
     if (_outAttrRep.dbType == AttributeTypeHelper::Type::Invalid)
     {
-        _outAttrRep.dbType == AttributeTypeHelper::Type::Bool;
+        _outAttrRep.dbType = AttributeTypeHelper::Type::Bool;
         _outAttrRep.active = false;
     }
 }
@@ -336,7 +343,6 @@ AttributeTypeHelper::Type StructureImportHelper::GetTypeFromCppString(const QStr
 
     return AttributeTypeHelper::Type::Invalid;
 }
-
 bool StructureImportHelper::ValidateEnumStructTypeAndGetSubType(const QList<QString>& _otherStructKeys, AttributeTypeHelper::Type _foundType, const QString& _cppType, QString& _subType)
 {
     if (_foundType == AttributeTypeHelper::Type::Structure)
@@ -365,4 +371,54 @@ bool StructureImportHelper::ValidateEnumStructTypeAndGetSubType(const QList<QStr
     }
 
     return true;
+}
+
+TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const AttributeTemplateRepresentation& _representation)
+{
+    return NewAttributeFromRepresentation(_representation.name,
+                                          _representation.dbType,
+                                          _representation.subRefStructOrEnumName,
+                                          _representation.subArryDbType,
+                                          _representation.subArrySubRefStructOrEnumName,
+                                          _representation.active,
+                                          _representation.defaultValue);
+}
+TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const QString& _name, AttributeTypeHelper::Type _type, const QString& _subRef, AttributeTypeHelper::Type _subType, const QString& _subSubRef, bool _active, const QString _defVal)
+{
+    AttributeParam param = AttributeParam();
+    switch(_type)
+    {
+        default: break;
+        case AttributeTypeHelper::Type::Enum:
+        {
+            param.enumeratorIndex = DB_Manager::GetDB_Manager().GetIndexOfFirstEnumWithName(_subRef);
+            break;
+        }
+        case AttributeTypeHelper::Type::Array:
+        {
+            param.templateAtt = StructureImportHelper::NewAttributeFromRepresentation("",
+                                                                                      _subType,
+                                                                                      _subSubRef,
+                                                                                      AttributeTypeHelper::Type::Invalid,
+                                                                                      "",
+                                                                                      true,
+                                                                                      "");
+            break;
+        }
+        case AttributeTypeHelper::Type::Structure:
+        {
+            _type = AttributeTypeHelper::Type::Bool;
+            break;
+        }
+    }
+
+
+    TemplateAttribute* templAttr = new TemplateAttribute(_name, _type, param, _active);
+
+    if (!_defVal.isEmpty())
+    {
+        templAttr->GetDefaultAttributeW()->SetValue_CSV(_defVal);
+    }
+
+    return templAttr;
 }

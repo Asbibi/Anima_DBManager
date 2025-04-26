@@ -7,7 +7,10 @@
 
 
 TemplateStructure::TemplateStructure() :
-    TemplateStructure("", QColorConstants::Black)
+    TemplateStructure("")
+{}
+TemplateStructure::TemplateStructure(const QString& _structName) :
+    TemplateStructure(_structName, QColorConstants::Black)
 {}
 TemplateStructure::TemplateStructure(const QString& _structName, const QColor& _structColor, IconManager::IconType _iconType) :
     TemplateStructure(_structName, _structName.left(2).toUpper(), _structColor, _iconType)
@@ -86,6 +89,14 @@ void TemplateStructure::AddAttributeTemplateInternal(TemplateAttribute* _attTemp
     myAttributeTemplates.insert(_index, _attTemplateToCopy);
     QString newAttributeName = _newName != nullptr ? *_newName : _attTemplateToCopy->GetName();
     RenameAttributeTemplate(_index, newAttributeName, true);
+}
+void TemplateStructure::AddAttributeTemplateDirectly_UNSAFE(TemplateAttribute* _attTemplateToCopy, int _index)
+{
+    const int count = (int)(myAttributeTemplates.count());
+    if (_index < 0 || _index > count)
+        _index = count;
+
+    myAttributeTemplates.insert(_index, _attTemplateToCopy);
 }
 void TemplateStructure::RemoveAttribute(int _index)
 {

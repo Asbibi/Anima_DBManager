@@ -25,6 +25,7 @@ private:
 
 public:
     TemplateStructure();
+    TemplateStructure(const QString& _structName);
     TemplateStructure(const QString& _structName, const QColor& _structColor, IconManager::IconType _iconType = IconManager::IconType::None);
     TemplateStructure(const QString& _structName, const QString& _structAbbrev, const QColor& _structColor, IconManager::IconType _iconType = IconManager::IconType::None);
     TemplateStructure(const TemplateStructure& _other);
@@ -47,6 +48,7 @@ public:
     void AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& _attName, int _index = -1);
     void AddAttributeTemplate(const AttributeTypeHelper::Type _type, const QString& _attName, const AttributeParam& _attParam, int _index = -1);
     void AddAttributeTemplate(const TemplateAttribute& _attTemplateToCopy, const QString* _newName = nullptr, int _index = -1);
+    void AddAttributeTemplateDirectly_UNSAFE(TemplateAttribute* _attTemplateToCopy, int _index = -1);   // NOT SAFE - Only use in importation from cpp
     void RemoveAttribute(int _index);
     void RemoveAttribute(const QString& _attName);
     void MoveAttribute(int _indexFrom, int _indexTo);
