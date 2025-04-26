@@ -19,7 +19,10 @@ namespace StructureImportHelper
     {
         QString name;
         QString cppType;
-        AttributeTypeHelper::Type dbType;
+        AttributeTypeHelper::Type dbType = AttributeTypeHelper::Type::Invalid;
+        QString subRefStructOrEnumName;
+        AttributeTypeHelper::Type subArryDbType = AttributeTypeHelper::Type::Invalid;
+        QString subArrySubRefStructOrEnumName;
         QString defaultValue;
         bool active = true;
     };
@@ -32,7 +35,10 @@ namespace StructureImportHelper
     QString GetStructName(const QString& _text);
     QString GetBracketContent(const QString& _text);
 
-    void GetTemplateAttributeRepresentation(const QString& _structCppContent, QList<AttributeTemplateRepresentation>& _templRepresentations);
+    void GetTemplateAttributeRepresentation(const QString& _structCppContent, const QList<QString>& _otherStructKeys, QList<AttributeTemplateRepresentation>& _outTemplRepresentations);
+    void GetDbTypeFromCpp(const QList<QString>& _otherStructKeys, AttributeTemplateRepresentation& _outAttrRep);
+    AttributeTypeHelper::Type GetTypeFromCppString(const QString& _typeCppString);
+    bool ValidateEnumStructTypeAndGetSubType(const QList<QString>& _otherStructKeys, AttributeTypeHelper::Type _foundType, const QString& _cppType, QString& _subType);
 }
 
 #endif // STRUCTUREIMPORTHELPER_H
