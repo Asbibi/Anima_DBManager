@@ -33,7 +33,9 @@ bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
 {
     QString cleanCppFile = _cppFileContent;
     cleanCppFile.replace("\r\n", "\n");
-    QStringList structSections = StructureImportHelper::RemoveCommentBlocks(cleanCppFile).split("USTRUCT(");
+    cleanCppFile = StructureImportHelper::RemoveCommentBlocks(cleanCppFile);
+    cleanCppFile = StructureImportHelper::RemoveCommentLines(cleanCppFile);
+    QStringList structSections = cleanCppFile.split("USTRUCT(");
     if (structSections.isEmpty())
     {
         return false;
@@ -51,9 +53,18 @@ bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
                 StructureImportHelper::GetBracketContent(structSection));
     }
 
+    for (const auto& structContent : structTableSections)
+    {
+        QList<AttributeTemplateRepresentation> templRepresentations = QList<AttributeTemplateRepresentation>();
+        GetTemplateAttributeRepresentation(structContent, templRepresentations);
+        if (templRepresentations.isEmpty())
+        {
+            continue;
+        }
+
+    }
 
     // TODO : for each structTableSections, create a table and import (use the prefix/suffix of the project when deducing the attributes names)
-    // Remove // comments (between // and line return)
     // Remove line returns between UPROPERTY( and ; -> each property is on one line
     // Split on line returns
     // Only onsider the one starting with UPROPERTY(
@@ -83,6 +94,12 @@ QString StructureImportHelper::RemoveCommentBlocks(const QString& _text)
     }
 
     return valuesWithouCommentBlocks;
+}
+QString StructureImportHelper::RemoveCommentLines(const QString& _text)
+{
+    QString valuesWithouCommentBlocks = _text;
+    static QRegularExpression commentLineRegex = QRegularExpression(R"(\/\/.*)");
+    return valuesWithouCommentBlocks.replace(commentLineRegex, "");
 }
 QString StructureImportHelper::GetStructName(const QString& _text)
 {
@@ -120,4 +137,36 @@ QString StructureImportHelper::GetBracketContent(const QString& _text)
     }
 
     return QString(); // No matching closing bracket found
+}
+
+
+void StructureImportHelper::GetTemplateAttributeRepresentation(const QString& _structCppContent, QList<AttributeTemplateRepresentation>& _templRepresentations)
+{
+    // Remove line breaks between UPROPERTY definitions
+    QString contentRealigned = _structCppContent;
+    int startPos = 0;
+    static const QString upropIndicator = "UPROPERTY(";
+    while ((startPos = contentRealigned.indexOf(upropIndicator, startPos)) != -1) {
+        int endPos = contentRealigned.indexOf(';', startPos);
+        if (endPos != -1) {
+            QString block = contentRealigned.mid(startPos, endPos - startPos + 1);
+            block.replace("\n", " ");
+            contentRealigned.replace(startPos, endPos - startPos + 1, block);
+
+            startPos = endPos + 1;
+        } else {
+            break;
+        }
+    }
+
+    // Handle each line individually
+    QStringList lines = contentRealigned.split('\n', Qt::SkipEmptyParts);
+    for (const auto& line : lines)
+    {
+        if (!line.contains("UPROPERTY("))
+        {
+            continue;
+        }
+        qDebug() << line;
+    }
 }

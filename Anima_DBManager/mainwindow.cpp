@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(importEnumFromTxtAction, &QAction::triggered, this, &MainWindow::OnImportEnumerator);
 
     importMenu->addSeparator();
-    auto* importStructFromCodeAction = importMenu->addAction("Import StructTable from C++ file");
+    auto* importStructFromCodeAction = importMenu->addAction("Import StructTable Template from C++ file");
     QObject::connect(importStructFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportStructTableFromCodeFile);
     auto* importEnumFromCodeAction = importMenu->addAction("Import Enumerator from C++ file");
     QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
