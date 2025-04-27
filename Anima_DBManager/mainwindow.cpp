@@ -107,7 +107,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(importEnumFromTxtAction, &QAction::triggered, this, &MainWindow::OnImportEnumerator);
 
     importMenu->addSeparator();
-    auto* importStructFromCodeAction = importMenu->addAction("Import StructTable Template from C++ file");
+    auto* importStructFromCodeAction = importMenu->addAction("Import Structure Table Template from C++ file");
     QObject::connect(importStructFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportStructTableFromCodeFile);
     auto* importEnumFromCodeAction = importMenu->addAction("Import Enumerator from C++ file");
     QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
@@ -538,7 +538,7 @@ void MainWindow::OnStringItemChanged(const int _tableIndex)
 
     currentTab->UpdateTable();
 }
-void MainWindow::OnStringIdentifierEditedOnTable(const int _tableIndex)
+void MainWindow::OnStringIdentifierEditedOnTable(const int)
 {
     myStringWidget->ReselectItem();
 }

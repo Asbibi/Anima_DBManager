@@ -39,7 +39,7 @@ namespace StructureImportHelper
     void GetTemplateAttributeRepresentation(const QString& _structCppContent, const QList<QString>& _otherStructKeys, QList<AttributeTemplateRepresentation>& _outTemplRepresentations);
     void GetDbTypeFromCpp(const QList<QString>& _otherStructKeys, AttributeTemplateRepresentation& _outAttrRep);
     AttributeTypeHelper::Type GetTypeFromCppString(const QString& _typeCppString);
-    bool ValidateEnumStructTypeAndGetSubType(const QList<QString>& _otherStructKeys, AttributeTypeHelper::Type _foundType, const QString& _cppType, QString& _subType);
+    bool ValidateEnumStructStringTypeAndGetSubType(const QList<QString>& _otherStructKeys, AttributeTypeHelper::Type& _foundType, const QString& _cppType, const QString& _name, QString& _subType);
 
     bool GetStructureTemplateFromCppString(const QString& _structCppContent, const QMap<QString,QString>& _otherStructSections, TemplateStructure& _outTemplate);
     TemplateAttribute* NewAttributeFromRepresentation(const QMap<QString,QString>& _otherStructSections, const AttributeTemplateRepresentation& _representation);

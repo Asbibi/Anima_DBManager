@@ -251,9 +251,18 @@ void StructureImportHelper::GetDbTypeFromCpp(const QList<QString>& _otherStructK
             {
                 _outAttrRep.dbType = AttributeTypeHelper::Type::Invalid;
             }
-            else if (!StructureImportHelper::ValidateEnumStructTypeAndGetSubType(_otherStructKeys, _outAttrRep.subArryDbType, nestedType, _outAttrRep.subArrySubRefStructOrEnumName))
+            else
             {
-                _outAttrRep.dbType = AttributeTypeHelper::Type::Invalid;
+                QString nestedName = _outAttrRep.name;
+                if (nestedName.endsWith("s"))
+                {
+                    nestedName.removeLast();
+                }
+
+                if (!StructureImportHelper::ValidateEnumStructStringTypeAndGetSubType(_otherStructKeys, _outAttrRep.subArryDbType, nestedType, nestedName, _outAttrRep.subArrySubRefStructOrEnumName))
+                {
+                    _outAttrRep.dbType = AttributeTypeHelper::Type::Invalid;
+                }
             }
         }
         else
@@ -262,7 +271,7 @@ void StructureImportHelper::GetDbTypeFromCpp(const QList<QString>& _otherStructK
             _outAttrRep.dbType = AttributeTypeHelper::Type::Invalid;
         }
     }
-    if (!StructureImportHelper::ValidateEnumStructTypeAndGetSubType(_otherStructKeys, _outAttrRep.dbType, _outAttrRep.cppType, _outAttrRep.subRefStructOrEnumName))
+    if (!StructureImportHelper::ValidateEnumStructStringTypeAndGetSubType(_otherStructKeys, _outAttrRep.dbType, _outAttrRep.cppType, _outAttrRep.name, _outAttrRep.subRefStructOrEnumName))
     {
         _outAttrRep.dbType = AttributeTypeHelper::Type::Invalid;
     }
@@ -333,7 +342,7 @@ AttributeTypeHelper::Type StructureImportHelper::GetTypeFromCppString(const QStr
 
     return AttributeTypeHelper::Type::Invalid;
 }
-bool StructureImportHelper::ValidateEnumStructTypeAndGetSubType(const QList<QString>& _otherStructKeys, AttributeTypeHelper::Type _foundType, const QString& _cppType, QString& _subType)
+bool StructureImportHelper::ValidateEnumStructStringTypeAndGetSubType(const QList<QString>& _otherStructKeys, AttributeTypeHelper::Type& _foundType, const QString& _cppType, const QString& _name, QString& _subType)
 {
     if (_foundType == AttributeTypeHelper::Type::Structure)
     {
@@ -357,6 +366,32 @@ bool StructureImportHelper::ValidateEnumStructTypeAndGetSubType(const QList<QStr
         if (DB_Manager::GetDB_Manager().GetIndexOfFirstEnumWithName(_subType) < 0)
         {
             return false;
+        }
+    }
+    else if (_foundType == AttributeTypeHelper::Type::ShortString)
+    {
+        QString possibleRef = _name;
+        static const QString rowNameIndic = "RowName";
+        static const QString rowIndic = "Row";
+        static const QString nameIndic = "Name";
+        if (_name.endsWith(rowNameIndic, Qt::CaseInsensitive))
+        {
+            possibleRef = _name.chopped(rowNameIndic.length());
+        }
+        else if (_name.endsWith(rowIndic, Qt::CaseInsensitive))
+        {
+            possibleRef = _name.chopped(rowIndic.length());
+        }
+        else if (_name.endsWith(nameIndic, Qt::CaseInsensitive))
+        {
+            possibleRef = _name.chopped(nameIndic.length());
+        }
+
+
+        if (!possibleRef.isEmpty() && DB_Manager::GetDB_Manager().GetStructureTableIndex(possibleRef) != -1)
+        {
+            _foundType = AttributeTypeHelper::Type::Reference;
+            _subType = possibleRef;
         }
     }
 
@@ -423,6 +458,10 @@ TemplateAttribute* StructureImportHelper::NewAttributeFromRepresentation(const Q
             StructureImportHelper::GetStructureTemplateFromCppString(_otherStructSections.value(_subRef), _otherStructSections, *param.templateStruct);
 
             break;
+        }
+        case AttributeTypeHelper::Type::Reference:
+        {
+            param.structTable = DB_Manager::GetDB_Manager().GetStructureTable(_subRef);
         }
     }
 
