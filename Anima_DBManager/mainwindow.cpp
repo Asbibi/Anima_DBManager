@@ -107,6 +107,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(importEnumFromTxtAction, &QAction::triggered, this, &MainWindow::OnImportEnumerator);
 
     importMenu->addSeparator();
+    auto* importStructFromCodeAction = importMenu->addAction("Import Structure Table Template from C++ file");
+    QObject::connect(importStructFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportStructTableFromCodeFile);
     auto* importEnumFromCodeAction = importMenu->addAction("Import Enumerator from C++ file");
     QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
 
@@ -536,7 +538,7 @@ void MainWindow::OnStringItemChanged(const int _tableIndex)
 
     currentTab->UpdateTable();
 }
-void MainWindow::OnStringIdentifierEditedOnTable(const int _tableIndex)
+void MainWindow::OnStringIdentifierEditedOnTable(const int)
 {
     myStringWidget->ReselectItem();
 }
@@ -816,6 +818,8 @@ void MainWindow::OnOpenRecentDB(const QString& _filePath)
     OpenDB(_filePath);
 }
 
+
+
 // ================      Export Methods      ================
 
 void MainWindow::OnExportCurrentStringTable(SStringHelper::SStringLanguages _language)
@@ -1000,9 +1004,9 @@ void MainWindow::OnImportEnumerator()
     }
     delete dialog;
 }
-void MainWindow::OnImportEnumeratorFromCodeFile()
+void MainWindow::OnImportStructTableFromCodeFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, "Open C++ file with UEnum declaration",
+    QString fileName = QFileDialog::getOpenFileName(this, "Open C++ file with FTableRowBase USTRUCT declaration",
                                                     DB_Manager::GetDB_Manager().GetProjectSourceFolderPath(),
                                                     "C++ (*.h *.cpp)");
 
@@ -1016,6 +1020,41 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
     }
     QTextStream in(&file);
     QString fileContent = in.readAll();
+    file.close();
+
+    QStringList addedStructs = StructureImportHelper::DecomposeCPPFile(fileContent);
+    if (addedStructs.isEmpty())
+    {
+        QMessageBox::warning(0, "No Structure Table Template Imported", "Failed to identify or import a Structure Table Template from that cpp file.\n\nFile:\n" + fileName);
+    }
+    else
+    {
+        OnResetView();
+        QString msgText = "The following Structure Table Template(s) have been imported:\n";
+        for (const auto& structAdded : addedStructs)
+        {
+            msgText += "\n- " + structAdded;
+        }
+        QMessageBox::information(0, "Successfully Imported Structure Table Template(s)", msgText);
+    }
+}
+void MainWindow::OnImportEnumeratorFromCodeFile()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, "Open C++ file with UENUM declaration",
+                                                    DB_Manager::GetDB_Manager().GetProjectSourceFolderPath(),
+                                                    "C++ (*.h *.cpp)");
+
+    if (fileName.isEmpty())
+    {
+        return;
+    }
+    QFile file(fileName);
+    if(!file.open(QIODevice::ReadOnly)) {
+        return;
+    }
+    QTextStream in(&file);
+    QString fileContent = in.readAll();
+    file.close();
 
 
     QStringList enumSections = fileContent.split("UENUM(");
@@ -1027,6 +1066,7 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
     enumSections.removeFirst();
     int i = -1;
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
+    QStringList importedEnums = QStringList();
     for (const auto& enumSection : enumSections)
     {
         i++;
@@ -1070,10 +1110,23 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
             enumIndex = dbManager.AddEnum(Enumerator(enumName));
         }
         dbManager.AddValuesToEnum(enumIndex, enumContent);
+        importedEnums.append(enumName);
     }
 
-    file.close();
-    myEnumWidget->UpdateItemList();
+    if (importedEnums.isEmpty())
+    {
+        QMessageBox::warning(0, "No Enumerator Imported", "Failed to identify or import an Enumerator from that cpp file.\n\nFile:\n" + fileName);
+    }
+    else
+    {
+        myEnumWidget->UpdateItemList();
+        QString msgText = "The following enumerator(s) have been imported:\n";
+        for (const auto& enumImported : importedEnums)
+        {
+            msgText += "\n- " + enumImported;
+        }
+        QMessageBox::information(0, "Successfully Imported Enumerator(s)", msgText);
+    }
 }
 void MainWindow::OnProjectSettings()
 {
