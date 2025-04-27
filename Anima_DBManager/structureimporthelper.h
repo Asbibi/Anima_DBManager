@@ -29,7 +29,7 @@ namespace StructureImportHelper
     };
 
     bool DecomposeCSVString(QString _csvLineCopy, int _expectedCountWithKey, QStringList& _outList, bool _removeKey = false);
-    bool DecomposeCPPFile(const QString& _cppFileContent);
+    QStringList DecomposeCPPFile(const QString& _cppFileContent);
 
     QString RemoveCommentBlocks(const QString& _text);
     QString RemoveCommentLines(const QString& _text);

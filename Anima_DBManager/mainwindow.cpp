@@ -1022,11 +1022,20 @@ void MainWindow::OnImportStructTableFromCodeFile()
     QString fileContent = in.readAll();
     file.close();
 
-    bool addedStruct = StructureImportHelper::DecomposeCPPFile(fileContent);
-    if (addedStruct)
+    QStringList addedStructs = StructureImportHelper::DecomposeCPPFile(fileContent);
+    if (addedStructs.isEmpty())
     {
-        myStructWidget->UpdateItemList();
+        QMessageBox::warning(0, "No Structure Table Template Imported", "Failed to identify or import a Structure Table Template from that cpp file.\n\nFile:\n" + fileName);
+    }
+    else
+    {
         OnResetView();
+        QString msgText = "The following Structure Table Template(s) have been imported:\n";
+        for (const auto& structAdded : addedStructs)
+        {
+            msgText += "\n- " + structAdded;
+        }
+        QMessageBox::information(0, "Successfully Imported Structure Table Template(s)", msgText);
     }
 }
 void MainWindow::OnImportEnumeratorFromCodeFile()
@@ -1057,6 +1066,7 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
     enumSections.removeFirst();
     int i = -1;
     DB_Manager& dbManager = DB_Manager::GetDB_Manager();
+    QStringList importedEnums = QStringList();
     for (const auto& enumSection : enumSections)
     {
         i++;
@@ -1100,9 +1110,23 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
             enumIndex = dbManager.AddEnum(Enumerator(enumName));
         }
         dbManager.AddValuesToEnum(enumIndex, enumContent);
+        importedEnums.append(enumName);
     }
 
-    myEnumWidget->UpdateItemList();
+    if (importedEnums.isEmpty())
+    {
+        QMessageBox::warning(0, "No Enumerator Imported", "Failed to identify or import an Enumerator from that cpp file.\n\nFile:\n" + fileName);
+    }
+    else
+    {
+        myEnumWidget->UpdateItemList();
+        QString msgText = "The following enumerator(s) have been imported:\n";
+        for (const auto& enumImported : importedEnums)
+        {
+            msgText += "\n- " + enumImported;
+        }
+        QMessageBox::information(0, "Successfully Imported Enumerator(s)", msgText);
+    }
 }
 void MainWindow::OnProjectSettings()
 {

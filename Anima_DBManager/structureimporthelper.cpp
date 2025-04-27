@@ -30,8 +30,10 @@ bool StructureImportHelper::DecomposeCSVString(QString _csvLineCopy, int _expect
     return true;
 }
 
-bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
+QStringList StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
 {
+    QStringList addedStructNames = QStringList();
+
     QString cleanCppFile = _cppFileContent;
     cleanCppFile.replace("\r\n", "\n");
     cleanCppFile = StructureImportHelper::RemoveCommentBlocks(cleanCppFile);
@@ -39,7 +41,7 @@ bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
     QStringList structSections = cleanCppFile.split("USTRUCT(");
     if (structSections.isEmpty())
     {
-        return false;
+        return addedStructNames;
     }
 
     structSections.removeFirst();
@@ -53,7 +55,6 @@ bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
                 StructureImportHelper::GetBracketContent(structSection));
     }
 
-    bool added = false;
     for (const auto& structContent : structTableSections)
     {
         QString structName = structTableSections.key(structContent);
@@ -62,11 +63,12 @@ bool StructureImportHelper::DecomposeCPPFile(const QString& _cppFileContent)
 
         StructureImportHelper::GetStructureTemplateFromCppString(structContent, otherStructSections, structureTemplate);
 
-        DB_Manager::GetDB_Manager().AddStructureDB(structureTemplate);
-        added = true;
+        auto& db = DB_Manager::GetDB_Manager();
+        db.AddStructureDB(structureTemplate);
+        addedStructNames.append(db.GetStructureTable(db.GetStructuresCount() -1)->GetTemplateName());
     }
 
-    return added;
+    return addedStructNames;
 }
 QString StructureImportHelper::RemoveCommentBlocks(const QString& _text)
 {
