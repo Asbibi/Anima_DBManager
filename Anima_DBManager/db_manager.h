@@ -13,6 +13,10 @@
 #include <QTimer>
 #include <vector>
 
+
+const QString UnrealContentFolder = "Content";
+
+
 class DB_Manager : public QObject
 {
     Q_OBJECT
@@ -47,13 +51,15 @@ private:
 
 public:
     static DB_Manager& GetDB_Manager();
+    static bool IsPathValidUnrealProject(const QString& _path);
 
     void Init();
     void Reset();
 
     bool SetProjectContentFolderPath(const QString& _path);
-    const QString& GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
-    QString GetProjectSourceFolderPath(bool _homePathIfUnvalid = true) const;
+    QString GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
+    const QString& GetRawProjectContentFolderPath() const;
+    QString GetProjectSourceFolderPath() const;
     bool IsProjectContentFolderPathValid() const;
 
     const QString GetAAssetRegex(AttributeTypeHelper::Type _type) const;

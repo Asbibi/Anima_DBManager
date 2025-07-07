@@ -14,6 +14,7 @@
 const QString QProjectDialog::ourOriginalAttributeName = "AttributeName";
 const QString QProjectDialog::ourPrefixColor = QColorConstants::DarkBlue.name();
 const QString QProjectDialog::ourSuffixColor = QColorConstants::DarkGreen.name();
+const QString QProjectDialog::ourContentColor = QColorConstants::DarkYellow.name();
 
 
 QProjectDialog::QProjectDialog(QWidget* _parent) :
@@ -25,13 +26,13 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     const QString titleStyle = "font-weight: bold";
 
     // Project Path
-    auto* pathTitle = new QLabel("Unreal Project (Content folder) Path :");
+    auto* pathTitle = new QLabel("Unreal Project Path :");
     pathTitle->setStyleSheet(titleStyle);
     vLayout->addWidget(pathTitle);
     vLayout->addSpacing(3);
     const auto& dbManager = DB_Manager::GetDB_Manager();
     myProjectPath = new QLabel();
-    SetPath(dbManager.GetProjectContentFolderPath(false));
+    SetPath(dbManager.GetRawProjectContentFolderPath());
     QPushButton* changeBtn = new QPushButton("Select Directory");
     QObject::connect(changeBtn, &QPushButton::clicked, this, &QProjectDialog::OnSelectPath);
     QPushButton* resetBtn = new QPushButton("Clear");
@@ -122,8 +123,12 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
 
 void QProjectDialog::SetPath(const QString& _path)
 {
-    myProjectPath->setText(_path);
-    QColor color = QDir(_path).exists() ? QColorConstants::Black : QColorConstants::DarkRed;
+    myProjectPathText = _path;
+
+    static QString projectPathFinalTemplate = "%1<span style=\" color:%2;\">/Content/</span>";
+    myProjectPath->setText(_path.isEmpty() ? "- No Project Folder -" : projectPathFinalTemplate.arg(_path, ourContentColor));
+
+    QColor color = DB_Manager::IsPathValidUnrealProject(_path) ? QColorConstants::Black : QColorConstants::DarkRed;
 
     QPalette palette = myProjectPath->palette();
     palette.setColor(myProjectPath->foregroundRole(), color);
@@ -133,12 +138,18 @@ void QProjectDialog::SetPath(const QString& _path)
 
 void QProjectDialog::OnSelectPath()
 {
-    QString folderPath = QFileDialog::getExistingDirectory(this, "Select an Unreal Project's Content Folder",
-                                                           myProjectPath->text());
-    if (folderPath == nullptr)
-        return;
+    QString fileName = QFileDialog::getOpenFileName(
+        this,
+        "Select an Unreal Project File",
+        QDir::homePath(),
+        "Unreal Project Files (*.uproject)"
+        );
 
-    SetPath(folderPath);
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    SetPath(QFileInfo(fileName).path());
 }
 
 void QProjectDialog::OnResetPath()
@@ -192,7 +203,7 @@ void QProjectDialog::OnApplyBtnClicked()
         dbManager.SetAAssetRegex(AttributeTypeHelper::assetTypes[i], myUAssetRegex->item(i, 0)->text());
     }
 
-    dbManager.SetProjectContentFolderPath(myProjectPath->text());
+    dbManager.SetProjectContentFolderPath(myProjectPathText);
     dbManager.SetAutoSave(myAutoSaveEnable->checkState() != Qt::Unchecked, myAutoSaveInterval->value());
     QDialog::accept();
 }

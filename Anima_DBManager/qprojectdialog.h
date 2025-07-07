@@ -16,9 +16,11 @@ class QProjectDialog : public QDialog
 
 private:
     static const QString ourOriginalAttributeName;
+    static const QString ourContentColor;
     static const QString ourPrefixColor;
     static const QString ourSuffixColor;
 
+    QString myProjectPathText;
     QLabel* myProjectPath;
     QTableWidget* myUAssetRegex;
     QLineEdit* myPrefixEdit;

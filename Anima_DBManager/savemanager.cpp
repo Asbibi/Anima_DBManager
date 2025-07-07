@@ -295,7 +295,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     csvProFile << dbManager.GetAttributeSuffix().toStdString() << '\n';
     csvProFile << (dbManager.GetAutoSaveEnabled() ? 1 : 0) << '\n';
     csvProFile << dbManager.GetAutoSaveInterval() << '\n';
-    csvProFile << (dbManager.IsProjectContentFolderPathValid() ? dbManager.GetProjectContentFolderPath() : "").toStdString() << '\n';
+    csvProFile << (dbManager.IsProjectContentFolderPathValid() ? dbManager.GetRawProjectContentFolderPath() : "").toStdString() << '\n';
     for (const auto& assetType : AttributeTypeHelper::assetTypes)
     {
         csvProFile << dbManager.GetAAssetRegex(assetType).toStdString() << '\n';

@@ -40,25 +40,56 @@ DB_Manager& DB_Manager::GetDB_Manager()
     static DB_Manager singleton = DB_Manager();
     return singleton;
 }
+bool DB_Manager::IsPathValidUnrealProject(const QString& _path)
+{
+    const QDir dir = QDir(_path);
+    if (!dir.exists())
+    {
+        return false;
+    }
+
+    if (!QDir(_path + '/' + UnrealContentFolder).exists())
+    {
+        return false;
+    }
+
+
+    QStringList unrealFileFilter;
+    unrealFileFilter << "*.uproject";
+    QStringList matchingFiles = dir.entryList(unrealFileFilter, QDir::Files);
+    if (matchingFiles.isEmpty())
+    {
+        return false;
+    }
+
+    return true;
+}
+
 
 bool DB_Manager::SetProjectContentFolderPath(const QString& _path)
 {
     myProjectContentFolderPath = _path;
-    myProjectPathIsValid = QDir(myProjectContentFolderPath).exists();
+    myProjectPathIsValid = DB_Manager::IsPathValidUnrealProject(myProjectContentFolderPath);
     emit AcknowledgeChange();
     return myProjectPathIsValid;
 }
-const QString& DB_Manager::GetProjectContentFolderPath(bool _homePathIfUnvalid) const {
-    return myProjectPathIsValid || !_homePathIfUnvalid ? myProjectContentFolderPath : myHomePath;
-}
-QString DB_Manager::GetProjectSourceFolderPath(bool _homePathIfUnvalid) const
+QString DB_Manager::GetProjectContentFolderPath(bool _homePathIfUnvalid) const
 {
-    const QString& projectPath = GetProjectContentFolderPath(_homePathIfUnvalid);
-    if (projectPath.endsWith("Content"))
+    return myProjectPathIsValid || !_homePathIfUnvalid ? myProjectContentFolderPath + QString('/').append(UnrealContentFolder) : myHomePath;
+}
+const QString& DB_Manager::GetRawProjectContentFolderPath() const
+{
+    return myProjectContentFolderPath;
+}
+QString DB_Manager::GetProjectSourceFolderPath() const
+{
+    if (!myProjectPathIsValid)
     {
-        return projectPath.chopped(7).append("Source");
+        return myHomePath;
     }
-    return projectPath;
+
+    QString sourceFolderPath = GetRawProjectContentFolderPath() + "/Source";
+    return QDir(sourceFolderPath).exists() ? sourceFolderPath : myHomePath;
 }
 bool DB_Manager::IsProjectContentFolderPathValid() const
 {
