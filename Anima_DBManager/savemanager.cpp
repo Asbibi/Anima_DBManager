@@ -111,11 +111,13 @@ void SaveManager::SaveFile(const QString& _saveFilePath)
 {
     SaveManager::GetSaveManager().SaveFileInternal(_saveFilePath);
     SaveManager::GetSaveManager().myHasUnsavedChanges = false;
+    DB_Manager::GetDB_Manager().NotifySavePerformed();
 }
 void SaveManager::OpenFile(const QString& _saveFilePath)
 {
     SaveManager::GetSaveManager().OpenFileInternal(_saveFilePath);
     SaveManager::GetSaveManager().myHasUnsavedChanges = false;
+    DB_Manager::GetDB_Manager().NotifySavePerformed();
 }
 bool SaveManager::IsOpeningFile()
 {
@@ -635,6 +637,7 @@ bool SaveManager::GetHasUnsavedChanges()
 void SaveManager::AcknowledgeUnsavedChanges()
 {
     GetSaveManager().myHasUnsavedChanges = true;
+    DB_Manager::GetDB_Manager().NotifyUnsavedChanges();
 }
 
 

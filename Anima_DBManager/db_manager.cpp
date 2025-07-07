@@ -169,7 +169,7 @@ void DB_Manager::SetAutoSave(bool _enabled, int _intervalMinut)
     myAutoSaveInterval = _intervalMinut;
     int intervalAsMS = myAutoSaveInterval * 60000;
     myAutoSaveTimer->setInterval(intervalAsMS);
-    myAutoSaveTimer->start(intervalAsMS);
+    myAutoSaveTimer->start();
     emit AcknowledgeChange();
 }
 bool DB_Manager::GetAutoSaveEnabled() const
@@ -179,6 +179,18 @@ bool DB_Manager::GetAutoSaveEnabled() const
 int DB_Manager::GetAutoSaveInterval() const
 {
     return myAutoSaveInterval;
+}
+void DB_Manager::NotifySavePerformed()
+{
+    myAutoSaveTimer->stop();
+}
+void DB_Manager::NotifyUnsavedChanges()
+{
+    if (myAutoSaveTimer->isActive() || !myAutoSaveEnabled)
+    {
+        return;
+    }
+    myAutoSaveTimer->start();
 }
 
 

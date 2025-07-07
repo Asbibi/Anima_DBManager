@@ -75,6 +75,8 @@ public:
     void SetAutoSave(bool _enabled, int _intervalMinut);
     bool GetAutoSaveEnabled() const;
     int GetAutoSaveInterval() const;
+    void NotifySavePerformed();
+    void NotifyUnsavedChanges();
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
