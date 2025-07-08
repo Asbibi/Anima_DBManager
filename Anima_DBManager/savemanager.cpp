@@ -345,13 +345,13 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 }
 void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 {
+    // Set myCurrentlyOpenedFile
     // Unzip all
     // Use Project infos
     // Import String Tables
     // Import Enums
     // Create the structure Tables from templates
     // Fill all the struct values
-    // Set myCurrentlyOpenedFile
 
 
 
@@ -367,6 +367,8 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
         return;
     }
 
+    // IX. Remember which file is open
+    SetCurrentlyOpenedFile(_saveFilePath);
 
 
     // I. Unzip save file
@@ -431,8 +433,6 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     myIsOpening = false;
 
 
-    // IX. Remember which file is open
-    SetCurrentlyOpenedFile(_saveFilePath);
 }
 
 

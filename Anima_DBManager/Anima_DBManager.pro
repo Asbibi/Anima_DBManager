@@ -91,7 +91,8 @@ SOURCES += \
     structuredb.cpp \
     structureimporthelper.cpp \
     templateattribute.cpp \
-    templatestructure.cpp
+    templatestructure.cpp \
+    unrealprojecthelper.cpp
 
 HEADERS += \
     aaclass.h \
@@ -174,7 +175,8 @@ HEADERS += \
     structuredb.h \
     structureimporthelper.h \
     templateattribute.h \
-    templatestructure.h
+    templatestructure.h \
+    unrealprojecthelper.h
 
 TRANSLATIONS += \
     Anima_DBManager_en_GB.ts

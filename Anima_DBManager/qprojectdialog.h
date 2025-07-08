@@ -20,8 +20,12 @@ private:
     static const QString ourPrefixColor;
     static const QString ourSuffixColor;
 
+    QString mySaveFilePath;
     QString myProjectPathText;
     QLabel* myProjectPath;
+    QLabel* myRelativeProjectPath;
+    QCheckBox* myProjectPathIsRelative;
+
     QTableWidget* myUAssetRegex;
     QLineEdit* myPrefixEdit;
     QLineEdit* mySuffixEdit;
@@ -30,6 +34,7 @@ private:
     QCheckBox* myAutoSaveEnable;
     QSpinBox* myAutoSaveInterval;
 
+    void InitPath(const QString& _path);
     void SetPath(const QString& _path);
     void OnFixChanged(bool _isPrefix);
     void UpdateFixResult();
@@ -38,6 +43,7 @@ public:
     QProjectDialog(QWidget* _parent = nullptr);
 
 public slots:
+    void OnRelativePathToggle();
     void OnSelectPath();
     void OnResetPath();
 

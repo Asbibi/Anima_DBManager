@@ -14,7 +14,6 @@
 #include <vector>
 
 
-const QString UnrealContentFolder = "Content";
 
 
 class DB_Manager : public QObject
@@ -22,6 +21,7 @@ class DB_Manager : public QObject
     Q_OBJECT
 
 private:
+    bool myProjectPathIsRelative = false;
     QString myProjectContentFolderPath;
     const QString myHomePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     bool myProjectPathIsValid = false;
@@ -51,14 +51,13 @@ private:
 
 public:
     static DB_Manager& GetDB_Manager();
-    static bool IsPathValidUnrealProject(const QString& _path);
 
     void Init();
     void Reset();
 
     bool SetProjectContentFolderPath(const QString& _path);
     QString GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
-    const QString& GetRawProjectContentFolderPath() const;
+    QString GetRawProjectContentFolderPath() const;
     QString GetProjectSourceFolderPath() const;
     bool IsProjectContentFolderPathValid() const;
 

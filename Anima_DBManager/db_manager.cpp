@@ -19,6 +19,7 @@
 #include "aatexture.h"
 
 #include "savemanager.h"
+#include "unrealprojecthelper.h"
 
 #include <fstream>
 
@@ -40,46 +41,37 @@ DB_Manager& DB_Manager::GetDB_Manager()
     static DB_Manager singleton = DB_Manager();
     return singleton;
 }
-bool DB_Manager::IsPathValidUnrealProject(const QString& _path)
-{
-    const QDir dir = QDir(_path);
-    if (!dir.exists())
-    {
-        return false;
-    }
-
-    if (!QDir(_path + '/' + UnrealContentFolder).exists())
-    {
-        return false;
-    }
-
-
-    QStringList unrealFileFilter;
-    unrealFileFilter << "*.uproject";
-    QStringList matchingFiles = dir.entryList(unrealFileFilter, QDir::Files);
-    if (matchingFiles.isEmpty())
-    {
-        return false;
-    }
-
-    return true;
-}
 
 
 bool DB_Manager::SetProjectContentFolderPath(const QString& _path)
 {
-    myProjectContentFolderPath = _path;
-    myProjectPathIsValid = DB_Manager::IsPathValidUnrealProject(myProjectContentFolderPath);
+    myProjectPathIsRelative = QFileInfo(_path).isRelative();
+    if (myProjectPathIsRelative)
+    {
+        myProjectContentFolderPath = UnrealProjectHelper::GetAbsolutePathFromRelative(SaveManager::GetCurrentSaveFile(),_path);
+    }
+    else
+    {
+        myProjectContentFolderPath = _path;
+    }
+
+    myProjectPathIsValid = UnrealProjectHelper::IsPathValidUnrealProject(myProjectContentFolderPath);
     emit AcknowledgeChange();
     return myProjectPathIsValid;
 }
 QString DB_Manager::GetProjectContentFolderPath(bool _homePathIfUnvalid) const
 {
-    return myProjectPathIsValid || !_homePathIfUnvalid ? myProjectContentFolderPath + QString('/').append(UnrealContentFolder) : myHomePath;
+    return myProjectPathIsValid || !_homePathIfUnvalid ? myProjectContentFolderPath + QString('/').append(UnrealProjectHelper::GetUnrealContentFolder()) : myHomePath;
 }
-const QString& DB_Manager::GetRawProjectContentFolderPath() const
+QString DB_Manager::GetRawProjectContentFolderPath() const
 {
-    return myProjectContentFolderPath;
+    if (!myProjectPathIsRelative)
+    {
+        return myProjectContentFolderPath;
+    }
+
+    // Return the project path relative to the save file
+    return UnrealProjectHelper::GetRelativePathFromAbsolute(SaveManager::GetCurrentSaveFile(), myProjectContentFolderPath);
 }
 QString DB_Manager::GetProjectSourceFolderPath() const
 {
