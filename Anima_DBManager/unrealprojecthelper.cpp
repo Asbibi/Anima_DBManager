@@ -56,7 +56,7 @@ QString UnrealProjectHelper::GetRelativePathFromAbsolute(const QString& _saveFil
     QFileInfo saveFileInfo = QFileInfo(_saveFilePath);
     QDir absoluteSaveDir = saveFileInfo.absoluteDir();
     QString relativePathToUnrealProject = absoluteSaveDir.relativeFilePath(_absoluteprojectPath);
-    if (!relativePathToUnrealProject.startsWith("../") && !QFileInfo(relativePathToUnrealProject).isAbsolute())
+    if (!relativePathToUnrealProject.startsWith("../") && !QFileInfo(relativePathToUnrealProject).isAbsolute() && relativePathToUnrealProject != ".")
     {
         relativePathToUnrealProject.prepend("./");
     }
