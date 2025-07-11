@@ -109,15 +109,17 @@ void SaveManager::SaveAuto()
 }
 void SaveManager::SaveFile(const QString& _saveFilePath)
 {
-    SaveManager::GetSaveManager().mySaveFeedbackComponent.StartSaveFeedback();
+    SaveManager::GetSaveManager().mySaveFeedbackComponent.StartSaveOpenFeedback();
     SaveManager::GetSaveManager().SaveFileInternal(_saveFilePath);
-    SaveManager::GetSaveManager().mySaveFeedbackComponent.EndSaveFeedback();
+    SaveManager::GetSaveManager().mySaveFeedbackComponent.EndSaveOpenFeedback();
     SaveManager::GetSaveManager().myHasUnsavedChanges = false;
     DB_Manager::GetDB_Manager().NotifySavePerformed();
 }
 void SaveManager::OpenFile(const QString& _saveFilePath)
 {
+    SaveManager::GetSaveManager().mySaveFeedbackComponent.StartSaveOpenFeedback();
     SaveManager::GetSaveManager().OpenFileInternal(_saveFilePath);
+    SaveManager::GetSaveManager().mySaveFeedbackComponent.EndSaveOpenFeedback();
     SaveManager::GetSaveManager().myHasUnsavedChanges = false;
     DB_Manager::GetDB_Manager().NotifySavePerformed();
 }
@@ -205,6 +207,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
     for (int i = 0; i < stringTableCount; i++)
     {
+        mySaveFeedbackComponent.SetSaveStringTableProgress(i, stringTableCount);
         const auto* table = dbManager.GetStringTable(i);
         const QString& tableName = table->GetTableName();
         for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
@@ -213,7 +216,6 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
             table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l, false);
             csvStringFile << '\n';
         }
-        mySaveFeedbackComponent.SetSaveStringTableProgress(i, stringTableCount);
     }
     csvStringFile.close();
 
@@ -232,24 +234,15 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     }
     for (int i = 0; i < enumCount; i++)
     {
+        mySaveFeedbackComponent.SetSaveEnumProgress(i, enumCount);
         const auto* enumerator = dbManager.GetEnum(i) ;
         enumerator->SaveEnum_CSV(csvEnumFile);
-        mySaveFeedbackComponent.SetSaveEnumProgress(i, enumCount);
     }
     csvEnumFile.close();
 
 
 
     // III. Save structure templates & Structure defaults
-
-    const int structTableCount = dbManager.GetStructuresCount();
-    QJsonArray templateJson = QJsonArray();
-    for (int i = 0; i < structTableCount; i++)
-    {
-        const auto& templateStruct = dbManager.GetStructureTable(i)->GetTemplate();
-        templateStruct.SaveTemplate(templateJson);
-        mySaveFeedbackComponent.SetSaveStructTemplateProgress(i, structTableCount);
-    }
 
     QString templateFilePath = tempFolderPath + fileEndTemplate;
     tempFileList << templateFilePath;
@@ -258,6 +251,14 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     {
         qCritical() << "ERROR SAVING DB : default file " << templateFilePath << " couldn't be created";
         return;
+    }    
+    const int structTableCount = dbManager.GetStructuresCount();
+    QJsonArray templateJson = QJsonArray();
+    for (int i = 0; i < structTableCount; i++)
+    {
+        mySaveFeedbackComponent.SetSaveStructTemplateProgress(i, structTableCount);
+        const auto& templateStruct = dbManager.GetStructureTable(i)->GetTemplate();
+        templateStruct.SaveTemplate(templateJson);
     }
     jsonTemplateFile.write(QJsonDocument(templateJson).toJson());
     jsonTemplateFile.close();
@@ -277,11 +278,11 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     QJsonObject structData = QJsonObject();
     for (int i = 0; i < structTableCount; i++)
     {
+        mySaveFeedbackComponent.SetSaveStructDataProgress(i, structTableCount);
         const auto* structTable = dbManager.GetStructureTable(i);
         structData.insert(structTable->GetTemplateName(), structTable->WriteValue_JSON_Table());
         //csvStructFile << "###" << structTable->GetTemplateName().toStdString() << "###\n";
         //structTable->WriteValue_CSV_Table(csvStructFile);
-        mySaveFeedbackComponent.SetSaveStructDataProgress(i, structTableCount);
     }
     jsonStructFile.write(QJsonDocument(structData).toJson());
     jsonStructFile.close();
@@ -298,6 +299,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
         qCritical() << "ERROR SAVING DB : temp file " << projectFilePath << " couldn't be created";
         return;
     }
+    mySaveFeedbackComponent.SetSaveProjectProgress();
     csvProFile << "###PROJECT_FOLDER###\n";
     csvProFile << dbManager.GetAttributePrefix().toStdString() << '\n';
     csvProFile << dbManager.GetAttributeSuffix().toStdString() << '\n';
@@ -309,7 +311,6 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
         csvProFile << dbManager.GetAAssetRegex(assetType).toStdString() << '\n';
     }
     csvProFile.close();
-    mySaveFeedbackComponent.SetSaveProjectProgress();
 
 
 
@@ -321,13 +322,14 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     int fileIndex = 0;
     for (const auto& file : tempFileList)
     {
+        mySaveFeedbackComponent.SetSaveCompilationProgress(fileIndex, tempFileList.length());
+
         uncompressedData.append(separator);
         QFile infile(file);
         infile.open(QIODevice::ReadOnly);
         uncompressedData.append(infile.readAll());
         infile.close();
 
-        mySaveFeedbackComponent.SetSaveCompilationProgress(fileIndex, tempFileList.length());
         fileIndex++;
     }
 #ifdef SAVE_WITH_COMPRESSION
@@ -402,11 +404,17 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // II. Read Bytes in separate temporary files
 
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(0, 6);
     int firstSeparator = FindFileSeparatorStart(uncompressedData, 0);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(1, 6);
     int secondSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndString, firstSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(2, 6);
     int thirdSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndEnum, secondSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(3, 6);
     int fourthSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndTemplate, thirdSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(4, 6);
     int fithSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndData, fourthSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(5, 6);
     WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndPro, fithSeparator);
 
 
@@ -453,6 +461,8 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     bool openProCheck = projectFile.open(QIODevice::ReadOnly);
     Q_ASSERT(openProCheck);
     QTextStream proIn(&projectFile);
+    mySaveFeedbackComponent.SetOpenProjectProgress();
+
     QString proFirstLine = proIn.readLine();
     Q_ASSERT(proFirstLine == "###PROJECT_FOLDER###");
     _dbManager.SetAttributePrefix(proIn.readLine());
@@ -534,13 +544,16 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manag
     }
 
     auto stringTableNames = importerMap.keys();
+    int i = 0;
     for (const auto& tableName : stringTableNames)
     {
+        mySaveFeedbackComponent.SetOpenStringTableProgress(i, stringTableNames.length());
         importerMap[tableName].PerformImport(-2, 0, tableName); // -1 is for Dictionary import via DialogBox
+        i++;
     }
 
 
-    _dbManager.ReplaceDictionaryWithLastStringTable();  // TODO : directly import Dictionary with ....PerformImport(-1, 0, tableName); instead of using a temporary StringTable
+    _dbManager.ReplaceDictionaryWithLastStringTable();  // TODO ? : directly import Dictionary with ....PerformImport(-1, 0, tableName); instead of using a temporary StringTable
 
     file.close();
 }
@@ -550,6 +563,7 @@ void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager
     bool openCheck = file.open(QIODevice::ReadOnly);
     Q_ASSERT(openCheck);
     QTextStream in(&file);
+    mySaveFeedbackComponent.SetOpenEnumProgress();
 
     Enumerator currentEnum = Enumerator("");
     QString currentLine;
@@ -581,6 +595,7 @@ void SaveManager::ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager
             continue;
         }
 
+
         if (useColor)
         {
             QColor color = QColor(currentLine.last(7));
@@ -607,17 +622,22 @@ void SaveManager::ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manage
 
     const QJsonArray importedJson = QJsonDocument::fromJson(file.readAll()).array();
     file.close();
+    const int structCount = importedJson.count();
 
     // First loop to create the structures and set the "identity" values
-    for (const QJsonValue& templAsJson : importedJson)
-    {
-        _dbManager.AddStructureDB(TemplateStructure::LoadTemplateNoAttribute(templAsJson.toObject()));
-    }
-
-    // Second loop to set the attributes (parameters and default values)
     int i = 0;
     for (const QJsonValue& templAsJson : importedJson)
     {
+        mySaveFeedbackComponent.SetOpenStructTemplateProgress(i, structCount);
+        _dbManager.AddStructureDB(TemplateStructure::LoadTemplateNoAttribute(templAsJson.toObject()));
+        i++;
+    }
+
+    // Second loop to set the attributes (parameters and default values)
+    i = 0;
+    for (const QJsonValue& templAsJson : importedJson)
+    {
+        mySaveFeedbackComponent.SetOpenStructTemplateDefaultProgress(i, structCount);
         _dbManager.SetAttributeTemplatesFromJSON(i, templAsJson.toObject().value("Attributes").toArray());
         i++;
     }
@@ -631,12 +651,15 @@ void SaveManager::ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager
     const QJsonObject importedJson = QJsonDocument::fromJson(file.readAll()).object();
     file.close();
 
+    int i = 0;
     QStringList structNames = importedJson.keys();
     for (const auto& strctName : structNames)
     {
+        mySaveFeedbackComponent.SetOpenStructDataProgress(i, structNames.length());
         StructureDB* currentStructTable = _dbManager.GetStructureTable(strctName);
         Q_ASSERT(currentStructTable != nullptr);
         currentStructTable->ReadValue_JSON_Table(importedJson.value(strctName).toArray(), StructureImportHelper::OverwritePolicy::Overwrite);
+        i++;
     }
 }
 
