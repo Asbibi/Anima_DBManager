@@ -4,6 +4,7 @@
 #include <QMap>
 #include "areference.h"
 #include "db_manager.h"
+#include "savefeedbackcomponent.h"
 
 class SaveManager
 {
@@ -23,6 +24,7 @@ private:
     bool myIsSaving = false;
     QString myCurrentlyOpenedFile = "";
     bool myHasUnsavedChanges = false;
+    SaveFeedbackComponent mySaveFeedbackComponent;
 
 
     static SaveManager& GetSaveManager();
@@ -40,6 +42,8 @@ private:
     void ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessDataTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
+
+
 
 public:
     static bool HasCurrentFile();

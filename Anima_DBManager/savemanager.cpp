@@ -109,7 +109,9 @@ void SaveManager::SaveAuto()
 }
 void SaveManager::SaveFile(const QString& _saveFilePath)
 {
+    SaveManager::GetSaveManager().mySaveFeedbackComponent.StartSaveFeedback();
     SaveManager::GetSaveManager().SaveFileInternal(_saveFilePath);
+    SaveManager::GetSaveManager().mySaveFeedbackComponent.EndSaveFeedback();
     SaveManager::GetSaveManager().myHasUnsavedChanges = false;
     DB_Manager::GetDB_Manager().NotifySavePerformed();
 }
@@ -211,6 +213,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
             table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l, false);
             csvStringFile << '\n';
         }
+        mySaveFeedbackComponent.SetSaveStringTableProgress(i, stringTableCount);
     }
     csvStringFile.close();
 
@@ -231,6 +234,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     {
         const auto* enumerator = dbManager.GetEnum(i) ;
         enumerator->SaveEnum_CSV(csvEnumFile);
+        mySaveFeedbackComponent.SetSaveEnumProgress(i, enumCount);
     }
     csvEnumFile.close();
 
@@ -244,6 +248,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     {
         const auto& templateStruct = dbManager.GetStructureTable(i)->GetTemplate();
         templateStruct.SaveTemplate(templateJson);
+        mySaveFeedbackComponent.SetSaveStructTemplateProgress(i, structTableCount);
     }
 
     QString templateFilePath = tempFolderPath + fileEndTemplate;
@@ -276,6 +281,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
         structData.insert(structTable->GetTemplateName(), structTable->WriteValue_JSON_Table());
         //csvStructFile << "###" << structTable->GetTemplateName().toStdString() << "###\n";
         //structTable->WriteValue_CSV_Table(csvStructFile);
+        mySaveFeedbackComponent.SetSaveStructDataProgress(i, structTableCount);
     }
     jsonStructFile.write(QJsonDocument(structData).toJson());
     jsonStructFile.close();
@@ -303,6 +309,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
         csvProFile << dbManager.GetAAssetRegex(assetType).toStdString() << '\n';
     }
     csvProFile.close();
+    mySaveFeedbackComponent.SetSaveProjectProgress();
 
 
 
@@ -311,6 +318,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::WriteOnly);
     QByteArray uncompressedData;
+    int fileIndex = 0;
     for (const auto& file : tempFileList)
     {
         uncompressedData.append(separator);
@@ -318,6 +326,9 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
         infile.open(QIODevice::ReadOnly);
         uncompressedData.append(infile.readAll());
         infile.close();
+
+        mySaveFeedbackComponent.SetSaveCompilationProgress(fileIndex, tempFileList.length());
+        fileIndex++;
     }
 #ifdef SAVE_WITH_COMPRESSION
     QByteArray compressedData = qCompress(uncompressedData,9);

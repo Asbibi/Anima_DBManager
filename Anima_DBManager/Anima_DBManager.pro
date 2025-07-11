@@ -81,6 +81,7 @@ SOURCES += \
     qtemplatestructure.cpp \
     qtemplatestructurebase.cpp \
     qtemplatestructurecore.cpp \
+    savefeedbackcomponent.cpp \
     savemanager.cpp \
     searchmanager.cpp \
     sstringhelper.cpp \
@@ -163,6 +164,7 @@ HEADERS += \
     qtemplatestructure.h \
     qtemplatestructurebase.h \
     qtemplatestructurecore.h \
+    savefeedbackcomponent.h \
     savemanager.h \
     searchmanager.h \
     searchparameter.h \
