@@ -12,6 +12,8 @@ protected:
 
 public:
     Language(const QString& _abbrev, const QString& _name);
+    Language(const Language& _other);
+    void operator=(const Language& _other);
 
     const QString& GetName() const;
     const QString& GetAbbrev() const;
