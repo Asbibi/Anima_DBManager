@@ -14,6 +14,7 @@ public:
 
     int GetLanguageCount() const;
     const Language& GetLanguage(int _index) const;
+    int GetLanguageIndexFromAbbrev(const QString& _languageAbbrev) const;
 };
 
 #endif // LANGUAGEENUM_H

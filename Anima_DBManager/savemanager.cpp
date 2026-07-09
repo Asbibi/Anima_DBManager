@@ -490,6 +490,7 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manag
     Q_ASSERT(openCheck);
     QTextStream in(&file);
 
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
 
     QString currentLine;
 
@@ -527,7 +528,7 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manag
                 importerMap.insert(currentTable, SStringImporter());
             }
 
-            importerMap[currentTable].RegisterLanguageFile(SStringHelper::GetLanguageFromCD(currentLangg), currentFilePath);
+            importerMap[currentTable].RegisterLanguageFile(languages.GetLanguageIndexFromAbbrev(currentLangg), currentFilePath);
         }
 
         if (curentFileStream != nullptr)

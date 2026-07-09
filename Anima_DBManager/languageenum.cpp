@@ -1,4 +1,5 @@
 #include "languageenum.h"
+#include <QDebug>
 
 LanguageEnum::LanguageEnum() : QObject{nullptr}
 {
@@ -22,4 +23,18 @@ const Language& LanguageEnum::GetLanguage(int _index) const
     }
 
     return languages[_index];
+}
+int LanguageEnum::GetLanguageIndexFromAbbrev(const QString& _languageAbbrev) const
+{
+    const int count = GetLanguageCount();
+    for (int i = 0; i < count; i++)
+    {
+        if (languages[i].GetAbbrev() == _languageAbbrev)
+        {
+            return i;
+        }
+    }
+
+    qDebug() << "Language not found - Code : " << _languageAbbrev;
+    return -1;
 }

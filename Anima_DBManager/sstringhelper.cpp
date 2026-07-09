@@ -10,42 +10,6 @@
 namespace SStringHelper {
 
 
-SStringLanguages GetLanguageFromCD(const QString& _cd)
-{
-    if (_cd == CD_FR)
-        return SStringLanguages::French;
-    else if (_cd == CD_EN)
-        return SStringLanguages::English;
-
-    return SStringLanguages::Count;
-}
-QString GetLanguageString(SStringLanguages _language)
-{
-    switch (_language)
-    {
-        case SStringLanguages::French:
-            return "Français";
-        case SStringLanguages::English:
-            return "English";            
-        default:
-            break;
-    }
-    return "";
-}
-QString GetLanguageCD(SStringLanguages _language)
-{
-    switch (_language)
-    {
-        case SStringLanguages::French:
-            return CD_FR;
-        case SStringLanguages::English:
-            return CD_EN;
-        default:
-            break;
-    }
-    return "";
-}
-
 QString GetUniqueIdentifier(QString& _baseIdentifier, std::function<bool(const QString&)> _ValidateId, bool _noneAutorized)
 {
     if (_noneAutorized && _ValidateId(_baseIdentifier))
@@ -110,13 +74,6 @@ bool IsNameOkForAttribute(const QString& _name)
 {
     return _name != "" && DB_Manager::GetDB_Manager().GetAttributeFullName(_name) != "Name";
 }
-void IncrementLanguage(SStringLanguages& _language)
-{
-    int l = _language;
-    l++;
-    _language = (SStringLanguages)l;
-}
-
 
 void ReplaceDictionaryReferenceInString(QString& _string, int _languageIndex)
 {
@@ -132,23 +89,6 @@ void ReplaceDictionaryReferenceInString(QString& _string, int _languageIndex)
         QRegularExpressionMatch match = matchIterator.next();
         QString indicator = match.captured(1); // Extracts text between '$'
         const QString* dictionaryString = dictionary->GetString(indicator, _languageIndex);
-        _string.replace(match.captured(0), dictionaryString != nullptr ? *dictionaryString : "");
-    }
-}
-void ReplaceDictionaryReferenceInString(QString& _string, SStringHelper::SStringLanguages _language)
-{
-    static QRegularExpression dictionaryIdRegex(R"(\$(.*?)\$)");
-
-    const SStringTable* dictionary = DB_Manager::GetDB_Manager().GetDictionary();
-    Q_ASSERT(dictionary != nullptr);
-
-    QString copy = _string;
-    QRegularExpressionMatchIterator matchIterator = dictionaryIdRegex.globalMatch(copy);
-    while (matchIterator.hasNext())
-    {
-        QRegularExpressionMatch match = matchIterator.next();
-        QString indicator = match.captured(1); // Extracts text between '$'
-        const QString* dictionaryString = dictionary->GetString(indicator, _language);
         _string.replace(match.captured(0), dictionaryString != nullptr ? *dictionaryString : "");
     }
 }
