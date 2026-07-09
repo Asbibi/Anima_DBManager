@@ -360,6 +360,22 @@ void DB_Manager::Reset()
 
 
 
+int DB_Manager::GetLanguagesCount()
+{
+    return GetDB_Manager().myLanguages.GetLanguageCount();
+}
+const LanguageEnum& DB_Manager::GetLanguages() const
+{
+    return myLanguages;
+}
+
+
+
+// ==============================================================
+// ==============================================================
+
+
+
 
 int DB_Manager::GetEnumCount() const
 {
@@ -1011,7 +1027,7 @@ QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& 
     if (!AreValidIdentifiers(_tableId, _stringId))
         return _complete ? "Ø" : "<font color=\"darkred\">INVALID</font>";
 
-    const QString* myStr = GetStringTable(_tableId)->GetString(_stringId, SStringHelper::SStringLanguages::French);
+    const QString* myStr = GetStringTable(_tableId)->GetString(_stringId, 0);
     if (!myStr)
         return _complete ? "-" : "<font color=\"darkyellow\">INVALID</font>";
 

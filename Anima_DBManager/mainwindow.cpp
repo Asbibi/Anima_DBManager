@@ -112,19 +112,22 @@ MainWindow::MainWindow(QWidget *parent) :
     auto* importEnumFromCodeAction = importMenu->addAction("Import Enumerator from C++ file");
     QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
 
-
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+    const auto& languages = myManager.GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
+    for (int i = 0; i < languagesCount; i++)
     {
-        auto* exportCurrentStringAction = myExportCurrentStringMenu->addAction("Export Current in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
-        QObject::connect(exportCurrentStringAction, &QAction::triggered, this, [this, i]{OnExportCurrentStringTable((SStringHelper::SStringLanguages)i);});
+        const QString& languageName = languages.GetLanguage(i).GetName();
 
-        auto* exportAllStringAction = exportAllStringsMenu->addAction("Export All in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
-        QObject::connect(exportAllStringAction, &QAction::triggered, this, [this, i]{OnExportAllStringTables((SStringHelper::SStringLanguages)i);});
+        auto* exportCurrentStringAction = myExportCurrentStringMenu->addAction("Export Current in " + languageName);
+        QObject::connect(exportCurrentStringAction, &QAction::triggered, this, [this, i]{OnExportCurrentStringTable(i);});
+
+        auto* exportAllStringAction = exportAllStringsMenu->addAction("Export All in " + languageName);
+        QObject::connect(exportAllStringAction, &QAction::triggered, this, [this, i]{OnExportAllStringTables(i);});
     }
     auto* exportCurrentStringAllLanguage = myExportCurrentStringMenu->addAction("Export Current in All Languages");
-    QObject::connect(exportCurrentStringAllLanguage, &QAction::triggered, this, [this]{OnExportCurrentStringTable(SStringHelper::SStringLanguages::Count);});
+    QObject::connect(exportCurrentStringAllLanguage, &QAction::triggered, this, [this]{OnExportCurrentStringTable(-1);});
     auto* exportAllStringAllLanguage = exportAllStringsMenu->addAction("Export All in All Languages");
-    QObject::connect(exportAllStringAllLanguage, &QAction::triggered, this, [this]{OnExportAllStringTables(SStringHelper::SStringLanguages::Count);});
+    QObject::connect(exportAllStringAllLanguage, &QAction::triggered, this, [this]{OnExportAllStringTables(-1);});
 
 
     QObject::connect(projSettings, &QAction::triggered, this, &MainWindow::OnProjectSettings);
@@ -291,18 +294,20 @@ void MainWindow::BuildExportOneStringTableMenu()
 {
     myExportOneStringMenu->clear();
     const int stringTableCount = myManager.GetStringTableCount();
+    const auto& languages = myManager.GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
     for (int i = 0; i < stringTableCount; i++)
     {
         const auto* stringTable = myManager.GetStringTable(i);
         QMenu* exportStringMenu = myExportOneStringMenu->addMenu("Export " + stringTable->GetTableName());
-        for (int j = 0; j < SStringHelper::SStringLanguages::Count; j++)
+        for (int j = 0; j < languagesCount; j++)
         {
-            auto* exportOneStringAction = exportStringMenu->addAction("Export in " + SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)j));
-            QObject::connect(exportOneStringAction, &QAction::triggered, this, [this, i, j]{OnExportOneStringTable(i, (SStringHelper::SStringLanguages)j);});
+            auto* exportOneStringAction = exportStringMenu->addAction("Export in " + languages.GetLanguage(j).GetName());
+            QObject::connect(exportOneStringAction, &QAction::triggered, this, [this, i, j]{OnExportOneStringTable(i, j);});
         }
 
         auto* exportOneStringActionAllLanguages = exportStringMenu->addAction("Export in All Languages");
-        QObject::connect(exportOneStringActionAllLanguages, &QAction::triggered, this, [this, i]{OnExportOneStringTable(i, SStringHelper::SStringLanguages::Count);});
+        QObject::connect(exportOneStringActionAllLanguages, &QAction::triggered, this, [this, i]{OnExportOneStringTable(i, -1);});
     }
     myExportOneStringMenu->setEnabled(stringTableCount > 0);
 }
@@ -822,7 +827,7 @@ void MainWindow::OnOpenRecentDB(const QString& _filePath)
 
 // ================      Export Methods      ================
 
-void MainWindow::OnExportCurrentStringTable(SStringHelper::SStringLanguages _language)
+void MainWindow::OnExportCurrentStringTable(int _languageIndex)
 {
     if (myTabString->currentIndex() == 0)
     {
@@ -830,13 +835,13 @@ void MainWindow::OnExportCurrentStringTable(SStringHelper::SStringLanguages _lan
         return;
     }
 
-    ExportOneStringTable(myTabString->currentIndex(), _language, "");
+    ExportOneStringTable(myTabString->currentIndex(), _languageIndex, "");
 }
-void MainWindow::OnExportOneStringTable(int _index, SStringHelper::SStringLanguages _language)
+void MainWindow::OnExportOneStringTable(int _index, int _languageIndex)
 {
-    ExportOneStringTable(_index + 1, _language, "");
+    ExportOneStringTable(_index + 1, _languageIndex, "");
 }
-void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _language)
+void MainWindow::OnExportAllStringTables(int _languageIndex)
 {
     QString dir = QFileDialog::getExistingDirectory(this, "Select String Table Directory",
                                                     myManager.GetProjectContentFolderPath());
@@ -848,10 +853,10 @@ void MainWindow::OnExportAllStringTables(SStringHelper::SStringLanguages _langua
     int widgetCount = myTabString->count();
     for (int i = 1; i < widgetCount; i++)   // starts at 1 to avoid dictionary
     {
-        ExportOneStringTable(i, _language, dir);
+        ExportOneStringTable(i, _languageIndex, dir);
     }
 }
-void MainWindow::ExportOneStringTable(int _index, SStringHelper::SStringLanguages _language, QString _dir)
+void MainWindow::ExportOneStringTable(int _index, int _languageIndex, QString _dir)
 {
     QSStringTable* tab = dynamic_cast<QSStringTable*>(myTabString->widget(_index));
     if(tab == nullptr || _index == 0)   // index 0 is for the dictionary string table
@@ -870,16 +875,17 @@ void MainWindow::ExportOneStringTable(int _index, SStringHelper::SStringLanguage
     }
 
 
-    if (_language != SStringHelper::SStringLanguages::Count)
+    const int languagesCount = myManager.GetLanguages().GetLanguageCount();
+    if (_languageIndex < 0 || _languageIndex >= languagesCount)
     {
-        tab->ExportStringsToCSV(_dir, _language);
+        for (int i = 0; i < languagesCount; i++)
+        {
+            tab->ExportStringsToCSV(_dir, i);
+        }
     }
     else
     {
-        for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
-        {
-            tab->ExportStringsToCSV(_dir, (SStringHelper::SStringLanguages)i);
-        }
+        tab->ExportStringsToCSV(_dir, _languageIndex);
     }
 }
 void MainWindow::OnExportCurrentStructTable_JSON()
@@ -960,7 +966,7 @@ void MainWindow::OnExportAll()
     // Todo : change so there is only 1 directory selection for both struct and string exports ?
 
     OnExportAllStructTables_JSON();
-    OnExportAllStringTables(SStringHelper::SStringLanguages::Count);
+    OnExportAllStringTables(-1);
 }
 
 void MainWindow::OnImportStringTable()

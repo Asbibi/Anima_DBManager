@@ -47,17 +47,17 @@ int SStringTable::GetIndexFromIdentifier(const QString& _identifier) const
     return -1;
 }
 
-const QString* SStringTable::GetString(int _index, SStringHelper::SStringLanguages _language) const
+const QString* SStringTable::GetString(int _index, int _languageIndex) const
 {
     if (_index < 0 || _index >= GetStringItemCount())
         return nullptr;
 
-    return &(myStrings[_index].GetString(_language));
+    return &(myStrings[_index].GetString(_languageIndex));
 }
 
-const QString* SStringTable::GetString(const QString& _identifier, SStringHelper::SStringLanguages _language) const
+const QString* SStringTable::GetString(const QString& _identifier, int _languageIndex) const
 {
-    return GetString(GetIndexFromIdentifier(_identifier), _language);
+    return GetString(GetIndexFromIdentifier(_identifier), _languageIndex);
 }
 
 const QList<SStringItem>& SStringTable::GetStringItems() const
@@ -149,11 +149,12 @@ void SStringTable::AddStringItemWithTexts(int _index, const QString _texts[], co
 {
     auto outId = AddStringItem(_index, _wantedIdentifier);
     SStringItem* item = GetStringItemW(outId);
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+    const int languagesCount = DB_Manager::GetLanguagesCount();
+    for (int i = 0; i < languagesCount; i++)
     {
-        item->SetString((SStringHelper::SStringLanguages)i, _texts[i]);
+        item->SetString(i, _texts[i]);
     }
-    // emit DB_Manager::GetDB_Manager().AcknowledgeChange(); Not nec because call in AddStrinItem
+    // emit DB_Manager::GetDB_Manager().AcknowledgeChange(); Not nec because called in AddStrinItem
 }
 
 void SStringTable::AddStringItemFromCopy(int _index, const SStringItem& _item)
@@ -255,9 +256,9 @@ bool SStringTable::SetItemIdentifier(const int _index, const QString& _identifie
     return ok;
 }
 
-void SStringTable::SetItemString(int _row, SStringHelper::SStringLanguages _col, const QString& _text)
+void SStringTable::SetItemString(int _row, int _col, const QString& _text)
 {
-    if (_col < 0 || SStringHelper::SStringLanguages::Count <= _col)
+    if (_col < 0 || DB_Manager::GetLanguagesCount() <= _col)
     {
         qFatal("UpdateString slot triggered with invalid language col %d", _col);
         return;
@@ -273,12 +274,12 @@ void SStringTable::SetItemString(int _row, SStringHelper::SStringLanguages _col,
     stringItem->SetString(_col, _text);
     emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
-void SStringTable::ImportString(SStringHelper::SStringLanguages _language, const QString& _identifier, const QString& _text, int _overwritePolicy)
+void SStringTable::ImportString(int _languageIndex, const QString& _identifier, const QString& _text, int _overwritePolicy)
 {
     int stringIndex = GetIndexFromIdentifier(_identifier);
     if (stringIndex != -1)  // string already exists
     {
-        if (!myStrings[stringIndex].GetString(_language).isEmpty())
+        if (!myStrings[stringIndex].GetString(_languageIndex).isEmpty())
         {
             if (_overwritePolicy == 1)
             {
@@ -295,25 +296,25 @@ void SStringTable::ImportString(SStringHelper::SStringLanguages _language, const
             }
             // else : overwrite existing : like the value is currently empty
         }
-        myStrings[stringIndex].SetString(_language, QString(_text).replace("\\n","\n"));
+        myStrings[stringIndex].SetString(_languageIndex, QString(_text).replace("\\n","\n"));
     }
     else
     {
         // Line doesn't exists yet : need to create it
         stringIndex = GetStringItemCount();
         AddStringItem(-1, &_identifier);
-        myStrings[stringIndex].SetString(_language, QString(_text).replace("\\n","\n"));
+        myStrings[stringIndex].SetString(_languageIndex, QString(_text).replace("\\n","\n"));
     }
     emit DB_Manager::GetDB_Manager().AcknowledgeChange();
 }
 
 
 
-void SStringTable::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement) const
+void SStringTable::WriteValue_CSV(std::ofstream& _file, int _languageIndex, bool _withDictionaryReplacement) const
 {
     for (const auto& stringItem : myStrings)
     {
         _file << '\n';
-        stringItem.WriteValue_CSV(_file, _language, _withDictionaryReplacement);
+        stringItem.WriteValue_CSV(_file, _languageIndex, _withDictionaryReplacement);
     }
 }

@@ -45,9 +45,12 @@ QSStringDialog::QSStringDialog(QString& _outTableId, QString& _outStringId, QWid
     hLayoutPreview->addWidget(scrollArea);
     auto* languageComboBox = new QComboBox();
     hLayoutPreview->addWidget(languageComboBox);
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
+    for (int i = 0; i < languagesCount; i++)
     {
-        languageComboBox->addItem(SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)i));
+        languageComboBox->addItem(languages.GetLanguage(i).GetName());
     }
     QObject::connect(languageComboBox, &QComboBox::currentIndexChanged, this, &QSStringDialog::SetLanguage);
     vLayout->addWidget(previewWidget);
@@ -134,6 +137,8 @@ void QSStringDialog::SetStringName(const QString &text)
 
 void QSStringDialog::SetLanguage(const int languageIndex)
 {
-    myLanguage = (SStringHelper::SStringLanguages)languageIndex;
+    Q_ASSERT(languageIndex >= 0);
+    Q_ASSERT(languageIndex < DB_Manager::GetLanguagesCount());
+    myLanguage = languageIndex;
     UpdateStringPreview();
 }

@@ -42,7 +42,7 @@ public slots:
     void OnStringCheckboxChanged(int _state);
     void OnEnumCheckboxChanged(int _state);
     void OnAttributeCheckBoxChanged(int _state, AttributeTypeHelper::Type _type);
-    void OnLanguageCheckBoxChanged(int _state, SStringHelper::SStringLanguages _language);
+    void OnLanguageCheckBoxChanged(int _state, int _languageIndex);
     void OnCaseCheckboxChanged(int _state);
     void OnWholeCheckboxChanged(int _state);
 

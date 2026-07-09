@@ -188,14 +188,16 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // I. String table save
+    // I. Languages save
+
+    const auto& languages = dbManager.GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
+    // todo save languages
+
+
+    // II. String table save
 
     const int stringTableCount = dbManager.GetStringTableCount() + 1; // +1 to include the DICTIONARY
-    QMap<int, QString> languageCodeMap;
-    for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
-    {
-        languageCodeMap.insert(l, SStringHelper::GetLanguageCD((SStringHelper::SStringLanguages)l));
-    }
     QString stringFilePath = tempFolderPath + fileEndString;
     tempFileList << stringFilePath;
     std::ofstream csvStringFile(stringFilePath.toStdString());
@@ -210,10 +212,10 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
         mySaveFeedbackComponent.SetSaveStringTableProgress(i, stringTableCount);
         const auto* table = dbManager.GetStringTable(i);
         const QString& tableName = table->GetTableName();
-        for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
+        for (int l = 0; l < languagesCount; l++)
         {
-            csvStringFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###";
-            table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l, false);
+            csvStringFile << "###" << languages.GetLanguage(l).GetAbbrev().toStdString() << "---" << tableName.toStdString() << "###";
+            table->WriteValue_CSV(csvStringFile, l, false);
             csvStringFile << '\n';
         }
     }
@@ -221,7 +223,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // II. Save enums
+    // III. Save enums
 
     const int enumCount = dbManager.GetEnumCount();
     QString enumFilePath = tempFolderPath + fileEndEnum;
@@ -242,7 +244,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // III. Save structure templates & Structure defaults
+    // IV. Save structure templates & Structure defaults
 
     QString templateFilePath = tempFolderPath + fileEndTemplate;
     tempFileList << templateFilePath;
@@ -265,7 +267,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // IV. Save structure datas
+    // V. Save structure datas
 
     QString structFilePath = tempFolderPath + fileEndData;
     tempFileList << structFilePath;
@@ -289,7 +291,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // V. Save Project Infos
+    // VI. Save Project Infos
 
     QString projectFilePath = tempFolderPath + fileEndPro;
     tempFileList << projectFilePath;
@@ -314,7 +316,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // VI. Compress all temp files in the final save file
+    // VII. Compress all temp files in the final save file
 
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::WriteOnly);
@@ -342,14 +344,14 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // VII. Clean Up
+    // VIII. Clean Up
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
     myIsSaving = false;
 
 
-    // VIII. Remember the saved file as the opened one, only if regular save (ie not auto)
+    // IX. Remember the saved file as the opened one, only if regular save (ie not auto)
 
     if (!_isAutoSave)
     {

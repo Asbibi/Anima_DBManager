@@ -19,7 +19,7 @@ private:
     QComboBox* myTableComboBox;
     QComboBox* myStringComboBox;
 
-    SStringHelper::SStringLanguages myLanguage = SStringHelper::SStringLanguages::French;
+    int myLanguage = 0;
     QLabel* myStringPreview;
 
     void UpdateStringComboBox();

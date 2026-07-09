@@ -80,6 +80,9 @@ void SearchManager::SearchString(const SearchParameter& _parameters, QList<Searc
 {
     Q_ASSERT(_parameters.mySearchOnStrings);
 
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
+    const int languageCount = languages.GetLanguageCount();
+    Q_ASSERT(languageCount == _parameters.myLanguageIgnoreSearchMap.count());
     const int tableCount = dbManager.GetStringTableCount();
     for (int i = 0; i < tableCount; i++)
     {
@@ -89,7 +92,7 @@ void SearchManager::SearchString(const SearchParameter& _parameters, QList<Searc
         int j = 0;
         for (const auto& item : stringList)
         {
-            for (SStringHelper::SStringLanguages language = SStringHelper::SStringLanguages::French; language < SStringHelper::SStringLanguages::Count; SStringHelper::IncrementLanguage(language))
+            for (int language = 0; language < languageCount; language++)
             {
                 if (!_parameters.myLanguageIgnoreSearchMap[language])
                 {
@@ -108,7 +111,7 @@ void SearchManager::SearchString(const SearchParameter& _parameters, QList<Searc
                     result.myDisplayString.append("STRING");
                     result.myDisplayString.append(sTableName);
                     result.myDisplayString.append(item.GetIdentifier());
-                    result.myDisplayString.append(SStringHelper::GetLanguageCD(language));
+                    result.myDisplayString.append(languages.GetLanguage(language).GetAbbrev());
                     result.myDisplayString.append(str);
 
                     _outResults.append(result);

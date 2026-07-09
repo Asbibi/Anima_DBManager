@@ -14,9 +14,9 @@ bool SStringImporter::HasNoFileRegistered() const
     return myCSVMap.isEmpty();
 }
 
-void SStringImporter::RegisterLanguageFile(SStringHelper::SStringLanguages _language, const QString& _filePath)
+void SStringImporter::RegisterLanguageFile(int _languageIndex, const QString& _filePath)
 {
-    myCSVMap.insert(_language, _filePath);
+    myCSVMap.insert(_languageIndex, _filePath);
 }
 bool SStringImporter::PerformImport(int _stringTableIndex, int _overrideChoice, const QString& _newTableName)
 {
@@ -38,9 +38,9 @@ bool SStringImporter::PerformImportOnTable(SStringTable* _stringTable, int _over
     Q_ASSERT(_stringTable != nullptr);
     qDebug() << "Import String Table";
     const auto languageKeys = myCSVMap.keys();
-    for (const SStringHelper::SStringLanguages& language : languageKeys)
+    for (const int& languageIndex : languageKeys)
     {
-        QFile file(myCSVMap[language]);
+        QFile file(myCSVMap[languageIndex]);
         if(!file.open(QIODevice::ReadOnly)) {
             return false;
         }
@@ -70,9 +70,9 @@ bool SStringImporter::PerformImportOnTable(SStringTable* _stringTable, int _over
             {
                 continue;
             }
-            qDebug() << "Importing language: " << SStringHelper::GetLanguageCD(language) << "key: " << fields[0] << " value: " << fields[1];
+            qDebug() << "Importing language: " << DB_Manager::GetDB_Manager().GetLanguages().GetLanguage(languageIndex).GetAbbrev() << "key: " << fields[0] << " value: " << fields[1];
 
-            _stringTable->ImportString(language, fields[0], fields[1], _overrideChoice);
+            _stringTable->ImportString(languageIndex, fields[0], fields[1], _overrideChoice);
         }
 
         file.close();

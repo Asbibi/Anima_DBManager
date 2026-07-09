@@ -4,13 +4,14 @@
 #include "sstringhelper.h"
 
 #include <QString>
+#include <QList>
 #include <fstream>
 
 class SStringItem
 {
 private:
     QString myIdentifier;
-    QString myStrings[SStringHelper::SStringLanguages::Count];
+    QList<QString> myStrings;
 
 public:
     SStringItem(const QString& _identifier);
@@ -21,12 +22,12 @@ public:
     bool operator>(const SStringItem& _other) const;
 
     const QString& GetIdentifier() const;
-    const QString& GetString(SStringHelper::SStringLanguages _language) const;
+    const QString& GetString(int _languageIndex) const;
 
     void SetIdentifier(const QString& _identifier);
-    void SetString(SStringHelper::SStringLanguages _language, const QString& _str);
+    void SetString(int _languageIndex, const QString& _str);
 
-    void WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement) const;
+    void WriteValue_CSV(std::ofstream& _file, int _languageIndex, bool _withDictionaryReplacement) const;
 };
 
 #endif // SSTRINGITEM_H

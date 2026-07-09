@@ -79,6 +79,9 @@ public:
     void NotifySavePerformed();
     void NotifyUnsavedChanges();
 
+    static int GetLanguagesCount();
+    const LanguageEnum& GetLanguages() const;
+
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
     int GetIndexOfFirstEnumWithName(const QString& _name) const;

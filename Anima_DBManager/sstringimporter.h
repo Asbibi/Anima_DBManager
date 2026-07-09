@@ -9,7 +9,7 @@ class SStringImporter
 {
 
 private:
-    QMap<SStringHelper::SStringLanguages, QString> myCSVMap;
+    QMap<int, QString> myCSVMap;
     bool PerformImportOnTable(SStringTable* _stringTable, int _overrideChoice);
 
 public:
@@ -17,7 +17,7 @@ public:
 
     bool HasNoFileRegistered() const;
 
-    void RegisterLanguageFile(SStringHelper::SStringLanguages _language, const QString& _filePath);
+    void RegisterLanguageFile(int _languageIndex, const QString& _filePath);
     bool PerformImport(int _stringTableIndex, int _overrideChoice, const QString& _newTableName);
 };
 

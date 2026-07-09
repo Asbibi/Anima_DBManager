@@ -22,6 +22,7 @@ void CleanStringForIdentifier(QString& _identifier);
 bool IsNameOkForAttribute(const QString& _name);
 void IncrementLanguage(SStringLanguages& _language);
 
+void ReplaceDictionaryReferenceInString(QString& _string, int _languageIndex);
 void ReplaceDictionaryReferenceInString(QString& _string, SStringHelper::SStringLanguages _language);
 
 const QString& GetEmptyStringReference();

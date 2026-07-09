@@ -1,23 +1,35 @@
 #include "sstringitem.h"
 
+#include "db_manager.h"
+
+
 SStringItem::SStringItem(const QString& _identifier) :
     myIdentifier(_identifier)
 {
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+    const int languagesCount = DB_Manager::GetLanguagesCount();
+    myStrings.reserve(languagesCount);
+    for (int i = 0; i < languagesCount; i++)
     {
-        myStrings[i] = "";
+        myStrings.push_back("");
     }
 }
 SStringItem::SStringItem(const SStringItem& _another) :
     myIdentifier(_another.myIdentifier)
 {
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
-        myStrings[i] = _another.myStrings[i];
+    const int languagesCount = DB_Manager::GetLanguagesCount();
+    myStrings.reserve(languagesCount);
+    for (int i = 0; i < languagesCount; i++)
+    {
+        myStrings.push_back(_another.myStrings[i]);
+    }
 }
 void SStringItem::operator=(const SStringItem& _another)
 {
+    const int languagesCount = DB_Manager::GetLanguagesCount();
     myIdentifier = _another.myIdentifier;
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+    Q_ASSERT(myStrings.size() == languagesCount);
+    Q_ASSERT(_another.myStrings.size() == languagesCount);
+    for (int i = 0; i < languagesCount; i++)
         myStrings[i] = _another.myStrings[i];
 }
 bool SStringItem::operator==(const SStringItem& _other) const
@@ -35,30 +47,32 @@ const QString& SStringItem::GetIdentifier() const
 {
     return myIdentifier;
 }
-const QString& SStringItem::GetString(SStringHelper::SStringLanguages _language) const
+const QString& SStringItem::GetString(int _languageIndex) const
 {
-    if (_language == SStringHelper::SStringLanguages::Count)
+    if (_languageIndex == DB_Manager::GetLanguagesCount())
         return myIdentifier;
 
-    return myStrings[_language];
+    return myStrings[_languageIndex];
 }
 
 void SStringItem::SetIdentifier(const QString& _identifier)
 {
     myIdentifier = _identifier;
 }
-void SStringItem::SetString(SStringHelper::SStringLanguages _language, const QString& _str)
+void SStringItem::SetString(int _languageIndex, const QString& _str)
 {
-    if (_language != SStringHelper::SStringLanguages::Count)
-        myStrings[_language] = _str;
+    if (_languageIndex < 0 || _languageIndex >= DB_Manager::GetLanguagesCount())
+        return;
+
+    myStrings[_languageIndex] = _str;
 }
 
-void SStringItem::WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement) const
+void SStringItem::WriteValue_CSV(std::ofstream& _file, int _languageIndex, bool _withDictionaryReplacement) const
 {
-    QString stringCpy = myStrings[_language];
+    QString stringCpy = myStrings[_languageIndex];
     if (_withDictionaryReplacement)
     {
-        SStringHelper::ReplaceDictionaryReferenceInString(stringCpy, _language);
+        SStringHelper::ReplaceDictionaryReferenceInString(stringCpy, _languageIndex);
     }
 
     _file << "\"" << myIdentifier.toStdString() << "\",\"" << stringCpy.replace('\n',"\\n").toStdString() << "\"";
