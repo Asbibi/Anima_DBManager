@@ -11,6 +11,7 @@ QTemplateAttributeCore::QTemplateAttributeCore(TemplateAttribute& _templateAttri
 {
     AttributeTypeHelper::Type currentType = myTemplateAttribute.GetType();
 
+    setAutoFillBackground(true);
     myFormLayout = new QFormLayout();
     setLayout(myFormLayout);
 

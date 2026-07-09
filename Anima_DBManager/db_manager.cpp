@@ -19,6 +19,7 @@
 #include "aatexture.h"
 
 #include "savemanager.h"
+#include "unrealprojecthelper.h"
 
 #include <fstream>
 
@@ -41,24 +42,46 @@ DB_Manager& DB_Manager::GetDB_Manager()
     return singleton;
 }
 
+
 bool DB_Manager::SetProjectContentFolderPath(const QString& _path)
 {
-    myProjectContentFolderPath = _path;
-    myProjectPathIsValid = QDir(myProjectContentFolderPath).exists();
+    myProjectPathIsRelative = QFileInfo(_path).isRelative();
+    if (myProjectPathIsRelative)
+    {
+        myProjectContentFolderPath = UnrealProjectHelper::GetAbsolutePathFromRelative(SaveManager::GetCurrentSaveFile(),_path);
+    }
+    else
+    {
+        myProjectContentFolderPath = _path;
+    }
+
+    myProjectPathIsValid = UnrealProjectHelper::IsPathValidUnrealProject(myProjectContentFolderPath);
     emit AcknowledgeChange();
     return myProjectPathIsValid;
 }
-const QString& DB_Manager::GetProjectContentFolderPath(bool _homePathIfUnvalid) const {
-    return myProjectPathIsValid || !_homePathIfUnvalid ? myProjectContentFolderPath : myHomePath;
-}
-QString DB_Manager::GetProjectSourceFolderPath(bool _homePathIfUnvalid) const
+QString DB_Manager::GetProjectContentFolderPath(bool _homePathIfUnvalid) const
 {
-    const QString& projectPath = GetProjectContentFolderPath(_homePathIfUnvalid);
-    if (projectPath.endsWith("Content"))
+    return myProjectPathIsValid || !_homePathIfUnvalid ? myProjectContentFolderPath + QString('/').append(UnrealProjectHelper::GetUnrealContentFolder()) : myHomePath;
+}
+QString DB_Manager::GetRawProjectContentFolderPath() const
+{
+    if (!myProjectPathIsRelative)
     {
-        return projectPath.chopped(7).append("Source");
+        return myProjectContentFolderPath;
     }
-    return projectPath;
+
+    // Return the project path relative to the save file
+    return UnrealProjectHelper::GetRelativePathFromAbsolute(SaveManager::GetCurrentSaveFile(), myProjectContentFolderPath);
+}
+QString DB_Manager::GetProjectSourceFolderPath() const
+{
+    if (!myProjectPathIsValid)
+    {
+        return myHomePath;
+    }
+
+    QString sourceFolderPath = GetRawProjectContentFolderPath() + "/Source";
+    return QDir(sourceFolderPath).exists() ? sourceFolderPath : myHomePath;
 }
 bool DB_Manager::IsProjectContentFolderPathValid() const
 {
@@ -138,7 +161,7 @@ void DB_Manager::SetAutoSave(bool _enabled, int _intervalMinut)
     myAutoSaveInterval = _intervalMinut;
     int intervalAsMS = myAutoSaveInterval * 60000;
     myAutoSaveTimer->setInterval(intervalAsMS);
-    myAutoSaveTimer->start(intervalAsMS);
+    myAutoSaveTimer->start();
     emit AcknowledgeChange();
 }
 bool DB_Manager::GetAutoSaveEnabled() const
@@ -148,6 +171,18 @@ bool DB_Manager::GetAutoSaveEnabled() const
 int DB_Manager::GetAutoSaveInterval() const
 {
     return myAutoSaveInterval;
+}
+void DB_Manager::NotifySavePerformed()
+{
+    myAutoSaveTimer->stop();
+}
+void DB_Manager::NotifyUnsavedChanges()
+{
+    if (myAutoSaveTimer->isActive() || !myAutoSaveEnabled)
+    {
+        return;
+    }
+    myAutoSaveTimer->start();
 }
 
 

@@ -56,7 +56,8 @@ QString AAsset::GetDisplayedText() const
 }
 QString AAsset::GetValue_CSV() const
 {
-    if (myFilePath.isEmpty() || myIsDirty)
+    const auto& dbManager = DB_Manager::GetDB_Manager();
+    if (myFilePath.isEmpty() || myIsDirty || !dbManager.IsProjectContentFolderPathValid())
     {
         if (myIsDirty)
         {
@@ -66,7 +67,7 @@ QString AAsset::GetValue_CSV() const
     }
 
     QString editedPath = myFilePath;
-    editedPath = editedPath.replace(DB_Manager::GetDB_Manager().GetProjectContentFolderPath(), "/Game");
+    editedPath = editedPath.replace(dbManager.GetProjectContentFolderPath(), "/Game");
     const int pointIndex = editedPath.lastIndexOf('.');
     editedPath = editedPath.left(pointIndex);
     const int lastSepIndex = editedPath.lastIndexOf('/');

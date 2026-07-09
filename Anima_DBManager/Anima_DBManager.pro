@@ -81,6 +81,7 @@ SOURCES += \
     qtemplatestructure.cpp \
     qtemplatestructurebase.cpp \
     qtemplatestructurecore.cpp \
+    savefeedbackcomponent.cpp \
     savemanager.cpp \
     searchmanager.cpp \
     sstringhelper.cpp \
@@ -91,7 +92,8 @@ SOURCES += \
     structuredb.cpp \
     structureimporthelper.cpp \
     templateattribute.cpp \
-    templatestructure.cpp
+    templatestructure.cpp \
+    unrealprojecthelper.cpp
 
 HEADERS += \
     aaclass.h \
@@ -162,6 +164,7 @@ HEADERS += \
     qtemplatestructure.h \
     qtemplatestructurebase.h \
     qtemplatestructurecore.h \
+    savefeedbackcomponent.h \
     savemanager.h \
     searchmanager.h \
     searchparameter.h \
@@ -174,7 +177,8 @@ HEADERS += \
     structuredb.h \
     structureimporthelper.h \
     templateattribute.h \
-    templatestructure.h
+    templatestructure.h \
+    unrealprojecthelper.h
 
 TRANSLATIONS += \
     Anima_DBManager_en_GB.ts

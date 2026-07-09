@@ -1,7 +1,9 @@
 #include "qprojectdialog.h"
 
 #include "db_manager.h"
+#include "savemanager.h"
 #include "sstringhelper.h"
+#include "unrealprojecthelper.h"
 
 #include <QFileDialog>
 #include <QFormLayout>
@@ -14,6 +16,7 @@
 const QString QProjectDialog::ourOriginalAttributeName = "AttributeName";
 const QString QProjectDialog::ourPrefixColor = QColorConstants::DarkBlue.name();
 const QString QProjectDialog::ourSuffixColor = QColorConstants::DarkGreen.name();
+const QString QProjectDialog::ourContentColor = QColorConstants::DarkYellow.name();
 
 
 QProjectDialog::QProjectDialog(QWidget* _parent) :
@@ -25,22 +28,33 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     const QString titleStyle = "font-weight: bold";
 
     // Project Path
-    auto* pathTitle = new QLabel("Unreal Project (Content folder) Path :");
+    auto* pathTitle = new QLabel("Unreal Project Path :");
     pathTitle->setStyleSheet(titleStyle);
     vLayout->addWidget(pathTitle);
     vLayout->addSpacing(3);
     const auto& dbManager = DB_Manager::GetDB_Manager();
     myProjectPath = new QLabel();
-    SetPath(dbManager.GetProjectContentFolderPath(false));
+    myRelativeProjectPath = new QLabel();
+    vLayout->addWidget(myProjectPath);
+    auto* relativeLabel = new QLabel("Save as relative path to the save file :");
+    QHBoxLayout* relativePathLayout = new QHBoxLayout();
+    relativePathLayout->addWidget(relativeLabel);
+    myProjectPathIsRelative = new QCheckBox();
+    relativePathLayout->addWidget(myProjectPathIsRelative);
+    vLayout->addLayout(relativePathLayout);
+    vLayout->addWidget(myRelativeProjectPath);
+    vLayout->addSpacing(3);
     QPushButton* changeBtn = new QPushButton("Select Directory");
     QObject::connect(changeBtn, &QPushButton::clicked, this, &QProjectDialog::OnSelectPath);
     QPushButton* resetBtn = new QPushButton("Clear");
     QObject::connect(resetBtn, &QPushButton::clicked, this, &QProjectDialog::OnResetPath);
-    vLayout->addWidget(myProjectPath);
-    QHBoxLayout* pathtBtnLayout = new QHBoxLayout();
-    pathtBtnLayout->addWidget(changeBtn);
-    pathtBtnLayout->addWidget(resetBtn);
-    vLayout->addLayout(pathtBtnLayout);
+    QHBoxLayout* pathBtnLayout = new QHBoxLayout();
+    pathBtnLayout->addWidget(changeBtn);
+    pathBtnLayout->addWidget(resetBtn);
+    vLayout->addLayout(pathBtnLayout);
+
+    InitPath(dbManager.GetRawProjectContentFolderPath());   // Init after all widget have been created
+    QObject::connect(myProjectPathIsRelative, &QCheckBox::toggled, this, &QProjectDialog::OnRelativePathToggle);  // Connect after init
 
     vLayout->addSpacing(6);
     auto* uassetTitle = new QLabel("Asset Attribute file filters:");
@@ -120,25 +134,60 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
 }
 
 
+void QProjectDialog::InitPath(const QString& _path)
+{
+    mySaveFilePath = SaveManager::GetCurrentSaveFile();
+    if (mySaveFilePath.isEmpty())
+    {
+        myProjectPathIsRelative->setEnabled(false);
+    }
+
+    if (_path.isEmpty() || QFileInfo(_path).isAbsolute())
+    {
+        SetPath(_path);
+        return;
+    }
+
+    myProjectPathIsRelative->setChecked(true);
+    SetPath(UnrealProjectHelper::GetAbsolutePathFromRelative(mySaveFilePath, _path));
+}
 void QProjectDialog::SetPath(const QString& _path)
 {
-    myProjectPath->setText(_path);
-    QColor color = QDir(_path).exists() ? QColorConstants::Black : QColorConstants::DarkRed;
+    myProjectPathText = _path;
+    bool isRelative = myProjectPathIsRelative->isChecked();
+
+    static QString projectPathFinalTemplate = "%1<span style=\" color:%2;\">/Content/</span>";
+    myProjectPath->setText(_path.isEmpty() ? "- No Project Folder -" : projectPathFinalTemplate.arg(_path, ourContentColor));
+    myRelativeProjectPath->setText(isRelative && !_path.isEmpty() ? projectPathFinalTemplate.arg(UnrealProjectHelper::GetRelativePathFromAbsolute(mySaveFilePath, _path), ourContentColor): "");
+    myRelativeProjectPath->setVisible(isRelative);
+
+    QColor color = UnrealProjectHelper::IsPathValidUnrealProject(_path) ? QColorConstants::Black : QColorConstants::DarkRed;
 
     QPalette palette = myProjectPath->palette();
     palette.setColor(myProjectPath->foregroundRole(), color);
     myProjectPath->setPalette(palette);
+    myRelativeProjectPath->setPalette(palette);
 }
 
 
+void QProjectDialog::OnRelativePathToggle()
+{
+    SetPath(myProjectPathText);
+}
 void QProjectDialog::OnSelectPath()
 {
-    QString folderPath = QFileDialog::getExistingDirectory(this, "Select an Unreal Project's Content Folder",
-                                                           myProjectPath->text());
-    if (folderPath == nullptr)
-        return;
+    QString fileName = QFileDialog::getOpenFileName(
+        this,
+        "Select an Unreal Project File",
+        QDir::homePath(),
+        "Unreal Project Files (*.uproject)"
+        );
 
-    SetPath(folderPath);
+    if (fileName.isEmpty()) {
+        return;
+    }
+
+    SetPath(QFileInfo(fileName).path());
 }
 
 void QProjectDialog::OnResetPath()
@@ -192,7 +241,14 @@ void QProjectDialog::OnApplyBtnClicked()
         dbManager.SetAAssetRegex(AttributeTypeHelper::assetTypes[i], myUAssetRegex->item(i, 0)->text());
     }
 
-    dbManager.SetProjectContentFolderPath(myProjectPath->text());
+    if (myProjectPathIsRelative->isChecked())
+    {
+        dbManager.SetProjectContentFolderPath(UnrealProjectHelper::GetRelativePathFromAbsolute(mySaveFilePath, myProjectPathText));
+    }
+    else
+    {
+        dbManager.SetProjectContentFolderPath(myProjectPathText);
+    }
     dbManager.SetAutoSave(myAutoSaveEnable->checkState() != Qt::Unchecked, myAutoSaveInterval->value());
     QDialog::accept();
 }

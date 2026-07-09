@@ -13,11 +13,15 @@
 #include <QTimer>
 #include <vector>
 
+
+
+
 class DB_Manager : public QObject
 {
     Q_OBJECT
 
 private:
+    bool myProjectPathIsRelative = false;
     QString myProjectContentFolderPath;
     const QString myHomePath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
     bool myProjectPathIsValid = false;
@@ -52,8 +56,9 @@ public:
     void Reset();
 
     bool SetProjectContentFolderPath(const QString& _path);
-    const QString& GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
-    QString GetProjectSourceFolderPath(bool _homePathIfUnvalid = true) const;
+    QString GetProjectContentFolderPath(bool _homePathIfUnvalid = true) const;
+    QString GetRawProjectContentFolderPath() const;
+    QString GetProjectSourceFolderPath() const;
     bool IsProjectContentFolderPathValid() const;
 
     const QString GetAAssetRegex(AttributeTypeHelper::Type _type) const;
@@ -69,6 +74,8 @@ public:
     void SetAutoSave(bool _enabled, int _intervalMinut);
     bool GetAutoSaveEnabled() const;
     int GetAutoSaveInterval() const;
+    void NotifySavePerformed();
+    void NotifyUnsavedChanges();
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
