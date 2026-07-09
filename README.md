@@ -1,8 +1,8 @@
 # Anima_DBManager
  Qt C++ Application to manage the database of my Anima Unreal game project.
  Versions used :
- Qt - 6.6.3 (MSVC 2019, x86_64)
- Qt Creator (IDE) - 13.0.1
+ Qt - 6.11.1 (MSVC 2022, x86_64)
+ Qt Creator (IDE) - 20.0.0
 
 # Deploy
 1. on release mode, hit the build button, il will create an exe file under build/..
