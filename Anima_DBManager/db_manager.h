@@ -1,6 +1,7 @@
 #ifndef DB_MANAGER_H
 #define DB_MANAGER_H
 
+#include "languageenum.h"
 #include "attributeparam.h"
 #include "enumerator.h"
 #include "structuredb.h"
@@ -33,6 +34,7 @@ private:
     int myAutoSaveInterval = 15;        // unit : minut
     QTimer* myAutoSaveTimer;
 
+    LanguageEnum myLanguages;
     SStringTable myStringTableDictionary = SStringTable("DICTIONARY");
     QList<AttributeParam*> myAttributeParamPtrs;
     QList<Enumerator> enumerators;

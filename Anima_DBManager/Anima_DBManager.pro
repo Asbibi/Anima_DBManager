@@ -38,6 +38,8 @@ SOURCES += \
     enumerator.cpp \
     iconmanager.cpp \
     jsonhelper.cpp \
+    language.cpp \
+    languageenum.cpp \
     main.cpp \
     mainwindow.cpp \
     qapmesh.cpp \
@@ -122,6 +124,8 @@ HEADERS += \
     enumerator.h \
     iconmanager.h \
     jsonhelper.h \
+    language.h \
+    languageenum.h \
     mainwindow.h \
     qapmesh.h \
     qapsound.h \
