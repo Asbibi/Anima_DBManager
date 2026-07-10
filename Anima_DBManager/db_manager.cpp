@@ -336,6 +336,7 @@ void DB_Manager::Reset()
     {
         RemoveEnum(i);
     }
+    myLanguages.Reset();
     myStringTableDictionary = SStringTable("DICTIONARY");
     //myStructures.clear();
     //enumerators.clear();
@@ -367,6 +368,19 @@ int DB_Manager::GetLanguagesCount()
 const LanguageEnum& DB_Manager::GetLanguages() const
 {
     return myLanguages;
+}
+bool DB_Manager::AddLanguage(const Language& _language)
+{
+    bool addOk = myLanguages.AddLanguage(_language);
+    if (addOk)
+    {
+        // trigger signal
+    }
+    return addOk;
+}
+void DB_Manager::RemoveLanguage(int _languageIndex)
+{
+    myLanguages.RemoveLanguage(_languageIndex);
 }
 
 

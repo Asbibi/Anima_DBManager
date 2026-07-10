@@ -14,6 +14,7 @@ private:
     ~SaveManager();
 
     static const QByteArray separator;
+    static const QString fileEndLang;
     static const QString fileEndString;
     static const QString fileEndEnum;
     static const QString fileEndTemplate;
@@ -38,6 +39,7 @@ private:
     void SetCurrentlyOpenedFile(const QString& _file);
 
     void ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
+    void ProcessLangTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessStringTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessEnumTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);
     void ProcessTemplTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager);

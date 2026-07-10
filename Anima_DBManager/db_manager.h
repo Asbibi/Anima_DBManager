@@ -81,6 +81,8 @@ public:
 
     static int GetLanguagesCount();
     const LanguageEnum& GetLanguages() const;
+    bool AddLanguage(const Language& _language);
+    void RemoveLanguage(int _languageIndex);
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
