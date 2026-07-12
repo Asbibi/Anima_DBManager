@@ -283,13 +283,9 @@ void QLanguageDialog::OnApply()
     }
 
     // Apply renames
-    for (const auto& [originalAbrrev, edited] : myLanguageRenameActionList.asKeyValueRange())
-    {
-        dbManager.ReplaceLanguageInfo(originalAbrrev, edited);
-    }
+    dbManager.ReplaceLanguageInfos(myLanguageRenameActionList);
 
     // Apply ADD and MOVE actions
-    const int actionListCount = myLanguageActionList.size();
     for (const auto& action : myLanguageActionList)
     {
         switch(action.myType)

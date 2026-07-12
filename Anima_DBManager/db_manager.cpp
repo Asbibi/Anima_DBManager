@@ -374,14 +374,17 @@ bool DB_Manager::AddLanguage(const Language& _language, int _index)
     bool addOk = myLanguages.AddLanguage(_language, _index);
     if (addOk)
     {
-        // trigger signal
+        emit LanguageAdded(_index);
     }
     return addOk;
 }
 void DB_Manager::RemoveLanguage(int _languageIndex)
 {
-    myLanguages.RemoveLanguage(_languageIndex);
-    // trigger signal
+    bool rmOk = myLanguages.RemoveLanguage(_languageIndex);
+    if (rmOk)
+    {
+        emit LanguageRemoved(_languageIndex);
+    }
 }
 void DB_Manager::RemoveLanguage(const QString& _languageAbbrev)
 {
@@ -390,13 +393,37 @@ void DB_Manager::RemoveLanguage(const QString& _languageAbbrev)
 void DB_Manager::MoveLanguage(const QString& _languageAbbrev, int _targetIndex)
 {
     int fromIndex = myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev);
-    myLanguages.MoveLanguage(fromIndex, _targetIndex);
-    // signal
+    bool mvOk = myLanguages.MoveLanguage(fromIndex, _targetIndex);
+    if (mvOk)
+    {
+        emit LanguageMoved(fromIndex, _targetIndex);
+    }
 }
-void DB_Manager::ReplaceLanguageInfo(const QString& _languageAbbrev, const Language& _editedLanguage)
+void DB_Manager::ReplaceLanguageInfos(const QMap<QString, Language>& _editLanguageBatch)
 {
-    myLanguages.ReplaceLanguage(myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev), _editedLanguage);
-    // signal (UI only)
+    // Get all edited index before renaming (to make sure the correct index can be retrieved)
+    QMap<QString, int> indexOfEachEditedLanguage = QMap<QString, int>();
+    for (const auto& abbrev : _editLanguageBatch.keys())
+    {
+        int editedIndex = myLanguages.GetLanguageIndexFromAbbrev(abbrev);
+        Q_ASSERT(editedIndex != -1);
+        indexOfEachEditedLanguage.insert(abbrev, editedIndex);
+    }
+
+    // Rename
+    bool hasChanged = false;
+    for (const auto& [originalAbbrev, edited] : _editLanguageBatch.asKeyValueRange())
+    {
+        int editedIndex = indexOfEachEditedLanguage[originalAbbrev];
+        bool editOk = myLanguages.ReplaceLanguage(editedIndex, edited);
+        hasChanged = hasChanged || editOk;
+    }
+
+    // Signalonce for the entire batch
+    if (hasChanged)
+    {
+        emit LanguageEdited();
+    }
 }
 
 

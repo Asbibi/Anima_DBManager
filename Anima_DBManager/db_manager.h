@@ -85,7 +85,7 @@ public:
     void RemoveLanguage(int _languageIndex);
     void RemoveLanguage(const QString& _languageAbbrev);
     void MoveLanguage(const QString& _languageAbbrev, int _targetIndex);
-    void ReplaceLanguageInfo(const QString& _languageAbbrev, const Language& _editedLanguage);
+    void ReplaceLanguageInfos(const QMap<QString, Language>& _editLanguageBatch);
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
@@ -163,6 +163,11 @@ public:
     void AskFocusOnStructPanel(const QString& _tableName, const int _itemIndex);
 
 signals:
+    void LanguageAdded(const int _index);
+    void LanguageRemoved(const int _index);
+    void LanguageMoved(const int _indexFrom, const int _indexTo);
+    void LanguageEdited();
+
     void StringTableAdded(const int _index);
     void StringTableMoved(const int _indexFrom, const int _indexTo);
     void StringTableRemoved(const int _index);

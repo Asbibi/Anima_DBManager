@@ -17,6 +17,10 @@ void Language::operator=(const Language& _other)
     name = _other.name;
     abbrev = _other.abbrev;
 }
+bool Language::operator==(const Language& _other) const
+{
+    return abbrev == _other.abbrev && name == _other.name;
+}
 
 const QString& Language::GetName() const
 {

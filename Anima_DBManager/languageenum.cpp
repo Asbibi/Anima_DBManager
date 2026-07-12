@@ -64,29 +64,35 @@ bool LanguageEnum::AddLanguage(const Language& _language, int _index)
     }
     return true;
 }
-void LanguageEnum::RemoveLanguage(int _languageIndex)
+bool LanguageEnum::RemoveLanguage(int _languageIndex)
 {
     if (_languageIndex < 0 || _languageIndex >= languages.size())
-        return;
+        return false;
 
     languages.removeAt(_languageIndex);
+    return true;
 }
-void LanguageEnum::MoveLanguage(int _fromIndex, int _targetIndex)
+bool LanguageEnum::MoveLanguage(int _fromIndex, int _targetIndex)
 {
     if (_fromIndex == _targetIndex ||
         (_fromIndex < 0 || _fromIndex >= languages.size())||
         (_targetIndex < 0 || _targetIndex >= languages.size()))
     {
-        return;
+        return false;
     }
 
     languages.move(_fromIndex, _targetIndex);
+    return true;
 }
-void LanguageEnum::ReplaceLanguage(int _index, const Language& _language)
+bool LanguageEnum::ReplaceLanguage(int _index, const Language& _language)
 {
     if (_index < 0 || _index >= languages.size())
-        return;
+        return false;
+    if (languages[_index] == _language)
+        return false;
+
     languages[_index] = _language;
+    return true;
 }
 bool LanguageEnum::HasDoubles() const
 {

@@ -19,9 +19,9 @@ public:
     bool HasDoubles() const;
 
     bool AddLanguage(const Language& _language, int _index);
-    void RemoveLanguage(int _languageIndex);
-    void MoveLanguage(int _fromIndex, int _targetIndex);
-    void ReplaceLanguage(int _index, const Language& _language);
+    bool RemoveLanguage(int _languageIndex);
+    bool MoveLanguage(int _fromIndex, int _targetIndex);
+    bool ReplaceLanguage(int _index, const Language& _language);
     void Reset();
 };
 
