@@ -30,6 +30,7 @@ signals:
 public slots:
     void OnCellEdit(QTableWidgetItem *item);
     void OnCellEdited(int row, int col);
+    void UpdateTableWithLanguages();
     void UpdateTable();
     void HandleContextMenu(const QPoint& point);
 };

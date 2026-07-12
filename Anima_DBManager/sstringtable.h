@@ -49,6 +49,10 @@ public:
     void SetItemString(int _row, int _col, const QString& _text);
     void ImportString(int _languageIndex, const QString& _identifier, const QString& _text, int _overwritePolicy);
 
+    void OnLanguageAdded(int _index);
+    void OnLanguageRemoved(int _index);
+    void OnLanguageMoved(int _indexFrom, int _indexTo);
+
     void WriteValue_CSV(std::ofstream& _file, int _languageIndex, bool _withDictionaryReplacement) const;
 };
 

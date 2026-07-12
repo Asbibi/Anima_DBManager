@@ -27,6 +27,10 @@ public:
     void SetIdentifier(const QString& _identifier);
     void SetString(int _languageIndex, const QString& _str);
 
+    void OnLanguageAdded(int _index);
+    void OnLanguageRemoved(int _index);
+    void OnLanguageMoved(int _indexFrom, int _indexTo);
+
     void WriteValue_CSV(std::ofstream& _file, int _languageIndex, bool _withDictionaryReplacement) const;
 };
 

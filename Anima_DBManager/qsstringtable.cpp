@@ -10,24 +10,15 @@ QSStringTable::QSStringTable(int _strTableIndex, QWidget* _parent) :
     QTableWidget(_parent),
     myStringTableIndex(_strTableIndex)
 {
-    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
-    const int languagesCount = languages.GetLanguageCount();
-    setColumnCount(1 + languagesCount);
-
-    QStringList colHeaderNames;
-    colHeaderNames.append("Identifier");
-    for (int language = 0; language < languagesCount; language++)
-    {
-        colHeaderNames.append(languages.GetLanguage(language).GetName());
-        setColumnWidth(language+1, 300);
-    }
-    setHorizontalHeaderLabels(colHeaderNames);
-
-    UpdateTable();
+    UpdateTableWithLanguages();
 
     QObject::connect(this, &QTableWidget::itemDoubleClicked, this, &QSStringTable::OnCellEdit);
     QObject::connect(this, &QTableWidget::cellChanged, this, &QSStringTable::OnCellEdited);
     QObject::connect(this, &QTableWidget::customContextMenuRequested, this, &QSStringTable::HandleContextMenu);
+
+    DB_Manager* dbManager = &DB_Manager::GetDB_Manager();
+    QObject::connect(dbManager, &DB_Manager::LanguagesChanged, this, &QSStringTable::UpdateTableWithLanguages);
+
     setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 }
 
@@ -85,6 +76,23 @@ void QSStringTable::ExportStringsToCSV(const QString _directoryPath, int _langua
 
 
 
+void QSStringTable::UpdateTableWithLanguages()
+{
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
+    setColumnCount(1 + languagesCount);
+
+    QStringList colHeaderNames;
+    colHeaderNames.append("Identifier");
+    for (int language = 0; language < languagesCount; language++)
+    {
+        colHeaderNames.append(languages.GetLanguage(language).GetName());
+        setColumnWidth(language+1, 300);
+    }
+    setHorizontalHeaderLabels(colHeaderNames);
+
+    UpdateTable();
+}
 void QSStringTable::UpdateTable()
 {
     const int languagesCount = DB_Manager::GetLanguagesCount();

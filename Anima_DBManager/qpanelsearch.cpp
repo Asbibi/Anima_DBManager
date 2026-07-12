@@ -105,10 +105,7 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     QObject::connect(myResultTable, &QTableWidget::cellDoubleClicked, this, &QPanelSearch::OnSearchResultDoubleClicked);
 
     DB_Manager* dbManager = &DB_Manager::GetDB_Manager();
-    QObject::connect(dbManager, &DB_Manager::LanguageAdded, this, &QPanelSearch::OnLanguageChanged);
-    QObject::connect(dbManager, &DB_Manager::LanguageRemoved, this, &QPanelSearch::OnLanguageChanged);
-    QObject::connect(dbManager, &DB_Manager::LanguageMoved, this, &QPanelSearch::OnLanguageChanged);
-    QObject::connect(dbManager, &DB_Manager::LanguageEdited, this, &QPanelSearch::OnLanguageChanged);
+    QObject::connect(dbManager, &DB_Manager::LanguagesChanged, this, &QPanelSearch::OnLanguageChanged);
 
 
     //mySearchOnStruct->setCheckState(Qt::Checked);

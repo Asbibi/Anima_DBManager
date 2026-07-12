@@ -369,38 +369,76 @@ const LanguageEnum& DB_Manager::GetLanguages() const
 {
     return myLanguages;
 }
+void DB_Manager::StartLanguageEditingFromDialogBox()
+{
+    Q_ASSERT(!myChangingLanguagesFromDialog);
+    Q_ASSERT(!myChangingLanguagesFromDialogHasChange);
+    myChangingLanguagesFromDialog = true;
+}
 bool DB_Manager::AddLanguage(const Language& _language, int _index)
 {
     bool addOk = myLanguages.AddLanguage(_language, _index);
     if (addOk)
     {
-        emit LanguageAdded(_index);
+        myStringTableDictionary.OnLanguageAdded(_index);
+        for (auto& sst : myStringTables)
+        {
+            sst.OnLanguageAdded(_index);
+        }
+
+        if (myChangingLanguagesFromDialog)
+        {
+            myChangingLanguagesFromDialogHasChange = true;
+        }
     }
     return addOk;
 }
 void DB_Manager::RemoveLanguage(int _languageIndex)
 {
     bool rmOk = myLanguages.RemoveLanguage(_languageIndex);
-    if (rmOk)
+    if (!rmOk)
     {
-        emit LanguageRemoved(_languageIndex);
+        return;
+    }
+
+    myStringTableDictionary.OnLanguageRemoved(_languageIndex);
+    for (auto& sst : myStringTables)
+    {
+        sst.OnLanguageRemoved(_languageIndex);
+    }
+
+    if (myChangingLanguagesFromDialog)
+    {
+        myChangingLanguagesFromDialogHasChange = true;
     }
 }
 void DB_Manager::RemoveLanguage(const QString& _languageAbbrev)
 {
+    Q_ASSERT(myChangingLanguagesFromDialog);
     RemoveLanguage(myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev));
 }
 void DB_Manager::MoveLanguage(const QString& _languageAbbrev, int _targetIndex)
 {
+    Q_ASSERT(myChangingLanguagesFromDialog);
+
     int fromIndex = myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev);
     bool mvOk = myLanguages.MoveLanguage(fromIndex, _targetIndex);
-    if (mvOk)
+    if (!mvOk)
     {
-        emit LanguageMoved(fromIndex, _targetIndex);
+        return;
     }
+
+    myStringTableDictionary.OnLanguageMoved(fromIndex, _targetIndex);
+    for (auto& sst : myStringTables)
+    {
+        sst.OnLanguageMoved(fromIndex, _targetIndex);
+    }
+    myChangingLanguagesFromDialogHasChange = true;
 }
 void DB_Manager::ReplaceLanguageInfos(const QMap<QString, Language>& _editLanguageBatch)
 {
+    Q_ASSERT(myChangingLanguagesFromDialog);
+
     // Get all edited index before renaming (to make sure the correct index can be retrieved)
     QMap<QString, int> indexOfEachEditedLanguage = QMap<QString, int>();
     for (const auto& abbrev : _editLanguageBatch.keys())
@@ -419,11 +457,20 @@ void DB_Manager::ReplaceLanguageInfos(const QMap<QString, Language>& _editLangua
         hasChanged = hasChanged || editOk;
     }
 
-    // Signalonce for the entire batch
-    if (hasChanged)
+    // Signal once for the entire batch
+    myChangingLanguagesFromDialogHasChange = myChangingLanguagesFromDialogHasChange || hasChanged;
+}
+void DB_Manager::EndLanguageEditingFromDialogBox()
+{
+    Q_ASSERT(myChangingLanguagesFromDialog);
+
+    if (myChangingLanguagesFromDialogHasChange)
     {
-        emit LanguageEdited();
+        emit LanguagesChanged();
     }
+
+    myChangingLanguagesFromDialog = false;
+    myChangingLanguagesFromDialogHasChange = false;
 }
 
 

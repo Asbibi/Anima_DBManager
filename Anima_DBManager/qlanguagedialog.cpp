@@ -250,6 +250,9 @@ void QLanguageDialog::OnApply()
 {
     auto& dbManager = DB_Manager::GetDB_Manager();
 
+    // Notify edit starts
+    dbManager.StartLanguageEditingFromDialogBox();
+
     // Apply remove actions and forget related renames
     for (const auto& action : myLanguageActionList)
     {
@@ -314,6 +317,10 @@ void QLanguageDialog::OnApply()
     }
 
     // Check duplicates ? can't revert if wrong so... need to check earlier ?
+
+
+    // Notify edit completed
+    dbManager.EndLanguageEditingFromDialogBox();
 
     QDialog::accept();
 }

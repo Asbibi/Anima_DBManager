@@ -67,6 +67,21 @@ void SStringItem::SetString(int _languageIndex, const QString& _str)
     myStrings[_languageIndex] = _str;
 }
 
+
+void SStringItem::OnLanguageAdded(int _index)
+{
+    myStrings.insert(_index, "");
+}
+void SStringItem::OnLanguageRemoved(int _index)
+{
+    myStrings.removeAt(_index);
+}
+void SStringItem::OnLanguageMoved(int _indexFrom, int _indexTo)
+{
+    myStrings.move(_indexFrom, _indexTo);
+}
+
+
 void SStringItem::WriteValue_CSV(std::ofstream& _file, int _languageIndex, bool _withDictionaryReplacement) const
 {
     QString stringCpy = myStrings[_languageIndex];

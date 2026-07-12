@@ -309,6 +309,28 @@ void SStringTable::ImportString(int _languageIndex, const QString& _identifier, 
 }
 
 
+void SStringTable::OnLanguageAdded(int _index)
+{
+    for (auto& sstringItem : myStrings)
+    {
+        sstringItem.OnLanguageAdded(_index);
+    }
+}
+void SStringTable::OnLanguageRemoved(int _index)
+{
+    for (auto& sstringItem : myStrings)
+    {
+        sstringItem.OnLanguageRemoved(_index);
+    }
+}
+void SStringTable::OnLanguageMoved(int _indexFrom, int _indexTo)
+{
+    for (auto& sstringItem : myStrings)
+    {
+        sstringItem.OnLanguageMoved(_indexFrom, _indexTo);
+    }
+}
+
 
 void SStringTable::WriteValue_CSV(std::ofstream& _file, int _languageIndex, bool _withDictionaryReplacement) const
 {
