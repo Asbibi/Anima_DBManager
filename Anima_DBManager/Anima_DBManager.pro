@@ -39,6 +39,7 @@ SOURCES += \
     iconmanager.cpp \
     jsonhelper.cpp \
     language.cpp \
+    languageaction.cpp \
     languageenum.cpp \
     main.cpp \
     mainwindow.cpp \
@@ -61,6 +62,7 @@ SOURCES += \
     qimportenumfromtextdialog.cpp \
     qimportstringdialog.cpp \
     qimportstructdialog.cpp \
+    qlanguagedialog.cpp \
     qlistwithsearch.cpp \
     qoptionalvalue.cpp \
     qpanelbase.cpp \
@@ -125,6 +127,7 @@ HEADERS += \
     iconmanager.h \
     jsonhelper.h \
     language.h \
+    languageaction.h \
     languageenum.h \
     mainwindow.h \
     qapmesh.h \
@@ -146,6 +149,7 @@ HEADERS += \
     qimportenumfromtextdialog.h \
     qimportstringdialog.h \
     qimportstructdialog.h \
+    qlanguagedialog.h \
     qlistwithsearch.h \
     qoptionalvalue.h \
     qpanelbase.h \

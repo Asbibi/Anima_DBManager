@@ -1,5 +1,7 @@
 #include "language.h"
 
+Language::Language() : Language{"EN", "English"}
+{}
 Language::Language(const QString& _abbrev, const QString& _name) :
     QObject{nullptr},
     name{_name},

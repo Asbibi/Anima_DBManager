@@ -7,6 +7,11 @@ LanguageEnum::LanguageEnum() : QObject{nullptr}
     Reset();
 }
 
+const QList<Language>& LanguageEnum::GetLanguageList() const
+{
+    return languages;
+}
+
 int LanguageEnum::GetLanguageCount() const
 {
     return (int)languages.size();
@@ -37,7 +42,7 @@ int LanguageEnum::GetLanguageIndexFromAbbrev(const QString& _languageAbbrev) con
 }
 
 
-bool LanguageEnum::AddLanguage(const Language& _language)
+bool LanguageEnum::AddLanguage(const Language& _language, int _index)
 {
     // If currently opening a save file, we tolerate doubles temporary because of the default english language
     if (!SaveManager::IsOpeningFile())
@@ -49,7 +54,14 @@ bool LanguageEnum::AddLanguage(const Language& _language)
         }
     }
 
-    languages.push_back(_language);
+    if (_index < 0 || _index >= languages.size())
+    {
+        languages.push_back(_language);
+    }
+    else
+    {
+        languages.insert(_index, _language);
+    }
     return true;
 }
 void LanguageEnum::RemoveLanguage(int _languageIndex)
@@ -58,6 +70,23 @@ void LanguageEnum::RemoveLanguage(int _languageIndex)
         return;
 
     languages.removeAt(_languageIndex);
+}
+void LanguageEnum::MoveLanguage(int _fromIndex, int _targetIndex)
+{
+    if (_fromIndex == _targetIndex ||
+        (_fromIndex < 0 || _fromIndex >= languages.size())||
+        (_targetIndex < 0 || _targetIndex >= languages.size()))
+    {
+        return;
+    }
+
+    languages.move(_fromIndex, _targetIndex);
+}
+void LanguageEnum::ReplaceLanguage(int _index, const Language& _language)
+{
+    if (_index < 0 || _index >= languages.size())
+        return;
+    languages[_index] = _language;
 }
 bool LanguageEnum::HasDoubles() const
 {
@@ -73,5 +102,5 @@ bool LanguageEnum::HasDoubles() const
 void LanguageEnum::Reset()
 {
     languages.clear();
-    languages.push_back(Language{"EN", "English"});
+    languages.push_back(Language{});
 }

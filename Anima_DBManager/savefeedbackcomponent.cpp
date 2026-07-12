@@ -5,7 +5,7 @@
 #define SAVE_STEP_COUNT 7
 #define OPEN_STEP_COUNT 8
 
-#define WITH_THREAD_SLEEP
+//#define WITH_THREAD_SLEEP
 
 #ifdef WITH_THREAD_SLEEP
 #include <QThread>

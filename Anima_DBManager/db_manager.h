@@ -81,8 +81,11 @@ public:
 
     static int GetLanguagesCount();
     const LanguageEnum& GetLanguages() const;
-    bool AddLanguage(const Language& _language);
+    bool AddLanguage(const Language& _language, int _index = -1);
     void RemoveLanguage(int _languageIndex);
+    void RemoveLanguage(const QString& _languageAbbrev);
+    void MoveLanguage(const QString& _languageAbbrev, int _targetIndex);
+    void ReplaceLanguageInfo(const QString& _languageAbbrev, const Language& _editedLanguage);
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;

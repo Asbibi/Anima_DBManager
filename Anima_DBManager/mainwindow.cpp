@@ -24,6 +24,7 @@
 #include "qimportstringdialog.h"
 #include "qimportstructdialog.h"
 #include "qimportenumfromtextdialog.h"
+#include "qlanguagedialog.h"
 #include "qprojectdialog.h"
 #include "qpanelsearch.h"
 
@@ -38,9 +39,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     myMenuBar = new QMenuBar(this);
     QMenu* fileMenu = myMenuBar->addMenu("File");
+    QMenu* projectMenu = myMenuBar->addMenu("Project");
     QMenu* exportMenu = myMenuBar->addMenu("Export");
     QMenu* importMenu = myMenuBar->addMenu("Import");
-    QAction* projSettings = myMenuBar->addAction("Project Settings");
     setMenuBar(myMenuBar);
 
     auto* newDB = fileMenu->addAction("New");
@@ -130,6 +131,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QObject::connect(exportAllStringAllLanguage, &QAction::triggered, this, [this]{OnExportAllStringTables(-1);});
 
 
+
+    auto* projLanguages = projectMenu->addAction("Languages");
+    QObject::connect(projLanguages, &QAction::triggered, this, &MainWindow::OnProjectLanguages);
+    projLanguages->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
+    auto* projSettings = projectMenu->addAction("Project Settings");
     QObject::connect(projSettings, &QAction::triggered, this, &MainWindow::OnProjectSettings);
     projSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
 
@@ -1133,6 +1139,20 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
         }
         QMessageBox::information(0, "Successfully Imported Enumerator(s)", msgText);
     }
+}
+void MainWindow::OnProjectLanguages()
+{
+    auto* dialog = new QLanguageDialog(this);
+    dialog->exec();
+    int res = dialog->result();
+    delete dialog;
+
+    if (res != QDialog::Accepted)
+    {
+        return;
+    }
+
+    // TODO ?
 }
 void MainWindow::OnProjectSettings()
 {

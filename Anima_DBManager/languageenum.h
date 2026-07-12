@@ -12,13 +12,16 @@ protected:
 public:
     LanguageEnum();
 
+    const QList<Language>& GetLanguageList() const;
     int GetLanguageCount() const;
     const Language& GetLanguage(int _index) const;
     int GetLanguageIndexFromAbbrev(const QString& _languageAbbrev) const;
     bool HasDoubles() const;
 
-    bool AddLanguage(const Language& _language);
+    bool AddLanguage(const Language& _language, int _index);
     void RemoveLanguage(int _languageIndex);
+    void MoveLanguage(int _fromIndex, int _targetIndex);
+    void ReplaceLanguage(int _index, const Language& _language);
     void Reset();
 };
 

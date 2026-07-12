@@ -369,9 +369,9 @@ const LanguageEnum& DB_Manager::GetLanguages() const
 {
     return myLanguages;
 }
-bool DB_Manager::AddLanguage(const Language& _language)
+bool DB_Manager::AddLanguage(const Language& _language, int _index)
 {
-    bool addOk = myLanguages.AddLanguage(_language);
+    bool addOk = myLanguages.AddLanguage(_language, _index);
     if (addOk)
     {
         // trigger signal
@@ -381,6 +381,22 @@ bool DB_Manager::AddLanguage(const Language& _language)
 void DB_Manager::RemoveLanguage(int _languageIndex)
 {
     myLanguages.RemoveLanguage(_languageIndex);
+    // trigger signal
+}
+void DB_Manager::RemoveLanguage(const QString& _languageAbbrev)
+{
+    RemoveLanguage(myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev));
+}
+void DB_Manager::MoveLanguage(const QString& _languageAbbrev, int _targetIndex)
+{
+    int fromIndex = myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev);
+    myLanguages.MoveLanguage(fromIndex, _targetIndex);
+    // signal
+}
+void DB_Manager::ReplaceLanguageInfo(const QString& _languageAbbrev, const Language& _editedLanguage)
+{
+    myLanguages.ReplaceLanguage(myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev), _editedLanguage);
+    // signal (UI only)
 }
 
 
