@@ -3,7 +3,6 @@
 #include "searchmanager.h"
 #include <QFormLayout>
 #include <QFuture>
-#include <QGridLayout>
 #include <QtConcurrent>
 #include <QVBoxLayout>
 
@@ -58,16 +57,8 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     mySearchOnString = new QCheckBox();
     mySearchOnLanguageGroup = new QGroupBox("Languages");
     mySearchOnLanguageGroup->hide();
-    QGridLayout* languageGroupLayout = new QGridLayout(mySearchOnLanguageGroup);
-    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
-    const int languagesCount = languages.GetLanguageCount();
-    for (int i = 0; i < languagesCount; i++)
-    {
-        QCheckBox* checkBox = new QCheckBox(languages.GetLanguage(i).GetName());
-        QObject::connect(checkBox, &QCheckBox::stateChanged, this, [this, i](int _state){ OnLanguageCheckBoxChanged(_state, i); });
-        checkBox->setCheckState(i == 0 ? Qt::Checked : Qt::Unchecked);
-        languageGroupLayout->addWidget(checkBox, 0, i);
-    }
+    myLanguageGroupLayout = new QGridLayout(mySearchOnLanguageGroup);
+    UpdateLanguageFilterWidget();
 
     QCheckBox* searchOnEnum = new QCheckBox();
     QCheckBox* caseSensitive = new QCheckBox();
@@ -113,6 +104,13 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     QObject::connect(mySearchBtn, &QPushButton::clicked, this, &QPanelSearch::OnSearchRequested);
     QObject::connect(myResultTable, &QTableWidget::cellDoubleClicked, this, &QPanelSearch::OnSearchResultDoubleClicked);
 
+    DB_Manager* dbManager = &DB_Manager::GetDB_Manager();
+    QObject::connect(dbManager, &DB_Manager::LanguageAdded, this, &QPanelSearch::OnLanguageChanged);
+    QObject::connect(dbManager, &DB_Manager::LanguageRemoved, this, &QPanelSearch::OnLanguageChanged);
+    QObject::connect(dbManager, &DB_Manager::LanguageMoved, this, &QPanelSearch::OnLanguageChanged);
+    QObject::connect(dbManager, &DB_Manager::LanguageEdited, this, &QPanelSearch::OnLanguageChanged);
+
+
     //mySearchOnStruct->setCheckState(Qt::Checked);
     mySearchOnString->setCheckState(Qt::Checked);
     //searchOnEnum->setCheckState(Qt::Checked);
@@ -120,6 +118,34 @@ QPanelSearch::QPanelSearch(QWidget* _parent)
     //wholeWord->setCheckState(Qt::Checked);
 }
 
+void QPanelSearch::UpdateLanguageFilterWidget()
+{
+    // Clear previous languages
+    QLayoutItem *item;
+    while ((item = myLanguageGroupLayout->takeAt(0)) != nullptr) {
+        if (auto widget = item->widget()) {
+            widget->setParent(nullptr);
+            widget->deleteLater();
+        }
+        delete item;
+    }
+
+    // Re-add languages
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
+    for (int i = 0; i < languagesCount; i++)
+    {
+        QCheckBox* checkBox = new QCheckBox(languages.GetLanguage(i).GetName());
+        QObject::connect(checkBox, &QCheckBox::stateChanged, this, [this, i](int _state){ OnLanguageCheckBoxChanged(_state, i); });
+        checkBox->setCheckState(i == 0 ? Qt::Checked : Qt::Unchecked);
+        myLanguageGroupLayout->addWidget(checkBox, 0, i);
+    }
+}
+void QPanelSearch::OnLanguageChanged()
+{
+    mySearchParameters.myLanguageIgnoreSearchMap.clear();
+    UpdateLanguageFilterWidget();
+}
 void QPanelSearch::OnSearchedStringChanged(const QString& _str)
 {
     mySearchParameters.mySearchedString = _str;

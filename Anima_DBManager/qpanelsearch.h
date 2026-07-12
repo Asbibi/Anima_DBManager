@@ -7,6 +7,7 @@
 #include "searchresult.h"
 #include <QCheckBox>
 #include <QGroupBox>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -23,6 +24,7 @@ private:
     QGroupBox* mySearchOnAttributeGroup;
     QCheckBox* mySearchOnString;
     QGroupBox* mySearchOnLanguageGroup;
+    QGridLayout* myLanguageGroupLayout;
     QPushButton* mySearchBtn;
     QTableWidget* myResultTable;
     QLabel* myResultCount;
@@ -30,6 +32,7 @@ private:
     SearchParameter mySearchParameters;
     QList<SearchResult> myCurrentSearchResults;
 
+    void UpdateLanguageFilterWidget();
     void UpdateWidgetsWithSearchResults();
 
 
@@ -37,6 +40,8 @@ public:
     explicit QPanelSearch(QWidget* _parent = nullptr);
 
 public slots:
+    void OnLanguageChanged();
+
     void OnSearchedStringChanged(const QString& _str);
     void OnStructCheckboxChanged(int _state);
     void OnStringCheckboxChanged(int _state);
