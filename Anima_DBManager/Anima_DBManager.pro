@@ -59,6 +59,8 @@ SOURCES += \
     qcoloreditor.cpp \
     qdatatable.cpp \
     qelementhandler.cpp \
+    qexportstringdialog.cpp \
+    qgridlayouthelper.cpp \
     qimportenumfromtextdialog.cpp \
     qimportstringdialog.cpp \
     qimportstructdialog.cpp \
@@ -146,6 +148,9 @@ HEADERS += \
     qcoloreditor.h \
     qdatatable.h \
     qelementhandler.h \
+    qexportstringconflictpolicy.h \
+    qexportstringdialog.h \
+    qgridlayouthelper.h \
     qimportenumfromtextdialog.h \
     qimportstringdialog.h \
     qimportstructdialog.h \

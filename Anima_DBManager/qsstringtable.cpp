@@ -5,6 +5,8 @@
 #include <QCursor>
 #include <QHeaderView>
 #include <QMenu>
+#include <QFile>
+#include <QMessageBox>
 
 QSStringTable::QSStringTable(int _strTableIndex, QWidget* _parent) :
     QTableWidget(_parent),
@@ -50,16 +52,52 @@ void QSStringTable::UpdateIndex(int _strTableIndex)
     myStringTableIndex = _strTableIndex;
 }
 
-void QSStringTable::ExportStringsToCSV(const QString _directoryPath, int _languageIndex, bool _withDictionaryReplacement)
+void QSStringTable::ExportStringsToCSV(const QString& _filePathTemplate, int _languageIndex, QExportStringConflictPolicy _conflictPolicy)
 {
     const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
-    Q_ASSERT(!_directoryPath.isEmpty());
+    Q_ASSERT(!_filePathTemplate.isEmpty());
     Q_ASSERT(_languageIndex >= 0);
     Q_ASSERT(_languageIndex < languages.GetLanguageCount());
     SStringTable& stringTable = GetTable();
+    const auto& language = languages.GetLanguage(_languageIndex);
 
-    QString filePath = _directoryPath + "/ST_" + languages.GetLanguage(_languageIndex).GetAbbrev() + "_" + stringTable.GetTableName() + ".csv";
-    qDebug() << "Export String table " << stringTable.GetTableName() << " to file : " << filePath;
+    const QString& stringTableName = stringTable.GetTableName();
+    QString filePath = _filePathTemplate.arg(language.GetAbbrev(), stringTableName);
+
+    qDebug() << "Export String table " << stringTableName << " to file : " << filePath;
+
+    auto fileToCreate = QFile(filePath);
+    if (fileToCreate.exists())
+    {
+        switch(_conflictPolicy)
+        {
+            case QExportStringConflictPolicy::OVERWRITE:
+            {
+                qWarning() << "Conflict for table " << stringTableName << " [" << language.GetAbbrev() << "] | Policy set to overwrite : file saved anyway";
+                break;
+            }
+            case QExportStringConflictPolicy::IGNORE:
+            {
+                qWarning() << "Conflict for table " << stringTableName << " [" << language.GetAbbrev() << "] | Policy set to ignore : table skipped";
+                return;
+            }
+            default:
+            case QExportStringConflictPolicy::ASK:
+            {
+                auto conflictDialogBoxResult = QMessageBox::warning(
+                    this,
+                    "String Table file already existing",
+                    QString("The file \"%1\" already exists.\nSave and overwrite or ignore the String Table \"%2\" for the language %3 [%4] ?")
+                        .arg(fileToCreate.fileName(), stringTableName, language.GetName(), language.GetAbbrev()),
+                    QMessageBox::StandardButtons(QMessageBox::Save | QMessageBox::Ignore) );
+                if (conflictDialogBoxResult != QMessageBox::Save)
+                {
+                    return;
+                }
+                break;
+            }
+        }
+    }
 
     std::ofstream csvFile(filePath.toStdString());
     if (!csvFile)
@@ -69,7 +107,7 @@ void QSStringTable::ExportStringsToCSV(const QString _directoryPath, int _langua
     }
 
     csvFile << "Key,SourceString";
-    stringTable.WriteValue_CSV(csvFile, _languageIndex, _withDictionaryReplacement);
+    stringTable.WriteValue_CSV(csvFile, _languageIndex, true);
 
     csvFile.close();
 }

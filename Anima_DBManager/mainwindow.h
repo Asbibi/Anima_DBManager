@@ -4,6 +4,7 @@
 #include <QMainWindow>
 
 #include <QMenuBar>
+#include <QAction>
 #include <QSplitter>
 #include <QTabWidget>
 #include <QToolBox>
@@ -12,6 +13,7 @@
 #include "qpanelenum.h"
 #include "qpanelstring.h"
 #include "qpanelstruct.h"
+#include "qexportstringdialog.h"
 
 
 class MainWindow : public QMainWindow
@@ -23,9 +25,9 @@ private:
 
     QMenuBar* myMenuBar;
     QMenu* myOpenRecentMenu;
-    QMenu* myExportCurrentStringMenu;
     QMenu* myExportOneStructMenu;
-    QMenu* myExportOneStringMenu;
+    QAction* myExportCurrentString;
+    QAction* myExportOneString;
 
     QSplitter* mySplitter;
 
@@ -42,7 +44,7 @@ private:
 
     bool OnSaveDB_Internal(bool _saveAs);
     void CleanTabWidget(QTabWidget* _tabWidget);
-    void ExportOneStringTable(int _index, int _languageIndex, QString _dir);
+    void ExportStringTables(QExportStringDialog* _exportDialog);
     void ExportCurrentStructTable(bool _JSON);
     void ExportAllStructTables(bool _JSON);
     void ExportOneStructTable(int _index, bool _JSON, QString _dir);
@@ -50,7 +52,7 @@ private:
     void AddFileToOpenRecentList();
     void BuildOpenRecentMenu();
     void BuildExportOneStructTableMenu();
-    void BuildExportOneStringTableMenu();
+    void UpdateExportStringActionsAreEnabled();
 
     void SaveQSettings() const;
     void LoadQSettings();
@@ -98,9 +100,9 @@ public slots:
     void OnOpenDB();
     void OnOpenRecentDB(const QString& _filePath);
 
-    void OnExportCurrentStringTable(int _languageIndex);
-    void OnExportOneStringTable(int _index, int _languageIndex);
-    void OnExportAllStringTables(int _languageIndex);
+    void OnExportCurrentStringTable();
+    void OnExportOneStringTable();
+    void OnExportAllStringTables();
     void OnExportCurrentStructTable_JSON();
     void OnExportOneStructTable_JSON(int _index);
     void OnExportAllStructTables_JSON();
