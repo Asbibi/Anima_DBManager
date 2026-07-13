@@ -344,6 +344,7 @@ void DB_Manager::Reset()
     //myAttributeParamPtrs.clear();
 
     myProjectContentFolderPath = "";
+    myProjectPathIsValid = false;
     myAttributePrefix = "";
     myAttributeSuffix = "";
     SetAutoSave(false, 15);
@@ -467,6 +468,7 @@ void DB_Manager::EndLanguageEditingFromDialogBox()
     if (myChangingLanguagesFromDialogHasChange)
     {
         emit LanguagesChanged();
+        SaveManager::AcknowledgeUnsavedChanges();
     }
 
     myChangingLanguagesFromDialog = false;
