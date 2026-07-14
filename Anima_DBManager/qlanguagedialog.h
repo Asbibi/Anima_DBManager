@@ -9,6 +9,24 @@
 #include <QLineEdit>
 #include "languageaction.h"
 
+enum class LanguageEditCheckResult
+{
+    OK,
+
+    NAME_EMPTY,
+    ABBREV_EMPTY,
+    ABBREV_ALREADY_USED_OTHER,
+    ABBREV_ALREADY_USED_SELF
+};
+enum class LanguageRemoveCheckResult
+{
+    OK,
+
+    INVALID,
+    LAST_LANGUAGE,
+    ABBREV_ALREADY_USED
+};
+
 class QLanguageDialog : public QDialog
 {
     Q_OBJECT
@@ -30,6 +48,10 @@ private:
     int GetActualLanguageCount() const;
     QColor GetColorForActionType(LanguageActionType _actionType) const;
     void UpdateListWidget();
+    LanguageEditCheckResult CanAddOrReplaceWithInputs();
+    void CheckCanAddOrReplaceWithInputs();
+    LanguageRemoveCheckResult ShouldHaveRemoveButton(int _currentRow);
+    void CheckRemoveButton(int _currentRow);
 
     void OnMove(int _originalRow, bool _up);
 

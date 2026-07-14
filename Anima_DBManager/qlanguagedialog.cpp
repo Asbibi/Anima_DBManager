@@ -135,22 +135,91 @@ void QLanguageDialog::UpdateListWidget()
         myLanguageListWidget->addItem(languageItem);
     }
 }
+LanguageEditCheckResult QLanguageDialog::CanAddOrReplaceWithInputs()
+{
+    if (myNameEdit->text().isEmpty())
+        return LanguageEditCheckResult::NAME_EMPTY;
+
+    const auto& myAbbrev = myAbbrevEdit->text();
+    if (myAbbrev.isEmpty())
+        return LanguageEditCheckResult::ABBREV_EMPTY;
+
+
+    bool abbrevDidntChanged = false;
+    int i = -1;
+    for (const auto& languageAction : myLanguageActionList)
+    {
+        i++;
+        if (languageAction.myType == LanguageActionType::REMOVE)
+            continue;
+
+        const QString& abbrev = GetFinalLanguageForAction(languageAction).GetAbbrev();
+        if (abbrev == myAbbrev)
+        {
+            if (i == myLanguageListWidget->currentRow())
+            {
+                abbrevDidntChanged = true;
+                break;
+            }
+
+            return LanguageEditCheckResult::ABBREV_ALREADY_USED_OTHER;
+        }
+    }
+
+    return abbrevDidntChanged ? LanguageEditCheckResult::ABBREV_ALREADY_USED_SELF : LanguageEditCheckResult::OK;
+}
+void QLanguageDialog::CheckCanAddOrReplaceWithInputs()
+{
+    LanguageEditCheckResult enabledResult = CanAddOrReplaceWithInputs();
+    myAddBtn->setEnabled(enabledResult == LanguageEditCheckResult::OK);
+    myReplaceBtn->setEnabled(enabledResult == LanguageEditCheckResult::OK || enabledResult == LanguageEditCheckResult::ABBREV_ALREADY_USED_SELF);
+}
+LanguageRemoveCheckResult QLanguageDialog::ShouldHaveRemoveButton(int _currentRow)
+{
+    // Invalid index
+    if (_currentRow < 0 || myLanguageActionList.size() <= _currentRow)
+        return LanguageRemoveCheckResult::INVALID;
+
+    // Case of actually removing the language
+    if (myLanguageActionList[_currentRow].myType != LanguageActionType::REMOVE)
+        return GetActualLanguageCount() > 1 ? LanguageRemoveCheckResult::OK : LanguageRemoveCheckResult::LAST_LANGUAGE;
+
+    // Case of cancelling the removal of the language : identifier unique ?
+    const auto& removedAbbrev = GetFinalLanguageForAction(myLanguageActionList[_currentRow]).GetAbbrev();
+    for (const auto& languageAction : myLanguageActionList)
+    {
+        if (languageAction.myType == LanguageActionType::REMOVE)
+            continue;
+
+        const QString& abbrev = GetFinalLanguageForAction(languageAction).GetAbbrev();
+        if (abbrev == removedAbbrev)
+        {
+            return LanguageRemoveCheckResult::ABBREV_ALREADY_USED;
+        }
+    }
+    return LanguageRemoveCheckResult::OK;
+}
+void QLanguageDialog::CheckRemoveButton(int _currentRow)
+{
+    LanguageRemoveCheckResult canRemoveResult = ShouldHaveRemoveButton(_currentRow);
+    myRemoveBtn->setEnabled(canRemoveResult == LanguageRemoveCheckResult::OK);
+}
 
 void QLanguageDialog::OnSelectionChanged(const int _index)
 {
-    bool selectionIsValid = _index >= 0 && _index < myLanguageActionList.size();
-
-    myReplaceBtn->setEnabled(selectionIsValid);
-    myRemoveBtn->setEnabled(selectionIsValid && (myLanguageActionList[_index].myType == LanguageActionType::REMOVE || GetActualLanguageCount() > 1));
-
-    if (!selectionIsValid)
+    if (_index < 0 || myLanguageActionList.size() <= _index)
     {
+        myReplaceBtn->setEnabled(false);
+        myRemoveBtn->setEnabled(false);
         return;
     }
 
     const Language& lang = GetFinalLanguageForAction(myLanguageActionList[_index]);
     myAbbrevEdit->setText(lang.GetAbbrev());
     myNameEdit->setText(lang.GetName());
+
+    CheckCanAddOrReplaceWithInputs();
+    CheckRemoveButton(_index);
 }
 void QLanguageDialog::OnAbbrevEdited()
 {
@@ -161,7 +230,7 @@ void QLanguageDialog::OnAbbrevEdited()
     abbrev.remove(filterRegex);
     myAbbrevEdit->setText(abbrev);
 
-    // todo check identifier (not empty + unique) -> disable replace btn
+    CheckCanAddOrReplaceWithInputs();
 }
 void QLanguageDialog::OnNameEdited()
 {
@@ -169,7 +238,7 @@ void QLanguageDialog::OnNameEdited()
     name.replace(' ', '_');
     myNameEdit->setText(name);
 
-    // todo check name (not empty) -> disable replace btn
+    CheckCanAddOrReplaceWithInputs();
 }
 
 void QLanguageDialog::OnAdd()
