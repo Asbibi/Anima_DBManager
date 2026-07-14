@@ -10,6 +10,7 @@
 #include "sstringimporter.h"
 #include "structureimporthelper.h"
 
+#define LANGUAGE_SEPARATOR " | "
 
 const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
 const QString SaveManager::fileEndLang = "1_LG.csv";
@@ -206,7 +207,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
     for (int i = 0; i < languagesCount; i++)
     {
         const auto& l = languages.GetLanguage(i);
-        csvLanguageFile << l.GetAbbrev().toStdString() << " - " << l.GetName().toStdString()  << '\n';
+        csvLanguageFile << l.GetAbbrev().toStdString() << LANGUAGE_SEPARATOR << l.GetName().toStdString()  << '\n';
     }
     csvLanguageFile.close();
 
@@ -513,17 +514,11 @@ void SaveManager::ProcessLangTempFile(const QString& _tempFolderPath, DB_Manager
     Q_ASSERT(DB_Manager::GetLanguagesCount() == 1); // only the default english language expected
     mySaveFeedbackComponent.SetOpenLanguageProgress();
 
-    QString currentLine;
     while (!langIn.atEnd())
     {
-        currentLine = langIn.readLine();
-        int separatorIndex = currentLine.indexOf(" - ");
-        Q_ASSERT(separatorIndex > 0);
-        QString abbrev = currentLine.first(separatorIndex);
-        QString name = currentLine.mid(separatorIndex + 3);
-
-        Language language {abbrev, name};
-        _dbManager.AddLanguage(language);
+        auto languageInfos = langIn.readLine().split(LANGUAGE_SEPARATOR);
+        Q_ASSERT(languageInfos.size() == 2);
+        _dbManager.AddLanguage(Language {languageInfos[0], languageInfos[1]});
     }
     langFile.close();
 

@@ -38,6 +38,8 @@ public:
 
 public slots:
     void OnSelectionChanged(const int _index);
+    void OnAbbrevEdited();
+    void OnNameEdited();
 
     void OnAdd();
     void OnReplace();

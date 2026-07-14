@@ -51,6 +51,8 @@ QLanguageDialog::QLanguageDialog(QWidget* _parent) :
     myNameEdit = new QLineEdit();
     editLayout->addRow("Code:", myAbbrevEdit);
     editLayout->addRow("Name:", myNameEdit);
+    QObject::connect(myAbbrevEdit, &QLineEdit::editingFinished, this, &QLanguageDialog::OnAbbrevEdited);
+    QObject::connect(myNameEdit, &QLineEdit::editingFinished, this, &QLanguageDialog::OnNameEdited);
     vLayout->addLayout(editLayout);
     vLayout->addSpacing(3);
 
@@ -149,6 +151,25 @@ void QLanguageDialog::OnSelectionChanged(const int _index)
     const Language& lang = GetFinalLanguageForAction(myLanguageActionList[_index]);
     myAbbrevEdit->setText(lang.GetAbbrev());
     myNameEdit->setText(lang.GetName());
+}
+void QLanguageDialog::OnAbbrevEdited()
+{
+    QString abbrev = myAbbrevEdit->text();
+    abbrev.replace(' ', '_');
+    abbrev = abbrev.toUpper();
+    static const auto filterRegex = QRegularExpression("[^A-Z0-9_#.-]");
+    abbrev.remove(filterRegex);
+    myAbbrevEdit->setText(abbrev);
+
+    // todo check identifier (not empty + unique) -> disable replace btn
+}
+void QLanguageDialog::OnNameEdited()
+{
+    QString name = myNameEdit->text();
+    name.replace(' ', '_');
+    myNameEdit->setText(name);
+
+    // todo check name (not empty) -> disable replace btn
 }
 
 void QLanguageDialog::OnAdd()
