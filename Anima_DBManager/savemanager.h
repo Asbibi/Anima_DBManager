@@ -25,6 +25,7 @@ private:
     bool myIsSaving = false;
     QString myCurrentlyOpenedFile = "";
     bool myHasUnsavedChanges = false;
+    bool myIsCurrentSaveFileWithCompression = false;
     SaveFeedbackComponent mySaveFeedbackComponent;
 
 
@@ -59,6 +60,8 @@ public:
     static bool IsSavingFile();
     static bool GetHasUnsavedChanges();
     static void AcknowledgeUnsavedChanges();
+    static bool IsCurrentSaveFileWithCompression();
+    static void SetSaveWithCompressionChoice(bool _saveWithCompression);
 };
 
 #endif // SAVEMANAGER_H

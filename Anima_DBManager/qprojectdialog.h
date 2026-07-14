@@ -31,9 +31,6 @@ private:
     QLineEdit* mySuffixEdit;
     QLabel* myFixResult;
 
-    QCheckBox* myAutoSaveEnable;
-    QSpinBox* myAutoSaveInterval;
-
     void InitPath(const QString& _path);
     void SetPath(const QString& _path);
     void OnFixChanged(bool _isPrefix);

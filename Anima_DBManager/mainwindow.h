@@ -119,6 +119,7 @@ public slots:
 
     void OnProjectLanguages();
     void OnProjectSettings();
+    void OnProjectSaveSettings();
 
     void OnAcknowledgeChange();
     void OnAutoSaveFeedback(bool _showFeedback);

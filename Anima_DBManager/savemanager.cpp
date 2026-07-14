@@ -351,12 +351,16 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
         fileIndex++;
     }
-#ifdef SAVE_WITH_COMPRESSION
-    QByteArray compressedData = qCompress(uncompressedData,9);
-    saveFile.write(compressedData);
-#else
-    saveFile.write(uncompressedData);
-#endif
+
+    if (myIsCurrentSaveFileWithCompression)
+    {
+        QByteArray compressedData = qCompress(uncompressedData,9);
+        saveFile.write(compressedData);
+    }
+    else
+    {
+        saveFile.write(uncompressedData);
+    }
     saveFile.close();
 
 
@@ -412,10 +416,12 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     if (compressedData.startsWith(separator))
     {
         uncompressedData = compressedData;
+        myIsCurrentSaveFileWithCompression = false;
     }
     else
     {
         uncompressedData = qUncompress(compressedData);
+        myIsCurrentSaveFileWithCompression = true;
     }
     saveFile.close();
 
@@ -731,3 +737,11 @@ void SaveManager::AcknowledgeUnsavedChanges()
 }
 
 
+bool SaveManager::IsCurrentSaveFileWithCompression()
+{
+    return GetSaveManager().myIsCurrentSaveFileWithCompression;
+}
+void SaveManager::SetSaveWithCompressionChoice(bool _saveWithCompression)
+{
+    GetSaveManager().myIsCurrentSaveFileWithCompression = _saveWithCompression;
+}

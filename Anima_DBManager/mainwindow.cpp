@@ -26,6 +26,7 @@
 #include "qimportenumfromtextdialog.h"
 #include "qlanguagedialog.h"
 #include "qprojectdialog.h"
+#include "qsavesettingsdialog.h"
 #include "qpanelsearch.h"
 
 
@@ -116,13 +117,15 @@ MainWindow::MainWindow(QWidget *parent) :
     auto* importEnumFromCodeAction = importMenu->addAction("Import Enumerator from C++ file");
     QObject::connect(importEnumFromCodeAction, &QAction::triggered, this, &MainWindow::OnImportEnumeratorFromCodeFile);
 
-
-    auto* projLanguages = projectMenu->addAction("Languages");
-    QObject::connect(projLanguages, &QAction::triggered, this, &MainWindow::OnProjectLanguages);
-    projLanguages->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
     auto* projSettings = projectMenu->addAction("Project Settings");
     QObject::connect(projSettings, &QAction::triggered, this, &MainWindow::OnProjectSettings);
     projSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
+    auto* saveSettings = projectMenu->addAction("Save Settings");
+    QObject::connect(saveSettings, &QAction::triggered, this, &MainWindow::OnProjectSaveSettings);
+    saveSettings->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_T));
+    auto* projLanguages = projectMenu->addAction("Languages");
+    QObject::connect(projLanguages, &QAction::triggered, this, &MainWindow::OnProjectLanguages);
+    projLanguages->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_L));
 
 
 
@@ -1101,17 +1104,8 @@ void MainWindow::OnImportEnumeratorFromCodeFile()
 }
 void MainWindow::OnProjectLanguages()
 {
-    auto* dialog = new QLanguageDialog(this);
-    dialog->exec();
-    int res = dialog->result();
-    delete dialog;
-
-    if (res != QDialog::Accepted)
-    {
-        return;
-    }
-
-    // TODO ?
+    QLanguageDialog dialog = QLanguageDialog(this);
+    dialog.exec();
 }
 void MainWindow::OnProjectSettings()
 {
@@ -1126,4 +1120,9 @@ void MainWindow::OnProjectSettings()
     }
 
     myManager.UpdateAAssetIsDirty();
+}
+void MainWindow::OnProjectSaveSettings()
+{
+    QSaveSettingsDialog dialog = QSaveSettingsDialog(this);
+    dialog.exec();
 }

@@ -99,24 +99,6 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     vLayout->addWidget(myFixResult);
     UpdateFixResult();
 
-    vLayout->addSpacing(6);
-    auto* autoSaveTitle = new QLabel("Automatic Save");
-    autoSaveTitle->setStyleSheet(titleStyle);
-    vLayout->addWidget(autoSaveTitle);
-    vLayout->addSpacing(3);
-    myAutoSaveEnable = new QCheckBox();
-    myAutoSaveInterval = new QSpinBox();
-    QFormLayout* autoSaveLayout = new QFormLayout();
-    QObject::connect(myAutoSaveEnable, &QCheckBox::toggled, myAutoSaveInterval, &QWidget::setEnabled);
-    autoSaveLayout->addRow("Enable AutoSave:", myAutoSaveEnable);
-    autoSaveLayout->addRow("AutoSave Interval (minuts):", myAutoSaveInterval);
-    vLayout->addLayout(autoSaveLayout);
-    const bool enabled = dbManager.GetAutoSaveEnabled();
-    myAutoSaveEnable->setChecked(enabled);
-    myAutoSaveInterval->setEnabled(enabled);
-    myAutoSaveInterval->setValue(dbManager.GetAutoSaveInterval());
-    //OnAutoSaveChanged(myAutoSaveEnable->checkState() == Qt::Checked);
-
 
     vLayout->addSpacing(12);
     QWidget* btnWidget = new QWidget();
@@ -249,6 +231,5 @@ void QProjectDialog::OnApplyBtnClicked()
     {
         dbManager.SetProjectContentFolderPath(myProjectPathText);
     }
-    dbManager.SetAutoSave(myAutoSaveEnable->checkState() != Qt::Unchecked, myAutoSaveInterval->value());
     QDialog::accept();
 }
