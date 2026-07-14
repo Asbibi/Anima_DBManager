@@ -27,6 +27,7 @@
 #include "qlanguagedialog.h"
 #include "qprojectdialog.h"
 #include "qsavesettingsdialog.h"
+#include "qaboutdialog.h"
 #include "qpanelsearch.h"
 
 
@@ -43,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMenu* projectMenu = myMenuBar->addMenu("Project");
     QMenu* exportMenu = myMenuBar->addMenu("Export");
     QMenu* importMenu = myMenuBar->addMenu("Import");
+    QAction* aboutAction = myMenuBar->addAction("About");
+    QObject::connect(aboutAction, &QAction::triggered, this, &MainWindow::OnAbout);
     setMenuBar(myMenuBar);
 
     auto* newDB = fileMenu->addAction("New");
@@ -1124,5 +1127,10 @@ void MainWindow::OnProjectSettings()
 void MainWindow::OnProjectSaveSettings()
 {
     QSaveSettingsDialog dialog = QSaveSettingsDialog(this);
+    dialog.exec();
+}
+void MainWindow::OnAbout()
+{
+    QAboutDialog dialog = QAboutDialog(this);
     dialog.exec();
 }
