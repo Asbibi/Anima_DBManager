@@ -163,30 +163,30 @@ void QExportStringDialog::UpdateApplyButtonEnable()
     {
     case ExportError::NO_EXPORT_NAME:
     {
-        myExportErrorLabel->setVisible(true);
         static const QString langErrorText = "<font color='red'>Can't export : An export name is required to export.</font>";
         myExportErrorLabel->setText(langErrorText);
+        myExportErrorLabel->setVisible(true);
         break;
     }
     case ExportError::NO_EXPORT_FOLDER:
     {
-        myExportErrorLabel->setVisible(true);
         static const QString langErrorText = "<font color='red'>Can't export : Select a valid folder to export to.</font>";
         myExportErrorLabel->setText(langErrorText);
+        myExportErrorLabel->setVisible(true);
         break;
     }
     case ExportError::NO_LANGUAGE_DIFF:
     {
-        myExportErrorLabel->setVisible(true);
         static const QString langErrorText = "<font color='red'>Can't export : Use \"#CD#\" in the export name or select only one Language.</font>";
         myExportErrorLabel->setText(langErrorText);
+        myExportErrorLabel->setVisible(true);
         break;
     }
     case ExportError::NO_TABLE_DIFF:
     {
-        myExportErrorLabel->setVisible(true);
         static const QString tableErrorText = "<font color='red'>Can't export : Use \"#ST#\" in the export name or select only one String Table.</font>";
         myExportErrorLabel->setText(tableErrorText);
+        myExportErrorLabel->setVisible(true);
         break;
     }
     default:

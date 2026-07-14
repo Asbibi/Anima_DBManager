@@ -7,6 +7,7 @@
 #include <QMap>
 #include <QListWidget>
 #include <QLineEdit>
+#include <QLabel>
 #include "languageaction.h"
 
 enum class LanguageEditCheckResult
@@ -43,6 +44,8 @@ private:
     QPushButton* myRemoveBtn;
     QPushButton* myMoveUpBtn;
     QPushButton* myMoveDownBtn;
+    QLabel* myEditErrorLabel;
+    QLabel* myRemoveErrorLabel;
 
     const Language& GetFinalLanguageForAction(const LanguageAction& _action);
     int GetActualLanguageCount() const;

@@ -1,6 +1,5 @@
 #include "qlanguagedialog.h"
 
-#include <QLabel>
 #include <QPushButton>
 #include <QFormLayout>
 #include <QHBoxLayout>
@@ -65,6 +64,12 @@ QLanguageDialog::QLanguageDialog(QWidget* _parent) :
     actionLayout->addWidget(myAddBtn);
     actionLayout->addWidget(myReplaceBtn);
     vLayout->addLayout(actionLayout);
+
+    myEditErrorLabel = new QLabel();
+    vLayout->addWidget(myEditErrorLabel);
+    myRemoveErrorLabel = new QLabel();
+    vLayout->addWidget(myRemoveErrorLabel);
+
     vLayout->addSpacing(12);
 
     // Bttn
@@ -173,6 +178,44 @@ void QLanguageDialog::CheckCanAddOrReplaceWithInputs()
     LanguageEditCheckResult enabledResult = CanAddOrReplaceWithInputs();
     myAddBtn->setEnabled(enabledResult == LanguageEditCheckResult::OK);
     myReplaceBtn->setEnabled(enabledResult == LanguageEditCheckResult::OK || enabledResult == LanguageEditCheckResult::ABBREV_ALREADY_USED_SELF);
+
+    switch(enabledResult)
+    {
+        default:
+        case LanguageEditCheckResult::OK:
+        {
+            myEditErrorLabel->setVisible(false);
+            break;
+        }
+        case LanguageEditCheckResult::NAME_EMPTY:
+        {
+            static const QString addBackErrorText = "<font color='red'>Can't have a language with no Name.</font>";
+            myEditErrorLabel->setText(addBackErrorText);
+            myEditErrorLabel->setVisible(true);
+            break;
+        }
+        case LanguageEditCheckResult::ABBREV_EMPTY:
+        {
+            static const QString lastErrorText = "<font color='red'>Can't have a language with no Abbreviation.</font>";
+            myEditErrorLabel->setText(lastErrorText);
+            myEditErrorLabel->setVisible(true);
+            break;
+        }
+        case LanguageEditCheckResult::ABBREV_ALREADY_USED_OTHER:
+        {
+            static const QString addBackErrorText = "<font color='red'>This Abbreviation is already used by another language.</font>";
+            myEditErrorLabel->setText(addBackErrorText);
+            myEditErrorLabel->setVisible(true);
+            break;
+        }
+        case LanguageEditCheckResult::ABBREV_ALREADY_USED_SELF:
+        {
+            static const QString addBackErrorText = "<font color='gray'>Can't add a new language with the same Abbreviation.</font>";
+            myEditErrorLabel->setText(addBackErrorText);
+            myEditErrorLabel->setVisible(true);
+            break;
+        }
+    }
 }
 LanguageRemoveCheckResult QLanguageDialog::ShouldHaveRemoveButton(int _currentRow)
 {
@@ -203,6 +246,31 @@ void QLanguageDialog::CheckRemoveButton(int _currentRow)
 {
     LanguageRemoveCheckResult canRemoveResult = ShouldHaveRemoveButton(_currentRow);
     myRemoveBtn->setEnabled(canRemoveResult == LanguageRemoveCheckResult::OK);
+
+    switch(canRemoveResult)
+    {
+        default:
+        case LanguageRemoveCheckResult::OK:
+        case LanguageRemoveCheckResult::INVALID:
+        {
+            myRemoveErrorLabel->setVisible(false);
+            break;
+        }
+        case LanguageRemoveCheckResult::LAST_LANGUAGE:
+        {
+            static const QString lastErrorText = "<font color='gray'>Can't remove the last language.</font>";
+            myRemoveErrorLabel->setText(lastErrorText);
+            myRemoveErrorLabel->setVisible(true);
+            break;
+        }
+        case LanguageRemoveCheckResult::ABBREV_ALREADY_USED:
+        {
+            static const QString addBackErrorText = "<font color='gray'>Can't add back this language : its Abbreviation is already used by another language.</font>";
+            myRemoveErrorLabel->setText(addBackErrorText);
+            myRemoveErrorLabel->setVisible(true);
+            break;
+        }
+    }
 }
 
 void QLanguageDialog::OnSelectionChanged(const int _index)
@@ -218,8 +286,8 @@ void QLanguageDialog::OnSelectionChanged(const int _index)
     myAbbrevEdit->setText(lang.GetAbbrev());
     myNameEdit->setText(lang.GetName());
 
-    CheckCanAddOrReplaceWithInputs();
     CheckRemoveButton(_index);
+    CheckCanAddOrReplaceWithInputs();
 }
 void QLanguageDialog::OnAbbrevEdited()
 {
