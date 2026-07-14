@@ -76,6 +76,7 @@ SOURCES += \
     qprojectdialog.cpp \
     qrefdialog.cpp \
     qreflabel.cpp \
+    qsavesettingsdialog.cpp \
     qsstring.cpp \
     qsstringdialog.cpp \
     qsstringtable.cpp \
@@ -166,6 +167,7 @@ HEADERS += \
     qprojectdialog.h \
     qrefdialog.h \
     qreflabel.h \
+    qsavesettingsdialog.h \
     qsstring.h \
     qsstringdialog.h \
     qsstringtable.h \

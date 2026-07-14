@@ -99,35 +99,6 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     vLayout->addWidget(myFixResult);
     UpdateFixResult();
 
-    vLayout->addSpacing(6);
-    auto* autoSaveTitle = new QLabel("Automatic Save");
-    autoSaveTitle->setStyleSheet(titleStyle);
-    vLayout->addWidget(autoSaveTitle);
-    vLayout->addSpacing(3);
-    myAutoSaveEnable = new QCheckBox();
-    myAutoSaveInterval = new QSpinBox();
-    QFormLayout* autoSaveLayout = new QFormLayout();
-    QObject::connect(myAutoSaveEnable, &QCheckBox::toggled, myAutoSaveInterval, &QWidget::setEnabled);
-    autoSaveLayout->addRow("Enable AutoSave:", myAutoSaveEnable);
-    autoSaveLayout->addRow("AutoSave Interval (minuts):", myAutoSaveInterval);
-    vLayout->addLayout(autoSaveLayout);
-    const bool enabled = dbManager.GetAutoSaveEnabled();
-    myAutoSaveEnable->setChecked(enabled);
-    myAutoSaveInterval->setEnabled(enabled);
-    myAutoSaveInterval->setValue(dbManager.GetAutoSaveInterval());
-
-    vLayout->addSpacing(6);
-    auto* compressSaveTitle = new QLabel("Save Compression");
-    compressSaveTitle->setStyleSheet(titleStyle);
-    vLayout->addWidget(compressSaveTitle);
-    vLayout->addSpacing(3);
-    QFormLayout* saveCompressionLayout = new QFormLayout();
-    myCompressSaveFile = new QCheckBox();
-    saveCompressionLayout->addRow("Compress Save file:", myCompressSaveFile);
-    myCompressSaveFile->setChecked(SaveManager::IsCurrentSaveFileWithCompression());
-    QObject::connect(myCompressSaveFile, &QCheckBox::checkStateChanged, this, &QProjectDialog::OnSaveCompressionChecked);
-    vLayout->addLayout(saveCompressionLayout);
-
 
     vLayout->addSpacing(12);
     QWidget* btnWidget = new QWidget();
@@ -231,12 +202,6 @@ void QProjectDialog::UpdateFixResult()
 }
 
 
-void QProjectDialog::OnSaveCompressionChecked(Qt::CheckState _checkState)
-{
-    SaveManager::SetSaveWithCompressionChoice(_checkState != Qt::Unchecked);
-}
-
-
 void QProjectDialog::OnApplyBtnClicked()
 {
     auto& dbManager = DB_Manager::GetDB_Manager();
@@ -266,6 +231,5 @@ void QProjectDialog::OnApplyBtnClicked()
     {
         dbManager.SetProjectContentFolderPath(myProjectPathText);
     }
-    dbManager.SetAutoSave(myAutoSaveEnable->checkState() != Qt::Unchecked, myAutoSaveInterval->value());
     QDialog::accept();
 }
