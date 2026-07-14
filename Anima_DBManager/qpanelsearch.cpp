@@ -1,6 +1,7 @@
 #include "qpanelsearch.h"
 
 #include "searchmanager.h"
+#include "qgridlayouthelper.h"
 #include <QFormLayout>
 #include <QFuture>
 #include <QtConcurrent>
@@ -135,7 +136,8 @@ void QPanelSearch::UpdateLanguageFilterWidget()
         QCheckBox* checkBox = new QCheckBox(languages.GetLanguage(i).GetName());
         QObject::connect(checkBox, &QCheckBox::stateChanged, this, [this, i](int _state){ OnLanguageCheckBoxChanged(_state, i); });
         checkBox->setCheckState(i == 0 ? Qt::Checked : Qt::Unchecked);
-        myLanguageGroupLayout->addWidget(checkBox, 0, i);
+        auto gridIndexes = QGridLayoutHelper::GetGridIndexes(i);
+        myLanguageGroupLayout->addWidget(checkBox, gridIndexes.row, gridIndexes.col);
     }
 }
 void QPanelSearch::OnLanguageChanged()
