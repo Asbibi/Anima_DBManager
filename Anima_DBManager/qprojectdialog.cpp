@@ -115,7 +115,18 @@ QProjectDialog::QProjectDialog(QWidget* _parent) :
     myAutoSaveEnable->setChecked(enabled);
     myAutoSaveInterval->setEnabled(enabled);
     myAutoSaveInterval->setValue(dbManager.GetAutoSaveInterval());
-    //OnAutoSaveChanged(myAutoSaveEnable->checkState() == Qt::Checked);
+
+    vLayout->addSpacing(6);
+    auto* compressSaveTitle = new QLabel("Save Compression");
+    compressSaveTitle->setStyleSheet(titleStyle);
+    vLayout->addWidget(compressSaveTitle);
+    vLayout->addSpacing(3);
+    QFormLayout* saveCompressionLayout = new QFormLayout();
+    myCompressSaveFile = new QCheckBox();
+    saveCompressionLayout->addRow("Compress Save file:", myCompressSaveFile);
+    myCompressSaveFile->setChecked(SaveManager::IsCurrentSaveFileWithCompression());
+    QObject::connect(myCompressSaveFile, &QCheckBox::checkStateChanged, this, &QProjectDialog::OnSaveCompressionChecked);
+    vLayout->addLayout(saveCompressionLayout);
 
 
     vLayout->addSpacing(12);
@@ -217,6 +228,12 @@ void QProjectDialog::UpdateFixResult()
 {
     static QString fixResultTemplate = "%1 -> <span style=\" color:%4;\">%2</span>%1<span style=\" color:%5;\">%3</span>";
     myFixResult->setText(fixResultTemplate.arg(ourOriginalAttributeName, myPrefixEdit->text(), mySuffixEdit->text(), ourPrefixColor, ourSuffixColor));
+}
+
+
+void QProjectDialog::OnSaveCompressionChecked(Qt::CheckState _checkState)
+{
+    SaveManager::SetSaveWithCompressionChoice(_checkState != Qt::Unchecked);
 }
 
 

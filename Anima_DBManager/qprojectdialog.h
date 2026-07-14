@@ -33,6 +33,7 @@ private:
 
     QCheckBox* myAutoSaveEnable;
     QSpinBox* myAutoSaveInterval;
+    QCheckBox* myCompressSaveFile;
 
     void InitPath(const QString& _path);
     void SetPath(const QString& _path);
@@ -49,6 +50,8 @@ public slots:
 
     void OnPrefixChange();
     void OnSuffixChange();
+
+    void OnSaveCompressionChecked(Qt::CheckState _checkState);
 
     void OnApplyBtnClicked();
 };
