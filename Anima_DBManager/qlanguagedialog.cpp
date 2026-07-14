@@ -4,6 +4,8 @@
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QMessageBox>
+#include <QCoreApplication>
 
 #include "db_manager.h"
 
@@ -408,7 +410,41 @@ void QLanguageDialog::OnApply()
 {
     auto& dbManager = DB_Manager::GetDB_Manager();
 
+    // Warn the user if needed
+    bool hasLanguageActionImpactingData = false;
+    for (const auto& action : myLanguageActionList)
+    {
+        if (action.myType != LanguageActionType::PRISTINE)
+        {
+            hasLanguageActionImpactingData = true;
+            break;
+        }
+    }
+    if (hasLanguageActionImpactingData)
+    {
+        auto warnDialogBoxResult = QMessageBox::warning(
+            this,
+            "Editing Language will impact Data",
+            "The changes asked on the project's Languages will impact the String Tables' data.\nContinue ?",
+            QMessageBox::StandardButtons(QMessageBox::Ok | QMessageBox::Cancel) );
+
+        if (warnDialogBoxResult != QMessageBox::Ok)
+        {
+            return;
+        }
+    }
+
     // Notify edit starts
+    QMessageBox* infoDialogBox = new QMessageBox(
+        QMessageBox::Information,
+        "Applying changes...",
+        "Applying changes to the project's Languages...\nPlease wait until the operation is completed.");
+    infoDialogBox->setStandardButtons(QMessageBox::NoButton);
+    infoDialogBox->setWindowModality(Qt::ApplicationModal);
+    infoDialogBox->setWindowFlags(infoDialogBox->windowFlags() & ~Qt::WindowCloseButtonHint);
+    infoDialogBox->setAttribute(Qt::WA_DeleteOnClose);
+    infoDialogBox->show();
+    QCoreApplication::processEvents();
     dbManager.StartLanguageEditingFromDialogBox();
 
     // Apply remove actions and forget related renames
@@ -423,6 +459,7 @@ void QLanguageDialog::OnApply()
         myLanguageRenameActionList.remove(removedAbbrev);
         dbManager.RemoveLanguage(removedAbbrev);
     }
+    QCoreApplication::processEvents();  // Need to call twice so infoDialogBox content is correctly displayed
 
     // Compute the desired index for each language
     QMap<QString, int> myDesiredIndexByAbbrev;
@@ -474,11 +511,9 @@ void QLanguageDialog::OnApply()
         }
     }
 
-    // Check duplicates ? can't revert if wrong so... need to check earlier ?
-
-
     // Notify edit completed
     dbManager.EndLanguageEditingFromDialogBox();
+    infoDialogBox->accept();
 
     QDialog::accept();
 }

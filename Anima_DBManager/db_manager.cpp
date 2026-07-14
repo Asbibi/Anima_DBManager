@@ -469,6 +469,8 @@ void DB_Manager::EndLanguageEditingFromDialogBox()
     {
         emit LanguagesChanged();
         SaveManager::AcknowledgeUnsavedChanges();
+        Q_ASSERT(!myLanguages.HasDoubles());
+        Q_ASSERT(myLanguages.GetLanguageCount() > 0);
     }
 
     myChangingLanguagesFromDialog = false;
