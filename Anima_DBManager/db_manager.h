@@ -1,6 +1,7 @@
 #ifndef DB_MANAGER_H
 #define DB_MANAGER_H
 
+#include "languageenum.h"
 #include "attributeparam.h"
 #include "enumerator.h"
 #include "structuredb.h"
@@ -33,6 +34,9 @@ private:
     int myAutoSaveInterval = 15;        // unit : minut
     QTimer* myAutoSaveTimer;
 
+    bool myChangingLanguagesFromDialog = false;
+    bool myChangingLanguagesFromDialogHasChange = false;
+    LanguageEnum myLanguages;
     SStringTable myStringTableDictionary = SStringTable("DICTIONARY");
     QList<AttributeParam*> myAttributeParamPtrs;
     QList<Enumerator> enumerators;
@@ -76,6 +80,16 @@ public:
     int GetAutoSaveInterval() const;
     void NotifySavePerformed();
     void NotifyUnsavedChanges();
+
+    static int GetLanguagesCount();
+    const LanguageEnum& GetLanguages() const;
+    void StartLanguageEditingFromDialogBox();
+    bool AddLanguage(const Language& _language, int _index = -1);
+    void RemoveLanguage(int _languageIndex);
+    void RemoveLanguage(const QString& _languageAbbrev);
+    void MoveLanguage(const QString& _languageAbbrev, int _targetIndex);
+    void ReplaceLanguageInfos(const QMap<QString, Language>& _editLanguageBatch);
+    void EndLanguageEditingFromDialogBox();
 
     int GetEnumCount() const;
     const Enumerator* GetEnum(int _index) const;
@@ -153,6 +167,8 @@ public:
     void AskFocusOnStructPanel(const QString& _tableName, const int _itemIndex);
 
 signals:
+    void LanguagesChanged();
+
     void StringTableAdded(const int _index);
     void StringTableMoved(const int _indexFrom, const int _indexTo);
     void StringTableRemoved(const int _index);

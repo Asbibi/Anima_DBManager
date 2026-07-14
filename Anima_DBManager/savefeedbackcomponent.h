@@ -16,6 +16,7 @@ public:
     void StartSaveOpenFeedback();
     void EndSaveOpenFeedback();
 
+    void SetSaveLanguageProgress(int _languageCount);
     void SetSaveStringTableProgress(int tableIndex, int tableCount);
     void SetSaveEnumProgress(int enumIndex, int enumCount);
     void SetSaveStructTemplateProgress(int structIndex, int structCount);
@@ -25,6 +26,7 @@ public:
 
     void SetOpenDecompilationProgress(int fileIndex, int fileCount);
     void SetOpenProjectProgress();
+    void SetOpenLanguageProgress();
     void SetOpenStringTableProgress(int tableIndex, int tableCount);
     void SetOpenEnumProgress();
     void SetOpenStructTemplateProgress(int structIndex, int structCount);

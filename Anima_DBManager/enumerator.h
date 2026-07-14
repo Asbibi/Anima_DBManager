@@ -12,7 +12,7 @@ class QWidget;
 class Enumerator : public QObject
 {
 protected:
-    QString                 name;
+    QString             name;
     QList<QString>    values;
     QList<QColor>     colors;
 

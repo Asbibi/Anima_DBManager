@@ -185,10 +185,11 @@ void QPanelString::OnSubItemDuplicated(const int _index, const int _originalInde
     if (!original)
         return;
 
-    QString _texts[SStringHelper::SStringLanguages::Count];
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+    const int languagesCount = DB_Manager::GetLanguagesCount();
+    QString _texts[languagesCount];
+    for (int i = 0; i < languagesCount; i++)
     {
-        _texts[i] = original->GetString((SStringHelper::SStringLanguages)i);
+        _texts[i] = original->GetString(i);
     }
 
     currentTable->AddStringItemWithTexts(_index, _texts, &original->GetIdentifier());

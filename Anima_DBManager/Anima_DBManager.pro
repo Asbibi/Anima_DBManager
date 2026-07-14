@@ -38,6 +38,9 @@ SOURCES += \
     enumerator.cpp \
     iconmanager.cpp \
     jsonhelper.cpp \
+    language.cpp \
+    languageaction.cpp \
+    languageenum.cpp \
     main.cpp \
     mainwindow.cpp \
     qapmesh.cpp \
@@ -56,9 +59,12 @@ SOURCES += \
     qcoloreditor.cpp \
     qdatatable.cpp \
     qelementhandler.cpp \
+    qexportstringdialog.cpp \
+    qgridlayouthelper.cpp \
     qimportenumfromtextdialog.cpp \
     qimportstringdialog.cpp \
     qimportstructdialog.cpp \
+    qlanguagedialog.cpp \
     qlistwithsearch.cpp \
     qoptionalvalue.cpp \
     qpanelbase.cpp \
@@ -122,6 +128,9 @@ HEADERS += \
     enumerator.h \
     iconmanager.h \
     jsonhelper.h \
+    language.h \
+    languageaction.h \
+    languageenum.h \
     mainwindow.h \
     qapmesh.h \
     qapsound.h \
@@ -139,9 +148,13 @@ HEADERS += \
     qcoloreditor.h \
     qdatatable.h \
     qelementhandler.h \
+    qexportstringconflictpolicy.h \
+    qexportstringdialog.h \
+    qgridlayouthelper.h \
     qimportenumfromtextdialog.h \
     qimportstringdialog.h \
     qimportstructdialog.h \
+    qlanguagedialog.h \
     qlistwithsearch.h \
     qoptionalvalue.h \
     qpanelbase.h \

@@ -1,0 +1,11 @@
+#ifndef QEXPORTSTRINGCONFLICTPOLICY_H
+#define QEXPORTSTRINGCONFLICTPOLICY_H
+
+enum class QExportStringConflictPolicy
+{
+    OVERWRITE,
+    IGNORE,
+    ASK
+};
+
+#endif // QEXPORTSTRINGCONFLICTPOLICY_H

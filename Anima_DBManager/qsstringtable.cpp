@@ -5,27 +5,22 @@
 #include <QCursor>
 #include <QHeaderView>
 #include <QMenu>
+#include <QFile>
+#include <QMessageBox>
 
 QSStringTable::QSStringTable(int _strTableIndex, QWidget* _parent) :
     QTableWidget(_parent),
     myStringTableIndex(_strTableIndex)
 {
-    setColumnCount(1 + SStringHelper::SStringLanguages::Count);
-
-    QStringList colHeaderNames;
-    colHeaderNames.append("Identifier");
-    for (int language = 0; language < SStringHelper::SStringLanguages::Count; language++)
-    {
-        colHeaderNames.append(SStringHelper::GetLanguageString((SStringHelper::SStringLanguages)language));
-        setColumnWidth(language+1, 300);
-    }
-    setHorizontalHeaderLabels(colHeaderNames);
-
-    UpdateTable();
+    UpdateTableWithLanguages();
 
     QObject::connect(this, &QTableWidget::itemDoubleClicked, this, &QSStringTable::OnCellEdit);
     QObject::connect(this, &QTableWidget::cellChanged, this, &QSStringTable::OnCellEdited);
     QObject::connect(this, &QTableWidget::customContextMenuRequested, this, &QSStringTable::HandleContextMenu);
+
+    DB_Manager* dbManager = &DB_Manager::GetDB_Manager();
+    QObject::connect(dbManager, &DB_Manager::LanguagesChanged, this, &QSStringTable::UpdateTableWithLanguages);
+
     setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 }
 
@@ -57,13 +52,52 @@ void QSStringTable::UpdateIndex(int _strTableIndex)
     myStringTableIndex = _strTableIndex;
 }
 
-void QSStringTable::ExportStringsToCSV(const QString _directoryPath, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement)
+void QSStringTable::ExportStringsToCSV(const QString& _filePathTemplate, int _languageIndex, QExportStringConflictPolicy _conflictPolicy)
 {
-    Q_ASSERT(_language != SStringHelper::SStringLanguages::Count && !_directoryPath.isEmpty());
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
+    Q_ASSERT(!_filePathTemplate.isEmpty());
+    Q_ASSERT(_languageIndex >= 0);
+    Q_ASSERT(_languageIndex < languages.GetLanguageCount());
     SStringTable& stringTable = GetTable();
+    const auto& language = languages.GetLanguage(_languageIndex);
 
-    QString filePath = _directoryPath + "/ST_" + SStringHelper::GetLanguageCD(_language) + "_" + stringTable.GetTableName() + ".csv";
-    qDebug() << "Export String table " << stringTable.GetTableName() << " to file : " << filePath;
+    const QString& stringTableName = stringTable.GetTableName();
+    QString filePath = _filePathTemplate.arg(language.GetAbbrev(), stringTableName);
+
+    qDebug() << "Export String table " << stringTableName << " to file : " << filePath;
+
+    auto fileToCreate = QFile(filePath);
+    if (fileToCreate.exists())
+    {
+        switch(_conflictPolicy)
+        {
+            case QExportStringConflictPolicy::OVERWRITE:
+            {
+                qWarning() << "Conflict for table " << stringTableName << " [" << language.GetAbbrev() << "] | Policy set to overwrite : file saved anyway";
+                break;
+            }
+            case QExportStringConflictPolicy::IGNORE:
+            {
+                qWarning() << "Conflict for table " << stringTableName << " [" << language.GetAbbrev() << "] | Policy set to ignore : table skipped";
+                return;
+            }
+            default:
+            case QExportStringConflictPolicy::ASK:
+            {
+                auto conflictDialogBoxResult = QMessageBox::warning(
+                    this,
+                    "String Table file already existing",
+                    QString("The file \"%1\" already exists.\nSave and overwrite or ignore the String Table \"%2\" for the language %3 [%4] ?")
+                        .arg(fileToCreate.fileName(), stringTableName, language.GetName(), language.GetAbbrev()),
+                    QMessageBox::StandardButtons(QMessageBox::Save | QMessageBox::Ignore) );
+                if (conflictDialogBoxResult != QMessageBox::Save)
+                {
+                    return;
+                }
+                break;
+            }
+        }
+    }
 
     std::ofstream csvFile(filePath.toStdString());
     if (!csvFile)
@@ -73,15 +107,33 @@ void QSStringTable::ExportStringsToCSV(const QString _directoryPath, SStringHelp
     }
 
     csvFile << "Key,SourceString";
-    stringTable.WriteValue_CSV(csvFile, _language, _withDictionaryReplacement);
+    stringTable.WriteValue_CSV(csvFile, _languageIndex, true);
 
     csvFile.close();
 }
 
 
 
+void QSStringTable::UpdateTableWithLanguages()
+{
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
+    setColumnCount(1 + languagesCount);
+
+    QStringList colHeaderNames;
+    colHeaderNames.append("Identifier");
+    for (int language = 0; language < languagesCount; language++)
+    {
+        colHeaderNames.append(languages.GetLanguage(language).GetName());
+        setColumnWidth(language+1, 300);
+    }
+    setHorizontalHeaderLabels(colHeaderNames);
+
+    UpdateTable();
+}
 void QSStringTable::UpdateTable()
 {
+    const int languagesCount = DB_Manager::GetLanguagesCount();
     const int count = GetTable().GetStringItemCount();
     setRowCount(count);
 
@@ -92,9 +144,9 @@ void QSStringTable::UpdateTable()
         item->setBackground(idBrush);
         setItem(i, 0, item);
 
-        for (int language = 0; language < SStringHelper::SStringLanguages::Count; language++)
+        for (int language = 0; language < languagesCount; language++)
         {
-            item = new QTableWidgetItem(stringItem->GetString((SStringHelper::SStringLanguages)language));
+            item = new QTableWidgetItem(stringItem->GetString(language));
             if (item->text().isEmpty())
                 item->setBackground(emptyBrush);
             setItem(i, language + 1, item);
@@ -132,7 +184,7 @@ void QSStringTable::OnCellEdited(int row, int col)
     else
     {
         changedItem->setBackground(text.isEmpty() ? emptyBrush : defBrush);
-        GetTable().SetItemString(row, (SStringHelper::SStringLanguages)(col -1), text);
+        GetTable().SetItemString(row, col -1, text);
         verticalHeader()->resizeSections(QHeaderView::ResizeToContents);
     }
 }
@@ -162,10 +214,11 @@ void QSStringTable::HandleContextMenu(const QPoint& point)
     QObject::connect(action_AddB, &QAction::triggered, [this, rowClicked](){ GetTable().AddStringItem(rowClicked); PrivateUpdate(); });
     QObject::connect(action_AddA, &QAction::triggered, [this, rowClicked](){ GetTable().AddStringItem(rowClicked+1); PrivateUpdate(); });
     QObject::connect(action_Dupl, &QAction::triggered, [this, rowClicked, &stringItem](){
-        QString _texts[SStringHelper::SStringLanguages::Count];
-        for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+        const int languagesCount = DB_Manager::GetLanguagesCount();
+        QString _texts[languagesCount];
+        for (int i = 0; i < languagesCount; i++)
         {
-            _texts[i] = stringItem->GetString((SStringHelper::SStringLanguages)i);
+            _texts[i] = stringItem->GetString(i);
         }
 
         GetTable().AddStringItemWithTexts(rowClicked+1, _texts, &stringItem->GetIdentifier());

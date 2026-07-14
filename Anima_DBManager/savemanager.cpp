@@ -10,13 +10,15 @@
 #include "sstringimporter.h"
 #include "structureimporthelper.h"
 
+#define LANGUAGE_SEPARATOR " | "
 
 const QByteArray SaveManager::separator = QByteArray::fromStdString("%$%$%$%$%\n");
-const QString SaveManager::fileEndString = "1_ST.csv";
-const QString SaveManager::fileEndEnum = "2_EN.csv";
-const QString SaveManager::fileEndTemplate = "3_TP.json";
-const QString SaveManager::fileEndData = "4_DT.json";
-const QString SaveManager::fileEndPro = "5_PR.csv";
+const QString SaveManager::fileEndLang = "1_LG.csv";
+const QString SaveManager::fileEndString = "2_ST.csv";
+const QString SaveManager::fileEndEnum = "3_EN.csv";
+const QString SaveManager::fileEndTemplate = "4_TP.json";
+const QString SaveManager::fileEndData = "5_DT.json";
+const QString SaveManager::fileEndPro = "6_PR.csv";
 
 SaveManager::SaveManager()
 {}
@@ -188,14 +190,31 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // I. String table save
+    // I. Languages save
+
+    const auto& languages = dbManager.GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
+    QString languageFilePath = tempFolderPath + fileEndLang;
+    tempFileList << languageFilePath;
+    std::ofstream csvLanguageFile(languageFilePath.toStdString());
+    if (!csvLanguageFile)
+    {
+        qCritical() << "ERROR SAVING DB : temp file " << languageFilePath << " couldn't be created";
+        return;
+    }
+
+    mySaveFeedbackComponent.SetSaveLanguageProgress(languagesCount);
+    for (int i = 0; i < languagesCount; i++)
+    {
+        const auto& l = languages.GetLanguage(i);
+        csvLanguageFile << l.GetAbbrev().toStdString() << LANGUAGE_SEPARATOR << l.GetName().toStdString()  << '\n';
+    }
+    csvLanguageFile.close();
+
+
+    // II. String table save
 
     const int stringTableCount = dbManager.GetStringTableCount() + 1; // +1 to include the DICTIONARY
-    QMap<int, QString> languageCodeMap;
-    for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
-    {
-        languageCodeMap.insert(l, SStringHelper::GetLanguageCD((SStringHelper::SStringLanguages)l));
-    }
     QString stringFilePath = tempFolderPath + fileEndString;
     tempFileList << stringFilePath;
     std::ofstream csvStringFile(stringFilePath.toStdString());
@@ -210,10 +229,10 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
         mySaveFeedbackComponent.SetSaveStringTableProgress(i, stringTableCount);
         const auto* table = dbManager.GetStringTable(i);
         const QString& tableName = table->GetTableName();
-        for (int l = 0; l < SStringHelper::SStringLanguages::Count; l++)
+        for (int l = 0; l < languagesCount; l++)
         {
-            csvStringFile << "###" << languageCodeMap[l].toStdString() << "---" << tableName.toStdString() << "###";
-            table->WriteValue_CSV(csvStringFile, (SStringHelper::SStringLanguages)l, false);
+            csvStringFile << "###" << languages.GetLanguage(l).GetAbbrev().toStdString() << "---" << tableName.toStdString() << "###";
+            table->WriteValue_CSV(csvStringFile, l, false);
             csvStringFile << '\n';
         }
     }
@@ -221,7 +240,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // II. Save enums
+    // III. Save enums
 
     const int enumCount = dbManager.GetEnumCount();
     QString enumFilePath = tempFolderPath + fileEndEnum;
@@ -242,7 +261,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // III. Save structure templates & Structure defaults
+    // IV. Save structure templates & Structure defaults
 
     QString templateFilePath = tempFolderPath + fileEndTemplate;
     tempFileList << templateFilePath;
@@ -265,7 +284,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // IV. Save structure datas
+    // V. Save structure datas
 
     QString structFilePath = tempFolderPath + fileEndData;
     tempFileList << structFilePath;
@@ -289,7 +308,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // V. Save Project Infos
+    // VI. Save Project Infos
 
     QString projectFilePath = tempFolderPath + fileEndPro;
     tempFileList << projectFilePath;
@@ -314,7 +333,7 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // VI. Compress all temp files in the final save file
+    // VII. Compress all temp files in the final save file
 
     QFile saveFile(_saveFilePath);
     saveFile.open(QIODevice::WriteOnly);
@@ -342,14 +361,14 @@ void SaveManager::SaveFileInternal(const QString& _saveFilePath, bool _isAutoSav
 
 
 
-    // VII. Clean Up
+    // VIII. Clean Up
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
     myIsSaving = false;
 
 
-    // VIII. Remember the saved file as the opened one, only if regular save (ie not auto)
+    // IX. Remember the saved file as the opened one, only if regular save (ie not auto)
 
     if (!_isAutoSave)
     {
@@ -380,7 +399,7 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
         return;
     }
 
-    // IX. Remember which file is open
+    // X. Remember which file is open
     SetCurrentlyOpenedFile(_saveFilePath);
 
 
@@ -404,18 +423,21 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
 
     // II. Read Bytes in separate temporary files
 
-    mySaveFeedbackComponent.SetOpenDecompilationProgress(0, 6);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(0, 7);
     int firstSeparator = FindFileSeparatorStart(uncompressedData, 0);
-    mySaveFeedbackComponent.SetOpenDecompilationProgress(1, 6);
-    int secondSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndString, firstSeparator);
-    mySaveFeedbackComponent.SetOpenDecompilationProgress(2, 6);
-    int thirdSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndEnum, secondSeparator);
-    mySaveFeedbackComponent.SetOpenDecompilationProgress(3, 6);
-    int fourthSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndTemplate, thirdSeparator);
-    mySaveFeedbackComponent.SetOpenDecompilationProgress(4, 6);
-    int fithSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndData, fourthSeparator);
-    mySaveFeedbackComponent.SetOpenDecompilationProgress(5, 6);
-    WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndPro, fithSeparator);
+
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(1, 7);
+    int secondSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndLang, firstSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(2, 7);
+    int thirdSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndString, secondSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(3, 7);
+    int fourthSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndEnum, thirdSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(4, 7);
+    int fithSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndTemplate, fourthSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(5, 7);
+    int sixthSeparator = WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndData, fithSeparator);
+    mySaveFeedbackComponent.SetOpenDecompilationProgress(6, 7);
+    WriteTempFileOnOpen(uncompressedData, tempFolderPath + fileEndPro, sixthSeparator);
 
 
 
@@ -424,33 +446,37 @@ void SaveManager::OpenFileInternal(const QString& _saveFilePath)
     ProcessProjTempFile(tempFolderPath, dbManager);
 
 
-    // IV. String Table
+    // IV. Languages
+
+    ProcessLangTempFile(tempFolderPath, dbManager);
+
+
+    // V. String Table
 
     ProcessStringTempFile(tempFolderPath, dbManager);
 
 
-    // V. Enums
+    // VI. Enums
 
     ProcessEnumTempFile(tempFolderPath, dbManager);
 
 
-    // VI. Struct Templ
+    // VII. Struct Templ
 
     ProcessTemplTempFile(tempFolderPath, dbManager);
 
 
-    // VII. Fill Data except refs
+    // VIII. Fill Data except refs
 
     ProcessDataTempFile(tempFolderPath, dbManager);
 
 
 
-    // VIII. Clean Up
+    // IX. Clean Up
 
     QDir tempDir(tempFolderPath);
     tempDir.removeRecursively();
     myIsOpening = false;
-
 
 }
 
@@ -479,6 +505,35 @@ void SaveManager::ProcessProjTempFile(const QString& _tempFolderPath, DB_Manager
     Q_ASSERT(proIn.atEnd());
     projectFile.close();
 }
+void SaveManager::ProcessLangTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
+{
+    QFile langFile(_tempFolderPath + fileEndLang);
+    bool openLangCheck = langFile.open(QIODevice::ReadOnly);
+    Q_ASSERT(openLangCheck);
+    QTextStream langIn(&langFile);
+    Q_ASSERT(DB_Manager::GetLanguagesCount() == 1); // only the default english language expected
+    mySaveFeedbackComponent.SetOpenLanguageProgress();
+
+    while (!langIn.atEnd())
+    {
+        auto languageInfos = langIn.readLine().split(LANGUAGE_SEPARATOR);
+        Q_ASSERT(languageInfos.size() == 2);
+        _dbManager.AddLanguage(Language {languageInfos[0], languageInfos[1]});
+    }
+    langFile.close();
+
+    // Remove the default english language
+    if (DB_Manager::GetLanguagesCount() > 0)
+    {
+        _dbManager.RemoveLanguage(0);
+    }
+
+    // Check for duplicates
+    if (_dbManager.GetLanguages().HasDoubles())
+    {
+        qFatal() << "Save file led to duplicates languages which isn't allowed";
+    }
+}
 void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manager& _dbManager)
 {
     QMap<QString, SStringImporter> importerMap;
@@ -488,6 +543,7 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manag
     Q_ASSERT(openCheck);
     QTextStream in(&file);
 
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
 
     QString currentLine;
 
@@ -525,7 +581,7 @@ void SaveManager::ProcessStringTempFile(const QString& _tempFolderPath, DB_Manag
                 importerMap.insert(currentTable, SStringImporter());
             }
 
-            importerMap[currentTable].RegisterLanguageFile(SStringHelper::GetLanguageFromCD(currentLangg), currentFilePath);
+            importerMap[currentTable].RegisterLanguageFile(languages.GetLanguageIndexFromAbbrev(currentLangg), currentFilePath);
         }
 
         if (curentFileStream != nullptr)

@@ -26,8 +26,8 @@ public:
     const QString& GetTableName() const;
     int GetStringItemCount() const;
     int GetIndexFromIdentifier(const QString& _identifier) const;
-    const QString* GetString(int _index, SStringHelper::SStringLanguages _language) const;
-    const QString* GetString(const QString& _identifier, SStringHelper::SStringLanguages _language) const;
+    const QString* GetString(int _index,int _languageIndex) const;
+    const QString* GetString(const QString& _identifier, int _languageIndex) const;
     const QList<SStringItem>& GetStringItems() const;
     const SStringItem* GetStringItem(int _index) const;
     const SStringItem* GetStringItem(const QString& _identifier) const;
@@ -46,10 +46,14 @@ public:
     void SortStringItems(bool _ascending);
 
     bool SetItemIdentifier(const int _index, const QString& _identifier);
-    void SetItemString(int _row, SStringHelper::SStringLanguages _col, const QString& _text);
-    void ImportString(SStringHelper::SStringLanguages _language, const QString& _identifier, const QString& _text, int _overwritePolicy);
+    void SetItemString(int _row, int _col, const QString& _text);
+    void ImportString(int _languageIndex, const QString& _identifier, const QString& _text, int _overwritePolicy);
 
-    void WriteValue_CSV(std::ofstream& _file, SStringHelper::SStringLanguages _language, bool _withDictionaryReplacement) const;
+    void OnLanguageAdded(int _index);
+    void OnLanguageRemoved(int _index);
+    void OnLanguageMoved(int _indexFrom, int _indexTo);
+
+    void WriteValue_CSV(std::ofstream& _file, int _languageIndex, bool _withDictionaryReplacement) const;
 };
 
 #endif // SSTRINGTABLE_H

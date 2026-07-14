@@ -13,7 +13,7 @@ struct SearchParameter
     bool mySearchOnStructs                  = false;
     QMap<AttributeTypeHelper::Type, bool> myAttributeIgnoreSearchMap;
     bool mySearchOnStrings                  = false;
-    QMap<SStringHelper::SStringLanguages, bool> myLanguageIgnoreSearchMap;
+    QMap<int, bool> myLanguageIgnoreSearchMap;
     bool mySearchOnEnum                     = false;
 
     Qt::CaseSensitivity myCaseSensitivity   = Qt::CaseInsensitive;

@@ -38,16 +38,17 @@ QImportStringDialog::QImportStringDialog(QPanelString* _stringWidget, QWidget* _
     QWidget* fileWidget = new QWidget();
     QGridLayout* gLayoutFile = new QGridLayout();
     fileWidget->setLayout(gLayoutFile);
-    for (int i = 0; i < SStringHelper::SStringLanguages::Count; i++)
+    const auto& languages = DB_Manager::GetDB_Manager().GetLanguages();
+    const int languagesCount = languages.GetLanguageCount();
+    for (int i = 0; i < languagesCount; i++)
     {
-        SStringHelper::SStringLanguages language = (SStringHelper::SStringLanguages)i;
-        gLayoutFile->addWidget(new QLabel(SStringHelper::GetLanguageString(language) + " :"), i, 0);
+        gLayoutFile->addWidget(new QLabel(languages.GetLanguage(i).GetName() + " :"), i, 0);
         auto* fileLabel = new QLabel();
         fileLabel->setMinimumWidth(200);
         gLayoutFile->addWidget(fileLabel, i, 1);
         auto* fileBtn = new QPushButton("+");
         fileBtn->setMaximumWidth(20);
-        QObject::connect(fileBtn, &QPushButton::clicked, this, [this, language, fileLabel]{OnFileBtnClicked(language, fileLabel);});
+        QObject::connect(fileBtn, &QPushButton::clicked, this, [this, i, fileLabel]{OnFileBtnClicked(i, fileLabel);});
         gLayoutFile->addWidget(fileBtn, i, 2, Qt::AlignmentFlag::AlignCenter);
     }
     vLayout->addWidget(fileWidget);
@@ -132,7 +133,7 @@ void QImportStringDialog::OnApplyBtnClicked()
     QDialog::accept();
 }
 
-void QImportStringDialog::OnFileBtnClicked(SStringHelper::SStringLanguages _language, QLabel* _label)
+void QImportStringDialog::OnFileBtnClicked(int _languageIndex, QLabel* _label)
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Open CSV String Table file",
                                                     DB_Manager::GetDB_Manager().GetProjectContentFolderPath(),
@@ -143,7 +144,7 @@ void QImportStringDialog::OnFileBtnClicked(SStringHelper::SStringLanguages _lang
         return;
     }
 
-    myImporter.RegisterLanguageFile(_language, fileName);
+    myImporter.RegisterLanguageFile(_languageIndex, fileName);
 
     bool tooLong = fileName.length() > 35;
     _label->setText(tooLong ? "..." + fileName.right(32) : fileName);

@@ -336,6 +336,7 @@ void DB_Manager::Reset()
     {
         RemoveEnum(i);
     }
+    myLanguages.Reset();
     myStringTableDictionary = SStringTable("DICTIONARY");
     //myStructures.clear();
     //enumerators.clear();
@@ -343,6 +344,7 @@ void DB_Manager::Reset()
     //myAttributeParamPtrs.clear();
 
     myProjectContentFolderPath = "";
+    myProjectPathIsValid = false;
     myAttributePrefix = "";
     myAttributeSuffix = "";
     SetAutoSave(false, 15);
@@ -351,6 +353,128 @@ void DB_Manager::Reset()
     blockSignals(false);
 
     emit ResetView();
+}
+
+
+
+// ==============================================================
+// ==============================================================
+
+
+
+int DB_Manager::GetLanguagesCount()
+{
+    return GetDB_Manager().myLanguages.GetLanguageCount();
+}
+const LanguageEnum& DB_Manager::GetLanguages() const
+{
+    return myLanguages;
+}
+void DB_Manager::StartLanguageEditingFromDialogBox()
+{
+    Q_ASSERT(!myChangingLanguagesFromDialog);
+    Q_ASSERT(!myChangingLanguagesFromDialogHasChange);
+    myChangingLanguagesFromDialog = true;
+}
+bool DB_Manager::AddLanguage(const Language& _language, int _index)
+{
+    bool addOk = myLanguages.AddLanguage(_language, _index);
+    if (addOk)
+    {
+        myStringTableDictionary.OnLanguageAdded(_index);
+        for (auto& sst : myStringTables)
+        {
+            sst.OnLanguageAdded(_index);
+        }
+
+        if (myChangingLanguagesFromDialog)
+        {
+            myChangingLanguagesFromDialogHasChange = true;
+        }
+    }
+    return addOk;
+}
+void DB_Manager::RemoveLanguage(int _languageIndex)
+{
+    bool rmOk = myLanguages.RemoveLanguage(_languageIndex);
+    if (!rmOk)
+    {
+        return;
+    }
+
+    myStringTableDictionary.OnLanguageRemoved(_languageIndex);
+    for (auto& sst : myStringTables)
+    {
+        sst.OnLanguageRemoved(_languageIndex);
+    }
+
+    if (myChangingLanguagesFromDialog)
+    {
+        myChangingLanguagesFromDialogHasChange = true;
+    }
+}
+void DB_Manager::RemoveLanguage(const QString& _languageAbbrev)
+{
+    Q_ASSERT(myChangingLanguagesFromDialog);
+    RemoveLanguage(myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev));
+}
+void DB_Manager::MoveLanguage(const QString& _languageAbbrev, int _targetIndex)
+{
+    Q_ASSERT(myChangingLanguagesFromDialog);
+
+    int fromIndex = myLanguages.GetLanguageIndexFromAbbrev(_languageAbbrev);
+    bool mvOk = myLanguages.MoveLanguage(fromIndex, _targetIndex);
+    if (!mvOk)
+    {
+        return;
+    }
+
+    myStringTableDictionary.OnLanguageMoved(fromIndex, _targetIndex);
+    for (auto& sst : myStringTables)
+    {
+        sst.OnLanguageMoved(fromIndex, _targetIndex);
+    }
+    myChangingLanguagesFromDialogHasChange = true;
+}
+void DB_Manager::ReplaceLanguageInfos(const QMap<QString, Language>& _editLanguageBatch)
+{
+    Q_ASSERT(myChangingLanguagesFromDialog);
+
+    // Get all edited index before renaming (to make sure the correct index can be retrieved)
+    QMap<QString, int> indexOfEachEditedLanguage = QMap<QString, int>();
+    for (const auto& abbrev : _editLanguageBatch.keys())
+    {
+        int editedIndex = myLanguages.GetLanguageIndexFromAbbrev(abbrev);
+        Q_ASSERT(editedIndex != -1);
+        indexOfEachEditedLanguage.insert(abbrev, editedIndex);
+    }
+
+    // Rename
+    bool hasChanged = false;
+    for (const auto& [originalAbbrev, edited] : _editLanguageBatch.asKeyValueRange())
+    {
+        int editedIndex = indexOfEachEditedLanguage[originalAbbrev];
+        bool editOk = myLanguages.ReplaceLanguage(editedIndex, edited);
+        hasChanged = hasChanged || editOk;
+    }
+
+    // Signal once for the entire batch
+    myChangingLanguagesFromDialogHasChange = myChangingLanguagesFromDialogHasChange || hasChanged;
+}
+void DB_Manager::EndLanguageEditingFromDialogBox()
+{
+    Q_ASSERT(myChangingLanguagesFromDialog);
+
+    if (myChangingLanguagesFromDialogHasChange)
+    {
+        emit LanguagesChanged();
+        SaveManager::AcknowledgeUnsavedChanges();
+        Q_ASSERT(!myLanguages.HasDoubles());
+        Q_ASSERT(myLanguages.GetLanguageCount() > 0);
+    }
+
+    myChangingLanguagesFromDialog = false;
+    myChangingLanguagesFromDialogHasChange = false;
 }
 
 
@@ -1011,7 +1135,7 @@ QString DB_Manager::GetStringForDisplay(const QString& _tableId, const QString& 
     if (!AreValidIdentifiers(_tableId, _stringId))
         return _complete ? "Ø" : "<font color=\"darkred\">INVALID</font>";
 
-    const QString* myStr = GetStringTable(_tableId)->GetString(_stringId, SStringHelper::SStringLanguages::French);
+    const QString* myStr = GetStringTable(_tableId)->GetString(_stringId, 0);
     if (!myStr)
         return _complete ? "-" : "<font color=\"darkyellow\">INVALID</font>";
 
