@@ -121,6 +121,8 @@ public slots:
     void OnProjectSettings();
     void OnProjectSaveSettings();
 
+    void OnAbout();
+
     void OnAcknowledgeChange();
     void OnAutoSaveFeedback(bool _showFeedback);
 

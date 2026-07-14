@@ -43,6 +43,7 @@ SOURCES += \
     languageenum.cpp \
     main.cpp \
     mainwindow.cpp \
+    qaboutdialog.cpp \
     qapmesh.cpp \
     qapsound.cpp \
     qaptexture.cpp \
@@ -133,6 +134,7 @@ HEADERS += \
     languageaction.h \
     languageenum.h \
     mainwindow.h \
+    qaboutdialog.h \
     qapmesh.h \
     qapsound.h \
     qaptexture.h \
