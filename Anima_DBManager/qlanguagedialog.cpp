@@ -139,6 +139,8 @@ void QLanguageDialog::UpdateListWidget()
         const Language& lang = GetFinalLanguageForAction(languageAction);
         QListWidgetItem* languageItem = new QListWidgetItem(textTemplate.arg(lang.GetAbbrev(), lang.GetName()));
         languageItem->setBackground(QBrush{GetColorForActionType(languageAction.myType)});
+        languageItem->setForeground(QBrush{myLanguageRenameActionList.contains(languageAction.myLanguageFinalValue.GetAbbrev()) ?
+            QColorConstants::Blue : QColorConstants::Black});
         myLanguageListWidget->addItem(languageItem);
     }
 }
