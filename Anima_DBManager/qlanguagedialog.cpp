@@ -94,13 +94,13 @@ QLanguageDialog::QLanguageDialog(QWidget* _parent) :
 
 const Language& QLanguageDialog::GetFinalLanguageForAction(const LanguageAction& _action)
 {
-    const QString& originalAbbrev = _action.myLanguageFinalValue.GetAbbrev();
+    const QString& originalAbbrev = _action.myLanguageValue.GetAbbrev();
     if (myLanguageRenameActionList.contains(originalAbbrev))
     {
         return myLanguageRenameActionList[originalAbbrev];
     }
 
-    return _action.myLanguageFinalValue;
+    return _action.myLanguageValue;
 }
 int QLanguageDialog::GetActualLanguageCount() const
 {
@@ -139,6 +139,8 @@ void QLanguageDialog::UpdateListWidget()
         const Language& lang = GetFinalLanguageForAction(languageAction);
         QListWidgetItem* languageItem = new QListWidgetItem(textTemplate.arg(lang.GetAbbrev(), lang.GetName()));
         languageItem->setBackground(QBrush{GetColorForActionType(languageAction.myType)});
+        languageItem->setForeground(QBrush{myLanguageRenameActionList.contains(languageAction.myLanguageValue.GetAbbrev()) ?
+            QColorConstants::Blue : QColorConstants::Black});
         myLanguageListWidget->addItem(languageItem);
     }
 }
@@ -333,11 +335,11 @@ void QLanguageDialog::OnReplace()
     if (myLanguageActionList[targetRow].myType == LanguageActionType::ADD)
     {
         // If add, simply replace what's gonna be added
-        myLanguageActionList[targetRow].myLanguageFinalValue = Language {myAbbrevEdit->text(), myNameEdit->text()};
+        myLanguageActionList[targetRow].myLanguageValue = Language {myAbbrevEdit->text(), myNameEdit->text()};
     }
     else
     {
-        const QString& originalAbbrev = myLanguageActionList[targetRow].myLanguageFinalValue.GetAbbrev();
+        const QString& originalAbbrev = myLanguageActionList[targetRow].myLanguageValue.GetAbbrev();
         myLanguageRenameActionList.insert(originalAbbrev, Language {myAbbrevEdit->text(), myNameEdit->text()});
     }
 
@@ -455,7 +457,7 @@ void QLanguageDialog::OnApply()
             continue;
         }
 
-        const auto& removedAbbrev = action.myLanguageFinalValue.GetAbbrev();
+        const auto& removedAbbrev = action.myLanguageValue.GetAbbrev();
         myLanguageRenameActionList.remove(removedAbbrev);
         dbManager.RemoveLanguage(removedAbbrev);
     }

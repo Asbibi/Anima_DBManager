@@ -18,7 +18,7 @@ struct LanguageAction
 {
 public:
     LanguageActionType myType;
-    Language myLanguageFinalValue;
+    Language myLanguageValue;
 
 public:
     LanguageAction(const Language& _languageValue);
